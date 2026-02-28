@@ -37,6 +37,12 @@ const PRESET_LOCATIONS = [
 
 export default function LocalNewsFeed() {
   const { user, profile, loading: authLoading } = useAuth();
+  const [guestMode, setGuestMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("myvote_guest") === "true";
+    }
+    return false;
+  });
   const [location, setLocation] = useState("");
   const [customLocation, setCustomLocation] = useState("");
   const [articles, setArticles] = useState<Article[]>([]);
@@ -83,8 +89,8 @@ export default function LocalNewsFeed() {
     );
   }
 
-  // Show welcome/sign-up page for unauthenticated users
-  if (!user) {
+  // Show welcome/sign-up page for unauthenticated users (unless guest mode)
+  if (!user && !guestMode) {
     return (
       <div className="min-h-screen bg-[#FAFAFA]">
         {/* Hero */}
@@ -107,6 +113,15 @@ export default function LocalNewsFeed() {
                 </Button>
               </Link>
             </div>
+            <button
+              onClick={() => {
+                sessionStorage.setItem("myvote_guest", "true");
+                setGuestMode(true);
+              }}
+              className="mt-4 text-sm text-blue-200 hover:text-white underline underline-offset-4 transition-colors"
+            >
+              Browse as Guest
+            </button>
           </div>
         </div>
 
