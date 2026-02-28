@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/logo"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 
 export default function SignInPage() {
@@ -32,7 +32,17 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1F3A93] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#1F3A93] flex flex-col p-4">
+      <div className="w-full max-w-md mx-auto pt-4 pb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Link>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
       <Card className="w-full max-w-md border-[#E5E5E5]">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -93,6 +103,7 @@ export default function SignInPage() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
