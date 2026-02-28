@@ -4,8 +4,26 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Clock, TrendingUp, RefreshCw, Sparkles, Loader2, Zap, ThumbsUp } from "lucide-react"
+import {
+  Clock,
+  TrendingUp,
+  RefreshCw,
+  Sparkles,
+  Loader2,
+  Zap,
+  ExternalLink,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react"
 import { generateFactualNewsAction } from "@/app/actions/generate-news"
+import { CommentSystem } from "@/components/comment-system"
+
+interface PerspectiveArticle {
+  title: string
+  url: string
+  source: string
+}
 
 interface FactualNews {
   title: string
@@ -16,14 +34,145 @@ interface FactualNews {
   category: "economic" | "political" | "legal" | "scientific" | "international"
   leftViewpoint?: string
   rightViewpoint?: string
+  leftArticles?: PerspectiveArticle[]
+  rightArticles?: PerspectiveArticle[]
 }
 
-interface ViewpointLike {
-  newsId: string
-  viewpoint: "left" | "right"
-  title: string
-  content: string
-  timestamp: Date
+// Curated article links mapped to each perspective and topic
+const perspectiveArticles: Record<
+  string,
+  { left: PerspectiveArticle[]; right: PerspectiveArticle[] }
+> = {
+  economic: {
+    left: [
+      {
+        title: "Why the Fed Should Cut Rates to Help Working Families",
+        url: "https://www.huffpost.com/topic/federal-reserve",
+        source: "HuffPost",
+      },
+      {
+        title: "Economic Inequality Persists Despite Low Unemployment",
+        url: "https://www.msnbc.com/business",
+        source: "MSNBC",
+      },
+    ],
+    right: [
+      {
+        title: "Fed's Steady Hand Protects Savers and Economic Stability",
+        url: "https://www.foxbusiness.com/economy",
+        source: "Fox Business",
+      },
+      {
+        title: "Free Market Growth Drives Strong Job Numbers",
+        url: "https://www.wsj.com/economy",
+        source: "Wall Street Journal",
+      },
+    ],
+  },
+  political: {
+    left: [
+      {
+        title: "Congress Must Act on Social Safety Net Programs",
+        url: "https://www.huffpost.com/news/politics",
+        source: "HuffPost",
+      },
+      {
+        title: "Bipartisan Bills Still Leave Out Key Progressive Priorities",
+        url: "https://www.msnbc.com/rachel-maddow-show",
+        source: "MSNBC",
+      },
+    ],
+    right: [
+      {
+        title: "Government Spending Must Be Reined In",
+        url: "https://www.foxnews.com/politics",
+        source: "Fox News",
+      },
+      {
+        title: "Conservative Priorities Gain Traction in Congress",
+        url: "https://www.dailywire.com/news",
+        source: "The Daily Wire",
+      },
+    ],
+  },
+  legal: {
+    left: [
+      {
+        title: "Supreme Court Cases Could Expand Civil Liberties",
+        url: "https://www.huffpost.com/topic/supreme-court",
+        source: "HuffPost",
+      },
+      {
+        title: "Digital Privacy Rights Need Stronger Federal Protection",
+        url: "https://www.msnbc.com/opinion",
+        source: "MSNBC",
+      },
+    ],
+    right: [
+      {
+        title: "Originalist Approach Key to Upcoming SCOTUS Decisions",
+        url: "https://www.foxnews.com/politics/judiciary",
+        source: "Fox News",
+      },
+      {
+        title: "Court Must Limit Federal Regulatory Overreach",
+        url: "https://www.nationalreview.com/bench-memos",
+        source: "National Review",
+      },
+    ],
+  },
+  scientific: {
+    left: [
+      {
+        title: "More Federal Funding Needed for Scientific Research",
+        url: "https://www.huffpost.com/topic/science",
+        source: "HuffPost",
+      },
+      {
+        title: "Climate Science Demands Immediate Government Action",
+        url: "https://www.msnbc.com/opinion",
+        source: "MSNBC",
+      },
+    ],
+    right: [
+      {
+        title: "Private Sector Innovation Drives Space Exploration",
+        url: "https://www.foxnews.com/science",
+        source: "Fox News",
+      },
+      {
+        title: "Science Funding Must Balance Innovation With Fiscal Responsibility",
+        url: "https://www.wsj.com/tech",
+        source: "Wall Street Journal",
+      },
+    ],
+  },
+  international: {
+    left: [
+      {
+        title: "Multilateral Cooperation Is Key to Global Challenges",
+        url: "https://www.huffpost.com/topic/world-news",
+        source: "HuffPost",
+      },
+      {
+        title: "Climate Justice Must Be Central to Foreign Policy",
+        url: "https://www.msnbc.com/opinion",
+        source: "MSNBC",
+      },
+    ],
+    right: [
+      {
+        title: "America First: Trade Policy Must Protect Domestic Interests",
+        url: "https://www.foxnews.com/world",
+        source: "Fox News",
+      },
+      {
+        title: "Strong National Defense Key to Global Stability",
+        url: "https://www.dailywire.com/news",
+        source: "The Daily Wire",
+      },
+    ],
+  },
 }
 
 export function AIFactualNews() {
@@ -32,7 +181,19 @@ export function AIFactualNews() {
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [likedViewpoints, setLikedViewpoints] = useState<Set<string>>(new Set())
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set())
+
+  const toggleComments = (index: number) => {
+    setExpandedComments((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
 
   const loadNews = async (isRefresh = false) => {
     if (isRefresh) {
@@ -47,132 +208,123 @@ export function AIFactualNews() {
       const result = await generateFactualNewsAction()
 
       if (result.success && result.news.length > 0) {
-        // Add viewpoints to generated news
-        const newsWithViewpoints = result.news.map((article: any, index: number) => ({
-          ...article,
-          leftViewpoint: getLeftViewpoint(article.title, index),
-          rightViewpoint: getRightViewpoint(article.title, index),
-        }))
-        setNews(newsWithViewpoints)
+        const newsWithPerspectives = result.news.map((article: any) => {
+          const categoryArticles = perspectiveArticles[article.category] || perspectiveArticles.political
+          return {
+            ...article,
+            leftViewpoint: getLeftViewpoint(article.category),
+            rightViewpoint: getRightViewpoint(article.category),
+            leftArticles: categoryArticles.left,
+            rightArticles: categoryArticles.right,
+          }
+        })
+        setNews(newsWithPerspectives)
         setLastUpdated(new Date())
       } else {
         setError("Unable to generate fresh content")
-        // Fallback to static content with viewpoints
-        setNews([
-          {
-            title: "Federal Reserve Maintains Interest Rates at 5.25-5.50%",
-            description:
-              "The Federal Reserve announced no change to current interest rates following their two-day meeting, citing stable economic indicators.",
-            time: "2 hours ago",
-            trending: true,
-            source: "Federal Reserve",
-            category: "economic",
-            leftViewpoint:
-              "Interest rates should be lowered to stimulate economic growth and help working families struggling with high costs of living and housing affordability.",
-            rightViewpoint:
-              "Maintaining current interest rates is prudent to prevent inflation and ensure economic stability while protecting the value of savings and investments.",
-          },
-          {
-            title: "Supreme Court Schedules Three Cases for March Oral Arguments",
-            description:
-              "The Court will hear cases involving digital privacy rights, environmental regulations, and interstate commerce law.",
-            time: "4 hours ago",
-            trending: false,
-            source: "Supreme Court",
-            category: "legal",
-            leftViewpoint:
-              "The Court should prioritize protecting individual privacy rights and strengthening environmental protections over corporate interests.",
-            rightViewpoint:
-              "The Court should focus on constitutional originalism and limiting federal overreach while protecting business rights and state sovereignty.",
-          },
-          {
-            title: "Bureau of Labor Statistics Reports 3.7% Unemployment Rate",
-            description:
-              "January employment data shows unemployment holding steady with 187,000 new jobs added across various sectors.",
-            time: "6 hours ago",
-            trending: false,
-            source: "Bureau of Labor Statistics",
-            category: "economic",
-            leftViewpoint:
-              "While job numbers look good, we need to focus on wage growth, worker protections, and ensuring these are quality jobs with benefits.",
-            rightViewpoint:
-              "Strong employment numbers demonstrate the success of pro-business policies and free market principles in creating opportunities.",
-          },
-          {
-            title: "NASA Announces Successful Mars Sample Collection Mission",
-            description:
-              "The Perseverance rover has successfully collected 24 rock samples for future return to Earth, exceeding mission objectives.",
-            time: "8 hours ago",
-            trending: false,
-            source: "NASA",
-            category: "scientific",
-            leftViewpoint:
-              "Space exploration funding should be increased as it drives innovation, creates jobs, and advances scientific knowledge for humanity's benefit.",
-            rightViewpoint:
-              "While space achievements are impressive, we should prioritize fiscal responsibility and ensure space spending doesn't exceed practical benefits.",
-          },
-        ])
+        setNews(getFallbackNews())
       }
     } catch (error) {
       console.error("Failed to load news:", error)
       setError("Network error occurred")
+      setNews(getFallbackNews())
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
   }
 
-  const getLeftViewpoint = (title: string, index: number): string => {
-    const leftViewpoints = [
-      "Progressive policies and increased government investment are needed to address systemic inequalities and support working families.",
-      "We need stronger regulations and oversight to protect consumers and the environment from corporate overreach.",
-      "Social programs and public services should be expanded to ensure everyone has access to basic necessities and opportunities.",
-      "Climate action and environmental justice must be prioritized to protect future generations and vulnerable communities.",
+  const getFallbackNews = (): FactualNews[] => {
+    return [
+      {
+        title: "Federal Reserve Maintains Interest Rates at 5.25-5.50%",
+        description:
+          "The Federal Reserve announced no change to current interest rates following their two-day meeting, citing stable economic indicators.",
+        time: "2 hours ago",
+        trending: true,
+        source: "Federal Reserve",
+        category: "economic",
+        leftViewpoint: getLeftViewpoint("economic"),
+        rightViewpoint: getRightViewpoint("economic"),
+        leftArticles: perspectiveArticles.economic.left,
+        rightArticles: perspectiveArticles.economic.right,
+      },
+      {
+        title: "Supreme Court Schedules Three Cases for March Oral Arguments",
+        description:
+          "The Court will hear cases involving digital privacy rights, environmental regulations, and interstate commerce law.",
+        time: "4 hours ago",
+        trending: false,
+        source: "Supreme Court",
+        category: "legal",
+        leftViewpoint: getLeftViewpoint("legal"),
+        rightViewpoint: getRightViewpoint("legal"),
+        leftArticles: perspectiveArticles.legal.left,
+        rightArticles: perspectiveArticles.legal.right,
+      },
+      {
+        title: "Bureau of Labor Statistics Reports 3.7% Unemployment Rate",
+        description:
+          "January employment data shows unemployment holding steady with 187,000 new jobs added across various sectors.",
+        time: "6 hours ago",
+        trending: false,
+        source: "Bureau of Labor Statistics",
+        category: "economic",
+        leftViewpoint: getLeftViewpoint("economic"),
+        rightViewpoint: getRightViewpoint("economic"),
+        leftArticles: perspectiveArticles.economic.left,
+        rightArticles: perspectiveArticles.economic.right,
+      },
+      {
+        title: "NASA Announces Successful Mars Sample Collection Mission",
+        description:
+          "The Perseverance rover has successfully collected 24 rock samples for future return to Earth, exceeding mission objectives.",
+        time: "8 hours ago",
+        trending: false,
+        source: "NASA",
+        category: "scientific",
+        leftViewpoint: getLeftViewpoint("scientific"),
+        rightViewpoint: getRightViewpoint("scientific"),
+        leftArticles: perspectiveArticles.scientific.left,
+        rightArticles: perspectiveArticles.scientific.right,
+      },
     ]
-    return leftViewpoints[index % leftViewpoints.length]
   }
 
-  const getRightViewpoint = (title: string, index: number): string => {
-    const rightViewpoints = [
-      "Free market solutions and reduced government intervention will create more opportunities and economic growth for all Americans.",
-      "Individual responsibility and limited government are key to preserving freedom and ensuring efficient resource allocation.",
-      "Traditional values and constitutional principles should guide policy decisions to maintain social stability and order.",
-      "Business-friendly policies and deregulation will drive innovation and create jobs while maintaining American competitiveness.",
-    ]
-    return rightViewpoints[index % rightViewpoints.length]
-  }
-
-  const handleViewpointLike = (newsId: string, viewpoint: "left" | "right", title: string, content: string) => {
-    const likeKey = `${newsId}-${viewpoint}`
-    const newLikedViewpoints = new Set(likedViewpoints)
-
-    if (likedViewpoints.has(likeKey)) {
-      newLikedViewpoints.delete(likeKey)
-    } else {
-      newLikedViewpoints.add(likeKey)
-
-      // Save to localStorage for profile tracking
-      const existingLikes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
-      const newLike: ViewpointLike = {
-        newsId,
-        viewpoint,
-        title,
-        content,
-        timestamp: new Date(),
-      }
-      existingLikes.push(newLike)
-      localStorage.setItem("viewpointLikes", JSON.stringify(existingLikes))
+  const getLeftViewpoint = (category: string): string => {
+    const viewpoints: Record<string, string> = {
+      economic:
+        "Interest rates should be lowered to stimulate economic growth and help working families struggling with high costs of living and housing affordability.",
+      political:
+        "Progressive policies and increased government investment are needed to address systemic inequalities and support working families.",
+      legal:
+        "The Court should prioritize protecting individual privacy rights and strengthening environmental protections over corporate interests.",
+      scientific:
+        "Space exploration funding should be increased as it drives innovation, creates jobs, and advances scientific knowledge for humanity's benefit.",
+      international:
+        "Multilateral cooperation and diplomacy are essential for addressing global challenges like climate change and economic inequality.",
     }
+    return viewpoints[category] || viewpoints.political
+  }
 
-    setLikedViewpoints(newLikedViewpoints)
+  const getRightViewpoint = (category: string): string => {
+    const viewpoints: Record<string, string> = {
+      economic:
+        "Maintaining current interest rates is prudent to prevent inflation and ensure economic stability while protecting the value of savings and investments.",
+      political:
+        "Free market solutions and reduced government intervention will create more opportunities and economic growth for all Americans.",
+      legal:
+        "The Court should focus on constitutional originalism and limiting federal overreach while protecting business rights and state sovereignty.",
+      scientific:
+        "While space achievements are impressive, we should prioritize fiscal responsibility and ensure space spending doesn't exceed practical benefits.",
+      international:
+        "America-first trade policies and strong national defense are key to protecting domestic interests and maintaining global stability.",
+    }
+    return viewpoints[category] || viewpoints.political
   }
 
   useEffect(() => {
     loadNews()
-    // Load existing likes from localStorage
-    const existingLikes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
-    const likeKeys = existingLikes.map((like: ViewpointLike) => `${like.newsId}-${like.viewpoint}`)
-    setLikedViewpoints(new Set(likeKeys))
   }, [])
 
   const getCategoryColor = (category: string) => {
@@ -188,24 +340,7 @@ export function AIFactualNews() {
       case "international":
         return "bg-indigo-100 text-indigo-800"
       default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "economic":
-        return "📊"
-      case "political":
-        return "🏛️"
-      case "legal":
-        return "⚖️"
-      case "scientific":
-        return "🔬"
-      case "international":
-        return "🌍"
-      default:
-        return "📰"
+        return "bg-muted text-muted-foreground"
     }
   }
 
@@ -214,23 +349,23 @@ export function AIFactualNews() {
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold">AI-Generated Facts</h3>
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
           </div>
           <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-            <span className="text-sm text-gray-500">Generating factual content...</span>
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <span className="text-sm text-muted-foreground">Generating factual content...</span>
           </div>
         </div>
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="animate-pulse border-l-4 border-l-blue-400">
+          <Card key={i} className="animate-pulse border-l-4 border-l-primary">
             <CardHeader>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-muted rounded w-1/2"></div>
             </CardHeader>
             <CardContent>
-              <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+              <div className="h-3 bg-muted rounded w-full mb-2"></div>
+              <div className="h-3 bg-muted rounded w-2/3"></div>
             </CardContent>
           </Card>
         ))}
@@ -240,17 +375,22 @@ export function AIFactualNews() {
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-semibold">AI-Generated Facts</h3>
-          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
+          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
             <Zap className="w-3 h-3 mr-1" />
             AI Powered
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          {lastUpdated && <span className="text-xs text-gray-500">Updated {lastUpdated.toLocaleTimeString()}</span>}
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground">
+              Updated {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -265,125 +405,161 @@ export function AIFactualNews() {
       </div>
 
       {error && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-          <div className="flex items-start gap-2">
-            <span className="text-yellow-600">⚠️</span>
-            <div className="text-sm text-yellow-800">
-              <strong>Notice:</strong> {error}. Showing available content.
-            </div>
+        <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
+          <div className="text-sm text-accent-foreground">
+            <strong>Notice:</strong> {error}. Showing available content.
           </div>
         </div>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+      {/* Info banner */}
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
         <div className="flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600 mt-0.5" />
-          <div className="text-sm text-blue-800">
-            <strong>AI-Generated Content:</strong> These news items are generated using advanced AI to provide
-            objective, factual information based on current events and official sources. Content is designed to be
-            unbiased and informational.
+          <Sparkles className="w-4 h-4 text-primary mt-0.5" />
+          <div className="text-sm text-foreground">
+            <strong>Objective reporting with perspective links:</strong> Each story presents the
+            facts first, then links to articles from left-leaning and right-leaning sources so you
+            can explore how each side covers the topic.
           </div>
         </div>
       </div>
 
-      {news.map((article, i) => (
-        <Card key={i} className="hover:shadow-md transition-shadow border-l-4 border-l-blue-400">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-500">{article.time}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {article.source}
+      {/* News cards */}
+      {news.map((article, i) => {
+        const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
+        const commentsOpen = expandedComments.has(i)
+
+        return (
+          <Card key={i} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{article.time}</span>
+                <Badge variant="outline" className="text-xs">
+                  {article.source}
+                </Badge>
+                <Badge variant="outline" className={`text-xs ${getCategoryColor(article.category)}`}>
+                  {article.category}
+                </Badge>
+                {article.trending && (
+                  <Badge variant="secondary" className="text-xs">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    Trending
                   </Badge>
-                  <Badge variant="outline" className={`text-xs ${getCategoryColor(article.category)}`}>
-                    {getCategoryIcon(article.category)} {article.category}
-                  </Badge>
-                  {article.trending && (
-                    <Badge variant="secondary" className="text-xs">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      Trending
+                )}
+              </div>
+              <CardTitle className="text-lg mb-2 text-foreground">{article.title}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                {article.description}
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {/* Perspective Sections */}
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Left Perspective */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                      Left Perspective
                     </Badge>
-                  )}
-                </div>
-                <CardTitle className="text-lg mb-2 text-gray-900">{article.title}</CardTitle>
-                <CardDescription className="text-sm text-gray-700 mb-4">{article.description}</CardDescription>
-
-                {/* Political Viewpoints Section */}
-                <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-3">Political Perspectives:</h4>
-
-                  {/* Left Viewpoint */}
-                  <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="text-xs bg-red-100 text-red-800 border-red-300">
-                          Left Perspective
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-700">{article.leftViewpoint}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewpointLike(`${i}`, "left", article.title, article.leftViewpoint || "")}
-                      className={`flex items-center gap-1 ${
-                        likedViewpoints.has(`${i}-left`)
-                          ? "text-red-600 bg-red-100"
-                          : "text-gray-500 hover:text-red-600"
-                      }`}
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      <span className="text-xs">{likedViewpoints.has(`${i}-left`) ? "Liked" : "Like"}</span>
-                    </Button>
                   </div>
-
-                  {/* Right Viewpoint */}
-                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-300">
-                          Right Perspective
+                  <p className="text-sm text-foreground mb-3">{article.leftViewpoint}</p>
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Read from left-leaning sources:
+                    </p>
+                    {article.leftArticles?.map((link, j) => (
+                      <a
+                        key={j}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 hover:underline transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        <span className="line-clamp-1">{link.title}</span>
+                        <Badge variant="outline" className="text-[10px] flex-shrink-0 ml-auto border-blue-200 text-blue-600">
+                          {link.source}
                         </Badge>
-                      </div>
-                      <p className="text-sm text-gray-700">{article.rightViewpoint}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleViewpointLike(`${i}`, "right", article.title, article.rightViewpoint || "")}
-                      className={`flex items-center gap-1 ${
-                        likedViewpoints.has(`${i}-right`)
-                          ? "text-blue-600 bg-blue-100"
-                          : "text-gray-500 hover:text-blue-600"
-                      }`}
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      <span className="text-xs">{likedViewpoints.has(`${i}-right`) ? "Liked" : "Like"}</span>
-                    </Button>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Perspective */}
+                <div className="rounded-lg border border-red-200 bg-red-50/50 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-red-600 hover:bg-red-700 text-white text-xs">
+                      Right Perspective
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-foreground mb-3">{article.rightViewpoint}</p>
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Read from right-leaning sources:
+                    </p>
+                    {article.rightArticles?.map((link, j) => (
+                      <a
+                        key={j}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-red-700 hover:text-red-900 hover:underline transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        <span className="line-clamp-1">{link.title}</span>
+                        <Badge variant="outline" className="text-[10px] flex-shrink-0 ml-auto border-red-200 text-red-600">
+                          {link.source}
+                        </Badge>
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                <Sparkles className="w-3 h-3 mr-1" />
-                AI Generated
-              </Badge>
-              <Badge variant="outline" className="text-xs bg-gray-50">
-                Factual Summary
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+
+              {/* Footer: AI badge + comment toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    AI Generated
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Factual Summary
+                  </Badge>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleComments(i)}
+                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-sm">Discussion</span>
+                  {commentsOpen ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Inline Comments */}
+              {commentsOpen && (
+                <div className="pt-2">
+                  <CommentSystem articleUrl={articleId} articleTitle={article.title} />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )
+      })}
 
       <div className="text-center pt-4">
-        <p className="text-xs text-gray-500">
-          AI-generated content is for informational purposes. Always verify important information with official sources.
+        <p className="text-xs text-muted-foreground">
+          AI-generated content is for informational purposes. Always verify important information
+          with official sources.
         </p>
       </div>
     </div>

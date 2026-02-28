@@ -4,11 +4,17 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Clock, TrendingUp, MessageCircle } from "lucide-react";
+import {
+  ExternalLink,
+  Clock,
+  TrendingUp,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { NewsNavigation } from "@/components/news-nav";
 import { CommentSystem } from "@/components/comment-system";
 import { AIFactualNews } from "@/components/ai-factual-news";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatNewsTime } from "@/lib/news-service";
 
 interface Article {
@@ -22,7 +28,7 @@ interface Article {
 
 const perspectives = [
   { key: "left", label: "Left", color: "bg-blue-600 hover:bg-blue-700" },
-  { key: "facts", label: "Just the Facts", color: "bg-gray-600 hover:bg-gray-700" },
+  { key: "facts", label: "Just the Facts", color: "bg-primary hover:bg-primary/90" },
   { key: "right", label: "Right", color: "bg-red-600 hover:bg-red-700" },
 ];
 
@@ -30,10 +36,24 @@ export default function NewsFeed() {
   const [selectedTab, setSelectedTab] = useState("facts");
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
+
+  const toggleComments = (index: number) => {
+    setExpandedComments((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (selectedTab !== "facts") {
       loadNews(selectedTab);
+      setExpandedComments(new Set());
     }
   }, [selectedTab]);
 
@@ -59,9 +79,9 @@ export default function NewsFeed() {
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded" />
-                <div className="h-3 bg-gray-200 rounded w-2/3" />
+                <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                <div className="h-3 bg-muted rounded" />
+                <div className="h-3 bg-muted rounded w-2/3" />
               </CardHeader>
             </Card>
           ))}
@@ -72,7 +92,7 @@ export default function NewsFeed() {
     if (articles.length === 0) {
       return (
         <Card>
-          <CardContent className="py-8 text-center text-gray-500">
+          <CardContent className="py-8 text-center text-muted-foreground">
             No articles found. Check your NewsAPI key.
           </CardContent>
         </Card>
@@ -81,81 +101,94 @@ export default function NewsFeed() {
 
     return (
       <div className="grid gap-4">
-        {articles.map((article, i) => (
-          <Card key={i} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                {article.urlToImage && (
-                  <img
-                    src={article.urlToImage}
-                    alt=""
-                    className="w-20 h-14 object-cover rounded flex-shrink-0"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
-                  />
-                )}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500">
-                      {formatNewsTime(article.publishedAt)}
-                    </span>
-                    <Badge variant="outline" className="text-xs">
-                      {article.source}
-                    </Badge>
+        {articles.map((article, i) => {
+          const commentsOpen = expandedComments.has(i);
+          return (
+            <Card key={i} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  {article.urlToImage && (
+                    <img
+                      src={article.urlToImage}
+                      alt=""
+                      className="w-20 h-14 object-cover rounded flex-shrink-0"
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {formatNewsTime(article.publishedAt)}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {article.source}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-lg mb-2">
+                      <a
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary hover:underline"
+                      >
+                        {article.title}
+                      </a>
+                    </CardTitle>
+                    <CardDescription className="text-sm line-clamp-2">
+                      {article.description}
+                    </CardDescription>
                   </div>
-                  <CardTitle className="text-lg mb-2">
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Button variant="outline" size="sm" asChild>
                     <a
                       href={article.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-600 hover:underline"
+                      className="inline-flex items-center"
                     >
-                      {article.title}
+                      Read Full Article
+                      <ExternalLink className="w-3 h-3 ml-1" />
                     </a>
-                  </CardTitle>
-                  <CardDescription className="text-sm line-clamp-2">
-                    {article.description}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center"
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleComments(i)}
+                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                   >
-                    Read Full Article
-                    <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-                </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <MessageCircle className="w-3 h-3 mr-1" />
-                      Discuss
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="text-left">{article.title}</DialogTitle>
-                    </DialogHeader>
-                    <CommentSystem articleUrl={article.url} articleTitle={article.title} />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="text-sm">Discussion</span>
+                    {commentsOpen ? (
+                      <ChevronUp className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Inline Comments */}
+                {commentsOpen && (
+                  <div className="pt-2 border-t border-border">
+                    <CommentSystem
+                      articleUrl={article.url}
+                      articleTitle={article.title}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <NewsNavigation />
         <div className="flex flex-wrap justify-center gap-2 mb-8">
@@ -166,7 +199,7 @@ export default function NewsFeed() {
               className={
                 selectedTab === p.key
                   ? `${p.color} text-white`
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
               }
             >
               {p.label}
