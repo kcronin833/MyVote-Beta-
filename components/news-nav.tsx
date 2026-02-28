@@ -53,7 +53,7 @@ export function NewsNavigation() {
             <Link href="/profile">
               <Button variant={pathname === "/profile" ? "default" : "outline"} className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Profile
+                Your Ballot
               </Button>
             </Link>
           </div>
