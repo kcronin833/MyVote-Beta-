@@ -1,8 +1,20 @@
 // News service using NewsAPI.org
 // Get your free API key at https://newsapi.org
 
-const NEWS_API_KEY = process.env.NEWS_API_KEY!;
 const BASE_URL = "https://newsapi.org/v2";
+
+// Strip HTML tags from API responses to prevent React script tag warnings
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+function getApiKey() {
+  const key = process.env.NEWS_API_KEY;
+  if (!key) {
+    console.error("[v0] NEWS_API_KEY is not set");
+  }
+  return key || "";
+}
 
 export interface NewsArticle {
   title: string;
@@ -49,7 +61,7 @@ async function fetchTopHeadlines(
   country = "us",
   category = "politics"
 ): Promise<NewsArticle[]> {
-  const url = `${BASE_URL}/top-headlines?country=${country}&category=${category}&pageSize=10&apiKey=${NEWS_API_KEY}`;
+  const url = `${BASE_URL}/top-headlines?country=${country}&category=${category}&pageSize=10&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
 }
 
@@ -58,13 +70,13 @@ async function fetchNewsFromSources(
   q: string
 ): Promise<NewsArticle[]> {
   const encoded = encodeURIComponent(q);
-  const url = `${BASE_URL}/everything?sources=${sources}&q=${encoded}&sortBy=publishedAt&pageSize=6&apiKey=${NEWS_API_KEY}`;
+  const url = `${BASE_URL}/everything?sources=${sources}&q=${encoded}&sortBy=publishedAt&pageSize=6&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
 }
 
 async function fetchEverything(q: string): Promise<NewsArticle[]> {
   const encoded = encodeURIComponent(q);
-  const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${NEWS_API_KEY}`;
+  const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
 }
 
@@ -81,13 +93,13 @@ async function fetchAndParse(url: string): Promise<NewsArticle[]> {
     return (data.articles || [])
       .filter((a: any) => a.title && a.title !== "[Removed]")
       .map((a: any) => ({
-        title: a.title,
-        description: a.description || "",
+        title: stripHtml(a.title || ""),
+        description: stripHtml(a.description || ""),
         url: a.url,
         source: a.source?.name || "Unknown",
         publishedAt: a.publishedAt,
         urlToImage: a.urlToImage || null,
-        content: a.content || null,
+        content: stripHtml(a.content || ""),
       }));
   } catch (err) {
     console.error("Failed to fetch news:", err);
