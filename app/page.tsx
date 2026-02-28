@@ -51,7 +51,7 @@ export default function HomePage() {
               <Link href="/auth/signup">
                 <Button
                   size="lg"
-                  className="bg-[#F39C12] hover:bg-[#E67E22] text-white font-semibold"
+                  className="bg-[#E8E8E8] hover:bg-[#D5D5D5] text-[#1F3A93] font-bold"
                 >
                   Sign Up Free
                 </Button>
