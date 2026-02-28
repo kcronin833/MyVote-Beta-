@@ -80,14 +80,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function fetchProfile(userId: string) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (!error && data) {
-      setProfile(data as Profile);
+      if (!error && data) {
+        setProfile(data as Profile);
+      } else {
+        // Profile may not exist yet (trigger hasn't fired or first sign-in)
+        setProfile(null);
+      }
+    } catch {
+      setProfile(null);
     }
     setLoading(false);
   }
@@ -103,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("profiles")
       .select("username")
       .eq("username", username)
-      .single();
+      .maybeSingle();
 
     if (existing) return { error: "Username already taken" };
 
@@ -126,7 +133,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
-    return { error: error?.message ?? null };
+    if (error) {
+      if (error.message.includes("Invalid login credentials")) {
+        return { error: "Invalid email or password. Please check your credentials or sign up for a new account." };
+      }
+      if (error.message.includes("Email not confirmed")) {
+        return { error: "Please check your email and click the confirmation link before signing in." };
+      }
+      return { error: error.message };
+    }
+    return { error: null };
   }
 
   async function signOut() {
