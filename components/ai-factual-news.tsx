@@ -27,9 +27,10 @@ interface FactualNewsItem {
   url: string
   urlToImage: string | null
   category: string
+  aiOverview: string
   leftArticles: NewsArticle[]
   rightArticles: NewsArticle[]
-}
+  }
 
 export function AIFactualNews() {
   const [news, setNews] = useState<FactualNewsItem[]>([])
@@ -110,7 +111,7 @@ export function AIFactualNews() {
           </div>
           <div className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">Loading latest news...</span>
+            <span className="text-sm text-muted-foreground">Fetching news & generating AI overviews...</span>
           </div>
         </div>
         {[...Array(4)].map((_, i) => (
@@ -172,9 +173,9 @@ export function AIFactualNews() {
         <div className="flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-primary mt-0.5" />
           <div className="text-sm text-foreground">
-            <strong>Objective reporting with perspective links:</strong> Each story presents the
-            facts first, then shows how left-leaning and right-leaning outlets are covering the
-            same topic.
+            <strong>AI-powered objective reporting:</strong> Each story includes an AI-generated
+            overview that summarizes the issue without bias, followed by links showing how
+            left-leaning and right-leaning outlets are covering the same topic.
           </div>
         </div>
       </div>
@@ -214,10 +215,21 @@ export function AIFactualNews() {
                   {article.title}
                 </a>
               </CardTitle>
-              {article.description && (
-                <CardDescription className="text-sm text-muted-foreground">
-                  {article.description}
-                </CardDescription>
+              {/* AI Overview */}
+              {article.aiOverview && (
+                <div className="mt-3 rounded-lg bg-primary/5 border border-primary/15 p-3">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                        AI Overview
+                      </span>
+                      <p className="text-sm text-foreground mt-1 leading-relaxed">
+                        {article.aiOverview}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
             </CardHeader>
 

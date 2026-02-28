@@ -82,6 +82,7 @@ export interface FactualNewsWithPerspectives {
   url: string
   urlToImage: string | null
   category: string
+  aiOverview: string
   leftArticles: NewsArticle[]
   rightArticles: NewsArticle[]
 }
@@ -137,6 +138,7 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         url: headline.url,
         urlToImage: headline.urlToImage,
         category,
+        aiOverview: "", // Populated by the server action via AI
         leftArticles: leftArticles.slice(0, 3),
         rightArticles: rightArticles.slice(0, 3),
       }
