@@ -345,36 +345,54 @@ export const atlantaPoliticians: Record<string, PoliticianProfile> = {
 }
 
 export function calculateCompatibilityScore(
-  userPattern: UserLikePattern,
-  politician: PoliticianProfile,
+  userPattern: UserLikePattern | Record<string, any>,
+  politician: PoliticianProfile | Record<string, any>,
 ): CompatibilityScore {
-  // Calculate political alignment based on liked articles and politician's score
-  const userPoliticalBias =
-    userPattern.likedArticles.reduce((sum, article) => sum + article.politicalBias, 0) /
-    Math.max(userPattern.likedArticles.length, 1)
+  // Safe defaults for missing or malformed data
+  const likedArticles = Array.isArray(userPattern?.likedArticles) ? userPattern.likedArticles : []
+  const issueEngagement = Array.isArray(userPattern?.issueEngagement) ? userPattern.issueEngagement : []
+  const likedPoliticians = Array.isArray(userPattern?.likedPoliticians) ? userPattern.likedPoliticians : []
+  const votingRecord = Array.isArray(politician?.votingRecord) ? politician.votingRecord : []
 
-  const politicalAlignmentScore = Math.max(0, 100 - Math.abs(userPoliticalBias - politician.politicalScore))
+  // Normalize keyIssues - can be string[] or Array<{issue, stance, importance}>
+  const rawKeyIssues = Array.isArray(politician?.keyIssues) ? politician.keyIssues : []
+  const keyIssues = rawKeyIssues.map((ki: any) =>
+    typeof ki === "string"
+      ? { issue: ki, stance: "support" as const, importance: 5 }
+      : ki
+  )
+
+  // Calculate political alignment based on liked articles and politician's score
+  const userPoliticalScore = (userPattern as any)?.politicalScore
+  const userPoliticalBias = typeof userPoliticalScore === "number"
+    ? userPoliticalScore
+    : likedArticles.length > 0
+      ? likedArticles.reduce((sum: number, article: any) => sum + (article.politicalBias || 0), 0) / likedArticles.length
+      : 0
+
+  const politicianScore = politician?.politicalScore || 0
+  const politicalAlignmentScore = Math.max(0, 100 - Math.abs(userPoliticalBias - politicianScore))
 
   // Calculate issue alignment
   const userIssues = new Set([
-    ...userPattern.issueEngagement.map((e) => e.issue),
-    ...userPattern.likedArticles.flatMap((a) => a.topics),
+    ...issueEngagement.map((e: any) => e.issue || ""),
+    ...likedArticles.flatMap((a: any) => a.topics || []),
   ])
 
-  const politicianIssues = new Set(politician.keyIssues.map((i) => i.issue))
   const sharedIssues = Array.from(userIssues).filter((issue) =>
-    politician.keyIssues.some(
-      (pi) =>
-        pi.issue.toLowerCase().includes(issue.toLowerCase()) || issue.toLowerCase().includes(pi.issue.toLowerCase()),
+    keyIssues.some(
+      (pi: any) =>
+        pi.issue.toLowerCase().includes((issue as string).toLowerCase()) ||
+        (issue as string).toLowerCase().includes(pi.issue.toLowerCase()),
     ),
   )
 
-  const issueAlignmentScore = (sharedIssues.length / Math.max(politician.keyIssues.length, 1)) * 100
+  const issueAlignmentScore = (sharedIssues.length / Math.max(keyIssues.length, 1)) * 100
 
   // Calculate engagement similarity based on liked politicians
-  const engagementScore = userPattern.likedPoliticians.some((lp) => lp.politicianId === politician.id)
+  const engagementScore = likedPoliticians.some((lp: any) => lp.politicianId === politician?.id)
     ? 100
-    : userPattern.likedPoliticians.some((lp) => Math.abs(lp.politicalScore - politician.politicalScore) < 20)
+    : likedPoliticians.some((lp: any) => Math.abs((lp.politicalScore || 0) - politicianScore) < 20)
       ? 70
       : 30
 
@@ -382,26 +400,26 @@ export function calculateCompatibilityScore(
   const overall = Math.round(politicalAlignmentScore * 0.4 + issueAlignmentScore * 0.4 + engagementScore * 0.2)
 
   // Find conflicting issues
-  const conflictingIssues = politician.keyIssues
-    .filter((issue) =>
-      userPattern.issueEngagement.some(
-        (ue) =>
-          ue.issue.toLowerCase().includes(issue.issue.toLowerCase()) &&
+  const conflictingIssues = keyIssues
+    .filter((issue: any) =>
+      issueEngagement.some(
+        (ue: any) =>
+          (ue.issue || "").toLowerCase().includes(issue.issue.toLowerCase()) &&
           ((issue.stance === "support" && ue.stance === "oppose") ||
             (issue.stance === "oppose" && ue.stance === "support")),
       ),
     )
-    .map((issue) => issue.issue)
+    .map((issue: any) => issue.issue)
 
   // Generate reasons for match/mismatch
-  const reasonsForMatch = []
-  const reasonsForMismatch = []
+  const reasonsForMatch: string[] = []
+  const reasonsForMismatch: string[] = []
 
   if (sharedIssues.length > 0) {
     reasonsForMatch.push(`Shared interest in ${sharedIssues.slice(0, 3).join(", ")}`)
   }
 
-  if (Math.abs(userPoliticalBias - politician.politicalScore) < 30) {
+  if (Math.abs(userPoliticalBias - politicianScore) < 30) {
     reasonsForMatch.push("Similar political alignment")
   } else {
     reasonsForMismatch.push("Different political alignment")
@@ -412,8 +430,9 @@ export function calculateCompatibilityScore(
   }
 
   // Calculate aligned votes
-  const alignedVotes = politician.votingRecord.filter((vote) => {
-    const voteAlignment = vote.politicalBias > 0 ? "right" : vote.politicalBias < -30 ? "left" : "center"
+  const alignedVotes = votingRecord.filter((vote: any) => {
+    const bias = vote.politicalBias || 0
+    const voteAlignment = bias > 0 ? "right" : bias < -30 ? "left" : "center"
     const userAlignment = userPoliticalBias > 30 ? "right" : userPoliticalBias < -30 ? "left" : "center"
     return voteAlignment === userAlignment
   }).length
@@ -424,10 +443,10 @@ export function calculateCompatibilityScore(
     politicalAlignment: Math.round(politicalAlignmentScore),
     engagementSimilarity: Math.round(engagementScore),
     breakdown: {
-      sharedIssues,
+      sharedIssues: sharedIssues as string[],
       conflictingIssues,
       alignedVotes,
-      totalVotes: politician.votingRecord.length,
+      totalVotes: votingRecord.length,
       reasonsForMatch,
       reasonsForMismatch,
     },
