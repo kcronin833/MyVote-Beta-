@@ -1,71 +1,120 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User, Settings, LogOut, Home, Info } from "lucide-react"
-import { currentUser } from "@/lib/mock-data"
-import { Logo } from "@/components/logo"
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth-modal";
+import Link from "next/link";
+import { LogOut, User, Settings, Home, Info } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 export function UserNav() {
+  const { user, profile, signOut, loading } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<"login" | "signup">("login");
+
+  if (loading) {
+    return <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />;
+  }
+
+  if (!user || !profile) {
+    return (
+      <>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setAuthTab("login"); setAuthOpen(true); }}
+          >
+            Sign In
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => { setAuthTab("signup"); setAuthOpen(true); }}
+          >
+            Sign Up
+          </Button>
+        </div>
+        <AuthModal
+          open={authOpen}
+          onClose={() => setAuthOpen(false)}
+          defaultTab={authTab}
+        />
+      </>
+    );
+  }
+
+  const initials = profile.display_name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={currentUser.avatar || "/placeholder.svg"} alt={currentUser.displayName} />
-            <AvatarFallback>
-              {currentUser.displayName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
+            <AvatarImage src={profile.avatar_url || "/placeholder.svg"} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <div className="flex items-center justify-start gap-2 p-2">
-          <div className="flex flex-col space-y-1 leading-none">
-            <p className="font-medium">{currentUser.displayName}</p>
-            <p className="w-[200px] truncate text-sm text-muted-foreground">@{currentUser.username}</p>
-          </div>
+        <div className="flex flex-col space-y-1 p-2">
+          <p className="text-sm font-medium leading-none">{profile.display_name}</p>
+          <p className="text-xs leading-none text-muted-foreground">
+            @{profile.username}
+          </p>
         </div>
+        <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/">
             <Home className="mr-2 h-4 w-4" />
-            <span>Home</span>
+            Home
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/">
-            <div className="flex items-center">
-              <Logo size="sm" className="mr-2" />
-              <span>MyVote</span>
-            </div>
+            <Logo size="sm" className="mr-2" />
+            MyVote
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/profile/${currentUser.username}`}>
+          <Link href={`/profile/${profile.username}`}>
             <User className="mr-2 h-4 w-4" />
-            <span>Full Profile</span>
+            My Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <Settings className="mr-2 h-4 w-4" />
+            Political Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/welcome">
             <Info className="mr-2 h-4 w-4" />
-            <span>About MyVote</span>
+            About MyVote
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive cursor-pointer"
+          onClick={signOut}
+        >
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
