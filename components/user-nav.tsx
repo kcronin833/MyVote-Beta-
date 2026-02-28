@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User, Settings, LogOut, Home, Info } from "lucide-react"
+import { User, Settings, LogOut, Home, Info, Mail, ShoppingBag } from "lucide-react"
 import { currentUser } from "@/lib/mock-data"
 import { Logo } from "@/components/logo"
 
@@ -55,6 +55,18 @@ export function UserNav() {
           <Link href="/welcome">
             <Info className="mr-2 h-4 w-4" />
             <span>About MyVote</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/merch">
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            <span>Merch Shop</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/contact">
+            <Mail className="mr-2 h-4 w-4" />
+            <span>Contact & Suggestions</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>

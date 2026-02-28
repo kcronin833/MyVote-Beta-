@@ -25,6 +25,7 @@ import { formatDistanceToNow } from "date-fns"
 import { UserNav } from "@/components/user-nav"
 import { SearchInput } from "@/components/search-input"
 import { Logo } from "@/components/logo"
+import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("activity")
@@ -113,67 +114,72 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Sidebar - User Profile Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-6">
-              <CardHeader className="text-center">
-                <Avatar className="w-20 h-20 mx-auto mb-4">
-                  <AvatarImage src={currentUser.avatar || "/placeholder.svg"} />
-                  <AvatarFallback className="text-xl">
-                    {currentUser.displayName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <h2 className="text-xl font-bold">{currentUser.displayName}</h2>
-                  {currentUser.verified && <CheckCircle className="w-5 h-5 text-blue-500" />}
-                </div>
-                <p className="text-gray-600 mb-2">@{currentUser.username}</p>
-                <Badge variant="outline" className={getPoliticalColor(currentUser.politicalLean)}>
-                  {currentUser.politicalLean === "center"
-                    ? "Moderate"
-                    : currentUser.politicalLean === "left"
-                      ? "Liberal"
-                      : "Conservative"}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-sm text-gray-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4" />
-                    {currentUser.location}
+            <div className="space-y-6 sticky top-6">
+              <Card>
+                <CardHeader className="text-center">
+                  <Avatar className="w-20 h-20 mx-auto mb-4">
+                    <AvatarImage src={currentUser.avatar || "/placeholder.svg"} />
+                    <AvatarFallback className="text-xl">
+                      {currentUser.displayName
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <h2 className="text-xl font-bold">{currentUser.displayName}</h2>
+                    {currentUser.verified && <CheckCircle className="w-5 h-5 text-blue-500" />}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Joined{" "}
-                    {new Date(currentUser.joinDate).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <div className="text-lg font-bold text-blue-600">{userComments.length}</div>
-                    <div className="text-xs text-gray-600">Comments</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-green-600">{userReplies.length}</div>
-                    <div className="text-xs text-gray-600">Replies</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-red-600">
-                      {userComments.reduce((sum, comment) => sum + comment.likes, 0) +
-                        userReplies.reduce((sum, reply) => sum + reply.likes, 0)}
+                  <p className="text-gray-600 mb-2">@{currentUser.username}</p>
+                  <Badge variant="outline" className={getPoliticalColor(currentUser.politicalLean)}>
+                    {currentUser.politicalLean === "center"
+                      ? "Moderate"
+                      : currentUser.politicalLean === "left"
+                        ? "Liberal"
+                        : "Conservative"}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-sm text-gray-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4" />
+                      {currentUser.location}
                     </div>
-                    <div className="text-xs text-gray-600">Likes</div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      Joined{" "}
+                      {new Date(currentUser.joinDate).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </div>
                   </div>
-                </div>
-                <Button className="w-full" size="sm" asChild>
-                  <Link href={`/profile/${currentUser.username}`}>View Full Profile</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-blue-600">{userComments.length}</div>
+                      <div className="text-xs text-gray-600">Comments</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-green-600">{userReplies.length}</div>
+                      <div className="text-xs text-gray-600">Replies</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-red-600">
+                        {userComments.reduce((sum, comment) => sum + comment.likes, 0) +
+                          userReplies.reduce((sum, reply) => sum + reply.likes, 0)}
+                      </div>
+                      <div className="text-xs text-gray-600">Likes</div>
+                    </div>
+                  </div>
+                  <Button className="w-full" size="sm" asChild>
+                    <Link href={`/profile/${currentUser.username}`}>View Full Profile</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Political Position Card */}
+              <PoliticalSpectrumBar />
+            </div>
           </div>
 
           {/* Main Content */}

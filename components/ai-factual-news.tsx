@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Clock, TrendingUp, RefreshCw, Sparkles, Loader2, Zap } from "lucide-react"
+import { Clock, TrendingUp, RefreshCw, Sparkles, Loader2, Zap, ThumbsUp } from "lucide-react"
 import { generateFactualNewsAction } from "@/app/actions/generate-news"
 
 interface FactualNews {
@@ -14,6 +14,16 @@ interface FactualNews {
   trending: boolean
   source: string
   category: "economic" | "political" | "legal" | "scientific" | "international"
+  leftViewpoint?: string
+  rightViewpoint?: string
+}
+
+interface ViewpointLike {
+  newsId: string
+  viewpoint: "left" | "right"
+  title: string
+  content: string
+  timestamp: Date
 }
 
 export function AIFactualNews() {
@@ -22,6 +32,7 @@ export function AIFactualNews() {
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [likedViewpoints, setLikedViewpoints] = useState<Set<string>>(new Set())
 
   const loadNews = async (isRefresh = false) => {
     if (isRefresh) {
@@ -36,11 +47,17 @@ export function AIFactualNews() {
       const result = await generateFactualNewsAction()
 
       if (result.success && result.news.length > 0) {
-        setNews(result.news)
+        // Add viewpoints to generated news
+        const newsWithViewpoints = result.news.map((article: any, index: number) => ({
+          ...article,
+          leftViewpoint: getLeftViewpoint(article.title, index),
+          rightViewpoint: getRightViewpoint(article.title, index),
+        }))
+        setNews(newsWithViewpoints)
         setLastUpdated(new Date())
       } else {
         setError("Unable to generate fresh content")
-        // Fallback to static content
+        // Fallback to static content with viewpoints
         setNews([
           {
             title: "Federal Reserve Maintains Interest Rates at 5.25-5.50%",
@@ -50,6 +67,10 @@ export function AIFactualNews() {
             trending: true,
             source: "Federal Reserve",
             category: "economic",
+            leftViewpoint:
+              "Interest rates should be lowered to stimulate economic growth and help working families struggling with high costs of living and housing affordability.",
+            rightViewpoint:
+              "Maintaining current interest rates is prudent to prevent inflation and ensure economic stability while protecting the value of savings and investments.",
           },
           {
             title: "Supreme Court Schedules Three Cases for March Oral Arguments",
@@ -59,6 +80,10 @@ export function AIFactualNews() {
             trending: false,
             source: "Supreme Court",
             category: "legal",
+            leftViewpoint:
+              "The Court should prioritize protecting individual privacy rights and strengthening environmental protections over corporate interests.",
+            rightViewpoint:
+              "The Court should focus on constitutional originalism and limiting federal overreach while protecting business rights and state sovereignty.",
           },
           {
             title: "Bureau of Labor Statistics Reports 3.7% Unemployment Rate",
@@ -68,6 +93,10 @@ export function AIFactualNews() {
             trending: false,
             source: "Bureau of Labor Statistics",
             category: "economic",
+            leftViewpoint:
+              "While job numbers look good, we need to focus on wage growth, worker protections, and ensuring these are quality jobs with benefits.",
+            rightViewpoint:
+              "Strong employment numbers demonstrate the success of pro-business policies and free market principles in creating opportunities.",
           },
           {
             title: "NASA Announces Successful Mars Sample Collection Mission",
@@ -77,6 +106,10 @@ export function AIFactualNews() {
             trending: false,
             source: "NASA",
             category: "scientific",
+            leftViewpoint:
+              "Space exploration funding should be increased as it drives innovation, creates jobs, and advances scientific knowledge for humanity's benefit.",
+            rightViewpoint:
+              "While space achievements are impressive, we should prioritize fiscal responsibility and ensure space spending doesn't exceed practical benefits.",
           },
         ])
       }
@@ -89,8 +122,57 @@ export function AIFactualNews() {
     }
   }
 
+  const getLeftViewpoint = (title: string, index: number): string => {
+    const leftViewpoints = [
+      "Progressive policies and increased government investment are needed to address systemic inequalities and support working families.",
+      "We need stronger regulations and oversight to protect consumers and the environment from corporate overreach.",
+      "Social programs and public services should be expanded to ensure everyone has access to basic necessities and opportunities.",
+      "Climate action and environmental justice must be prioritized to protect future generations and vulnerable communities.",
+    ]
+    return leftViewpoints[index % leftViewpoints.length]
+  }
+
+  const getRightViewpoint = (title: string, index: number): string => {
+    const rightViewpoints = [
+      "Free market solutions and reduced government intervention will create more opportunities and economic growth for all Americans.",
+      "Individual responsibility and limited government are key to preserving freedom and ensuring efficient resource allocation.",
+      "Traditional values and constitutional principles should guide policy decisions to maintain social stability and order.",
+      "Business-friendly policies and deregulation will drive innovation and create jobs while maintaining American competitiveness.",
+    ]
+    return rightViewpoints[index % rightViewpoints.length]
+  }
+
+  const handleViewpointLike = (newsId: string, viewpoint: "left" | "right", title: string, content: string) => {
+    const likeKey = `${newsId}-${viewpoint}`
+    const newLikedViewpoints = new Set(likedViewpoints)
+
+    if (likedViewpoints.has(likeKey)) {
+      newLikedViewpoints.delete(likeKey)
+    } else {
+      newLikedViewpoints.add(likeKey)
+
+      // Save to localStorage for profile tracking
+      const existingLikes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+      const newLike: ViewpointLike = {
+        newsId,
+        viewpoint,
+        title,
+        content,
+        timestamp: new Date(),
+      }
+      existingLikes.push(newLike)
+      localStorage.setItem("viewpointLikes", JSON.stringify(existingLikes))
+    }
+
+    setLikedViewpoints(newLikedViewpoints)
+  }
+
   useEffect(() => {
     loadNews()
+    // Load existing likes from localStorage
+    const existingLikes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+    const likeKeys = existingLikes.map((like: ViewpointLike) => `${like.newsId}-${like.viewpoint}`)
+    setLikedViewpoints(new Set(likeKeys))
   }, [])
 
   const getCategoryColor = (category: string) => {
@@ -226,7 +308,62 @@ export function AIFactualNews() {
                   )}
                 </div>
                 <CardTitle className="text-lg mb-2 text-gray-900">{article.title}</CardTitle>
-                <CardDescription className="text-sm text-gray-700">{article.description}</CardDescription>
+                <CardDescription className="text-sm text-gray-700 mb-4">{article.description}</CardDescription>
+
+                {/* Political Viewpoints Section */}
+                <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-3">Political Perspectives:</h4>
+
+                  {/* Left Viewpoint */}
+                  <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border-l-4 border-red-400">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-xs bg-red-100 text-red-800 border-red-300">
+                          Left Perspective
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-700">{article.leftViewpoint}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewpointLike(`${i}`, "left", article.title, article.leftViewpoint || "")}
+                      className={`flex items-center gap-1 ${
+                        likedViewpoints.has(`${i}-left`)
+                          ? "text-red-600 bg-red-100"
+                          : "text-gray-500 hover:text-red-600"
+                      }`}
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      <span className="text-xs">{likedViewpoints.has(`${i}-left`) ? "Liked" : "Like"}</span>
+                    </Button>
+                  </div>
+
+                  {/* Right Viewpoint */}
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-300">
+                          Right Perspective
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-700">{article.rightViewpoint}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewpointLike(`${i}`, "right", article.title, article.rightViewpoint || "")}
+                      className={`flex items-center gap-1 ${
+                        likedViewpoints.has(`${i}-right`)
+                          ? "text-blue-600 bg-blue-100"
+                          : "text-gray-500 hover:text-blue-600"
+                      }`}
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      <span className="text-xs">{likedViewpoints.has(`${i}-right`) ? "Liked" : "Like"}</span>
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </CardHeader>

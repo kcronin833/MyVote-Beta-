@@ -1,27 +1,25 @@
+import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
 import { PoliticalProfile } from "@/components/political-profile"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { Logo } from "@/components/logo"
 
-export default function ProfilePage() {
+const ProfilePage = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              <Logo size="sm" className="mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-semibold mb-6">Your Profile</h1>
 
-        <div className="max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Existing content */}
           <PoliticalProfile />
+        </div>
+        <div className="space-y-6">
+          {/* Political Position - Make this prominent */}
+          <PoliticalSpectrumBar />
+
+          {/* Other sidebar content */}
         </div>
       </div>
     </div>
   )
 }
+
+export default ProfilePage

@@ -65,7 +65,7 @@ export function SearchInput() {
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Search news, representatives, users..."
+          placeholder="Search Atlanta representatives, Georgia issues..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
