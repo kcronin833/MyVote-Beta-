@@ -87,48 +87,73 @@ export interface FactualNewsWithPerspectives {
   rightArticles: NewsArticle[]
 }
 
-const LEFT_SOURCES = "huffpost,msnbc,the-verge,cnn,bbc-news"
-const RIGHT_SOURCES = "fox-news,the-washington-times,national-review"
+// Left-leaning and right-leaning source domains for filtering
+const LEFT_DOMAINS =
+  "huffpost.com,msnbc.com,cnn.com,nytimes.com,washingtonpost.com,vox.com,thenation.com,motherjones.com,slate.com"
+const RIGHT_DOMAINS =
+  "foxnews.com,dailywire.com,breitbart.com,washingtontimes.com,nationalreview.com,nypost.com,dailycaller.com,thefederalist.com"
+
+// Stop-words to strip when building search queries
+const STOP_WORDS = new Set([
+  "the","a","an","and","or","but","in","on","at","to","for","of","with","by",
+  "from","as","is","was","are","were","been","be","have","has","had","do",
+  "does","did","will","would","could","should","may","might","shall","can",
+  "its","it","that","this","than","he","she","they","his","her","their",
+  "our","we","you","your","my","says","said","new","also","about","after",
+  "over","into","more","how","what","when","who","why","not","just","some",
+])
+
+/**
+ * Build a tight search query from a headline: keep only meaningful words,
+ * quote multi-word proper nouns / names if present, and limit length.
+ */
+function buildSearchQuery(title: string): string {
+  const cleaned = title
+    .replace(/\s*[-|]\s*[A-Z][\w\s.]*$/, "") // strip trailing " - Source Name"
+    .replace(/['']/g, "'")
+    .replace(/[^a-zA-Z0-9\s']/g, " ")
+    .trim()
+
+  const words = cleaned
+    .split(/\s+/)
+    .filter((w) => w.length > 1 && !STOP_WORDS.has(w.toLowerCase()))
+
+  // Take up to 6 meaningful words to keep the query specific
+  return words.slice(0, 6).join(" ")
+}
 
 export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
-  // Fetch top headlines as the factual base
-  const headlines = await fetchTopHeadlines("us", "general")
+  // Fetch political headlines as the factual base
+  const headlines = await fetchTopHeadlines("us", "politics")
 
-  if (headlines.length === 0) return []
+  // If politics category returns few results, supplement with general + political filter
+  let politicalHeadlines = headlines
+  if (politicalHeadlines.length < 4) {
+    const general = await fetchEverything("US politics OR Congress OR White House OR legislation OR Supreme Court")
+    const seen = new Set(politicalHeadlines.map((h) => h.url))
+    for (const a of general) {
+      if (!seen.has(a.url)) {
+        politicalHeadlines.push(a)
+        seen.add(a.url)
+      }
+    }
+  }
+
+  if (politicalHeadlines.length === 0) return []
 
   // Take top 6 headlines
-  const topHeadlines = headlines.slice(0, 6)
+  const topHeadlines = politicalHeadlines.slice(0, 6)
 
-  // For each headline, fetch related articles from left and right sources
+  // For each headline, fetch directly-related articles from left and right sources
   const results = await Promise.all(
     topHeadlines.map(async (headline) => {
-      // Extract key terms from the headline (first 4 significant words)
-      const keywords = headline.title
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .split(/\s+/)
-        .filter((w) => w.length > 3)
-        .slice(0, 4)
-        .join(" ")
-
-      if (!keywords) return null
+      const query = buildSearchQuery(headline.title)
+      if (!query || query.split(" ").length < 2) return null
 
       const [leftArticles, rightArticles] = await Promise.all([
-        fetchNewsFromSources(LEFT_SOURCES, keywords),
-        fetchNewsFromSources(RIGHT_SOURCES, keywords),
+        fetchEverythingFromDomains(query, LEFT_DOMAINS),
+        fetchEverythingFromDomains(query, RIGHT_DOMAINS),
       ])
-
-      // Classify category based on keywords
-      const titleLower = headline.title.toLowerCase()
-      let category = "political"
-      if (/econom|market|stock|gdp|inflation|jobs|unemployment|fed|rate|trade|tax/i.test(titleLower)) {
-        category = "economic"
-      } else if (/court|judge|ruling|legal|justice|law|trial|verdict/i.test(titleLower)) {
-        category = "legal"
-      } else if (/nasa|science|research|climate|health|vaccine|study|space|tech/i.test(titleLower)) {
-        category = "scientific"
-      } else if (/un\b|nato|foreign|international|summit|treaty|global|world/i.test(titleLower)) {
-        category = "international"
-      }
 
       return {
         title: headline.title,
@@ -137,7 +162,7 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         publishedAt: headline.publishedAt,
         url: headline.url,
         urlToImage: headline.urlToImage,
-        category,
+        category: "political",
         aiOverview: "", // Populated by the server action via AI
         leftArticles: leftArticles.slice(0, 3),
         rightArticles: rightArticles.slice(0, 3),
@@ -170,6 +195,15 @@ async function fetchNewsFromSources(
 async function fetchEverything(q: string): Promise<NewsArticle[]> {
   const encoded = encodeURIComponent(q);
   const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${getApiKey()}`;
+  return fetchAndParse(url);
+}
+
+async function fetchEverythingFromDomains(
+  q: string,
+  domains: string
+): Promise<NewsArticle[]> {
+  const encoded = encodeURIComponent(q);
+  const url = `${BASE_URL}/everything?q=${encoded}&domains=${domains}&sortBy=relevancy&language=en&pageSize=5&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
 }
 

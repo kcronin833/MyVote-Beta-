@@ -17,7 +17,12 @@ async function generateAIOverview(article: FactualNewsWithPerspectives): Promise
 
     const result = await generateText({
       model: "openai/gpt-4o-mini",
-      prompt: `You are a neutral, nonpartisan news analyst. Given the following headline and coverage from both left-leaning and right-leaning outlets, write a 2-3 sentence objective overview explaining what this story is about and why it matters. Do NOT take any political side. Stick only to verified facts. Do not editorialize.
+      prompt: `You are a neutral, nonpartisan political news analyst. Given the following political headline and related coverage from left-leaning and right-leaning outlets, write a 2-3 sentence objective overview explaining:
+1. What happened or is happening
+2. Who is involved (politicians, agencies, parties)
+3. Why it matters politically
+
+Do NOT take any political side. Stick only to verified facts. Do not editorialize or use opinion language.
 
 Headline: ${article.title}
 Description: ${article.description || "N/A"}
@@ -29,7 +34,7 @@ ${leftContext || "No coverage found."}
 Right-leaning coverage:
 ${rightContext || "No coverage found."}
 
-Write a concise, factual overview:`,
+Write a concise, factual political overview:`,
     })
 
     return result.text.trim()

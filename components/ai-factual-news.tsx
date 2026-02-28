@@ -84,23 +84,6 @@ export function AIFactualNews() {
     loadNews()
   }, [])
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "economic":
-        return "bg-green-100 text-green-800"
-      case "political":
-        return "bg-blue-100 text-blue-800"
-      case "legal":
-        return "bg-purple-100 text-purple-800"
-      case "scientific":
-        return "bg-orange-100 text-orange-800"
-      case "international":
-        return "bg-indigo-100 text-indigo-800"
-      default:
-        return "bg-muted text-muted-foreground"
-    }
-  }
-
   if (loading) {
     return (
       <div className="space-y-4">
@@ -173,9 +156,9 @@ export function AIFactualNews() {
         <div className="flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-primary mt-0.5" />
           <div className="text-sm text-foreground">
-            <strong>AI-powered objective reporting:</strong> Each story includes an AI-generated
-            overview that summarizes the issue without bias, followed by links showing how
-            left-leaning and right-leaning outlets are covering the same topic.
+            <strong>AI-powered political reporting:</strong> Each story includes an AI-generated
+            overview that objectively summarizes the political issue, followed by directly
+            related articles from left-leaning and right-leaning outlets.
           </div>
         </div>
       </div>
@@ -198,11 +181,8 @@ export function AIFactualNews() {
                 <Badge variant="outline" className="text-xs">
                   {article.source}
                 </Badge>
-                <Badge
-                  variant="outline"
-                  className={`text-xs ${getCategoryColor(article.category)}`}
-                >
-                  {article.category}
+                <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
+                  Political
                 </Badge>
               </div>
               <CardTitle className="text-lg mb-2 text-foreground">
