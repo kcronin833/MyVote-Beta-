@@ -44,10 +44,28 @@ export async function getFactualNews(): Promise<NewsArticle[]> {
 }
 
 // Fetch local news based on city/state
-export async function getLocalNews(location: string): Promise<NewsArticle[]> {
-  if (!location) return [];
-  const city = location.split(",")[0].trim();
-  return fetchEverything(`"${city}" local government OR city council OR mayor`);
+export async function getLocalNews(location: string = "Atlanta"): Promise<NewsArticle[]> {
+  const city = (location || "Atlanta").split(",")[0].trim();
+  // Use multiple query strategies for better local coverage
+  const queries = [
+    `"${city}" local news OR city council OR mayor OR county`,
+    `"${city}" Georgia politics OR crime OR development OR schools`,
+  ];
+  const results = await Promise.all(queries.map((q) => fetchEverything(q)));
+  // Deduplicate by URL
+  const seen = new Set<string>();
+  const combined: NewsArticle[] = [];
+  for (const articles of results) {
+    for (const article of articles) {
+      if (!seen.has(article.url)) {
+        seen.add(article.url);
+        combined.push(article);
+      }
+    }
+  }
+  // Sort by date, most recent first
+  combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  return combined.slice(0, 15);
 }
 
 // Search news
