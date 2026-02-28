@@ -1,11 +1,11 @@
 import type React from "react"
 
-interface RepresentativeProfileProps {
+interface Representative {
   name: string
-  district: string
+  district?: string
   party: string
-  officeLocations: string[]
-  contactInformation: {
+  officeLocations?: string[]
+  contactInformation?: {
     phone: string
     address: string
     email?: string
@@ -14,41 +14,51 @@ interface RepresentativeProfileProps {
   committees?: string[]
 }
 
+interface RepresentativeProfileProps {
+  representative: Representative
+}
+
 export const RepresentativeProfile: React.FC<RepresentativeProfileProps> = ({
-  name,
-  district,
-  party,
-  officeLocations,
-  contactInformation,
-  bio,
-  committees,
+  representative,
 }) => {
+  const { name, district, party, officeLocations, contactInformation, bio, committees } = representative || {}
+
   return (
     <div className="representative-profile">
       <h2>{name}</h2>
-      <p>
-        <strong>District:</strong> {district} (Atlanta/Georgia)
-      </p>
+      {district && (
+        <p>
+          <strong>District:</strong> {district} (Atlanta/Georgia)
+        </p>
+      )}
       <p>
         <strong>Party:</strong> {party}
       </p>
-      <h3>Office Locations</h3>
-      <ul>
-        {officeLocations.map((location, index) => (
-          <li key={index}>{location}</li>
-        ))}
-      </ul>
-      <h3>Contact Information</h3>
-      <p>
-        <strong>Phone:</strong> {contactInformation.phone}
-      </p>
-      <p>
-        <strong>Address:</strong> {contactInformation.address}
-      </p>
-      {contactInformation.email && (
-        <p>
-          <strong>Email:</strong> {contactInformation.email}
-        </p>
+      {officeLocations && officeLocations.length > 0 && (
+        <>
+          <h3>Office Locations</h3>
+          <ul>
+            {officeLocations.map((location, index) => (
+              <li key={index}>{location}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      {contactInformation && (
+        <>
+          <h3>Contact Information</h3>
+          <p>
+            <strong>Phone:</strong> {contactInformation.phone}
+          </p>
+          <p>
+            <strong>Address:</strong> {contactInformation.address}
+          </p>
+          {contactInformation.email && (
+            <p>
+              <strong>Email:</strong> {contactInformation.email}
+            </p>
+          )}
+        </>
       )}
       {bio && (
         <>
@@ -56,7 +66,7 @@ export const RepresentativeProfile: React.FC<RepresentativeProfileProps> = ({
           <p>{bio}</p>
         </>
       )}
-      {committees && (
+      {committees && committees.length > 0 && (
         <>
           <h3>Committees</h3>
           <ul>
