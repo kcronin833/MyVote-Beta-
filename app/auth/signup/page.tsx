@@ -141,12 +141,60 @@ export default function SignUpPage() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-[#4A4A4A]">Location</label>
-              <Input
-                placeholder="City, State (e.g. Atlanta, GA)"
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-              />
+              <label className="text-sm font-medium text-[#4A4A4A]">Location (Georgia)</label>
+              <Select value={form.location} onValueChange={(v) => setForm({ ...form, location: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "Atlanta",
+                    "Savannah",
+                    "Augusta",
+                    "Columbus",
+                    "Macon",
+                    "Athens",
+                    "Sandy Springs",
+                    "Roswell",
+                    "Albany",
+                    "Johns Creek",
+                    "Warner Robins",
+                    "Alpharetta",
+                    "Marietta",
+                    "Valdosta",
+                    "Smyrna",
+                    "Brookhaven",
+                    "Dunwoody",
+                    "Peachtree City",
+                    "Gainesville",
+                    "Newnan",
+                    "Milton",
+                    "Decatur",
+                    "East Point",
+                    "Kennesaw",
+                    "Statesboro",
+                    "Dalton",
+                    "Lawrenceville",
+                    "Woodstock",
+                    "Canton",
+                    "Carrollton",
+                    "Rome",
+                    "Tucker",
+                    "Stone Mountain",
+                    "College Park",
+                    "Hinesville",
+                    "Douglasville",
+                    "Griffin",
+                    "Pooler",
+                    "Duluth",
+                    "LaGrange",
+                  ].map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}, GA
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-sm font-medium text-[#4A4A4A]">Political Leaning (optional)</label>

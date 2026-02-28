@@ -29,6 +29,56 @@ import {
 } from "@/components/ui/dialog";
 import { formatNewsTime } from "@/lib/news-service";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const GEORGIA_CITIES = [
+  "Atlanta",
+  "Savannah",
+  "Augusta",
+  "Columbus",
+  "Macon",
+  "Athens",
+  "Sandy Springs",
+  "Roswell",
+  "Albany",
+  "Johns Creek",
+  "Warner Robins",
+  "Alpharetta",
+  "Marietta",
+  "Valdosta",
+  "Smyrna",
+  "Brookhaven",
+  "Dunwoody",
+  "Peachtree City",
+  "Gainesville",
+  "Newnan",
+  "Milton",
+  "Decatur",
+  "East Point",
+  "Kennesaw",
+  "Statesboro",
+  "Dalton",
+  "Lawrenceville",
+  "Woodstock",
+  "Canton",
+  "Carrollton",
+  "Rome",
+  "Tucker",
+  "Stone Mountain",
+  "College Park",
+  "Hinesville",
+  "Douglasville",
+  "Griffin",
+  "Pooler",
+  "Duluth",
+  "LaGrange",
+];
 
 interface Article {
   title: string;
@@ -96,23 +146,29 @@ export default function LocalNewsPage() {
             </h1>
           </div>
 
-          {/* Location search */}
+          {/* Location select */}
           <Card className="mb-6 border-border">
             <CardContent className="pt-4 pb-4">
-              <form
-                onSubmit={handleLocationSearch}
-                className="flex items-center gap-3"
-              >
+              <div className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <Input
-                  value={inputLocation}
-                  onChange={(e) => setInputLocation(e.target.value)}
-                  placeholder="Enter city name (e.g. Atlanta, Savannah, Macon)"
-                  className="flex-1"
-                />
-                <Button type="submit" size="sm">
-                  Update
-                </Button>
+                <Select
+                  value={location}
+                  onValueChange={(val) => {
+                    setLocation(val);
+                    setInputLocation(val);
+                  }}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select a Georgia city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GEORGIA_CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}, Georgia
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   type="button"
                   variant="ghost"
@@ -124,7 +180,7 @@ export default function LocalNewsPage() {
                     className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
                   />
                 </Button>
-              </form>
+              </div>
             </CardContent>
           </Card>
 
