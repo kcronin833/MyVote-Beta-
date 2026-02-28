@@ -73,6 +73,79 @@ export async function searchNews(query: string): Promise<NewsArticle[]> {
   return fetchEverything(query);
 }
 
+// Fetch factual headlines with left & right perspective articles for each topic
+export interface FactualNewsWithPerspectives {
+  title: string
+  description: string
+  source: string
+  publishedAt: string
+  url: string
+  urlToImage: string | null
+  category: string
+  leftArticles: NewsArticle[]
+  rightArticles: NewsArticle[]
+}
+
+const LEFT_SOURCES = "huffpost,msnbc,the-verge,cnn,bbc-news"
+const RIGHT_SOURCES = "fox-news,the-washington-times,national-review"
+
+export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
+  // Fetch top headlines as the factual base
+  const headlines = await fetchTopHeadlines("us", "general")
+
+  if (headlines.length === 0) return []
+
+  // Take top 6 headlines
+  const topHeadlines = headlines.slice(0, 6)
+
+  // For each headline, fetch related articles from left and right sources
+  const results = await Promise.all(
+    topHeadlines.map(async (headline) => {
+      // Extract key terms from the headline (first 4 significant words)
+      const keywords = headline.title
+        .replace(/[^a-zA-Z0-9\s]/g, "")
+        .split(/\s+/)
+        .filter((w) => w.length > 3)
+        .slice(0, 4)
+        .join(" ")
+
+      if (!keywords) return null
+
+      const [leftArticles, rightArticles] = await Promise.all([
+        fetchNewsFromSources(LEFT_SOURCES, keywords),
+        fetchNewsFromSources(RIGHT_SOURCES, keywords),
+      ])
+
+      // Classify category based on keywords
+      const titleLower = headline.title.toLowerCase()
+      let category = "political"
+      if (/econom|market|stock|gdp|inflation|jobs|unemployment|fed|rate|trade|tax/i.test(titleLower)) {
+        category = "economic"
+      } else if (/court|judge|ruling|legal|justice|law|trial|verdict/i.test(titleLower)) {
+        category = "legal"
+      } else if (/nasa|science|research|climate|health|vaccine|study|space|tech/i.test(titleLower)) {
+        category = "scientific"
+      } else if (/un\b|nato|foreign|international|summit|treaty|global|world/i.test(titleLower)) {
+        category = "international"
+      }
+
+      return {
+        title: headline.title,
+        description: headline.description,
+        source: headline.source,
+        publishedAt: headline.publishedAt,
+        url: headline.url,
+        urlToImage: headline.urlToImage,
+        category,
+        leftArticles: leftArticles.slice(0, 3),
+        rightArticles: rightArticles.slice(0, 3),
+      }
+    })
+  )
+
+  return results.filter(Boolean) as FactualNewsWithPerspectives[]
+}
+
 // ---- Internal helpers ----
 
 async function fetchTopHeadlines(

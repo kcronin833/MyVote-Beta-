@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Sparkles,
   Loader2,
-  Zap,
   ExternalLink,
   MessageCircle,
   ChevronDown,
@@ -18,28 +17,22 @@ import {
 } from "lucide-react"
 import { generateFactualNewsAction } from "@/app/actions/generate-news"
 import { CommentSystem } from "@/components/comment-system"
-import {
-  perspectiveArticles,
-  getLeftViewpoint,
-  getRightViewpoint,
-  type PerspectiveArticle,
-} from "@/lib/perspective-data"
+import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 
-interface FactualNews {
+interface FactualNewsItem {
   title: string
   description: string
-  time: string
-  trending: boolean
   source: string
-  category: "economic" | "political" | "legal" | "scientific" | "international"
-  leftViewpoint?: string
-  rightViewpoint?: string
-  leftArticles?: PerspectiveArticle[]
-  rightArticles?: PerspectiveArticle[]
+  publishedAt: string
+  url: string
+  urlToImage: string | null
+  category: string
+  leftArticles: NewsArticle[]
+  rightArticles: NewsArticle[]
 }
 
 export function AIFactualNews() {
-  const [news, setNews] = useState<FactualNews[]>([])
+  const [news, setNews] = useState<FactualNewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -64,94 +57,26 @@ export function AIFactualNews() {
     } else {
       setLoading(true)
     }
-
     setError(null)
 
     try {
       const result = await generateFactualNewsAction()
 
       if (result.success && result.news.length > 0) {
-        const newsWithPerspectives = result.news.map((article: any) => {
-          const categoryArticles = perspectiveArticles[article.category] || perspectiveArticles.political
-          return {
-            ...article,
-            leftViewpoint: getLeftViewpoint(article.category),
-            rightViewpoint: getRightViewpoint(article.category),
-            leftArticles: categoryArticles.left,
-            rightArticles: categoryArticles.right,
-          }
-        })
-        setNews(newsWithPerspectives)
+        setNews(result.news)
         setLastUpdated(new Date())
       } else {
-        setError("Unable to generate fresh content")
-        setNews(getFallbackNews())
+        setError(result.error || "Unable to load news")
+        setNews([])
       }
-    } catch (error) {
-      console.error("Failed to load news:", error)
+    } catch (err) {
+      console.error("Failed to load news:", err)
       setError("Network error occurred")
-      setNews(getFallbackNews())
+      setNews([])
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }
-
-  const getFallbackNews = (): FactualNews[] => {
-    return [
-      {
-        title: "Federal Reserve Maintains Interest Rates at 5.25-5.50%",
-        description:
-          "The Federal Reserve announced no change to current interest rates following their two-day meeting, citing stable economic indicators.",
-        time: "2 hours ago",
-        trending: true,
-        source: "Federal Reserve",
-        category: "economic",
-        leftViewpoint: getLeftViewpoint("economic"),
-        rightViewpoint: getRightViewpoint("economic"),
-        leftArticles: perspectiveArticles.economic.left,
-        rightArticles: perspectiveArticles.economic.right,
-      },
-      {
-        title: "Supreme Court Schedules Three Cases for March Oral Arguments",
-        description:
-          "The Court will hear cases involving digital privacy rights, environmental regulations, and interstate commerce law.",
-        time: "4 hours ago",
-        trending: false,
-        source: "Supreme Court",
-        category: "legal",
-        leftViewpoint: getLeftViewpoint("legal"),
-        rightViewpoint: getRightViewpoint("legal"),
-        leftArticles: perspectiveArticles.legal.left,
-        rightArticles: perspectiveArticles.legal.right,
-      },
-      {
-        title: "Bureau of Labor Statistics Reports 3.7% Unemployment Rate",
-        description:
-          "January employment data shows unemployment holding steady with 187,000 new jobs added across various sectors.",
-        time: "6 hours ago",
-        trending: false,
-        source: "Bureau of Labor Statistics",
-        category: "economic",
-        leftViewpoint: getLeftViewpoint("economic"),
-        rightViewpoint: getRightViewpoint("economic"),
-        leftArticles: perspectiveArticles.economic.left,
-        rightArticles: perspectiveArticles.economic.right,
-      },
-      {
-        title: "NASA Announces Successful Mars Sample Collection Mission",
-        description:
-          "The Perseverance rover has successfully collected 24 rock samples for future return to Earth, exceeding mission objectives.",
-        time: "8 hours ago",
-        trending: false,
-        source: "NASA",
-        category: "scientific",
-        leftViewpoint: getLeftViewpoint("scientific"),
-        rightViewpoint: getRightViewpoint("scientific"),
-        leftArticles: perspectiveArticles.scientific.left,
-        rightArticles: perspectiveArticles.scientific.right,
-      },
-    ]
   }
 
   useEffect(() => {
@@ -185,18 +110,18 @@ export function AIFactualNews() {
           </div>
           <div className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">Generating factual content...</span>
+            <span className="text-sm text-muted-foreground">Loading latest news...</span>
           </div>
         </div>
         {[...Array(4)].map((_, i) => (
           <Card key={i} className="animate-pulse border-l-4 border-l-primary">
             <CardHeader>
-              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-muted rounded w-1/2"></div>
+              <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+              <div className="h-3 bg-muted rounded w-1/2" />
             </CardHeader>
             <CardContent>
-              <div className="h-3 bg-muted rounded w-full mb-2"></div>
-              <div className="h-3 bg-muted rounded w-2/3"></div>
+              <div className="h-3 bg-muted rounded w-full mb-2" />
+              <div className="h-3 bg-muted rounded w-2/3" />
             </CardContent>
           </Card>
         ))}
@@ -212,8 +137,7 @@ export function AIFactualNews() {
           <Sparkles className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
           <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-            <Zap className="w-3 h-3 mr-1" />
-            AI Powered
+            Live
           </Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -230,17 +154,17 @@ export function AIFactualNews() {
             className="flex items-center gap-1"
           >
             <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Generating..." : "Refresh"}
+            {refreshing ? "Loading..." : "Refresh"}
           </Button>
         </div>
       </div>
 
       {error && (
-        <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-4">
-          <div className="text-sm text-accent-foreground">
-            <strong>Notice:</strong> {error}. Showing available content.
-          </div>
-        </div>
+        <Card className="border-destructive/50 bg-destructive/5">
+          <CardContent className="py-4 text-center text-sm text-destructive">
+            {error}
+          </CardContent>
+        </Card>
       )}
 
       {/* Info banner */}
@@ -249,8 +173,8 @@ export function AIFactualNews() {
           <Sparkles className="w-4 h-4 text-primary mt-0.5" />
           <div className="text-sm text-foreground">
             <strong>Objective reporting with perspective links:</strong> Each story presents the
-            facts first, then links to articles from left-leaning and right-leaning sources so you
-            can explore how each side covers the topic.
+            facts first, then shows how left-leaning and right-leaning outlets are covering the
+            same topic.
           </div>
         </div>
       </div>
@@ -259,107 +183,137 @@ export function AIFactualNews() {
       {news.map((article, i) => {
         const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
         const commentsOpen = expandedComments.has(i)
+        const hasLeft = article.leftArticles.length > 0
+        const hasRight = article.rightArticles.length > 0
 
         return (
           <Card key={i} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
             <CardHeader>
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">{article.time}</span>
+                <span className="text-sm text-muted-foreground">
+                  {formatNewsTime(article.publishedAt)}
+                </span>
                 <Badge variant="outline" className="text-xs">
                   {article.source}
                 </Badge>
-                <Badge variant="outline" className={`text-xs ${getCategoryColor(article.category)}`}>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${getCategoryColor(article.category)}`}
+                >
                   {article.category}
                 </Badge>
-                {article.trending && (
-                  <Badge variant="secondary" className="text-xs">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    Trending
-                  </Badge>
-                )}
               </div>
-              <CardTitle className="text-lg mb-2 text-foreground">{article.title}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                {article.description}
-              </CardDescription>
+              <CardTitle className="text-lg mb-2 text-foreground">
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary hover:underline"
+                >
+                  {article.title}
+                </a>
+              </CardTitle>
+              {article.description && (
+                <CardDescription className="text-sm text-muted-foreground">
+                  {article.description}
+                </CardDescription>
+              )}
             </CardHeader>
 
             <CardContent className="space-y-4">
               {/* Perspective Sections */}
-              <div className="grid gap-4 md:grid-cols-2">
-                {/* Left Perspective */}
-                <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
-                      Left Perspective
-                    </Badge>
+              {(hasLeft || hasRight) && (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {/* Left Perspective */}
+                  <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                        Left-Leaning Coverage
+                      </Badge>
+                    </div>
+                    {hasLeft ? (
+                      <div className="space-y-2.5">
+                        {article.leftArticles.map((link, j) => (
+                          <a
+                            key={j}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start gap-2 text-sm text-blue-700 hover:text-blue-900 hover:underline transition-colors group"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span className="flex-1 line-clamp-2 leading-snug">
+                              {link.title}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] flex-shrink-0 border-blue-200 text-blue-600"
+                            >
+                              {link.source}
+                            </Badge>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        No matching coverage found
+                      </p>
+                    )}
                   </div>
-                  <p className="text-sm text-foreground mb-3">{article.leftViewpoint}</p>
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Read from left-leaning sources:
-                    </p>
-                    {article.leftArticles?.map((link, j) => (
-                      <a
-                        key={j}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 hover:underline transition-colors"
-                      >
-                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                        <span className="line-clamp-1">{link.title}</span>
-                        <Badge variant="outline" className="text-[10px] flex-shrink-0 ml-auto border-blue-200 text-blue-600">
-                          {link.source}
-                        </Badge>
-                      </a>
-                    ))}
+
+                  {/* Right Perspective */}
+                  <div className="rounded-lg border border-red-200 bg-red-50/50 p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge className="bg-red-600 hover:bg-red-700 text-white text-xs">
+                        Right-Leaning Coverage
+                      </Badge>
+                    </div>
+                    {hasRight ? (
+                      <div className="space-y-2.5">
+                        {article.rightArticles.map((link, j) => (
+                          <a
+                            key={j}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start gap-2 text-sm text-red-700 hover:text-red-900 hover:underline transition-colors group"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                            <span className="flex-1 line-clamp-2 leading-snug">
+                              {link.title}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] flex-shrink-0 border-red-200 text-red-600"
+                            >
+                              {link.source}
+                            </Badge>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">
+                        No matching coverage found
+                      </p>
+                    )}
                   </div>
                 </div>
+              )}
 
-                {/* Right Perspective */}
-                <div className="rounded-lg border border-red-200 bg-red-50/50 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-red-600 hover:bg-red-700 text-white text-xs">
-                      Right Perspective
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-foreground mb-3">{article.rightViewpoint}</p>
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Read from right-leaning sources:
-                    </p>
-                    {article.rightArticles?.map((link, j) => (
-                      <a
-                        key={j}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-red-700 hover:text-red-900 hover:underline transition-colors"
-                      >
-                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                        <span className="line-clamp-1">{link.title}</span>
-                        <Badge variant="outline" className="text-[10px] flex-shrink-0 ml-auto border-red-200 text-red-600">
-                          {link.source}
-                        </Badge>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer: AI badge + comment toggle */}
+              {/* Footer: source link + comment toggle */}
               <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div className="flex gap-2">
-                  <Badge variant="outline" className="text-xs bg-primary/5 text-primary border-primary/20">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    AI Generated
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">
-                    Factual Summary
-                  </Badge>
-                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center"
+                  >
+                    Read Original
+                    <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -387,12 +341,14 @@ export function AIFactualNews() {
         )
       })}
 
-      <div className="text-center pt-4">
-        <p className="text-xs text-muted-foreground">
-          AI-generated content is for informational purposes. Always verify important information
-          with official sources.
-        </p>
-      </div>
+      {news.length > 0 && (
+        <div className="text-center pt-4">
+          <p className="text-xs text-muted-foreground">
+            Perspective articles are sourced from real outlets. Always verify important information
+            with official sources.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
