@@ -8,20 +8,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/logo"
 import { Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/components/auth-context"
 
 export default function SignInPage() {
   const router = useRouter()
+  const { signIn } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ email: "", password: "" })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    const { error } = await signIn(form.email, form.password)
+    setLoading(false)
+    if (error) {
+      setError(error)
+    } else {
       router.push("/")
-    }, 1000)
+    }
   }
 
   return (
@@ -36,6 +43,11 @@ export default function SignInPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                {error}
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium text-[#4A4A4A]">Email</label>
               <Input

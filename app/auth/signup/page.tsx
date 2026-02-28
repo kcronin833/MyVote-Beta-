@@ -9,11 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Logo } from "@/components/logo"
 import { Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/components/auth-context"
 
 export default function SignUpPage() {
   const router = useRouter()
+  const { signUp } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({
     email: "",
     username: "",
@@ -23,13 +27,53 @@ export default function SignUpPage() {
     politicalLean: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+
+    if (!form.username.match(/^[a-z0-9_]{3,20}$/)) {
+      setError("Username must be 3-20 characters, lowercase letters, numbers, or underscores")
+      return
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters")
+      return
+    }
+
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      router.push("/")
-    }, 1500)
+    const { error } = await signUp(form.email, form.password, form.username, form.displayName)
+    setLoading(false)
+
+    if (error) {
+      setError(error)
+    } else {
+      setSuccess(true)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-[#1F3A93] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-[#E5E5E5]">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" />
+            </div>
+            <CardTitle className="text-[#4A4A4A]">Check Your Email</CardTitle>
+            <CardDescription>
+              We sent a confirmation link to <strong>{form.email}</strong>. Click the link to activate your account, then come back and sign in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Link href="/auth/signin">
+              <Button className="bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white">
+                Go to Sign In
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -44,6 +88,11 @@ export default function SignUpPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                {error}
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium text-[#4A4A4A]">Email</label>
               <Input
