@@ -28,9 +28,17 @@ interface FactualNewsItem {
   urlToImage: string | null
   category: string
   aiOverview: string
+  controversyScore: number
   leftArticles: NewsArticle[]
   rightArticles: NewsArticle[]
-  }
+}
+
+function getControversyLabel(score: number) {
+  if (score >= 75) return { label: "Highly Controversial", color: "bg-red-500", textColor: "text-red-700", bgLight: "bg-red-100" }
+  if (score >= 50) return { label: "Controversial", color: "bg-orange-500", textColor: "text-orange-700", bgLight: "bg-orange-100" }
+  if (score >= 25) return { label: "Moderate", color: "bg-yellow-500", textColor: "text-yellow-700", bgLight: "bg-yellow-100" }
+  return { label: "Low Controversy", color: "bg-green-500", textColor: "text-green-700", bgLight: "bg-green-100" }
+}
 
 export function AIFactualNews() {
   const [news, setNews] = useState<FactualNewsItem[]>([])
@@ -184,6 +192,28 @@ export function AIFactualNews() {
                 <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
                   Political
                 </Badge>
+                {/* Controversy Score */}
+                {(() => {
+                  const c = getControversyLabel(article.controversyScore)
+                  return (
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <span className={`text-xs font-medium ${c.textColor}`}>
+                        {c.label}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${c.color} transition-all`}
+                            style={{ width: `${article.controversyScore}%` }}
+                          />
+                        </div>
+                        <span className={`text-xs font-bold ${c.textColor}`}>
+                          {article.controversyScore}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
               <CardTitle className="text-lg mb-2 text-foreground">
                 <a

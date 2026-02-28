@@ -83,6 +83,7 @@ export interface FactualNewsWithPerspectives {
   urlToImage: string | null
   category: string
   aiOverview: string
+  controversyScore: number // 0-100
   leftArticles: NewsArticle[]
   rightArticles: NewsArticle[]
 }
@@ -129,6 +130,43 @@ function buildSearchQuery(title: string): string {
 
   // Take up to 6 meaningful words to keep the query specific
   return words.slice(0, 6).join(" ")
+}
+
+// Hot-button topics that increase controversy score
+const HOT_BUTTON_KEYWORDS =
+  /\b(abortion|gun\s?control|immigration|impeach|indictment|classified|scandal|investigation|probe|subpoena|contempt|riot|insurrection|protest|ban|overturn|strike\s?down|controversial|divisive|polariz|backlash|outrage|clash|feud|slam|blast|attack|accus|alleg|corrupt|fraud|misinformation|censorship|woke|weaponiz|radical|extremis)\b/i
+
+/**
+ * Calculate a controversy score (0-100) based on:
+ * - Coverage breadth: how many left AND right outlets are covering it
+ * - Topic heat: whether the headline contains hot-button keywords
+ * - Cross-spectrum coverage: bonus when both sides cover the same story
+ */
+export function calculateControversyScore(
+  article: Pick<FactualNewsWithPerspectives, "title" | "description" | "leftArticles" | "rightArticles">
+): number {
+  let score = 0
+  const leftCount = article.leftArticles.length
+  const rightCount = article.rightArticles.length
+  const totalCoverage = leftCount + rightCount
+
+  // Base score from total coverage (max 35 points)
+  score += Math.min(totalCoverage * 7, 35)
+
+  // Cross-spectrum bonus: both sides covering = more controversial (max 30 points)
+  if (leftCount > 0 && rightCount > 0) {
+    const minSide = Math.min(leftCount, rightCount)
+    score += Math.min(minSide * 15, 30)
+  }
+
+  // Hot-button keyword bonus (max 35 points)
+  const text = `${article.title} ${article.description}`
+  const matches = text.match(new RegExp(HOT_BUTTON_KEYWORDS.source, "gi"))
+  if (matches) {
+    score += Math.min(matches.length * 12, 35)
+  }
+
+  return Math.min(Math.max(score, 0), 100)
 }
 
 /**
@@ -203,6 +241,9 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         fetchEverythingFromDomains(query, RIGHT_DOMAINS),
       ])
 
+      const trimmedLeft = leftArticles.slice(0, 3)
+      const trimmedRight = rightArticles.slice(0, 3)
+
       return {
         title: headline.title,
         description: headline.description,
@@ -212,8 +253,14 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         urlToImage: headline.urlToImage,
         category: "political",
         aiOverview: "",
-        leftArticles: leftArticles.slice(0, 3),
-        rightArticles: rightArticles.slice(0, 3),
+        controversyScore: calculateControversyScore({
+          title: headline.title,
+          description: headline.description,
+          leftArticles: trimmedLeft,
+          rightArticles: trimmedRight,
+        }),
+        leftArticles: trimmedLeft,
+        rightArticles: trimmedRight,
       }
     })
   )
