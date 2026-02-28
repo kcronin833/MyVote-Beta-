@@ -114,7 +114,7 @@ const politicalData = {
         photo: "/placeholder.svg?height=128&width=128",
         coverPhoto: "/placeholder.svg?height=128&width=400",
         politicalScore: -72,
-        yearsInOffice: 4,
+        yearsInOffice: 6,
         contact: {
           phone: "(202) 225-3801",
           email: "nikema.williams@mail.house.gov",
@@ -174,7 +174,7 @@ const politicalData = {
           photo: "/placeholder.svg?height=128&width=128",
           coverPhoto: "/placeholder.svg?height=128&width=400",
           politicalScore: -68,
-          yearsInOffice: 4,
+          yearsInOffice: 6,
           contact: {
             phone: "(202) 224-3643",
             email: "senator_warnock@warnock.senate.gov",
@@ -216,11 +216,11 @@ const politicalData = {
           name: "Jon Ossoff",
           party: "Democrat" as const,
           office: "U.S. Senate",
-          district: "Georgia",
+          district: "Georgia (up for re-election Nov 2026)",
           photo: "/placeholder.svg?height=128&width=128",
           coverPhoto: "/placeholder.svg?height=128&width=400",
           politicalScore: -65,
-          yearsInOffice: 4,
+          yearsInOffice: 6,
           contact: {
             phone: "(202) 224-3521",
             email: "senator_ossoff@ossoff.senate.gov",
@@ -268,13 +268,428 @@ const politicalData = {
     },
     upcomingElections: [
       {
-        date: "November 5, 2024",
+        date: "May 19, 2026",
+        type: "Primary Election" as const,
+        office: "Georgia Governor - Democratic Primary",
+        description: "Democratic primary for Georgia Governor (Gov. Brian Kemp is term-limited)",
+        registrationDeadline: "April 20, 2026",
+        earlyVotingStart: "April 27, 2026",
+        earlyVotingEnd: "May 15, 2026",
+        candidates: [
+          {
+            name: "Keisha Lance Bottoms",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://keishaforgovernor.com",
+            experience: [
+              "Mayor of Atlanta (2018-2022)",
+              "Senior Adviser to President Biden",
+              "Atlanta City Council Member",
+            ],
+            keyIssues: ["Medicaid Expansion", "Public Education", "Small Business Support", "Free Community College"],
+            endorsements: ["Atlanta Democratic Leadership"],
+            fundraising: {
+              totalRaised: "$3.2M",
+              lastQuarter: "$890K",
+            },
+            bio: "Keisha Lance Bottoms served as the 60th Mayor of Atlanta from 2018 to 2022 and was a senior adviser to President Biden. She is running to expand Medicaid, improve public education, eliminate state income taxes for teachers, and help small businesses across all 159 Georgia counties.",
+            age: 55,
+            education: ["Florida A&M University - B.A.", "Georgia State University - J.D."],
+            hometown: "Atlanta, Georgia",
+            family: "Married with four children",
+            politicalScore: -62,
+            positions: [
+              {
+                issue: "Medicaid Expansion",
+                stance: "Supportive",
+                description: "Advocates for full Medicaid expansion in Georgia to cover hundreds of thousands of uninsured Georgians.",
+              },
+              {
+                issue: "Public Education",
+                stance: "Progressive",
+                description: "Supports eliminating state income taxes for teachers, increasing public school funding, and offering free technical and community college.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Supportive",
+                description: "Plans to create new support programs for small businesses and entrepreneurs in underserved communities across Georgia.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/KeishaBottoms",
+              facebook: "https://facebook.com/KeishaLanceBottoms",
+              instagram: "https://instagram.com/keaborgeorgia",
+            },
+            contactInfo: {
+              email: "info@keishaforgovernor.com",
+              phone: "(404) 555-0201",
+              campaignOffice: "Atlanta, GA",
+            },
+          },
+          {
+            name: "Geoff Duncan",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://geoffduncan.com",
+            experience: [
+              "Lieutenant Governor of Georgia (2019-2023, as Republican)",
+              "Georgia State Representative",
+              "Switched to Democratic Party in 2025",
+            ],
+            keyIssues: ["Childcare Affordability", "Healthcare Costs", "Housing Costs", "Rejecting Extremism"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$2.1M",
+              lastQuarter: "$640K",
+            },
+            bio: "Geoff Duncan served as Georgia's Republican Lt. Governor from 2019 to 2023 before switching to the Democratic Party in August 2025. He says he's the only Democrat who can win the general election by attracting Democrats, independents, and disaffected Republicans. He's focused on lowering the cost of childcare, healthcare, and housing.",
+            age: 47,
+            education: ["Georgia Tech"],
+            hometown: "Lawrenceville, Georgia",
+            family: "Married with three sons",
+            politicalScore: -15,
+            positions: [
+              {
+                issue: "Childcare & Cost of Living",
+                stance: "Moderate",
+                description: "Focused on bringing down the cost of childcare, healthcare, and housing for Georgia families in all 159 counties.",
+              },
+              {
+                issue: "Rejecting Extremism",
+                stance: "Centrist",
+                description: "Campaigning on fairness, opportunity, and 'love thy neighbor' values, rejecting extremism from both parties.",
+              },
+              {
+                issue: "Healthcare",
+                stance: "Supportive",
+                description: "Supports expanding healthcare access and lowering costs for Georgia families.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/GeoffDuncanGA",
+            },
+            contactInfo: {
+              email: "info@geoffduncan.com",
+              phone: "(770) 555-0302",
+            },
+          },
+          {
+            name: "Jason Esteves",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "Georgia State Senator",
+              "Former Atlanta Public Schools Board Member",
+              "Public School Teacher & Lawyer",
+            ],
+            keyIssues: ["Public Education Funding", "Lowering Cost of Living", "Healthcare Access", "Overturning Abortion Ban"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.5M",
+              lastQuarter: "$420K",
+            },
+            bio: "Jason Esteves is a Georgia State Senator, former public school teacher, and lawyer who served on the Atlanta Public Schools board. He's running to make Georgia the best place to work, start a business, and raise a family, with a focus on education, healthcare, and reproductive rights.",
+            age: 42,
+            education: ["Emory University - J.D."],
+            hometown: "Atlanta, Georgia",
+            politicalScore: -70,
+            positions: [
+              {
+                issue: "Public Education",
+                stance: "Progressive",
+                description: "Wants to increase public education funding and create multiple pathways to success for Georgia students.",
+              },
+              {
+                issue: "Reproductive Rights",
+                stance: "Supportive",
+                description: "Advocates for overturning Georgia's abortion ban and protecting reproductive healthcare access.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Supportive",
+                description: "Plans to invest in small businesses and lower the cost of living for working families.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/JasonEsteves",
+            },
+            contactInfo: {
+              email: "info@estevesforgovernor.com",
+            },
+          },
+          {
+            name: "Michael Thurmond",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "DeKalb County CEO",
+              "Georgia State Labor Commissioner",
+              "Former State Representative",
+              "Interim DeKalb County School Superintendent",
+            ],
+            keyIssues: ["Working Families", "Healthcare Expansion", "Education Pathways", "Public Safety"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.8M",
+              lastQuarter: "$510K",
+            },
+            bio: "Michael Thurmond is the CEO of DeKalb County and has decades of public service including as Georgia's Labor Commissioner and a State Representative. He's running to fight for working families, expand healthcare access, and build an education system with multiple pathways to success.",
+            age: 72,
+            education: ["Paine College - B.A.", "University of South Carolina - J.D."],
+            hometown: "Athens, Georgia",
+            politicalScore: -55,
+            positions: [
+              {
+                issue: "Working Families",
+                stance: "Progressive",
+                description: "Focused on growing Georgia faster, stronger, safer, and more equitable for working families.",
+              },
+              {
+                issue: "Healthcare",
+                stance: "Supportive",
+                description: "Supports expanding access to healthcare for all Georgians.",
+              },
+              {
+                issue: "Education",
+                stance: "Progressive",
+                description: "Wants to create multiple pathways to success through expanded education and job training programs.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/MikeThurmond",
+            },
+            contactInfo: {
+              email: "info@thurmondforgovernor.com",
+            },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "U.S. Senate - Georgia",
+        description: "U.S. Senate election - Sen. Jon Ossoff (D) seeking re-election against a field of challengers",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Jon Ossoff",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://ossoff.senate.gov",
+            experience: [
+              "Current U.S. Senator (2021-present)",
+              "Investigative Journalist & Documentary Filmmaker",
+              "CEO, Insight TWI",
+            ],
+            keyIssues: ["Government Accountability", "Criminal Justice Reform", "Healthcare", "Technology Policy"],
+            endorsements: ["Georgia Democratic Party"],
+            fundraising: {
+              totalRaised: "$8.5M",
+              lastQuarter: "$2.3M",
+            },
+            bio: "Jon Ossoff has served as Georgia's junior U.S. Senator since 2021. He's focused on government accountability, criminal justice reform, healthcare access, and technology policy. He previously worked as an investigative journalist and CEO of a media company investigating corruption and human rights abuses.",
+            age: 39,
+            education: ["Georgetown University - B.S. Foreign Service", "London School of Economics - M.Sc."],
+            hometown: "Atlanta, Georgia",
+            family: "Married",
+            politicalScore: -65,
+            positions: [
+              {
+                issue: "Government Accountability",
+                stance: "Reform",
+                description: "Led investigations into government waste, fraud, and abuse. Champions transparency and oversight of federal spending.",
+              },
+              {
+                issue: "Criminal Justice Reform",
+                stance: "Progressive",
+                description: "Advocates for sentencing reform, ending cash bail for non-violent offenses, and investing in reentry programs.",
+              },
+              {
+                issue: "Technology & Privacy",
+                stance: "Progressive",
+                description: "Supports data privacy protections, AI regulation, and ensuring technology companies are held accountable.",
+              },
+            ],
+            votingRecord: [
+              {
+                bill: "CHIPS and Science Act",
+                vote: "Yes",
+                date: "July 27, 2022",
+                description: "Technology and manufacturing investment",
+              },
+              {
+                bill: "Inflation Reduction Act",
+                vote: "Yes",
+                date: "August 7, 2022",
+                description: "Climate and healthcare legislation",
+              },
+              {
+                bill: "Infrastructure Investment Act",
+                vote: "Yes",
+                date: "August 10, 2021",
+                description: "Infrastructure funding including Georgia projects",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/SenOssoff",
+              facebook: "https://facebook.com/SenatorOssoff",
+              instagram: "https://instagram.com/senossoff",
+            },
+            contactInfo: {
+              email: "info@ossoffforgeorgia.com",
+              phone: "(404) 555-0789",
+              campaignOffice: "Atlanta, GA",
+            },
+          },
+          {
+            name: "Mike Collins",
+            party: "Republican" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://mikecollinsforsenate.com",
+            experience: [
+              "U.S. Representative, GA-10 (2023-present)",
+              "Founder, Collins Trucking Co.",
+              "Led passage of the Laken Riley Act",
+            ],
+            keyIssues: ["Border Security", "Economic Growth", "America First Agenda", "Public Safety"],
+            endorsements: ["Georgia Republican Party"],
+            fundraising: {
+              totalRaised: "$3.8M",
+              lastQuarter: "$1.1M",
+            },
+            bio: "Mike Collins represents Georgia's 10th Congressional District and is the founder of Collins Trucking. He's one of the key figures behind the Laken Riley Act and is running on an America First platform to unseat Jon Ossoff.",
+            age: 58,
+            education: ["University of Georgia"],
+            hometown: "Jackson, Georgia",
+            politicalScore: 78,
+            positions: [
+              {
+                issue: "Border Security",
+                stance: "Conservative",
+                description: "Strong supporter of border enforcement, the Laken Riley Act, and cracking down on illegal immigration.",
+              },
+              {
+                issue: "Economic Growth",
+                stance: "Pro-Business",
+                description: "Advocates for lower taxes, reduced regulations, and supporting Georgia's trucking and logistics industries.",
+              },
+              {
+                issue: "America First",
+                stance: "Conservative",
+                description: "Supports President Trump's America First agenda across trade, defense, and domestic policy.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/RepMikeCollins",
+            },
+            contactInfo: {
+              email: "info@mikecollinsforsenate.com",
+            },
+          },
+          {
+            name: "Buddy Carter",
+            party: "Republican" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://buddycarter.com",
+            experience: [
+              "U.S. Representative, GA-1 (2015-present)",
+              "Former Mayor of Pooler, GA",
+              "Pharmacist & Business Owner",
+            ],
+            keyIssues: ["Healthcare Costs", "Conservative Values", "Veterans Affairs", "Small Business"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$2.5M",
+              lastQuarter: "$780K",
+            },
+            bio: "Buddy Carter has represented Georgia's 1st Congressional District (Savannah area) since 2015. A pharmacist and former mayor, he's focused on lowering healthcare costs and bringing conservative leadership to the Senate.",
+            age: 69,
+            education: ["University of Georgia - B.S. Pharmacy"],
+            hometown: "Pooler, Georgia",
+            politicalScore: 72,
+            positions: [
+              {
+                issue: "Healthcare Costs",
+                stance: "Market-Based",
+                description: "Pharmacist by trade who advocates for market-based solutions to lower prescription drug costs and increase competition.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Pro-Business",
+                description: "As a business owner himself, supports reducing regulations and taxes on small businesses.",
+              },
+              {
+                issue: "Veterans",
+                stance: "Supportive",
+                description: "Advocates for improved VA services and mental health support for Georgia's veterans.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/RepBuddyCarter",
+            },
+            contactInfo: {
+              email: "info@buddycarterforsenate.com",
+            },
+          },
+          {
+            name: "Derek Dooley",
+            party: "Republican" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "Attorney",
+              "Former NCAA Head Football Coach (Tennessee, Louisiana Tech)",
+              "UGA Law School Graduate",
+            ],
+            keyIssues: ["Georgia First", "Common Sense Governance", "Supporting Trump Agenda", "Economic Growth"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.2M",
+              lastQuarter: "$380K",
+            },
+            bio: "Derek Dooley is an Athens native, UGA law school graduate, and former college football head coach. The son of legendary UGA coach Vince Dooley, he's running to bring Georgia common sense to Washington and work with President Trump to deliver results.",
+            age: 58,
+            education: ["University of Virginia - B.A.", "University of Georgia - J.D."],
+            hometown: "Athens, Georgia",
+            politicalScore: 65,
+            positions: [
+              {
+                issue: "Georgia First",
+                stance: "Conservative",
+                description: "Pledges to put Georgia's interests first and work with President Trump to advance his agenda.",
+              },
+              {
+                issue: "Common Sense",
+                stance: "Moderate Conservative",
+                description: "Advocates for practical, common-sense solutions over partisan gridlock.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/DerekDooley",
+            },
+            contactInfo: {
+              email: "info@dooleyforgeorgia.com",
+            },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
         type: "General Election" as const,
         office: "U.S. House of Representatives - GA-5",
-        description: "Congressional election for Georgia's 5th District (Atlanta)",
-        registrationDeadline: "October 7, 2024",
-        earlyVotingStart: "October 15, 2024",
-        earlyVotingEnd: "November 1, 2024",
+        description: "Congressional election for Georgia's 5th District (Atlanta) - Rep. Nikema Williams (D) seeking re-election",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
         candidates: [
           {
             name: "Nikema Williams",
@@ -290,11 +705,11 @@ const politicalData = {
             keyIssues: ["Voting Rights", "MARTA Expansion", "Atlanta Housing", "Healthcare Access"],
             endorsements: ["Georgia Democratic Party", "AFL-CIO", "Sierra Club", "Planned Parenthood"],
             fundraising: {
-              totalRaised: "$1.8M",
-              lastQuarter: "$425K",
+              totalRaised: "$2.1M",
+              lastQuarter: "$485K",
             },
-            bio: "Nikema Williams represents Georgia's 5th Congressional District, which includes most of Atlanta. She previously served in the Georgia State Senate and as Chair of the Georgia Democratic Party. She's a strong advocate for voting rights, transportation infrastructure, and economic justice.",
-            age: 46,
+            bio: "Nikema Williams represents Georgia's 5th Congressional District, which includes most of Atlanta. Now in her third term, she previously served in the Georgia State Senate and as Chair of the Georgia Democratic Party. She continues to champion voting rights, transit expansion, and affordable housing.",
+            age: 48,
             education: ["Talladega College - B.A. English", "Georgia State University - M.P.A."],
             hometown: "Atlanta, Georgia",
             family: "Married with one son",
@@ -303,20 +718,17 @@ const politicalData = {
               {
                 issue: "MARTA Expansion",
                 stance: "Supportive",
-                description:
-                  "Strong advocate for federal funding for MARTA expansion and Atlanta public transit. Supports connecting underserved communities to job centers.",
+                description: "Strong advocate for federal funding for MARTA expansion and Atlanta public transit. Supports connecting underserved communities to job centers.",
               },
               {
                 issue: "Voting Rights",
                 stance: "Supportive",
-                description:
-                  "Champion of the John Lewis Voting Rights Advancement Act. Advocates for automatic voter registration and expanded early voting access in Georgia.",
+                description: "Champion of the John Lewis Voting Rights Advancement Act. Advocates for automatic voter registration and expanded early voting access in Georgia.",
               },
               {
                 issue: "Atlanta Housing",
                 stance: "Progressive",
-                description:
-                  "Supports federal investment in affordable housing, tenant protections, and addressing Atlanta's housing affordability crisis.",
+                description: "Supports federal investment in affordable housing, tenant protections, and addressing Atlanta's housing affordability crisis.",
               },
             ],
             votingRecord: [
@@ -352,16 +764,16 @@ const politicalData = {
               },
             ],
             campaignFinance: {
-              totalRaised: "$1,800,000",
-              totalSpent: "$1,200,000",
-              cashOnHand: "$600,000",
-              averageDonation: "$125",
-              smallDonorPercentage: "68%",
+              totalRaised: "$2,100,000",
+              totalSpent: "$1,400,000",
+              cashOnHand: "$700,000",
+              averageDonation: "$130",
+              smallDonorPercentage: "66%",
               topIndustries: [
-                { name: "Education", amount: "$285,000" },
-                { name: "Healthcare", amount: "$210,000" },
-                { name: "Labor Unions", amount: "$195,000" },
-                { name: "Transportation", amount: "$175,000" },
+                { name: "Education", amount: "$310,000" },
+                { name: "Healthcare", amount: "$240,000" },
+                { name: "Labor Unions", amount: "$215,000" },
+                { name: "Transportation", amount: "$190,000" },
               ],
             },
             socialMedia: {
@@ -376,187 +788,18 @@ const politicalData = {
             },
             events: [
               {
-                name: "MARTA Expansion Town Hall",
-                date: "August 15, 2024",
+                name: "Transit & Housing Town Hall",
+                date: "April 10, 2026",
                 location: "Atlanta City Hall",
-                description: "Discussion on federal funding for MARTA expansion and Atlanta transit",
+                description: "Discussion on MARTA expansion and affordable housing in Atlanta",
               },
               {
-                name: "Voting Rights Rally",
-                date: "September 3, 2024",
+                name: "Voting Rights Community Forum",
+                date: "May 1, 2026",
                 location: "Ebenezer Baptist Church",
-                description: "Rally for voting rights protection in Georgia",
+                description: "Community discussion on protecting voting rights in Georgia",
               },
             ],
-          },
-          {
-            name: "Angela Stanton-King",
-            party: "Republican" as const,
-            isIncumbent: false,
-            photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Author", "Criminal Justice Advocate", "Community Organizer"],
-            keyIssues: ["Criminal Justice Reform", "Economic Opportunity", "Education Choice", "Community Safety"],
-            endorsements: ["Georgia Republican Party"],
-            fundraising: {
-              totalRaised: "$285K",
-              lastQuarter: "$67K",
-            },
-            bio: "Angela Stanton-King is an author, advocate, and community organizer focused on criminal justice reform and economic opportunity in Atlanta's communities. She's running to bring fresh perspectives and bipartisan solutions to Congress.",
-            age: 44,
-            education: ["Self-educated advocate and author"],
-            hometown: "Atlanta, Georgia",
-            family: "Mother of six children",
-            politicalScore: 45,
-            positions: [
-              {
-                issue: "Criminal Justice Reform",
-                stance: "Reformist",
-                description:
-                  "Advocates for second chances, prison reform, and reentry programs. Supports reducing recidivism through education and job training.",
-              },
-              {
-                issue: "Economic Opportunity",
-                stance: "Pro-Business",
-                description:
-                  "Supports small business development, entrepreneurship programs, and economic empowerment in Atlanta's underserved communities.",
-              },
-              {
-                issue: "Education Choice",
-                stance: "Supportive",
-                description:
-                  "Advocates for school choice, charter schools, and educational opportunities for all Atlanta children regardless of zip code.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/AngelaStanton",
-              facebook: "https://facebook.com/AngelaStantonKing",
-            },
-            contactInfo: {
-              email: "info@angelaforatlanta.com",
-              phone: "(404) 555-0456",
-            },
-          },
-        ],
-      },
-      {
-        date: "November 5, 2024",
-        type: "General Election" as const,
-        office: "U.S. Senate - Georgia",
-        description: "U.S. Senate election for Georgia (Special Election)",
-        registrationDeadline: "October 7, 2024",
-        earlyVotingStart: "October 15, 2024",
-        earlyVotingEnd: "November 1, 2024",
-        candidates: [
-          {
-            name: "Raphael Warnock",
-            party: "Democrat" as const,
-            isIncumbent: true,
-            photo: "/placeholder.svg?height=64&width=64",
-            website: "https://warnock.senate.gov",
-            experience: ["Current U.S. Senator", "Senior Pastor, Ebenezer Baptist Church", "Civil Rights Advocate"],
-            keyIssues: ["Healthcare Access", "Voting Rights", "Economic Justice", "Rural Development"],
-            endorsements: ["Georgia Democratic Party", "SEIU", "Georgia Teachers Association"],
-            fundraising: {
-              totalRaised: "$6.8M",
-              lastQuarter: "$1.9M",
-            },
-            bio: "Raphael Warnock serves as Georgia's first Black U.S. Senator and is the Senior Pastor of Ebenezer Baptist Church in Atlanta, where Dr. Martin Luther King Jr. once preached. He's focused on healthcare access, voting rights, and economic opportunity for all Georgians.",
-            age: 55,
-            education: ["Morehouse College - B.A.", "Union Theological Seminary - M.Div., Ph.D."],
-            hometown: "Savannah, Georgia",
-            family: "Father of two children",
-            politicalScore: -68,
-            positions: [
-              {
-                issue: "Healthcare Access",
-                stance: "Progressive",
-                description:
-                  "Advocates for expanding Medicaid in Georgia, lowering prescription drug costs, and protecting coverage for pre-existing conditions.",
-              },
-              {
-                issue: "Voting Rights",
-                stance: "Supportive",
-                description:
-                  "Champion of the John Lewis Voting Rights Advancement Act and the Freedom to Vote Act. Opposes voter suppression efforts in Georgia.",
-              },
-              {
-                issue: "Economic Justice",
-                stance: "Progressive",
-                description:
-                  "Supports raising the minimum wage, paid family leave, and investments in job training and education programs.",
-              },
-            ],
-            votingRecord: [
-              {
-                bill: "Inflation Reduction Act",
-                vote: "Yes",
-                date: "August 7, 2022",
-                description: "Climate and healthcare legislation",
-              },
-              {
-                bill: "Infrastructure Investment Act",
-                vote: "Yes",
-                date: "August 10, 2021",
-                description: "Infrastructure funding for Georgia",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/SenatorWarnock",
-              facebook: "https://facebook.com/SenatorWarnock",
-              instagram: "https://instagram.com/senatorwarnock",
-            },
-            contactInfo: {
-              email: "info@warnockforgeorgia.com",
-              phone: "(404) 555-0789",
-              campaignOffice: "5678 Martin Luther King Jr Dr, Atlanta, GA 30312",
-            },
-          },
-          {
-            name: "Herschel Walker",
-            party: "Republican" as const,
-            isIncumbent: false,
-            photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Former NFL Player", "Heisman Trophy Winner", "Business Owner"],
-            keyIssues: ["Economic Growth", "Public Safety", "Veterans Affairs", "Education"],
-            endorsements: ["Georgia Republican Party"],
-            fundraising: {
-              totalRaised: "$4.2M",
-              lastQuarter: "$1.1M",
-            },
-            bio: "Herschel Walker is a former NFL star and Heisman Trophy winner from the University of Georgia. After his football career, he became a successful businessman and is running to bring conservative values and economic growth to Georgia.",
-            age: 62,
-            education: ["University of Georgia"],
-            hometown: "Wrightsville, Georgia",
-            family: "Father of four children",
-            politicalScore: 72,
-            positions: [
-              {
-                issue: "Economic Growth",
-                stance: "Conservative",
-                description:
-                  "Advocates for lower taxes, reduced regulations, and support for small businesses to create jobs in Georgia.",
-              },
-              {
-                issue: "Public Safety",
-                stance: "Law and Order",
-                description:
-                  "Supports increased funding for law enforcement, tougher penalties for violent crimes, and backing the blue.",
-              },
-              {
-                issue: "Veterans Affairs",
-                stance: "Supportive",
-                description:
-                  "Advocates for improved VA services, mental health support for veterans, and honoring those who served.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/HerschelWalker",
-              facebook: "https://facebook.com/HerschelWalker",
-            },
-            contactInfo: {
-              email: "info@herschelforgeorgia.com",
-              phone: "(770) 555-0123",
-            },
           },
         ],
       },
