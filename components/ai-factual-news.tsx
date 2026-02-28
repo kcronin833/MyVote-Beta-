@@ -94,7 +94,7 @@ export function AIFactualNews() {
           </div>
           <div className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">Fetching news & generating AI overviews...</span>
+            <span className="text-sm text-muted-foreground">Fetching political news...</span>
           </div>
         </div>
         {[...Array(4)].map((_, i) => (
@@ -156,7 +156,7 @@ export function AIFactualNews() {
         <div className="flex items-start gap-2">
           <Sparkles className="w-4 h-4 text-primary mt-0.5" />
           <div className="text-sm text-foreground">
-            <strong>AI-powered political reporting:</strong> Each story includes an AI-generated
+            <strong>Nonpartisan political reporting:</strong> Each story includes a factual
             overview that objectively summarizes the political issue, followed by directly
             related articles from left-leaning and right-leaning outlets.
           </div>
@@ -202,7 +202,7 @@ export function AIFactualNews() {
                     <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                     <div>
                       <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                        AI Overview
+                        Overview
                       </span>
                       <p className="text-sm text-foreground mt-1 leading-relaxed">
                         {article.aiOverview}

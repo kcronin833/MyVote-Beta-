@@ -103,9 +103,18 @@ const STOP_WORDS = new Set([
   "over","into","more","how","what","when","who","why","not","just","some",
 ])
 
+// Political keywords used to filter headlines to only political news
+const POLITICAL_KEYWORDS =
+  /\b(congress|senate|senator|house|representative|republican|democrat|gop|liberal|conservative|biden|trump|white\s?house|president|governor|mayor|legislation|bill\b|law|policy|vote|elect|campaign|partisan|bipartisan|supreme\s?court|scotus|justice|attorney\s?general|fbi|doj|cia|pentagon|cabinet|impeach|executive\s?order|veto|filibuster|lobby|gerrymander|redistrict|stimulus|debt\s?ceiling|shutdown|appropriat|federal|government|administration|political|politics|immigration|border|asylum|democrat|abortion|gun\s?control|second\s?amendment|first\s?amendment|nato|diplomacy|sanction|tariff|trade\s?war|foreign\s?policy|state\s?of\s?the\s?union|midterm|primary|caucus|poll|approval\s?rating|executive\s?branch|judicial|legislative)\b/i
+
+function isPoliticalArticle(article: NewsArticle): boolean {
+  const text = `${article.title} ${article.description}`.toLowerCase()
+  return POLITICAL_KEYWORDS.test(text)
+}
+
 /**
  * Build a tight search query from a headline: keep only meaningful words,
- * quote multi-word proper nouns / names if present, and limit length.
+ * strip source attribution, and limit length.
  */
 function buildSearchQuery(title: string): string {
   const cleaned = title
@@ -122,26 +131,65 @@ function buildSearchQuery(title: string): string {
   return words.slice(0, 6).join(" ")
 }
 
-export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
-  // Fetch political headlines as the factual base
-  const headlines = await fetchTopHeadlines("us", "politics")
+/**
+ * Build a factual overview from headline data and perspective coverage.
+ * Synthesizes context from the description + left/right article titles.
+ */
+export function buildOverview(
+  article: FactualNewsWithPerspectives
+): string {
+  // Start with the description as the base
+  const base = article.description
+    ? article.description.replace(/\s*\[\+\d+ chars\]$/, "").trim()
+    : ""
 
-  // If politics category returns few results, supplement with general + political filter
-  let politicalHeadlines = headlines
-  if (politicalHeadlines.length < 4) {
-    const general = await fetchEverything("US politics OR Congress OR White House OR legislation OR Supreme Court")
-    const seen = new Set(politicalHeadlines.map((h) => h.url))
-    for (const a of general) {
-      if (!seen.has(a.url)) {
-        politicalHeadlines.push(a)
-        seen.add(a.url)
-      }
+  // Summarise how many outlets are covering it
+  const leftCount = article.leftArticles.length
+  const rightCount = article.rightArticles.length
+
+  const leftNames = [...new Set(article.leftArticles.map((a) => a.source))].slice(0, 3)
+  const rightNames = [...new Set(article.rightArticles.map((a) => a.source))].slice(0, 3)
+
+  let coverage = ""
+  if (leftCount > 0 && rightCount > 0) {
+    coverage = `This story is being covered across the political spectrum, including ${leftNames.join(", ")} on the left and ${rightNames.join(", ")} on the right.`
+  } else if (leftCount > 0) {
+    coverage = `This story is being covered by left-leaning outlets including ${leftNames.join(", ")}.`
+  } else if (rightCount > 0) {
+    coverage = `This story is being covered by right-leaning outlets including ${rightNames.join(", ")}.`
+  }
+
+  return [base, coverage].filter(Boolean).join(" ")
+}
+
+export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
+  // Fetch from multiple political queries in parallel to get a good pool
+  const [generalHeadlines, politicalSearch] = await Promise.all([
+    fetchTopHeadlines("us", "general"),
+    fetchEverything("US Congress OR White House OR legislation OR Supreme Court OR election"),
+  ])
+
+  // Combine & deduplicate
+  const seen = new Set<string>()
+  const allArticles: NewsArticle[] = []
+  for (const article of [...generalHeadlines, ...politicalSearch]) {
+    if (!seen.has(article.url)) {
+      seen.add(article.url)
+      allArticles.push(article)
     }
   }
 
+  // Filter to ONLY political articles
+  const politicalHeadlines = allArticles.filter(isPoliticalArticle)
+
   if (politicalHeadlines.length === 0) return []
 
-  // Take top 6 headlines
+  // Sort by most recent first
+  politicalHeadlines.sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )
+
+  // Take top 6 political headlines
   const topHeadlines = politicalHeadlines.slice(0, 6)
 
   // For each headline, fetch directly-related articles from left and right sources
@@ -163,7 +211,7 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         url: headline.url,
         urlToImage: headline.urlToImage,
         category: "political",
-        aiOverview: "", // Populated by the server action via AI
+        aiOverview: "",
         leftArticles: leftArticles.slice(0, 3),
         rightArticles: rightArticles.slice(0, 3),
       }

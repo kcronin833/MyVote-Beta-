@@ -1,48 +1,10 @@
 "use server"
 
-import { generateText } from "ai"
 import {
   getFactualNewsWithPerspectives,
+  buildOverview,
   type FactualNewsWithPerspectives,
 } from "@/lib/news-service"
-
-async function generateAIOverview(article: FactualNewsWithPerspectives): Promise<string> {
-  try {
-    const leftContext = article.leftArticles
-      .map((a) => `- ${a.title} (${a.source})`)
-      .join("\n")
-    const rightContext = article.rightArticles
-      .map((a) => `- ${a.title} (${a.source})`)
-      .join("\n")
-
-    const result = await generateText({
-      model: "openai/gpt-4o-mini",
-      prompt: `You are a neutral, nonpartisan political news analyst. Given the following political headline and related coverage from left-leaning and right-leaning outlets, write a 2-3 sentence objective overview explaining:
-1. What happened or is happening
-2. Who is involved (politicians, agencies, parties)
-3. Why it matters politically
-
-Do NOT take any political side. Stick only to verified facts. Do not editorialize or use opinion language.
-
-Headline: ${article.title}
-Description: ${article.description || "N/A"}
-Source: ${article.source}
-
-Left-leaning coverage:
-${leftContext || "No coverage found."}
-
-Right-leaning coverage:
-${rightContext || "No coverage found."}
-
-Write a concise, factual political overview:`,
-    })
-
-    return result.text.trim()
-  } catch (err) {
-    console.error("AI overview generation failed for:", article.title, err)
-    return article.description || ""
-  }
-}
 
 export async function generateFactualNewsAction(): Promise<{
   success: boolean
@@ -52,13 +14,11 @@ export async function generateFactualNewsAction(): Promise<{
   try {
     const news = await getFactualNewsWithPerspectives()
     if (news.length > 0) {
-      // Generate AI overviews for all articles in parallel
-      const newsWithOverviews = await Promise.all(
-        news.map(async (article) => {
-          const aiOverview = await generateAIOverview(article)
-          return { ...article, aiOverview }
-        })
-      )
+      // Build overviews from article data + perspective coverage
+      const newsWithOverviews = news.map((article) => ({
+        ...article,
+        aiOverview: buildOverview(article),
+      }))
       return { success: true, news: newsWithOverviews }
     }
     return {
