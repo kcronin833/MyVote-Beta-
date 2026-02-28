@@ -3,6 +3,11 @@
 
 const BASE_URL = "https://newsapi.org/v2";
 
+// Strip HTML tags from API responses to prevent React script tag warnings
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
 function getApiKey() {
   const key = process.env.NEWS_API_KEY;
   if (!key) {
@@ -73,11 +78,6 @@ async function fetchEverything(q: string): Promise<NewsArticle[]> {
   const encoded = encodeURIComponent(q);
   const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
-}
-
-// Strip HTML tags from strings to prevent script injection from external content
-function stripHtml(str: string): string {
-  return str.replace(/<[^>]*>/g, "").trim();
 }
 
 async function fetchAndParse(url: string): Promise<NewsArticle[]> {
