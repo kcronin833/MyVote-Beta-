@@ -9,6 +9,7 @@ import {
   Clock,
   MapPin,
   Globe,
+  Newspaper,
   Users,
   MessageCircle,
   ChevronDown,
@@ -132,36 +133,57 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   )
 }
 
-// --- LOCAL NEWS SECTION ---
-function LocalNewsSection({ location }: { location: GeoLocation | null }) {
+// --- UNIFIED NEWS SECTION (local + national mixed) ---
+function NewsFeedSection({ location }: { location: GeoLocation | null }) {
   const [articles, setArticles] = useState<Article[]>([])
-  const [loading, setLoading] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (location) {
-      loadLocalNews(`${location.city}, ${location.region}`)
-    }
-  }, [location])
+    async function loadAll() {
+      setLoading(true)
 
-  async function loadLocalNews(loc: string) {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/news?perspective=local&location=${encodeURIComponent(loc)}`)
-      const data = await res.json()
-      setArticles(data.articles || [])
-    } catch {
-      setArticles([])
+      // Always start national fetch; local waits on location
+      const nationalPromise = fetch("/api/news?perspective=facts")
+        .then((r) => r.json())
+        .then((d) => (d.articles || []) as Article[])
+        .catch(() => [] as Article[])
+
+      const localPromise = location
+        ? fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
+            .then((r) => r.json())
+            .then((d) => (d.articles || []) as Article[])
+            .catch(() => [] as Article[])
+        : Promise.resolve([] as Article[])
+
+      const [national, local] = await Promise.all([nationalPromise, localPromise])
+
+      // Merge & deduplicate by URL, then sort newest-first
+      const seen = new Set<string>()
+      const merged: Article[] = []
+      for (const a of [...local, ...national]) {
+        if (!seen.has(a.url)) {
+          seen.add(a.url)
+          merged.push(a)
+        }
+      }
+      merged.sort(
+        (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      )
+
+      setArticles(merged)
+      setLoading(false)
     }
-    setLoading(false)
-    setLoaded(true)
-  }
+
+    // If location hasn't loaded yet, only fetch national first;
+    // refetch both once location arrives
+    loadAll()
+  }, [location])
 
   return (
     <section>
       <div className="flex items-center gap-2 mb-4">
-        <MapPin className="w-5 h-5 text-red-500" />
-        <h2 className="text-lg font-semibold text-foreground">Local News</h2>
+        <Newspaper className="w-5 h-5 text-primary" />
+        <h2 className="text-lg font-semibold text-foreground">Your News Feed</h2>
         {location && (
           <Badge variant="secondary" className="text-xs">
             {location.city}, {location.region}
@@ -169,70 +191,13 @@ function LocalNewsSection({ location }: { location: GeoLocation | null }) {
         )}
       </div>
 
-      {!location && (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-            <p className="text-sm">Detecting your location...</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {loading && <LoadingSkeleton count={3} />}
-
-      {loaded && !loading && articles.length === 0 && (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            <MapPin className="w-8 h-8 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">No local political news found for your area.</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {!loading && articles.length > 0 && (
-        <div className="grid gap-3">
-          {articles.map((article, i) => (
-            <ArticleCard key={i} article={article} />
-          ))}
-        </div>
-      )}
-    </section>
-  )
-}
-
-// --- NATIONAL NEWS SECTION ---
-function NationalNewsSection() {
-  const [articles, setArticles] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/news?perspective=facts")
-        const data = await res.json()
-        setArticles(data.articles || [])
-      } catch {
-        setArticles([])
-      }
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  return (
-    <section>
-      <div className="flex items-center gap-2 mb-4">
-        <Globe className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold text-foreground">National Political News</h2>
-      </div>
-
-      {loading && <LoadingSkeleton count={3} />}
+      {loading && <LoadingSkeleton count={5} />}
 
       {!loading && articles.length === 0 && (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            <Globe className="w-8 h-8 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">No national news available right now.</p>
+            <Newspaper className="w-8 h-8 mx-auto mb-2 opacity-40" />
+            <p className="text-sm">No political news found right now. Check back soon.</p>
           </CardContent>
         </Card>
       )}
@@ -240,7 +205,7 @@ function NationalNewsSection() {
       {!loading && articles.length > 0 && (
         <div className="grid gap-3">
           {articles.map((article, i) => (
-            <ArticleCard key={i} article={article} />
+            <ArticleCard key={`${article.url}-${i}`} article={article} />
           ))}
         </div>
       )}
@@ -372,8 +337,7 @@ export function HomeFeed() {
 
   return (
     <div className="space-y-10">
-      <LocalNewsSection location={location} />
-      <NationalNewsSection />
+      <NewsFeedSection location={location} />
       <FriendsActivitySection />
     </div>
   )
