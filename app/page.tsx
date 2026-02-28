@@ -1,400 +1,226 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  MapPin,
-  Calendar,
-  CheckCircle,
-  MessageCircle,
-  Heart,
-  ExternalLink,
-  Newspaper,
-  Users,
-  User,
-  TrendingUp,
-  Globe,
-} from "lucide-react"
-import { currentUser, mockComments, mockUsers } from "@/lib/mock-data"
-import { formatDistanceToNow } from "date-fns"
-import { UserNav } from "@/components/user-nav"
-import { SearchInput } from "@/components/search-input"
-import { Logo } from "@/components/logo"
-import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Clock, MapPin } from "lucide-react";
+import { NewsNavigation } from "@/components/news-nav";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/lib/auth-context";
+import { formatNewsTime } from "@/lib/news-service";
 
-export default function HomePage() {
-  const [activeTab, setActiveTab] = useState("activity")
+interface Article {
+  title: string;
+  description: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  urlToImage: string | null;
+}
 
-  const userComments = mockComments.filter((comment) => comment.userId === currentUser.id)
-  const userReplies = mockComments.flatMap((comment) =>
-    comment.replies.filter((reply) => reply.userId === currentUser.id),
-  )
-  const allUserActivity = [...userComments, ...userReplies].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-  )
+const PRESET_LOCATIONS = [
+  "New York, NY",
+  "Los Angeles, CA",
+  "Chicago, IL",
+  "Houston, TX",
+  "San Francisco, CA",
+  "Austin, TX",
+  "Miami, FL",
+  "Seattle, WA",
+  "Boston, MA",
+  "Washington, DC",
+];
 
-  const getPoliticalColor = (lean: string) => {
-    switch (lean) {
-      case "left":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "right":
-        return "bg-red-100 text-red-800 border-red-200"
-      case "center":
-        return "bg-gray-100 text-gray-800 border-gray-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+export default function LocalNewsFeed() {
+  const { profile } = useAuth();
+  const [location, setLocation] = useState("");
+  const [customLocation, setCustomLocation] = useState("");
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  // Pre-fill with user's profile location
+  useEffect(() => {
+    if (profile?.location) {
+      setLocation(profile.location);
     }
+  }, [profile]);
+
+  // Auto-search when location is selected from dropdown
+  useEffect(() => {
+    if (location && location !== "custom") {
+      loadLocalNews(location);
+    }
+  }, [location]);
+
+  async function loadLocalNews(loc: string) {
+    setLoading(true);
+    setSearched(true);
+    try {
+      const res = await fetch(
+        `/api/news?perspective=local&location=${encodeURIComponent(loc)}`
+      );
+      const data = await res.json();
+      setArticles(data.articles || []);
+    } catch (err) {
+      setArticles([]);
+    }
+    setLoading(false);
   }
 
-  const renderCommentContent = (content: string) => {
-    const parts = content.split(/(@\w+)/g)
-    return parts.map((part, index) => {
-      if (part.startsWith("@")) {
-        const username = part.slice(1)
-        const mentionedUser = mockUsers.find((u) => u.username === username)
-        return (
-          <Link key={index} href={`/profile/${username}`} className="text-blue-600 font-medium hover:underline">
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
-  }
-
-  // Mock trending topics and suggested users
-  const trendingTopics = [
-    { topic: "Tax Reform", posts: 234 },
-    { topic: "Climate Policy", posts: 189 },
-    { topic: "Healthcare", posts: 156 },
-    { topic: "Infrastructure", posts: 98 },
-  ]
-
-  const suggestedUsers = mockUsers.filter((user) => user.id !== currentUser.id).slice(0, 3)
+  const activeLocation = location === "custom" ? customLocation : location;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <Logo size="md" />
-            <nav className="hidden md:flex gap-4">
-              <Link href="/news">
-                <Button variant="ghost" size="sm">
-                  <Globe className="w-4 h-4 mr-2" />
-                  National News
-                </Button>
-              </Link>
-              <Link href="/news/local">
-                <Button variant="ghost" size="sm">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Local News
-                </Button>
-              </Link>
-              <Link href="/profile">
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4 mr-2" />
-                  Political Profile
-                </Button>
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <SearchInput />
-            <UserNav />
-          </div>
-        </div>
+        <NewsNavigation />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left Sidebar - User Profile Summary */}
-          <div className="lg:col-span-1">
-            <div className="space-y-6 sticky top-6">
-              <Card>
-                <CardHeader className="text-center">
-                  <Avatar className="w-20 h-20 mx-auto mb-4">
-                    <AvatarImage src={currentUser.avatar || "/placeholder.svg"} />
-                    <AvatarFallback className="text-xl">
-                      {currentUser.displayName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <h2 className="text-xl font-bold">{currentUser.displayName}</h2>
-                    {currentUser.verified && <CheckCircle className="w-5 h-5 text-blue-500" />}
-                  </div>
-                  <p className="text-gray-600 mb-2">@{currentUser.username}</p>
-                  <Badge variant="outline" className={getPoliticalColor(currentUser.politicalLean)}>
-                    {currentUser.politicalLean === "center"
-                      ? "Moderate"
-                      : currentUser.politicalLean === "left"
-                        ? "Liberal"
-                        : "Conservative"}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4" />
-                      {currentUser.location}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Joined{" "}
-                      {new Date(currentUser.joinDate).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <div className="text-lg font-bold text-blue-600">{userComments.length}</div>
-                      <div className="text-xs text-gray-600">Comments</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-green-600">{userReplies.length}</div>
-                      <div className="text-xs text-gray-600">Replies</div>
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-red-600">
-                        {userComments.reduce((sum, comment) => sum + comment.likes, 0) +
-                          userReplies.reduce((sum, reply) => sum + reply.likes, 0)}
-                      </div>
-                      <div className="text-xs text-gray-600">Likes</div>
-                    </div>
-                  </div>
-                  <Button className="w-full" size="sm" asChild>
-                    <Link href={`/profile/${currentUser.username}`}>View Full Profile</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Political Position Card */}
-              <PoliticalSpectrumBar />
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-3 mb-8 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <MapPin className="w-4 h-4 inline mr-1" />
+                Your Location
+              </label>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a city..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESET_LOCATIONS.map((loc) => (
+                    <SelectItem key={loc} value={loc}>
+                      {loc}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Enter custom location...</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {location === "custom" && (
+              <div className="flex-1">
+                <Input
+                  placeholder="e.g. Denver, CO"
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && loadLocalNews(customLocation)}
+                />
+              </div>
+            )}
+
+            {location === "custom" && (
+              <Button
+                onClick={() => loadLocalNews(customLocation)}
+                disabled={!customLocation.trim()}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Search
+              </Button>
+            )}
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="activity">My Activity</TabsTrigger>
-                <TabsTrigger value="feed">News Feed</TabsTrigger>
-                <TabsTrigger value="discover">Discover</TabsTrigger>
-              </TabsList>
+          {activeLocation && (
+            <div className="mb-4">
+              <Badge variant="outline" className="text-sm flex items-center gap-1 w-fit">
+                <MapPin className="w-3 h-3" />
+                {activeLocation}
+              </Badge>
+            </div>
+          )}
 
-              <TabsContent value="activity" className="space-y-4">
-                <Card>
+          {loading && (
+            <div className="grid gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="animate-pulse">
                   <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Your latest comments and interactions</CardDescription>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-gray-200 rounded" />
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {allUserActivity.length === 0 ? (
-                      <div className="text-center py-8">
-                        <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500 mb-4">No recent activity</p>
-                        <Link href="/news">
-                          <Button>Start Discussing News</Button>
-                        </Link>
-                      </div>
-                    ) : (
-                      allUserActivity.slice(0, 5).map((activity, index) => (
-                        <div key={`${activity.id}-${index}`} className="border-b border-gray-100 pb-4 last:border-b-0">
-                          <div className="flex items-start gap-3">
-                            <MessageCircle className="w-5 h-5 text-gray-400 mt-1" />
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-sm text-gray-600">You commented on</span>
-                                <a
-                                  href={activity.articleUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline font-medium text-sm"
-                                >
-                                  {activity.articleTitle}
-                                  <ExternalLink className="w-3 h-3 inline ml-1" />
-                                </a>
-                                <span className="text-xs text-gray-500">
-                                  {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                                </span>
-                              </div>
-                              <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                                {renderCommentContent(activity.content)}
-                              </div>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <div className="flex items-center gap-1">
-                                  <Heart className="w-3 h-3" />
-                                  {activity.likes} likes
-                                </div>
-                                {activity.mentions.length > 0 && (
-                                  <div className="flex items-center gap-1">
-                                    <span>Mentioned:</span>
-                                    {activity.mentions.map((mention, i) => (
-                                      <Link
-                                        key={mention}
-                                        href={`/profile/${mention}`}
-                                        className="text-blue-600 hover:underline"
-                                      >
-                                        @{mention}
-                                        {i < activity.mentions.length - 1 ? "," : ""}
-                                      </Link>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {!loading && searched && articles.length === 0 && (
+            <Card>
+              <CardContent className="py-10 text-center text-gray-500">
+                <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                <p className="font-medium mb-1">No local news found</p>
+                <p className="text-sm">Try a different city or check your NewsAPI key supports local searches.</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {!loading && !searched && (
+            <Card>
+              <CardContent className="py-10 text-center text-gray-500">
+                <MapPin className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                <p>Select your city above to see local news</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {!loading && articles.length > 0 && (
+            <div className="grid gap-4">
+              {articles.map((article, i) => (
+                <Card key={i} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start gap-4">
+                      {article.urlToImage && (
+                        <img
+                          src={article.urlToImage}
+                          alt=""
+                          className="w-20 h-14 object-cover rounded flex-shrink-0"
+                          onError={(e) => (e.currentTarget.style.display = "none")}
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-500">
+                            {formatNewsTime(article.publishedAt)}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {article.source}
+                          </Badge>
                         </div>
-                      ))
-                    )}
-                    {allUserActivity.length > 5 && (
-                      <div className="text-center">
-                        <Link href={`/profile/${currentUser.username}`}>
-                          <Button variant="outline" size="sm">
-                            View All Activity
-                          </Button>
-                        </Link>
+                        <CardTitle className="text-lg mb-2">
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-blue-600 hover:underline"
+                          >
+                            {article.title}
+                          </a>
+                        </CardTitle>
+                        <CardDescription className="text-sm line-clamp-2">
+                          {article.description}
+                        </CardDescription>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="feed" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Personalized News Feed</CardTitle>
-                    <CardDescription>News articles tailored to your interests</CardDescription>
+                    </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="text-center py-8">
-                      <Newspaper className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500 mb-4">Your personalized feed will appear here</p>
-                      <div className="flex gap-2 justify-center">
-                        <Link href="/news">
-                          <Button>Browse National News</Button>
-                        </Link>
-                        <Link href="/news/local">
-                          <Button variant="outline">Local News</Button>
-                        </Link>
-                      </div>
-                    </div>
+                  <CardContent>
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center"
+                      >
+                        Read Full Article
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </a>
+                    </Button>
                   </CardContent>
                 </Card>
-              </TabsContent>
-
-              <TabsContent value="discover" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Discover</CardTitle>
-                    <CardDescription>Find new topics and users to follow</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <h4 className="font-medium mb-3">Trending Topics</h4>
-                      <div className="space-y-2">
-                        {trendingTopics.map((topic, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                            <div>
-                              <div className="font-medium text-sm">#{topic.topic}</div>
-                              <div className="text-xs text-gray-500">{topic.posts} posts</div>
-                            </div>
-                            <TrendingUp className="w-4 h-4 text-gray-400" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-medium mb-3">Suggested Users</h4>
-                      <div className="space-y-3">
-                        {suggestedUsers.map((user) => (
-                          <div key={user.id} className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-8 h-8">
-                                <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                                <AvatarFallback>
-                                  {user.displayName
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium text-sm">{user.displayName}</div>
-                                <div className="text-xs text-gray-500">@{user.username}</div>
-                              </div>
-                            </div>
-                            <Link href={`/profile/${user.username}`}>
-                              <Button size="sm" variant="outline">
-                                View
-                              </Button>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Right Sidebar - Quick Actions & Info */}
-          <div className="lg:col-span-1">
-            <div className="space-y-6 sticky top-6">
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Link href="/news" className="block">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Newspaper className="w-4 h-4 mr-2" />
-                      Browse News
-                    </Button>
-                  </Link>
-                  <Link href="/profile" className="block">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Users className="w-4 h-4 mr-2" />
-                      Political Profile
-                    </Button>
-                  </Link>
-                  <Link href="/welcome" className="block">
-                    <Button variant="outline" className="w-full justify-start">
-                      <User className="w-4 h-4 mr-2" />
-                      About MyVote
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Recent Mentions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Recent Mentions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-4">
-                    <MessageCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">No recent mentions</p>
-                  </div>
-                </CardContent>
-              </Card>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }
