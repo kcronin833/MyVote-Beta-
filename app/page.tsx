@@ -8,7 +8,7 @@ import { ExternalLink, Clock, MapPin } from "lucide-react";
 import { NewsNavigation } from "@/components/news-nav";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/components/auth-context";
 import { formatNewsTime } from "@/lib/news-service";
 
 interface Article {

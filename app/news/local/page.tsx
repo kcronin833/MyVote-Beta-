@@ -11,7 +11,7 @@ import {
   MapPin, Calendar, CheckCircle, MessageCircle, Heart,
   ExternalLink, Newspaper, Users, User, TrendingUp, Globe,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/components/auth-context";
 import { UserNav } from "@/components/user-nav";
 import { SearchInput } from "@/components/search-input";
 import { Logo } from "@/components/logo";
