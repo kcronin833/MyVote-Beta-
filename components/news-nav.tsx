@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Globe, MapPin, User, Home } from "lucide-react"
 import { SearchInput } from "@/components/search-input"
 import { Logo } from "@/components/logo"
+import { UserNav } from "@/components/user-nav"
 
 export function NewsNavigation() {
   const pathname = usePathname()
@@ -56,6 +57,7 @@ export function NewsNavigation() {
               </Button>
             </Link>
           </div>
+          <UserNav />
         </div>
       </div>
     </div>

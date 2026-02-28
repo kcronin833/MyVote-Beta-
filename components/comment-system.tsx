@@ -1,325 +1,416 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Heart, MessageCircle, Share, CheckCircle } from "lucide-react"
-import { mockUsers, mockComments, currentUser, type Comment, type User } from "@/lib/mock-data"
-import { formatDistanceToNow } from "date-fns"
+import { useState, useRef, useEffect } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Heart, MessageCircle, Trash2, Edit2, Check, X } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "@/components/auth-context";
+import {
+  getComments,
+  postComment,
+  toggleLike,
+  deleteComment,
+  editComment,
+  Comment,
+} from "@/lib/comments-service";
+import { AuthModal } from "@/components/auth-modal";
+import { createClient } from "@/lib/supabase/client";
 
 interface CommentSystemProps {
-  articleUrl: string
-  articleTitle: string
+  articleUrl: string;
+  articleTitle: string;
 }
 
 export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) {
-  const [comments, setComments] = useState<Comment[]>(
-    mockComments.filter((comment) => comment.articleUrl === articleUrl),
-  )
-  const [newComment, setNewComment] = useState("")
-  const [replyingTo, setReplyingTo] = useState<string | null>(null)
-  const [mentionSuggestions, setMentionSuggestions] = useState<User[]>([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [cursorPosition, setCursorPosition] = useState(0)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { user, profile } = useAuth();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const supabase = createClient();
 
-  const getPoliticalColor = (lean: string) => {
-    switch (lean) {
-      case "left":
-        return "bg-blue-100 text-blue-800"
-      case "right":
-        return "bg-red-100 text-red-800"
-      case "center":
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
+  useEffect(() => {
+    loadComments();
+  }, [articleUrl]);
+
+  async function loadComments() {
+    setLoading(true);
+    const data = await getComments(articleUrl, user?.id);
+    setComments(data);
+    setLoading(false);
+  }
+
+  async function handleSubmit(parentId?: string) {
+    if (!user || !profile) {
+      setAuthOpen(true);
+      return;
     }
-  }
+    const content = parentId ? replyContent : newComment;
+    if (!content.trim()) return;
 
-  const handleCommentChange = (value: string) => {
-    setNewComment(value)
-
-    // Check for @ mentions
-    const lastAtIndex = value.lastIndexOf("@")
-    if (lastAtIndex !== -1) {
-      const searchTerm = value.slice(lastAtIndex + 1).toLowerCase()
-      if (searchTerm.length > 0) {
-        const suggestions = mockUsers.filter(
-          (user) =>
-            user.username.toLowerCase().includes(searchTerm) || user.displayName.toLowerCase().includes(searchTerm),
-        )
-        setMentionSuggestions(suggestions)
-        setShowSuggestions(true)
-      } else {
-        setShowSuggestions(false)
-      }
-    } else {
-      setShowSuggestions(false)
-    }
-  }
-
-  const insertMention = (user: User) => {
-    const lastAtIndex = newComment.lastIndexOf("@")
-    const beforeMention = newComment.slice(0, lastAtIndex)
-    const afterMention = newComment.slice(lastAtIndex).replace(/@\w*/, `@${user.username} `)
-    setNewComment(beforeMention + afterMention)
-    setShowSuggestions(false)
-    textareaRef.current?.focus()
-  }
-
-  const extractMentions = (text: string): string[] => {
-    const mentionRegex = /@(\w+)/g
-    const mentions = []
-    let match
-    while ((match = mentionRegex.exec(text)) !== null) {
-      mentions.push(match[1])
-    }
-    return mentions
-  }
-
-  const renderCommentContent = (content: string) => {
-    const parts = content.split(/(@\w+)/g)
-    return parts.map((part, index) => {
-      if (part.startsWith("@")) {
-        const username = part.slice(1)
-        const user = mockUsers.find((u) => u.username === username)
-        return (
-          <span key={index} className="text-blue-600 font-medium hover:underline cursor-pointer">
-            {part}
-          </span>
-        )
-      }
-      return part
-    })
-  }
-
-  const submitComment = () => {
-    if (!newComment.trim()) return
-
-    const mentions = extractMentions(newComment)
-    const comment: Comment = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
+    setSubmitting(true);
+    const { comment, error } = await postComment({
       articleUrl,
       articleTitle,
-      content: newComment,
-      mentions,
-      timestamp: new Date().toISOString(),
-      likes: 0,
-      replies: [],
-      edited: false,
-    }
+      content,
+      userId: user.id,
+      parentId,
+    });
 
-    if (replyingTo) {
-      setComments((prev) => prev.map((c) => (c.id === replyingTo ? { ...c, replies: [...c.replies, comment] } : c)))
-    } else {
-      setComments((prev) => [comment, ...prev])
+    if (comment) {
+      if (parentId) {
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === parentId
+              ? { ...c, replies: [...(c.replies || []), comment] }
+              : c
+          )
+        );
+        setReplyingTo(null);
+        setReplyContent("");
+      } else {
+        setComments((prev) => [comment, ...prev]);
+        setNewComment("");
+      }
     }
-
-    setNewComment("")
-    setReplyingTo(null)
+    setSubmitting(false);
   }
 
-  const likeComment = (commentId: string) => {
+  async function handleLike(commentId: string) {
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+    const isNowLiked = await toggleLike(commentId, user.id);
     setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, likes: comment.likes + 1 }
-          : {
-              ...comment,
-              replies: comment.replies.map((reply) =>
-                reply.id === commentId ? { ...reply, likes: reply.likes + 1 } : reply,
-              ),
-            },
-      ),
-    )
+      prev.map((c) => {
+        if (c.id === commentId) {
+          return {
+            ...c,
+            likes_count: c.likes_count + (isNowLiked ? 1 : -1),
+            user_has_liked: isNowLiked,
+          };
+        }
+        return {
+          ...c,
+          replies: c.replies?.map((r) =>
+            r.id === commentId
+              ? {
+                  ...r,
+                  likes_count: r.likes_count + (isNowLiked ? 1 : -1),
+                  user_has_liked: isNowLiked,
+                }
+              : r
+          ),
+        };
+      })
+    );
   }
 
-  const getUserById = (userId: string) => mockUsers.find((u) => u.id === userId)
+  async function handleDelete(commentId: string) {
+    if (!user) return;
+    const ok = await deleteComment(commentId, user.id);
+    if (ok) {
+      setComments((prev) =>
+        prev
+          .filter((c) => c.id !== commentId)
+          .map((c) => ({
+            ...c,
+            replies: c.replies?.filter((r) => r.id !== commentId),
+          }))
+      );
+    }
+  }
 
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Discussion ({comments.length})</h3>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Comment Input */}
-          <div className="space-y-2">
-            <div className="flex gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={currentUser.avatar || "/placeholder.svg"} />
-                <AvatarFallback>
-                  {currentUser.displayName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 relative">
-                <Textarea
-                  ref={textareaRef}
-                  placeholder={replyingTo ? "Write a reply..." : "Share your thoughts..."}
-                  value={newComment}
-                  onChange={(e) => handleCommentChange(e.target.value)}
-                  className="min-h-[80px] resize-none"
-                />
-                {showSuggestions && mentionSuggestions.length > 0 && (
-                  <Card className="absolute top-full left-0 right-0 z-10 mt-1 max-h-40 overflow-y-auto">
-                    <CardContent className="p-2">
-                      {mentionSuggestions.map((user) => (
-                        <div
-                          key={user.id}
-                          className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
-                          onClick={() => insertMention(user)}
-                        >
-                          <Avatar className="w-6 h-6">
-                            <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                            <AvatarFallback>
-                              {user.displayName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="text-sm font-medium">{user.displayName}</div>
-                            <div className="text-xs text-gray-500">@{user.username}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <div className="text-xs text-gray-500">Use @username to mention other users</div>
+  async function handleEdit(commentId: string) {
+    if (!user) return;
+    const ok = await editComment(commentId, user.id, editContent);
+    if (ok) {
+      setComments((prev) =>
+        prev.map((c) => {
+          if (c.id === commentId) return { ...c, content: editContent, edited: true };
+          return {
+            ...c,
+            replies: c.replies?.map((r) =>
+              r.id === commentId ? { ...r, content: editContent, edited: true } : r
+            ),
+          };
+        })
+      );
+      setEditingId(null);
+    }
+  }
+
+  // Autocomplete @mentions
+  async function handleCommentChange(value: string, setter: (v: string) => void) {
+    setter(value);
+    const lastAt = value.lastIndexOf("@");
+    if (lastAt !== -1) {
+      const term = value.slice(lastAt + 1).split(" ")[0];
+      if (term.length > 0) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("username, display_name")
+          .ilike("username", `${term}%`)
+          .limit(5);
+        setSuggestions(data || []);
+      } else {
+        setSuggestions([]);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  }
+
+  function insertMention(username: string, current: string, setter: (v: string) => void) {
+    const lastAt = current.lastIndexOf("@");
+    const before = current.slice(0, lastAt);
+    setter(`${before}@${username} `);
+    setSuggestions([]);
+  }
+
+  function getPoliticalColor(lean?: string) {
+    if (lean === "left") return "bg-blue-100 text-blue-800";
+    if (lean === "right") return "bg-red-100 text-red-800";
+    return "bg-gray-100 text-gray-800";
+  }
+
+  function renderContent(content: string) {
+    return content.split(/(@\w+)/g).map((part, i) =>
+      part.startsWith("@") ? (
+        <span key={i} className="text-blue-600 font-medium">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  }
+
+  const CommentCard = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
+    <div className={`${isReply ? "ml-8 mt-3" : ""}`}>
+      <div className="flex gap-3">
+        <Avatar className="w-8 h-8 flex-shrink-0">
+          <AvatarImage src={comment.profile?.avatar_url || "/placeholder.svg"} />
+          <AvatarFallback>
+            {(comment.profile?.display_name || "U")[0]}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-sm">{comment.profile?.display_name}</span>
+            <span className="text-gray-500 text-xs">@{comment.profile?.username}</span>
+            <Badge
+              variant="outline"
+              className={`text-xs ${getPoliticalColor(comment.profile?.political_lean)}`}
+            >
+              {comment.profile?.political_lean === "left"
+                ? "Liberal"
+                : comment.profile?.political_lean === "right"
+                ? "Conservative"
+                : "Moderate"}
+            </Badge>
+            <span className="text-xs text-gray-400">
+              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+            </span>
+            {comment.edited && (
+              <span className="text-xs text-gray-400 italic">(edited)</span>
+            )}
+          </div>
+
+          {editingId === comment.id ? (
+            <div className="space-y-2">
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="text-sm"
+                rows={2}
+              />
               <div className="flex gap-2">
-                {replyingTo && (
-                  <Button variant="outline" size="sm" onClick={() => setReplyingTo(null)}>
-                    Cancel
-                  </Button>
-                )}
-                <Button size="sm" onClick={submitComment} disabled={!newComment.trim()}>
-                  {replyingTo ? "Reply" : "Comment"}
+                <Button size="sm" onClick={() => handleEdit(comment.id)}>
+                  <Check className="w-3 h-3 mr-1" /> Save
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
+                  <X className="w-3 h-3 mr-1" /> Cancel
                 </Button>
               </div>
             </div>
+          ) : (
+            <p className="text-sm text-gray-700">{renderContent(comment.content)}</p>
+          )}
+
+          <div className="flex items-center gap-3 mt-2">
+            <button
+              onClick={() => handleLike(comment.id)}
+              className={`flex items-center gap-1 text-xs transition-colors ${
+                comment.user_has_liked
+                  ? "text-red-500"
+                  : "text-gray-500 hover:text-red-500"
+              }`}
+            >
+              <Heart
+                className="w-3 h-3"
+                fill={comment.user_has_liked ? "currentColor" : "none"}
+              />
+              {comment.likes_count}
+            </button>
+            {!isReply && (
+              <button
+                onClick={() => {
+                  setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                  setReplyContent("");
+                }}
+                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Reply
+              </button>
+            )}
+            {user?.id === comment.user_id && (
+              <>
+                <button
+                  onClick={() => {
+                    setEditingId(comment.id);
+                    setEditContent(comment.content);
+                  }}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => handleDelete(comment.id)}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Comments List */}
-          <div className="space-y-4">
-            {comments.map((comment) => {
-              const user = getUserById(comment.userId)
-              if (!user) return null
-
-              return (
-                <div key={comment.id} className="space-y-3">
-                  <div className="flex gap-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>
-                        {user.displayName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{user.displayName}</span>
-                        <span className="text-sm text-gray-500">@{user.username}</span>
-                        {user.verified && <CheckCircle className="w-4 h-4 text-blue-500" />}
-                        <Badge variant="outline" className={`text-xs ${getPoliticalColor(user.politicalLean)}`}>
-                          {user.politicalLean}
-                        </Badge>
-                        <span className="text-xs text-gray-500">
-                          {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
-                        </span>
-                      </div>
-                      <div className="text-sm">{renderCommentContent(comment.content)}</div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <button
-                          className="flex items-center gap-1 hover:text-red-500"
-                          onClick={() => likeComment(comment.id)}
-                        >
-                          <Heart className="w-4 h-4" />
-                          {comment.likes}
-                        </button>
-                        <button
-                          className="flex items-center gap-1 hover:text-blue-500"
-                          onClick={() => setReplyingTo(comment.id)}
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          Reply
-                        </button>
-                        <button className="flex items-center gap-1 hover:text-green-500">
-                          <Share className="w-4 h-4" />
-                          Share
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Replies */}
-                  {comment.replies.length > 0 && (
-                    <div className="ml-11 space-y-3 border-l-2 border-gray-100 pl-4">
-                      {comment.replies.map((reply) => {
-                        const replyUser = getUserById(reply.userId)
-                        if (!replyUser) return null
-
-                        return (
-                          <div key={reply.id} className="flex gap-3">
-                            <Avatar className="w-6 h-6">
-                              <AvatarImage src={replyUser.avatar || "/placeholder.svg"} />
-                              <AvatarFallback>
-                                {replyUser.displayName
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm">{replyUser.displayName}</span>
-                                <span className="text-xs text-gray-500">@{replyUser.username}</span>
-                                {replyUser.verified && <CheckCircle className="w-3 h-3 text-blue-500" />}
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs ${getPoliticalColor(replyUser.politicalLean)}`}
-                                >
-                                  {replyUser.politicalLean}
-                                </Badge>
-                                <span className="text-xs text-gray-500">
-                                  {formatDistanceToNow(new Date(reply.timestamp), { addSuffix: true })}
-                                </span>
-                              </div>
-                              <div className="text-sm">{renderCommentContent(reply.content)}</div>
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
-                                <button
-                                  className="flex items-center gap-1 hover:text-red-500"
-                                  onClick={() => likeComment(reply.id)}
-                                >
-                                  <Heart className="w-3 h-3" />
-                                  {reply.likes}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+          {/* Reply box */}
+          {replyingTo === comment.id && (
+            <div className="mt-3 relative">
+              <Textarea
+                placeholder={`Reply to @${comment.profile?.username}...`}
+                value={replyContent}
+                onChange={(e) => handleCommentChange(e.target.value, setReplyContent)}
+                rows={2}
+                className="text-sm"
+              />
+              {suggestions.length > 0 && (
+                <div className="absolute z-10 bg-white border rounded shadow-lg w-48 mt-1">
+                  {suggestions.map((s) => (
+                    <button
+                      key={s.username}
+                      className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                      onClick={() => insertMention(s.username, replyContent, setReplyContent)}
+                    >
+                      @{s.username}
+                    </button>
+                  ))}
                 </div>
-              )
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              )}
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" onClick={() => handleSubmit(comment.id)} disabled={submitting}>
+                  {submitting ? "Posting..." : "Reply"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setReplyingTo(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Replies */}
+      {comment.replies?.map((reply) => (
+        <CommentCard key={reply.id} comment={reply} isReply />
+      ))}
     </div>
-  )
+  );
+
+  return (
+    <>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <div className="space-y-6">
+        {/* New comment box */}
+        <div className="relative">
+          <Textarea
+            placeholder={
+              user
+                ? "Share your thoughts on this article... Use @username to mention someone"
+                : "Sign in to join the discussion..."
+            }
+            value={newComment}
+            onChange={(e) => handleCommentChange(e.target.value, setNewComment)}
+            rows={3}
+            onClick={() => !user && setAuthOpen(true)}
+            readOnly={!user}
+          />
+          {suggestions.length > 0 && (
+            <div className="absolute z-10 bg-white border rounded shadow-lg w-48 mt-1">
+              {suggestions.map((s) => (
+                <button
+                  key={s.username}
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  onClick={() => insertMention(s.username, newComment, setNewComment)}
+                >
+                  @{s.username}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-xs text-gray-400">{newComment.length}/500</span>
+            <Button
+              size="sm"
+              onClick={() => handleSubmit()}
+              disabled={!newComment.trim() || submitting}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {submitting ? "Posting..." : user ? "Post Comment" : "Sign In to Comment"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Comments list */}
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-3 animate-pulse">
+                <div className="w-8 h-8 rounded-full bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                  <div className="h-4 bg-gray-200 rounded" />
+                  <div className="h-4 bg-gray-200 rounded w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : comments.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <MessageCircle className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+            <p>No comments yet. Be the first to discuss this article!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {comments.map((comment) => (
+              <CommentCard key={comment.id} comment={comment} />
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
 }

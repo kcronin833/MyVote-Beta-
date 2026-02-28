@@ -9,6 +9,9 @@ import { Separator } from "@/components/ui/separator"
 import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info } from "lucide-react"
 import { RepresentativeProfile } from "./representative-profile"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
+import { CompatibilityScore } from "./compatibility-score"
+import { calculateCompatibility } from "@/lib/compatibility-service"
+import { currentUser } from "@/lib/mock-data"
 
 interface Candidate {
   name: string
@@ -79,6 +82,7 @@ interface Candidate {
     location: string
     description: string
   }>
+  politicalScore?: number
 }
 
 interface Election {
@@ -92,701 +96,170 @@ interface Election {
   earlyVotingEnd?: string
 }
 
-// Enhanced political data with detailed election information
+// Enhanced political data with Atlanta focus and detailed election information
 const politicalData = {
-  "94102": {
-    location: "San Francisco, CA",
+  "30309": {
+    location: "Atlanta, GA",
     district: {
-      congressional: "CA-11",
-      state: "Assembly District 17, Senate District 11",
-      local: "District 5",
+      congressional: "GA-5",
+      state: "House District 57, Senate District 38",
+      local: "Atlanta City Council District 6",
     },
     representatives: {
       congress: {
-        name: "Nancy Pelosi",
+        name: "Nikema Williams",
         party: "Democrat" as const,
         office: "U.S. House of Representatives",
-        district: "California's 11th Congressional District",
+        district: "Georgia's 5th Congressional District",
         photo: "/placeholder.svg?height=128&width=128",
         coverPhoto: "/placeholder.svg?height=128&width=400",
-        politicalScore: -75,
-        yearsInOffice: 37,
+        politicalScore: -72,
+        yearsInOffice: 6,
         contact: {
-          phone: "(202) 225-4965",
-          email: "sf.nancy@mail.house.gov",
-          website: "https://pelosi.house.gov",
-          twitter: "https://twitter.com/SpeakerPelosi",
-          facebook: "https://facebook.com/NancyPelosi",
-        },
-        biography: {
-          age: 83,
-          hometown: "San Francisco, CA",
-          education: [
-            "Trinity College, Washington D.C. - B.A. Political Science",
-            "Honorary Doctorates from multiple universities",
-          ],
-          previousJobs: [
-            "Democratic Party organizer",
-            "Chair of California Democratic Party",
-            "Speaker of the House (2007-2011, 2019-2023)",
-          ],
-          committees: ["House Democratic Steering Committee", "House Democratic Policy Committee"],
-          keyIssues: [
-            "Healthcare Reform",
-            "Climate Change",
-            "Women's Rights",
-            "Economic Justice",
-            "Immigration Reform",
-          ],
-        },
-        votingRecord: {
-          totalVotes: 1247,
-          partyLineVoting: 95,
-          keyVotes: [
-            {
-              bill: "Infrastructure Investment Act",
-              vote: "Yes" as const,
-              description: "Bipartisan infrastructure bill for roads, bridges, and broadband",
-              date: "November 5, 2021",
-            },
-            {
-              bill: "Build Back Better Act",
-              vote: "Yes" as const,
-              description: "Social spending and climate change legislation",
-              date: "November 19, 2021",
-            },
-            {
-              bill: "CHIPS and Science Act",
-              vote: "Yes" as const,
-              description: "Semiconductor manufacturing and research funding",
-              date: "July 28, 2022",
-            },
-          ],
-        },
-      },
-      senate: [
-        {
-          name: "Alex Padilla",
-          party: "Democrat" as const,
-          office: "U.S. Senate",
-          district: "California",
-          photo: "/placeholder.svg?height=128&width=128",
-          coverPhoto: "/placeholder.svg?height=128&width=400",
-          politicalScore: -65,
-          yearsInOffice: 3,
-          contact: {
-            phone: "(202) 224-3553",
-            email: "senator@padilla.senate.gov",
-            website: "https://padilla.senate.gov",
-            twitter: "https://twitter.com/SenAlexPadilla",
-          },
-          biography: {
-            age: 50,
-            hometown: "Los Angeles, CA",
-            education: ["MIT - B.S. Mechanical Engineering", "UCLA - Public Policy Certificate"],
-            previousJobs: ["California Secretary of State", "Los Angeles City Council", "California State Senate"],
-            committees: [
-              "Committee on Environment and Public Works",
-              "Committee on Homeland Security",
-              "Committee on the Judiciary",
-            ],
-            keyIssues: ["Voting Rights", "Immigration", "Climate Action", "Technology Policy", "Infrastructure"],
-          },
-          votingRecord: {
-            totalVotes: 456,
-            partyLineVoting: 92,
-            keyVotes: [
-              {
-                bill: "John Lewis Voting Rights Act",
-                vote: "Yes" as const,
-                description: "Restoration of voting rights protections",
-                date: "August 24, 2021",
-              },
-              {
-                bill: "Inflation Reduction Act",
-                vote: "Yes" as const,
-                description: "Climate and healthcare legislation",
-                date: "August 7, 2022",
-              },
-            ],
-          },
-        },
-      ],
-    },
-    upcomingElections: [
-      {
-        date: "November 5, 2024",
-        type: "General Election" as const,
-        office: "U.S. House of Representatives - CA-11",
-        description: "Congressional election for California's 11th District",
-        registrationDeadline: "October 21, 2024",
-        earlyVotingStart: "October 7, 2024",
-        earlyVotingEnd: "November 4, 2024",
-        candidates: [
-          {
-            name: "Nancy Pelosi",
-            party: "Democrat" as const,
-            isIncumbent: true,
-            photo: "/placeholder.svg?height=64&width=64",
-            website: "https://pelosi.house.gov",
-            experience: [
-              "Current U.S. Representative (1987-present)",
-              "Former Speaker of the House",
-              "House Democratic Leader",
-            ],
-            keyIssues: ["Healthcare Access", "Climate Action", "Economic Equality", "Women's Rights"],
-            endorsements: ["California Democratic Party", "AFL-CIO", "Sierra Club", "Planned Parenthood"],
-            fundraising: {
-              totalRaised: "$2.1M",
-              lastQuarter: "$485K",
-            },
-            bio: "Nancy Pelosi has represented San Francisco in Congress since 1987 and made history as the first woman to serve as Speaker of the House. Throughout her career, she has been a champion for healthcare reform, environmental protection, and economic opportunity for working families.",
-            age: 83,
-            education: ["Trinity College, Washington D.C. - B.A. Political Science"],
-            hometown: "Baltimore, Maryland",
-            family: "Married to Paul Pelosi with 5 children and 9 grandchildren",
-            positions: [
-              {
-                issue: "Healthcare",
-                stance: "Supportive",
-                description:
-                  "Strong advocate for the Affordable Care Act and expanding healthcare access. Supports lowering prescription drug costs and protecting coverage for pre-existing conditions.",
-              },
-              {
-                issue: "Climate Change",
-                stance: "Supportive",
-                description:
-                  "Champion of climate legislation including the Climate Action Now Act. Supports rejoining the Paris Climate Agreement and investing in clean energy infrastructure.",
-              },
-              {
-                issue: "Economic Policy",
-                stance: "Progressive",
-                description:
-                  "Advocates for raising the minimum wage, paid family leave, and closing the gender pay gap. Supports progressive taxation and infrastructure investment to create jobs.",
-              },
-            ],
-            votingRecord: [
-              {
-                bill: "American Rescue Plan Act",
-                vote: "Yes",
-                date: "March 10, 2021",
-                description: "COVID-19 relief package providing economic stimulus",
-              },
-              {
-                bill: "Infrastructure Investment and Jobs Act",
-                vote: "Yes",
-                date: "November 5, 2021",
-                description: "Bipartisan infrastructure bill for roads, bridges, and broadband",
-              },
-              {
-                bill: "Inflation Reduction Act",
-                vote: "Yes",
-                date: "August 12, 2022",
-                description: "Climate, healthcare, and tax legislation",
-              },
-            ],
-            endorsementDetails: [
-              {
-                organization: "California Democratic Party",
-                type: "Party",
-                quote: "Speaker Pelosi continues to be a tireless advocate for California values.",
-              },
-              {
-                organization: "Sierra Club",
-                type: "Environmental",
-                quote: "A champion for climate action and environmental protection.",
-              },
-              {
-                organization: "Planned Parenthood",
-                type: "Healthcare",
-                quote: "Unwavering defender of reproductive rights and healthcare access.",
-              },
-            ],
-            campaignFinance: {
-              totalRaised: "$2,100,000",
-              totalSpent: "$1,450,000",
-              cashOnHand: "$650,000",
-              averageDonation: "$175",
-              smallDonorPercentage: "42%",
-              topIndustries: [
-                { name: "Healthcare Professionals", amount: "$285,000" },
-                { name: "Education", amount: "$210,000" },
-                { name: "Technology", amount: "$195,000" },
-                { name: "Labor Unions", amount: "$175,000" },
-              ],
-            },
-            socialMedia: {
-              twitter: "https://twitter.com/SpeakerPelosi",
-              facebook: "https://facebook.com/NancyPelosi",
-              instagram: "https://instagram.com/speakerpelosi",
-            },
-            contactInfo: {
-              email: "campaign@pelosiforcongress.org",
-              phone: "(415) 555-0123",
-              campaignOffice: "1234 Market St, San Francisco, CA 94102",
-            },
-            events: [
-              {
-                name: "Town Hall Meeting",
-                date: "August 15, 2024",
-                location: "San Francisco City College",
-                description: "Discussion on healthcare and economic issues facing the district",
-              },
-              {
-                name: "Climate Action Rally",
-                date: "September 3, 2024",
-                location: "Golden Gate Park",
-                description: "Join Speaker Pelosi and environmental advocates to discuss climate policy",
-              },
-            ],
-          },
-          {
-            name: "John Martinez",
-            party: "Republican" as const,
-            isIncumbent: false,
-            photo: "/placeholder.svg?height=64&width=64",
-            website: "https://martinez2024.com",
-            experience: ["Small Business Owner", "San Francisco Planning Commission", "Navy Veteran"],
-            keyIssues: ["Fiscal Responsibility", "Public Safety", "Small Business Support", "Veterans Affairs"],
-            endorsements: ["California Republican Party", "Small Business Association"],
-            fundraising: {
-              totalRaised: "$340K",
-              lastQuarter: "$95K",
-            },
-            bio: "John Martinez is a small business owner, Navy veteran, and former member of the San Francisco Planning Commission. He is running to bring fiscal responsibility, support for small businesses, and improved public safety to California's 11th District.",
-            age: 45,
-            education: ["U.S. Naval Academy - B.S. Engineering", "Stanford University - MBA"],
-            hometown: "San Francisco, California",
-            family: "Married with 2 children",
-            positions: [
-              {
-                issue: "Economy",
-                stance: "Conservative",
-                description:
-                  "Advocates for lower taxes on small businesses, reduced regulations, and fiscal responsibility. Supports balanced budget initiatives and reducing government spending.",
-              },
-              {
-                issue: "Public Safety",
-                stance: "Supportive",
-                description:
-                  "Prioritizes increased funding for law enforcement, addressing homelessness through both services and enforcement, and tougher penalties for repeat offenders.",
-              },
-              {
-                issue: "Veterans Affairs",
-                stance: "Supportive",
-                description:
-                  "Advocates for improved VA healthcare services, better transition programs for veterans entering civilian life, and increased mental health resources for veterans.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/martinez2024",
-              facebook: "https://facebook.com/martinez2024",
-            },
-            contactInfo: {
-              email: "info@martinez2024.com",
-              phone: "(415) 555-0456",
-              campaignOffice: "5678 Mission St, San Francisco, CA 94102",
-            },
-            events: [
-              {
-                name: "Small Business Roundtable",
-                date: "August 20, 2024",
-                location: "Chamber of Commerce",
-                description: "Discussion with local business owners about economic challenges",
-              },
-            ],
-          },
-          {
-            name: "Sarah Chen",
-            party: "Independent" as const,
-            isIncumbent: false,
-            photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Environmental Lawyer", "City Council Member", "Community Organizer"],
-            keyIssues: ["Environmental Justice", "Government Reform", "Housing Affordability", "Transportation"],
-            endorsements: ["Green Party of California", "League of Conservation Voters"],
-            fundraising: {
-              totalRaised: "$125K",
-              lastQuarter: "$32K",
-            },
-            bio: "Sarah Chen is an environmental lawyer, former city council member, and community organizer. She is running as an independent to bring fresh perspectives on environmental justice, government reform, and affordable housing to Congress.",
-            age: 38,
-            education: ["UC Berkeley - B.A. Environmental Studies", "UC Hastings - J.D. Environmental Law"],
-            hometown: "Oakland, California",
-            family: "Single",
-            positions: [
-              {
-                issue: "Environment",
-                stance: "Progressive",
-                description:
-                  "Advocates for aggressive climate action, environmental justice for disadvantaged communities, and transitioning to 100% renewable energy by 2035.",
-              },
-              {
-                issue: "Housing",
-                stance: "Progressive",
-                description:
-                  "Supports rent control, increased affordable housing requirements for developers, and federal funding for public housing and first-time homebuyer assistance.",
-              },
-              {
-                issue: "Government Reform",
-                stance: "Reformist",
-                description:
-                  "Advocates for campaign finance reform, ranked choice voting, and increased transparency in government. Refuses corporate PAC donations.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/sarahchen2024",
-              instagram: "https://instagram.com/sarahchenforchange",
-            },
-            contactInfo: {
-              email: "info@sarahchenforcongress.org",
-              phone: "(415) 555-0789",
-            },
-          },
-        ],
-      },
-      {
-        date: "November 5, 2024",
-        type: "General Election" as const,
-        office: "U.S. Senate - California",
-        description: "U.S. Senate election for California",
-        registrationDeadline: "October 21, 2024",
-        earlyVotingStart: "October 7, 2024",
-        earlyVotingEnd: "November 4, 2024",
-        candidates: [
-          {
-            name: "Alex Padilla",
-            party: "Democrat" as const,
-            isIncumbent: true,
-            photo: "/placeholder.svg?height=64&width=64",
-            website: "https://padilla.senate.gov",
-            experience: ["Current U.S. Senator (2021-present)", "Former California Secretary of State"],
-            keyIssues: ["Voting Rights", "Immigration Reform", "Climate Change", "Technology Policy"],
-            endorsements: ["California Democratic Party", "SEIU", "California Teachers Association"],
-            fundraising: {
-              totalRaised: "$4.2M",
-              lastQuarter: "$1.1M",
-            },
-            bio: "Alex Padilla was appointed to the U.S. Senate in January 2021 to fill the vacancy created by Kamala Harris becoming Vice President. Prior to his appointment, he served as California's Secretary of State and has been a champion for voting rights, immigration reform, and climate action.",
-            age: 51,
-            education: ["Massachusetts Institute of Technology - B.S. Mechanical Engineering"],
-            hometown: "Pacoima, California",
-            family: "Married with three sons",
-            positions: [
-              {
-                issue: "Voting Rights",
-                stance: "Supportive",
-                description:
-                  "Champion of the Freedom to Vote Act and John Lewis Voting Rights Advancement Act. Advocates for automatic voter registration and expanded early voting access.",
-              },
-              {
-                issue: "Immigration",
-                stance: "Supportive",
-                description:
-                  "Supports comprehensive immigration reform with a pathway to citizenship for Dreamers and undocumented immigrants. Advocates for modernizing the immigration system.",
-              },
-              {
-                issue: "Climate Change",
-                stance: "Supportive",
-                description:
-                  "Supports the Green New Deal framework and investments in clean energy infrastructure. Advocates for environmental justice and reducing pollution in disadvantaged communities.",
-              },
-            ],
-            votingRecord: [
-              {
-                bill: "American Rescue Plan Act",
-                vote: "Yes",
-                date: "March 6, 2021",
-                description: "COVID-19 relief and economic stimulus",
-              },
-              {
-                bill: "Infrastructure Investment and Jobs Act",
-                vote: "Yes",
-                date: "August 10, 2021",
-                description: "Bipartisan infrastructure legislation",
-              },
-              {
-                bill: "Inflation Reduction Act",
-                vote: "Yes",
-                date: "August 7, 2022",
-                description: "Climate and healthcare legislation",
-              },
-            ],
-            endorsementDetails: [
-              {
-                organization: "California Democratic Party",
-                type: "Party",
-                quote: "Senator Padilla has been a tireless advocate for California values.",
-              },
-              {
-                organization: "SEIU",
-                type: "Labor",
-                quote: "A champion for working families and economic justice.",
-              },
-              {
-                organization: "California Teachers Association",
-                type: "Education",
-                quote: "Committed to strengthening public education and supporting teachers.",
-              },
-            ],
-            campaignFinance: {
-              totalRaised: "$4,200,000",
-              totalSpent: "$2,800,000",
-              cashOnHand: "$1,400,000",
-              averageDonation: "$85",
-              smallDonorPercentage: "58%",
-              topIndustries: [
-                { name: "Technology", amount: "$650,000" },
-                { name: "Labor Unions", amount: "$580,000" },
-                { name: "Education", amount: "$425,000" },
-                { name: "Healthcare", amount: "$390,000" },
-              ],
-            },
-            socialMedia: {
-              twitter: "https://twitter.com/SenAlexPadilla",
-              facebook: "https://facebook.com/SenAlexPadilla",
-              instagram: "https://instagram.com/senalexpadilla",
-            },
-            contactInfo: {
-              email: "info@padilla2024.com",
-              phone: "(213) 555-0123",
-              campaignOffice: "5678 Wilshire Blvd, Los Angeles, CA 90036",
-            },
-            events: [
-              {
-                name: "Latino Community Town Hall",
-                date: "September 15, 2024",
-                location: "East Los Angeles College",
-                description: "Discussion on immigration reform and community issues",
-              },
-              {
-                name: "Climate Action Forum",
-                date: "October 1, 2024",
-                location: "UC Berkeley",
-                description: "Panel discussion on climate policy and environmental justice",
-              },
-            ],
-          },
-          {
-            name: "Steve Garvey",
-            party: "Republican" as const,
-            isIncumbent: false,
-            photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Former MLB Player", "Business Executive", "Community Leader"],
-            keyIssues: ["Border Security", "Economic Growth", "Public Safety", "Education"],
-            endorsements: ["California Republican Party"],
-            fundraising: {
-              totalRaised: "$1.8M",
-              lastQuarter: "$425K",
-            },
-            bio: "Steve Garvey is a former Major League Baseball player who spent 14 seasons with the Los Angeles Dodgers and 5 seasons with the San Diego Padres. After his baseball career, he became a successful business executive and community leader. He is running to bring new leadership to California.",
-            age: 75,
-            education: ["Michigan State University - B.A. Business Administration"],
-            hometown: "Tampa, Florida",
-            family: "Married with children",
-            positions: [
-              {
-                issue: "Economy",
-                stance: "Conservative",
-                description:
-                  "Advocates for lower taxes, reduced regulations on businesses, and fiscal responsibility. Supports energy independence and domestic manufacturing.",
-              },
-              {
-                issue: "Border Security",
-                stance: "Strict",
-                description:
-                  "Supports strengthening border security, completing the border wall, and reforming the immigration system to prioritize legal immigration.",
-              },
-              {
-                issue: "Public Safety",
-                stance: "Supportive",
-                description:
-                  "Advocates for supporting law enforcement, addressing crime and homelessness, and tougher penalties for violent offenders.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/stevegarvey2024",
-              facebook: "https://facebook.com/stevegarvey2024",
-            },
-            contactInfo: {
-              email: "info@garveyforsenate.com",
-              phone: "(619) 555-0456",
-              campaignOffice: "1234 Broadway, San Diego, CA 92101",
-            },
-          },
-        ],
-      },
-      {
-        date: "March 5, 2024",
-        type: "Primary Election" as const,
-        office: "California State Assembly - District 17",
-        description: "Primary election for State Assembly District 17",
-        registrationDeadline: "February 20, 2024",
-        candidates: [
-          {
-            name: "David Chiu",
-            party: "Democrat" as const,
-            isIncumbent: true,
-            photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Current Assembly Member", "Former SF Board President"],
-            keyIssues: ["Housing", "Transportation", "Small Business"],
-            endorsements: ["California Democratic Party"],
-            fundraising: {
-              totalRaised: "$285K",
-              lastQuarter: "$67K",
-            },
-            bio: "David Chiu has served in the California State Assembly since 2014, representing the 17th Assembly District which encompasses eastern San Francisco. Prior to his election to the Assembly, he was the President of the San Francisco Board of Supervisors.",
-            age: 54,
-            education: ["Harvard University - B.A. Government", "Harvard Law School - J.D."],
-            hometown: "Boston, Massachusetts",
-            family: "Married with one child",
-            positions: [
-              {
-                issue: "Housing",
-                stance: "Progressive",
-                description:
-                  "Author of numerous housing bills to protect tenants, fund affordable housing, and address homelessness. Supports rent control and tenant protections.",
-              },
-              {
-                issue: "Transportation",
-                stance: "Progressive",
-                description:
-                  "Advocates for expanded public transit funding, bicycle and pedestrian infrastructure, and reduced car dependency in urban areas.",
-              },
-              {
-                issue: "Small Business",
-                stance: "Supportive",
-                description:
-                  "Supports grants and loans for small businesses, streamlined permitting processes, and programs to fill vacant storefronts.",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/DavidChiu",
-              facebook: "https://facebook.com/DavidChiu",
-            },
-            contactInfo: {
-              email: "info@davidchiu.com",
-              phone: "(415) 555-0123",
-              campaignOffice: "1234 Market St, San Francisco, CA 94102",
-            },
-          },
-        ],
-      },
-    ],
-    pollingLocation: {
-      name: "City Hall",
-      address: "1 Dr Carlton B Goodlett Pl, San Francisco, CA 94102",
-      hours: "7:00 AM - 8:00 PM",
-    },
-  },
-  "78701": {
-    location: "Austin, TX",
-    district: {
-      congressional: "TX-25",
-      state: "House District 49, Senate District 14",
-      local: "District 9",
-    },
-    representatives: {
-      congress: {
-        name: "Roger Williams",
-        party: "Republican" as const,
-        office: "U.S. House of Representatives",
-        district: "Texas's 25th Congressional District",
-        photo: "/placeholder.svg?height=128&width=128",
-        coverPhoto: "/placeholder.svg?height=128&width=400",
-        politicalScore: 68,
-        yearsInOffice: 11,
-        contact: {
-          phone: "(202) 225-9896",
-          email: "roger.williams@mail.house.gov",
+          phone: "(202) 225-3801",
+          email: "nikema.williams@mail.house.gov",
           website: "https://williams.house.gov",
-          twitter: "https://twitter.com/RepRWilliams",
+          twitter: "https://twitter.com/RepNikema",
+          facebook: "https://facebook.com/RepNikema",
         },
         biography: {
-          age: 74,
-          hometown: "Austin, TX",
-          education: ["Texas Christian University - B.S. Business"],
+          age: 46,
+          hometown: "Atlanta, GA",
+          education: ["Talladega College - B.A. English", "Georgia State University - M.P.A. Public Administration"],
           previousJobs: [
-            "Texas Secretary of State",
-            "Small Business Owner",
-            "Professional Baseball Player (Texas Rangers)",
+            "Georgia State Senator",
+            "Political Director, Planned Parenthood Southeast",
+            "Executive Director, Georgia Democratic Party",
           ],
-          committees: ["House Committee on Financial Services", "House Committee on Small Business"],
+          committees: ["House Committee on Transportation and Infrastructure", "House Committee on Financial Services"],
           keyIssues: [
-            "Small Business",
-            "Financial Services",
-            "Border Security",
-            "Second Amendment",
-            "Energy Independence",
+            "Voting Rights",
+            "Healthcare Access",
+            "Economic Justice",
+            "Transportation Infrastructure",
+            "Women's Rights",
           ],
         },
         votingRecord: {
           totalVotes: 892,
-          partyLineVoting: 89,
+          partyLineVoting: 94,
           keyVotes: [
             {
-              bill: "Tax Cuts and Jobs Act",
+              bill: "Infrastructure Investment Act",
               vote: "Yes" as const,
-              description: "Comprehensive tax reform legislation",
-              date: "December 19, 2017",
+              description: "Bipartisan infrastructure bill including MARTA funding",
+              date: "November 5, 2021",
             },
             {
-              bill: "First Step Act",
+              bill: "John Lewis Voting Rights Act",
               vote: "Yes" as const,
-              description: "Criminal justice reform legislation",
-              date: "December 20, 2018",
+              description: "Voting rights restoration named after Georgia civil rights leader",
+              date: "August 24, 2021",
+            },
+            {
+              bill: "American Rescue Plan Act",
+              vote: "Yes" as const,
+              description: "COVID-19 relief including Atlanta small business support",
+              date: "March 10, 2021",
             },
           ],
         },
       },
       senate: [
         {
-          name: "Ted Cruz",
-          party: "Republican" as const,
+          name: "Raphael Warnock",
+          party: "Democrat" as const,
           office: "U.S. Senate",
-          district: "Texas",
+          district: "Georgia",
           photo: "/placeholder.svg?height=128&width=128",
           coverPhoto: "/placeholder.svg?height=128&width=400",
-          politicalScore: 82,
-          yearsInOffice: 11,
+          politicalScore: -68,
+          yearsInOffice: 6,
           contact: {
-            phone: "(202) 224-5922",
-            email: "senator_cruz@cruz.senate.gov",
-            website: "https://cruz.senate.gov",
-            twitter: "https://twitter.com/SenTedCruz",
+            phone: "(202) 224-3643",
+            email: "senator_warnock@warnock.senate.gov",
+            website: "https://warnock.senate.gov",
+            twitter: "https://twitter.com/SenatorWarnock",
           },
           biography: {
-            age: 53,
-            hometown: "Houston, TX",
-            education: ["Princeton University - B.A. Public Policy", "Harvard Law School - J.D."],
-            previousJobs: ["Texas Solicitor General", "Supreme Court Clerk", "Private Practice Attorney"],
+            age: 55,
+            hometown: "Savannah, GA",
+            education: ["Morehouse College - B.A.", "Union Theological Seminary - M.Div., Ph.D."],
+            previousJobs: ["Senior Pastor, Ebenezer Baptist Church", "Civil Rights Advocate", "Community Organizer"],
             committees: [
-              "Committee on the Judiciary",
+              "Committee on Agriculture, Nutrition, and Forestry",
+              "Committee on Banking, Housing, and Urban Affairs",
               "Committee on Commerce, Science, and Transportation",
-              "Committee on Foreign Relations",
             ],
-            keyIssues: [
-              "Constitutional Rights",
-              "Border Security",
-              "Energy",
-              "Religious Liberty",
-              "Free Market Economics",
-            ],
+            keyIssues: ["Healthcare Access", "Voting Rights", "Economic Justice", "Rural Development", "Education"],
           },
           votingRecord: {
-            totalVotes: 1156,
-            partyLineVoting: 85,
+            totalVotes: 456,
+            partyLineVoting: 91,
             keyVotes: [
               {
-                bill: "American Rescue Plan Act",
-                vote: "No" as const,
-                description: "COVID-19 relief and economic stimulus",
-                date: "March 6, 2021",
+                bill: "Inflation Reduction Act",
+                vote: "Yes" as const,
+                description: "Climate and healthcare legislation benefiting Georgia",
+                date: "August 7, 2022",
               },
               {
                 bill: "Infrastructure Investment Act",
-                vote: "No" as const,
-                description: "Bipartisan infrastructure legislation",
+                vote: "Yes" as const,
+                description: "Infrastructure funding for Georgia including Atlanta",
                 date: "August 10, 2021",
+              },
+            ],
+          },
+        },
+        {
+          name: "Jon Ossoff",
+          party: "Democrat" as const,
+          office: "U.S. Senate",
+          district: "Georgia (up for re-election Nov 2026)",
+          photo: "/placeholder.svg?height=128&width=128",
+          coverPhoto: "/placeholder.svg?height=128&width=400",
+          politicalScore: -65,
+          yearsInOffice: 6,
+          contact: {
+            phone: "(202) 224-3521",
+            email: "senator_ossoff@ossoff.senate.gov",
+            website: "https://ossoff.senate.gov",
+            twitter: "https://twitter.com/SenOssoff",
+          },
+          biography: {
+            age: 37,
+            hometown: "Atlanta, GA",
+            education: ["Georgetown University - B.S. Foreign Service", "London School of Economics - M.Sc."],
+            previousJobs: ["Investigative Journalist", "Documentary Filmmaker", "CEO, Insight TWI"],
+            committees: [
+              "Committee on Homeland Security and Governmental Affairs",
+              "Committee on the Judiciary",
+              "Committee on Rules and Administration",
+            ],
+            keyIssues: [
+              "Government Accountability",
+              "Criminal Justice Reform",
+              "Healthcare",
+              "Climate Action",
+              "Technology Policy",
+            ],
+          },
+          votingRecord: {
+            totalVotes: 456,
+            partyLineVoting: 89,
+            keyVotes: [
+              {
+                bill: "American Rescue Plan Act",
+                vote: "Yes" as const,
+                description: "COVID-19 relief supporting Georgia families and businesses",
+                date: "March 6, 2021",
+              },
+              {
+                bill: "CHIPS and Science Act",
+                vote: "Yes" as const,
+                description: "Technology and manufacturing investment",
+                date: "July 27, 2022",
               },
             ],
           },
@@ -795,342 +268,536 @@ const politicalData = {
     },
     upcomingElections: [
       {
-        date: "November 5, 2024",
-        type: "General Election" as const,
-        office: "U.S. House of Representatives - TX-25",
-        description: "Congressional election for Texas's 25th District",
-        registrationDeadline: "October 7, 2024",
-        earlyVotingStart: "October 21, 2024",
-        earlyVotingEnd: "November 1, 2024",
+        date: "May 19, 2026",
+        type: "Primary Election" as const,
+        office: "Georgia Governor - Democratic Primary",
+        description: "Democratic primary for Georgia Governor (Gov. Brian Kemp is term-limited)",
+        registrationDeadline: "April 20, 2026",
+        earlyVotingStart: "April 27, 2026",
+        earlyVotingEnd: "May 15, 2026",
         candidates: [
           {
-            name: "Roger Williams",
-            party: "Republican" as const,
-            isIncumbent: true,
-            photo: "/placeholder.svg?height=64&width=64",
-            website: "https://williams.house.gov",
-            experience: ["Current U.S. Representative", "Former Texas Secretary of State", "Small Business Owner"],
-            keyIssues: ["Small Business Growth", "Border Security", "Energy Independence", "Second Amendment"],
-            endorsements: ["Texas Republican Party", "NFIB", "NRA"],
-            fundraising: {
-              totalRaised: "$1.2M",
-              lastQuarter: "$285K",
-            },
-            bio: "Roger Williams has represented Texas's 25th Congressional District since 2013. He is a former Secretary of State of Texas and a successful small business owner. Before entering politics, he played professional baseball in the Atlanta Braves farm system.",
-            age: 74,
-            education: ["Texas Christian University - B.S. Business"],
-            hometown: "Fort Worth, Texas",
-            family: "Married with two children",
-            positions: [
-              {
-                issue: "Economy",
-                stance: "Conservative",
-                description:
-                  "Advocates for lower taxes, reduced regulations, and support for small businesses. Authored legislation to provide tax relief for small business owners.",
-              },
-              {
-                issue: "Border Security",
-                stance: "Strict",
-                description:
-                  "Supports completing the border wall, increasing Border Patrol resources, and stricter immigration enforcement.",
-              },
-              {
-                issue: "Energy",
-                stance: "Pro-development",
-                description:
-                  "Supports expanded domestic oil and gas production, reduced regulations on energy companies, and energy independence.",
-              },
-            ],
-            votingRecord: [
-              {
-                bill: "Tax Cuts and Jobs Act",
-                vote: "Yes",
-                date: "December 19, 2017",
-                description: "Comprehensive tax reform legislation",
-              },
-              {
-                bill: "American Rescue Plan Act",
-                vote: "No",
-                date: "March 10, 2021",
-                description: "COVID-19 relief package",
-              },
-              {
-                bill: "Infrastructure Investment and Jobs Act",
-                vote: "No",
-                date: "November 5, 2021",
-                description: "Bipartisan infrastructure bill",
-              },
-            ],
-            socialMedia: {
-              twitter: "https://twitter.com/RepRWilliams",
-              facebook: "https://facebook.com/RepRogerWilliams",
-            },
-            contactInfo: {
-              email: "info@rogerwilliamsforcongress.com",
-              phone: "(512) 555-0123",
-              campaignOffice: "1234 Congress Ave, Austin, TX 78701",
-            },
-          },
-          {
-            name: "Julie Oliver",
+            name: "Keisha Lance Bottoms",
             party: "Democrat" as const,
             isIncumbent: false,
             photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Healthcare Policy Advocate", "Former Congressional Candidate", "Community Organizer"],
-            keyIssues: ["Healthcare Access", "Education Funding", "Climate Action", "Economic Opportunity"],
-            endorsements: ["Texas Democratic Party", "Texas AFL-CIO"],
+            website: "https://keishaforgovernor.com",
+            experience: [
+              "Mayor of Atlanta (2018-2022)",
+              "Senior Adviser to President Biden",
+              "Atlanta City Council Member",
+            ],
+            keyIssues: ["Medicaid Expansion", "Public Education", "Small Business Support", "Free Community College"],
+            endorsements: ["Atlanta Democratic Leadership"],
             fundraising: {
-              totalRaised: "$675K",
-              lastQuarter: "$145K",
+              totalRaised: "$3.2M",
+              lastQuarter: "$890K",
             },
-            bio: "Julie Oliver is a healthcare advocate and attorney who previously ran for Congress in 2020. She has worked in healthcare administration and policy for over 20 years and is focused on expanding healthcare access, improving education, and addressing climate change.",
-            age: 50,
-            education: ["University of Texas - B.A. Accounting", "University of Texas School of Law - J.D."],
-            hometown: "Austin, Texas",
+            bio: "Keisha Lance Bottoms served as the 60th Mayor of Atlanta from 2018 to 2022 and was a senior adviser to President Biden. She is running to expand Medicaid, improve public education, eliminate state income taxes for teachers, and help small businesses across all 159 Georgia counties.",
+            age: 55,
+            education: ["Florida A&M University - B.A.", "Georgia State University - J.D."],
+            hometown: "Atlanta, Georgia",
             family: "Married with four children",
+            politicalScore: -62,
             positions: [
               {
-                issue: "Healthcare",
+                issue: "Medicaid Expansion",
+                stance: "Supportive",
+                description: "Advocates for full Medicaid expansion in Georgia to cover hundreds of thousands of uninsured Georgians.",
+              },
+              {
+                issue: "Public Education",
                 stance: "Progressive",
-                description:
-                  "Supports Medicare for All, lowering prescription drug costs, and protecting coverage for pre-existing conditions.",
+                description: "Supports eliminating state income taxes for teachers, increasing public school funding, and offering free technical and community college.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Supportive",
+                description: "Plans to create new support programs for small businesses and entrepreneurs in underserved communities across Georgia.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/KeishaBottoms",
+              facebook: "https://facebook.com/KeishaLanceBottoms",
+              instagram: "https://instagram.com/keaborgeorgia",
+            },
+            contactInfo: {
+              email: "info@keishaforgovernor.com",
+              phone: "(404) 555-0201",
+              campaignOffice: "Atlanta, GA",
+            },
+          },
+          {
+            name: "Geoff Duncan",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://geoffduncan.com",
+            experience: [
+              "Lieutenant Governor of Georgia (2019-2023, as Republican)",
+              "Georgia State Representative",
+              "Switched to Democratic Party in 2025",
+            ],
+            keyIssues: ["Childcare Affordability", "Healthcare Costs", "Housing Costs", "Rejecting Extremism"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$2.1M",
+              lastQuarter: "$640K",
+            },
+            bio: "Geoff Duncan served as Georgia's Republican Lt. Governor from 2019 to 2023 before switching to the Democratic Party in August 2025. He says he's the only Democrat who can win the general election by attracting Democrats, independents, and disaffected Republicans. He's focused on lowering the cost of childcare, healthcare, and housing.",
+            age: 47,
+            education: ["Georgia Tech"],
+            hometown: "Lawrenceville, Georgia",
+            family: "Married with three sons",
+            politicalScore: -15,
+            positions: [
+              {
+                issue: "Childcare & Cost of Living",
+                stance: "Moderate",
+                description: "Focused on bringing down the cost of childcare, healthcare, and housing for Georgia families in all 159 counties.",
+              },
+              {
+                issue: "Rejecting Extremism",
+                stance: "Centrist",
+                description: "Campaigning on fairness, opportunity, and 'love thy neighbor' values, rejecting extremism from both parties.",
+              },
+              {
+                issue: "Healthcare",
+                stance: "Supportive",
+                description: "Supports expanding healthcare access and lowering costs for Georgia families.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/GeoffDuncanGA",
+            },
+            contactInfo: {
+              email: "info@geoffduncan.com",
+              phone: "(770) 555-0302",
+            },
+          },
+          {
+            name: "Jason Esteves",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "Georgia State Senator",
+              "Former Atlanta Public Schools Board Member",
+              "Public School Teacher & Lawyer",
+            ],
+            keyIssues: ["Public Education Funding", "Lowering Cost of Living", "Healthcare Access", "Overturning Abortion Ban"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.5M",
+              lastQuarter: "$420K",
+            },
+            bio: "Jason Esteves is a Georgia State Senator, former public school teacher, and lawyer who served on the Atlanta Public Schools board. He's running to make Georgia the best place to work, start a business, and raise a family, with a focus on education, healthcare, and reproductive rights.",
+            age: 42,
+            education: ["Emory University - J.D."],
+            hometown: "Atlanta, Georgia",
+            politicalScore: -70,
+            positions: [
+              {
+                issue: "Public Education",
+                stance: "Progressive",
+                description: "Wants to increase public education funding and create multiple pathways to success for Georgia students.",
+              },
+              {
+                issue: "Reproductive Rights",
+                stance: "Supportive",
+                description: "Advocates for overturning Georgia's abortion ban and protecting reproductive healthcare access.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Supportive",
+                description: "Plans to invest in small businesses and lower the cost of living for working families.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/JasonEsteves",
+            },
+            contactInfo: {
+              email: "info@estevesforgovernor.com",
+            },
+          },
+          {
+            name: "Michael Thurmond",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "DeKalb County CEO",
+              "Georgia State Labor Commissioner",
+              "Former State Representative",
+              "Interim DeKalb County School Superintendent",
+            ],
+            keyIssues: ["Working Families", "Healthcare Expansion", "Education Pathways", "Public Safety"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.8M",
+              lastQuarter: "$510K",
+            },
+            bio: "Michael Thurmond is the CEO of DeKalb County and has decades of public service including as Georgia's Labor Commissioner and a State Representative. He's running to fight for working families, expand healthcare access, and build an education system with multiple pathways to success.",
+            age: 72,
+            education: ["Paine College - B.A.", "University of South Carolina - J.D."],
+            hometown: "Athens, Georgia",
+            politicalScore: -55,
+            positions: [
+              {
+                issue: "Working Families",
+                stance: "Progressive",
+                description: "Focused on growing Georgia faster, stronger, safer, and more equitable for working families.",
+              },
+              {
+                issue: "Healthcare",
+                stance: "Supportive",
+                description: "Supports expanding access to healthcare for all Georgians.",
               },
               {
                 issue: "Education",
                 stance: "Progressive",
-                description:
-                  "Advocates for increased public education funding, student loan forgiveness, and making college more affordable.",
-              },
-              {
-                issue: "Climate",
-                stance: "Progressive",
-                description:
-                  "Supports the Green New Deal, transitioning to renewable energy, and creating clean energy jobs.",
+                description: "Wants to create multiple pathways to success through expanded education and job training programs.",
               },
             ],
             socialMedia: {
-              twitter: "https://twitter.com/JulieForTX",
-              facebook: "https://facebook.com/JulieForTX",
-              instagram: "https://instagram.com/juliefortx",
+              twitter: "https://twitter.com/MikeThurmond",
             },
             contactInfo: {
-              email: "info@juliefortexas.com",
-              phone: "(512) 555-0456",
-              campaignOffice: "5678 Lamar Blvd, Austin, TX 78752",
+              email: "info@thurmondforgovernor.com",
             },
-            events: [
-              {
-                name: "Healthcare Town Hall",
-                date: "September 10, 2024",
-                location: "Austin Community College",
-                description: "Discussion on healthcare access and affordability",
-              },
-            ],
           },
         ],
       },
       {
-        date: "November 5, 2024",
+        date: "November 3, 2026",
         type: "General Election" as const,
-        office: "U.S. Senate - Texas",
-        description: "U.S. Senate election for Texas",
-        registrationDeadline: "October 7, 2024",
-        earlyVotingStart: "October 21, 2024",
-        earlyVotingEnd: "November 1, 2024",
+        office: "U.S. Senate - Georgia",
+        description: "U.S. Senate election - Sen. Jon Ossoff (D) seeking re-election against a field of challengers",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
         candidates: [
           {
-            name: "Ted Cruz",
-            party: "Republican" as const,
+            name: "Jon Ossoff",
+            party: "Democrat" as const,
             isIncumbent: true,
             photo: "/placeholder.svg?height=64&width=64",
-            website: "https://cruz.senate.gov",
-            experience: ["Current U.S. Senator", "Former Texas Solicitor General", "Constitutional Lawyer"],
-            keyIssues: ["Constitutional Rights", "Border Security", "Energy Policy", "Religious Liberty"],
-            endorsements: ["Texas Republican Party", "Texas Right to Life"],
+            website: "https://ossoff.senate.gov",
+            experience: [
+              "Current U.S. Senator (2021-present)",
+              "Investigative Journalist & Documentary Filmmaker",
+              "CEO, Insight TWI",
+            ],
+            keyIssues: ["Government Accountability", "Criminal Justice Reform", "Healthcare", "Technology Policy"],
+            endorsements: ["Georgia Democratic Party"],
             fundraising: {
               totalRaised: "$8.5M",
-              lastQuarter: "$2.1M",
+              lastQuarter: "$2.3M",
             },
-            bio: "Ted Cruz has served as a U.S. Senator for Texas since 2013. Before his election to the Senate, he was the Solicitor General of Texas and a partner at a private law firm. He is known for his conservative positions on constitutional issues, border security, and energy policy.",
-            age: 53,
-            education: ["Princeton University - B.A. Public Policy", "Harvard Law School - J.D."],
-            hometown: "Houston, Texas",
-            family: "Married with two daughters",
+            bio: "Jon Ossoff has served as Georgia's junior U.S. Senator since 2021. He's focused on government accountability, criminal justice reform, healthcare access, and technology policy. He previously worked as an investigative journalist and CEO of a media company investigating corruption and human rights abuses.",
+            age: 39,
+            education: ["Georgetown University - B.S. Foreign Service", "London School of Economics - M.Sc."],
+            hometown: "Atlanta, Georgia",
+            family: "Married",
+            politicalScore: -65,
             positions: [
               {
-                issue: "Constitutional Rights",
-                stance: "Conservative",
-                description:
-                  "Strong defender of the Second Amendment, religious liberty, and limited government. Opposes restrictions on free speech and supports originalist interpretation of the Constitution.",
+                issue: "Government Accountability",
+                stance: "Reform",
+                description: "Led investigations into government waste, fraud, and abuse. Champions transparency and oversight of federal spending.",
               },
               {
-                issue: "Border Security",
-                stance: "Strict",
-                description:
-                  "Advocates for completing the border wall, increasing Border Patrol resources, and stricter immigration enforcement. Opposes amnesty for undocumented immigrants.",
+                issue: "Criminal Justice Reform",
+                stance: "Progressive",
+                description: "Advocates for sentencing reform, ending cash bail for non-violent offenses, and investing in reentry programs.",
               },
               {
-                issue: "Energy",
-                stance: "Pro-development",
-                description:
-                  "Supports expanded domestic oil and gas production, reduced regulations on energy companies, and energy independence. Opposes the Green New Deal and carbon taxes.",
+                issue: "Technology & Privacy",
+                stance: "Progressive",
+                description: "Supports data privacy protections, AI regulation, and ensuring technology companies are held accountable.",
               },
             ],
             votingRecord: [
               {
-                bill: "American Rescue Plan Act",
-                vote: "No",
-                date: "March 6, 2021",
-                description: "COVID-19 relief and economic stimulus",
-              },
-              {
-                bill: "Infrastructure Investment and Jobs Act",
-                vote: "No",
-                date: "August 10, 2021",
-                description: "Bipartisan infrastructure legislation",
+                bill: "CHIPS and Science Act",
+                vote: "Yes",
+                date: "July 27, 2022",
+                description: "Technology and manufacturing investment",
               },
               {
                 bill: "Inflation Reduction Act",
-                vote: "No",
+                vote: "Yes",
                 date: "August 7, 2022",
                 description: "Climate and healthcare legislation",
               },
-            ],
-            endorsementDetails: [
               {
-                organization: "Texas Republican Party",
-                type: "Party",
-                quote: "Senator Cruz continues to be a strong voice for Texas values and conservative principles.",
-              },
-              {
-                organization: "Texas Right to Life",
-                type: "Issue Advocacy",
-                quote: "A consistent champion for the unborn and pro-life policies.",
-              },
-              {
-                organization: "NRA",
-                type: "Second Amendment",
-                quote: "Unwavering defender of Second Amendment rights.",
+                bill: "Infrastructure Investment Act",
+                vote: "Yes",
+                date: "August 10, 2021",
+                description: "Infrastructure funding including Georgia projects",
               },
             ],
-            campaignFinance: {
-              totalRaised: "$8,500,000",
-              totalSpent: "$5,200,000",
-              cashOnHand: "$3,300,000",
-              averageDonation: "$65",
-              smallDonorPercentage: "62%",
-              topIndustries: [
-                { name: "Oil & Gas", amount: "$950,000" },
-                { name: "Finance/Insurance", amount: "$780,000" },
-                { name: "Real Estate", amount: "$650,000" },
-                { name: "Healthcare", amount: "$520,000" },
-              ],
-            },
             socialMedia: {
-              twitter: "https://twitter.com/SenTedCruz",
-              facebook: "https://facebook.com/SenatorTedCruz",
-              instagram: "https://instagram.com/sentedcruz",
-              youtube: "https://youtube.com/SenatorTedCruz",
+              twitter: "https://twitter.com/SenOssoff",
+              facebook: "https://facebook.com/SenatorOssoff",
+              instagram: "https://instagram.com/senossoff",
             },
             contactInfo: {
-              email: "info@tedcruz.org",
-              phone: "(713) 555-0123",
-              campaignOffice: "5678 Westheimer Rd, Houston, TX 77056",
+              email: "info@ossoffforgeorgia.com",
+              phone: "(404) 555-0789",
+              campaignOffice: "Atlanta, GA",
             },
-            events: [
-              {
-                name: "Energy Policy Town Hall",
-                date: "September 20, 2024",
-                location: "University of Houston",
-                description: "Discussion on American energy independence and jobs",
-              },
-              {
-                name: "Faith & Family Rally",
-                date: "October 15, 2024",
-                location: "First Baptist Church, Dallas",
-                description: "Event focused on religious liberty and family values",
-              },
-            ],
           },
           {
-            name: "Colin Allred",
-            party: "Democrat" as const,
+            name: "Mike Collins",
+            party: "Republican" as const,
             isIncumbent: false,
             photo: "/placeholder.svg?height=64&width=64",
-            experience: ["Current U.S. Representative", "Former NFL Player", "Civil Rights Lawyer"],
-            keyIssues: ["Healthcare", "Voting Rights", "Economic Opportunity", "Public Safety"],
-            endorsements: ["Texas Democratic Party", "Texas Teachers Association"],
+            website: "https://mikecollinsforsenate.com",
+            experience: [
+              "U.S. Representative, GA-10 (2023-present)",
+              "Founder, Collins Trucking Co.",
+              "Led passage of the Laken Riley Act",
+            ],
+            keyIssues: ["Border Security", "Economic Growth", "America First Agenda", "Public Safety"],
+            endorsements: ["Georgia Republican Party"],
             fundraising: {
-              totalRaised: "$6.2M",
-              lastQuarter: "$1.8M",
+              totalRaised: "$3.8M",
+              lastQuarter: "$1.1M",
             },
-            bio: "Colin Allred is currently serving as a U.S. Representative for Texas's 32nd congressional district. Before entering politics, he was an NFL linebacker for the Tennessee Titans and later a civil rights attorney. He is focused on healthcare access, voting rights, and economic opportunity.",
-            age: 41,
-            education: ["Baylor University - B.A. History", "UC Berkeley School of Law - J.D."],
-            hometown: "Dallas, Texas",
-            family: "Married with two young sons",
+            bio: "Mike Collins represents Georgia's 10th Congressional District and is the founder of Collins Trucking. He's one of the key figures behind the Laken Riley Act and is running on an America First platform to unseat Jon Ossoff.",
+            age: 58,
+            education: ["University of Georgia"],
+            hometown: "Jackson, Georgia",
+            politicalScore: 78,
             positions: [
               {
-                issue: "Healthcare",
-                stance: "Progressive",
-                description:
-                  "Supports protecting and expanding the Affordable Care Act, lowering prescription drug costs, and expanding Medicaid in Texas.",
+                issue: "Border Security",
+                stance: "Conservative",
+                description: "Strong supporter of border enforcement, the Laken Riley Act, and cracking down on illegal immigration.",
+              },
+              {
+                issue: "Economic Growth",
+                stance: "Pro-Business",
+                description: "Advocates for lower taxes, reduced regulations, and supporting Georgia's trucking and logistics industries.",
+              },
+              {
+                issue: "America First",
+                stance: "Conservative",
+                description: "Supports President Trump's America First agenda across trade, defense, and domestic policy.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/RepMikeCollins",
+            },
+            contactInfo: {
+              email: "info@mikecollinsforsenate.com",
+            },
+          },
+          {
+            name: "Buddy Carter",
+            party: "Republican" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://buddycarter.com",
+            experience: [
+              "U.S. Representative, GA-1 (2015-present)",
+              "Former Mayor of Pooler, GA",
+              "Pharmacist & Business Owner",
+            ],
+            keyIssues: ["Healthcare Costs", "Conservative Values", "Veterans Affairs", "Small Business"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$2.5M",
+              lastQuarter: "$780K",
+            },
+            bio: "Buddy Carter has represented Georgia's 1st Congressional District (Savannah area) since 2015. A pharmacist and former mayor, he's focused on lowering healthcare costs and bringing conservative leadership to the Senate.",
+            age: 69,
+            education: ["University of Georgia - B.S. Pharmacy"],
+            hometown: "Pooler, Georgia",
+            politicalScore: 72,
+            positions: [
+              {
+                issue: "Healthcare Costs",
+                stance: "Market-Based",
+                description: "Pharmacist by trade who advocates for market-based solutions to lower prescription drug costs and increase competition.",
+              },
+              {
+                issue: "Small Business",
+                stance: "Pro-Business",
+                description: "As a business owner himself, supports reducing regulations and taxes on small businesses.",
+              },
+              {
+                issue: "Veterans",
+                stance: "Supportive",
+                description: "Advocates for improved VA services and mental health support for Georgia's veterans.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/RepBuddyCarter",
+            },
+            contactInfo: {
+              email: "info@buddycarterforsenate.com",
+            },
+          },
+          {
+            name: "Derek Dooley",
+            party: "Republican" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: [
+              "Attorney",
+              "Former NCAA Head Football Coach (Tennessee, Louisiana Tech)",
+              "UGA Law School Graduate",
+            ],
+            keyIssues: ["Georgia First", "Common Sense Governance", "Supporting Trump Agenda", "Economic Growth"],
+            endorsements: [],
+            fundraising: {
+              totalRaised: "$1.2M",
+              lastQuarter: "$380K",
+            },
+            bio: "Derek Dooley is an Athens native, UGA law school graduate, and former college football head coach. The son of legendary UGA coach Vince Dooley, he's running to bring Georgia common sense to Washington and work with President Trump to deliver results.",
+            age: 58,
+            education: ["University of Virginia - B.A.", "University of Georgia - J.D."],
+            hometown: "Athens, Georgia",
+            politicalScore: 65,
+            positions: [
+              {
+                issue: "Georgia First",
+                stance: "Conservative",
+                description: "Pledges to put Georgia's interests first and work with President Trump to advance his agenda.",
+              },
+              {
+                issue: "Common Sense",
+                stance: "Moderate Conservative",
+                description: "Advocates for practical, common-sense solutions over partisan gridlock.",
+              },
+            ],
+            socialMedia: {
+              twitter: "https://twitter.com/DerekDooley",
+            },
+            contactInfo: {
+              email: "info@dooleyforgeorgia.com",
+            },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "U.S. House of Representatives - GA-5",
+        description: "Congressional election for Georgia's 5th District (Atlanta) - Rep. Nikema Williams (D) seeking re-election",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Nikema Williams",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            website: "https://williams.house.gov",
+            experience: [
+              "Current U.S. Representative (2021-present)",
+              "Former Georgia State Senator",
+              "Former Georgia Democratic Party Chair",
+            ],
+            keyIssues: ["Voting Rights", "MARTA Expansion", "Atlanta Housing", "Healthcare Access"],
+            endorsements: ["Georgia Democratic Party", "AFL-CIO", "Sierra Club", "Planned Parenthood"],
+            fundraising: {
+              totalRaised: "$2.1M",
+              lastQuarter: "$485K",
+            },
+            bio: "Nikema Williams represents Georgia's 5th Congressional District, which includes most of Atlanta. Now in her third term, she previously served in the Georgia State Senate and as Chair of the Georgia Democratic Party. She continues to champion voting rights, transit expansion, and affordable housing.",
+            age: 48,
+            education: ["Talladega College - B.A. English", "Georgia State University - M.P.A."],
+            hometown: "Atlanta, Georgia",
+            family: "Married with one son",
+            politicalScore: -72,
+            positions: [
+              {
+                issue: "MARTA Expansion",
+                stance: "Supportive",
+                description: "Strong advocate for federal funding for MARTA expansion and Atlanta public transit. Supports connecting underserved communities to job centers.",
               },
               {
                 issue: "Voting Rights",
-                stance: "Progressive",
-                description:
-                  "Advocates for the John Lewis Voting Rights Act, automatic voter registration, and making Election Day a federal holiday.",
+                stance: "Supportive",
+                description: "Champion of the John Lewis Voting Rights Advancement Act. Advocates for automatic voter registration and expanded early voting access in Georgia.",
               },
               {
-                issue: "Economy",
-                stance: "Moderate Progressive",
-                description:
-                  "Supports raising the minimum wage, paid family leave, and investments in infrastructure and clean energy jobs.",
+                issue: "Atlanta Housing",
+                stance: "Progressive",
+                description: "Supports federal investment in affordable housing, tenant protections, and addressing Atlanta's housing affordability crisis.",
               },
             ],
             votingRecord: [
+              {
+                bill: "Infrastructure Investment Act",
+                vote: "Yes",
+                date: "November 5, 2021",
+                description: "Bipartisan infrastructure bill including MARTA funding",
+              },
+              {
+                bill: "John Lewis Voting Rights Act",
+                vote: "Yes",
+                date: "August 24, 2021",
+                description: "Voting rights restoration",
+              },
               {
                 bill: "American Rescue Plan Act",
                 vote: "Yes",
                 date: "March 10, 2021",
-                description: "COVID-19 relief package",
-              },
-              {
-                bill: "Infrastructure Investment and Jobs Act",
-                vote: "Yes",
-                date: "November 5, 2021",
-                description: "Bipartisan infrastructure bill",
-              },
-              {
-                bill: "Inflation Reduction Act",
-                vote: "Yes",
-                date: "August 12, 2022",
-                description: "Climate, healthcare, and tax legislation",
+                description: "COVID-19 relief including Atlanta support",
               },
             ],
+            endorsementDetails: [
+              {
+                organization: "Georgia Democratic Party",
+                type: "Party",
+                quote: "Representative Williams continues to be a strong voice for Atlanta and Georgia values.",
+              },
+              {
+                organization: "Sierra Club",
+                type: "Environmental",
+                quote: "A champion for clean transportation and environmental justice in Atlanta.",
+              },
+            ],
+            campaignFinance: {
+              totalRaised: "$2,100,000",
+              totalSpent: "$1,400,000",
+              cashOnHand: "$700,000",
+              averageDonation: "$130",
+              smallDonorPercentage: "66%",
+              topIndustries: [
+                { name: "Education", amount: "$310,000" },
+                { name: "Healthcare", amount: "$240,000" },
+                { name: "Labor Unions", amount: "$215,000" },
+                { name: "Transportation", amount: "$190,000" },
+              ],
+            },
             socialMedia: {
-              twitter: "https://twitter.com/ColinAllredTX",
-              facebook: "https://facebook.com/ColinAllredTX",
-              instagram: "https://instagram.com/colinallredtx",
+              twitter: "https://twitter.com/RepNikema",
+              facebook: "https://facebook.com/RepNikema",
+              instagram: "https://instagram.com/repnikema",
             },
             contactInfo: {
-              email: "info@colinallred.com",
-              phone: "(214) 555-0789",
-              campaignOffice: "1234 Main St, Dallas, TX 75201",
+              email: "info@nikemaforatlanta.com",
+              phone: "(404) 555-0123",
+              campaignOffice: "1234 Peachtree St, Atlanta, GA 30309",
             },
             events: [
               {
-                name: "Healthcare Town Hall",
-                date: "September 5, 2024",
-                location: "Dallas Community College",
-                description: "Discussion on healthcare access and affordability",
+                name: "Transit & Housing Town Hall",
+                date: "April 10, 2026",
+                location: "Atlanta City Hall",
+                description: "Discussion on MARTA expansion and affordable housing in Atlanta",
               },
               {
-                name: "Veterans Roundtable",
-                date: "September 25, 2024",
-                location: "VFW Post 3377, Garland",
-                description: "Meeting with veterans to discuss VA services and support",
+                name: "Voting Rights Community Forum",
+                date: "May 1, 2026",
+                location: "Ebenezer Baptist Church",
+                description: "Community discussion on protecting voting rights in Georgia",
               },
             ],
           },
@@ -1138,8 +805,8 @@ const politicalData = {
       },
     ],
     pollingLocation: {
-      name: "Austin Community College",
-      address: "1212 Rio Grande St, Austin, TX 78701",
+      name: "Atlanta City Hall",
+      address: "55 Trinity Ave SW, Atlanta, GA 30303",
       hours: "7:00 AM - 7:00 PM",
     },
   },
@@ -1149,7 +816,7 @@ interface PoliticalProfileProps {
   initialZipCode?: string
 }
 
-export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileProps) {
+export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileProps) {
   const [zipCode, setZipCode] = useState(initialZipCode)
   const [editingZip, setEditingZip] = useState(false)
   const [tempZipCode, setTempZipCode] = useState(zipCode)
@@ -1166,7 +833,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
       setZipCode(tempZipCode)
       setEditingZip(false)
     } else {
-      alert("Sorry, we don't have data for that zip code yet. Try 94102 or 78701.")
+      alert("Sorry, we don't have data for that zip code yet. Try 30309 for Atlanta.")
     }
   }
 
@@ -1178,13 +845,13 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
   const getPartyColor = (party: string) => {
     switch (party) {
       case "Democrat":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-[#1F3A93] text-white border-[#1F3A93]"
       case "Republican":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-[#D64541] text-white border-[#D64541]"
       case "Independent":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return "bg-[#F39C12] text-white border-[#F39C12]"
       case "Green":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-[#27AE60] text-white border-[#27AE60]"
       case "Libertarian":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       default:
@@ -1196,93 +863,103 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
     setSelectedCandidate({ candidate, office, electionDate })
   }
 
-  const renderCandidate = (candidate: Candidate, office: string, electionDate: string) => (
-    <Card
-      key={candidate.name}
-      className={`${candidate.isIncumbent ? "border-2 border-blue-400 bg-blue-50" : ""} hover:shadow-lg transition-shadow cursor-pointer`}
-      onClick={() => openCandidateProfile(candidate, office, electionDate)}
-    >
-      <CardHeader>
-        <div className="flex items-start gap-3">
-          <img
-            src={candidate.photo || "/placeholder.svg"}
-            alt={candidate.name}
-            className="w-16 h-16 rounded-full object-cover"
-          />
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="font-semibold text-lg">{candidate.name}</h4>
-              {candidate.isIncumbent && (
-                <Badge variant="default" className="bg-blue-600 text-white">
-                  <Crown className="w-3 h-3 mr-1" />
-                  Incumbent
+  const renderCandidate = (candidate: Candidate, office: string, electionDate: string) => {
+    const compatibility = calculateCompatibility(currentUser, {
+      politicalScore: candidate.politicalScore || 0,
+      keyIssues: candidate.keyIssues,
+      positions: candidate.positions || [],
+      votingRecord: candidate.votingRecord || [],
+    })
+
+    return (
+      <Card
+        key={candidate.name}
+        className={`${candidate.isIncumbent ? "border-2 border-[#1F3A93] bg-blue-50" : ""} hover:shadow-lg transition-shadow cursor-pointer`}
+        onClick={() => openCandidateProfile(candidate, office, electionDate)}
+      >
+        <CardHeader>
+          <div className="flex items-start gap-3">
+            <img
+              src={candidate.photo || "/placeholder.svg"}
+              alt={candidate.name}
+              className="w-16 h-16 rounded-full object-cover"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold text-lg">{candidate.name}</h4>
+                {candidate.isIncumbent && (
+                  <Badge variant="default" className="bg-[#1F3A93] text-white">
+                    <Crown className="w-3 h-3 mr-1" />
+                    Incumbent
+                  </Badge>
+                )}
+                <Badge variant="outline" className={getPartyColor(candidate.party)}>
+                  {candidate.party}
                 </Badge>
-              )}
-              <Badge variant="outline" className={getPartyColor(candidate.party)}>
-                {candidate.party}
-              </Badge>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h5 className="font-medium text-gray-700 mb-1">Experience</h5>
-                <ul className="text-gray-600 space-y-1">
-                  {candidate.experience.slice(0, 3).map((exp, i) => (
-                    <li key={i}>• {exp}</li>
-                  ))}
-                </ul>
+                <CompatibilityScore compatibility={compatibility} mode="compact" />
               </div>
-              <div>
-                <h5 className="font-medium text-gray-700 mb-1">Key Issues</h5>
-                <div className="flex flex-wrap gap-1">
-                  {candidate.keyIssues.slice(0, 4).map((issue, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs">
-                      {issue}
-                    </Badge>
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h5 className="font-medium text-[#4A4A4A] mb-1">Experience</h5>
+                  <ul className="text-[#4A4A4A] space-y-1">
+                    {candidate.experience.slice(0, 3).map((exp, i) => (
+                      <li key={i}>• {exp}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="font-medium text-[#4A4A4A] mb-1">Key Issues</h5>
+                  <div className="flex flex-wrap gap-1">
+                    {candidate.keyIssues.slice(0, 4).map((issue, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">
+                        {issue}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <h5 className="font-medium text-gray-700 mb-1">Fundraising</h5>
-            <p className="text-gray-600">Total: {candidate.fundraising.totalRaised}</p>
-            <p className="text-gray-600">Last Quarter: {candidate.fundraising.lastQuarter}</p>
-          </div>
-          <div>
-            <h5 className="font-medium text-gray-700 mb-1">Endorsements</h5>
-            <div className="space-y-1">
-              {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
-                <p key={i} className="text-gray-600 text-xs">
-                  • {endorsement}
-                </p>
-              ))}
-              {candidate.endorsements.length > 2 && (
-                <p className="text-gray-500 text-xs">+{candidate.endorsements.length - 2} more</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <h5 className="font-medium text-[#4A4A4A] mb-1">Fundraising</h5>
+              <p className="text-[#4A4A4A]">Total: {candidate.fundraising.totalRaised}</p>
+              <p className="text-[#4A4A4A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
+            </div>
+            <div>
+              <h5 className="font-medium text-[#4A4A4A] mb-1">Endorsements</h5>
+              <div className="space-y-1">
+                {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
+                  <p key={i} className="text-[#4A4A4A] text-xs">
+                    • {endorsement}
+                  </p>
+                ))}
+                {candidate.endorsements.length > 2 && (
+                  <p className="text-gray-500 text-xs">+{candidate.endorsements.length - 2} more</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-end justify-between">
+              {candidate.website && (
+                <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
+                  <a href={candidate.website} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Website
+                  </a>
+                </Button>
               )}
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                Details
+              </Button>
             </div>
           </div>
-          <div className="flex items-end justify-between">
-            {candidate.website && (
-              <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
-                <a href={candidate.website} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-3 h-3 mr-1" />
-                  Website
-                </a>
-              </Button>
-            )}
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <Info className="w-3 h-3" />
-              Details
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (!profileData) {
     return (
@@ -1301,7 +978,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blue-600" />
+              <MapPin className="w-5 h-5 text-[#1F3A93]" />
               <div>
                 <CardTitle className="text-xl">Your Political Profile</CardTitle>
                 <CardDescription>{profileData.location}</CardDescription>
@@ -1345,7 +1022,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
             <Vote className="w-5 h-5" />
             Upcoming Elections & Candidates
           </CardTitle>
-          <CardDescription>Official candidates on your ballot</CardDescription>
+          <CardDescription>Official candidates on your ballot with compatibility scores</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {profileData.upcomingElections.map((election, index) => (
@@ -1353,7 +1030,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div>
                   <h3 className="font-semibold text-lg">{election.office}</h3>
-                  <p className="text-gray-600">{election.description}</p>
+                  <p className="text-[#4A4A4A]">{election.description}</p>
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
@@ -1373,7 +1050,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-700 flex items-center gap-2">
+                <h4 className="font-medium text-[#4A4A4A] flex items-center gap-2">
                   <Users className="w-4 h-4" />
                   Candidates ({election.candidates.length})
                 </h4>
@@ -1391,17 +1068,17 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
       {/* Representative Profiles */}
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Current Representatives</h2>
+          <h2 className="text-2xl font-bold text-[#4A4A4A] mb-4">Your Current Representatives</h2>
 
           {/* House Representative */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-blue-600 mb-4">U.S. House of Representatives</h3>
+            <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. House of Representatives</h3>
             <RepresentativeProfile representative={profileData.representatives.congress} />
           </div>
 
           {/* Senate Representatives */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-blue-600 mb-4">U.S. Senate</h3>
+            <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. Senate</h3>
             <div className="space-y-6">
               {profileData.representatives.senate.map((senator, index) => (
                 <RepresentativeProfile key={index} representative={senator} />
@@ -1422,7 +1099,7 @@ export function PoliticalProfile({ initialZipCode = "94102" }: PoliticalProfileP
         <CardContent>
           <div className="p-3 bg-blue-50 rounded-lg">
             <p className="font-medium">{profileData.pollingLocation.name}</p>
-            <p className="text-sm text-gray-600">{profileData.pollingLocation.address}</p>
+            <p className="text-sm text-[#4A4A4A]">{profileData.pollingLocation.address}</p>
             <p className="text-sm text-gray-500">Hours: {profileData.pollingLocation.hours}</p>
           </div>
         </CardContent>
