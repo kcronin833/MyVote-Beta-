@@ -1,6 +1,14 @@
 // News service using NewsAPI.org
 // Get your free API key at https://newsapi.org
 
+import {
+  STOP_WORDS,
+  POLITICAL_KEYWORDS,
+  HOT_BUTTON_KEYWORDS,
+  LEFT_DOMAINS,
+  RIGHT_DOMAINS,
+} from "@/lib/news-constants"
+
 const BASE_URL = "https://newsapi.org/v2";
 
 // Strip HTML tags from API responses to prevent React script tag warnings
@@ -88,25 +96,8 @@ export interface FactualNewsWithPerspectives {
   rightArticles: NewsArticle[]
 }
 
-// Left-leaning and right-leaning source domains for filtering
-const LEFT_DOMAINS =
-  "huffpost.com,msnbc.com,cnn.com,nytimes.com,washingtonpost.com,vox.com,thenation.com,motherjones.com,slate.com"
-const RIGHT_DOMAINS =
-  "foxnews.com,dailywire.com,breitbart.com,washingtontimes.com,nationalreview.com,nypost.com,dailycaller.com,thefederalist.com"
-
-// Stop-words to strip when building search queries
-const STOP_WORDS = new Set([
-  "the","a","an","and","or","but","in","on","at","to","for","of","with","by",
-  "from","as","is","was","are","were","been","be","have","has","had","do",
-  "does","did","will","would","could","should","may","might","shall","can",
-  "its","it","that","this","than","he","she","they","his","her","their",
-  "our","we","you","your","my","says","said","new","also","about","after",
-  "over","into","more","how","what","when","who","why","not","just","some",
-])
-
-// Political keywords used to filter headlines to only political news
-const POLITICAL_KEYWORDS =
-  /\b(congress|senate|senator|house|representative|republican|democrat|gop|liberal|conservative|biden|trump|white\s?house|president|governor|mayor|legislation|bill\b|law|policy|vote|elect|campaign|partisan|bipartisan|supreme\s?court|scotus|justice|attorney\s?general|fbi|doj|cia|pentagon|cabinet|impeach|executive\s?order|veto|filibuster|lobby|gerrymander|redistrict|stimulus|debt\s?ceiling|shutdown|appropriat|federal|government|administration|political|politics|immigration|border|asylum|democrat|abortion|gun\s?control|second\s?amendment|first\s?amendment|nato|diplomacy|sanction|tariff|trade\s?war|foreign\s?policy|state\s?of\s?the\s?union|midterm|primary|caucus|poll|approval\s?rating|executive\s?branch|judicial|legislative)\b/i
+// Constants (STOP_WORDS, POLITICAL_KEYWORDS, HOT_BUTTON_KEYWORDS, LEFT_DOMAINS, RIGHT_DOMAINS)
+// are imported from @/lib/news-constants
 
 function isPoliticalArticle(article: NewsArticle): boolean {
   const text = `${article.title} ${article.description}`.toLowerCase()
@@ -131,10 +122,6 @@ function buildSearchQuery(title: string): string {
   // Take up to 6 meaningful words to keep the query specific
   return words.slice(0, 6).join(" ")
 }
-
-// Hot-button topics that increase controversy score
-const HOT_BUTTON_KEYWORDS =
-  /\b(abortion|gun\s?control|immigration|impeach|indictment|classified|scandal|investigation|probe|subpoena|contempt|riot|insurrection|protest|ban|overturn|strike\s?down|controversial|divisive|polariz|backlash|outrage|clash|feud|slam|blast|attack|accus|alleg|corrupt|fraud|misinformation|censorship|woke|weaponiz|radical|extremis)\b/i
 
 /**
  * Calculate a controversy score (0-100) based on:
