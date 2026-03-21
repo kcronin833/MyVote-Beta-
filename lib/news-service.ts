@@ -1,6 +1,14 @@
 // News service using NewsAPI.org
 // Get your free API key at https://newsapi.org
 
+import {
+  STOP_WORDS,
+  POLITICAL_KEYWORDS,
+  HOT_BUTTON_KEYWORDS,
+  LEFT_DOMAINS,
+  RIGHT_DOMAINS,
+} from "@/lib/news-constants"
+
 const BASE_URL = "https://newsapi.org/v2";
 
 // Strip HTML tags from API responses to prevent React script tag warnings
@@ -73,6 +81,180 @@ export async function searchNews(query: string): Promise<NewsArticle[]> {
   return fetchEverything(query);
 }
 
+// Fetch factual headlines with left & right perspective articles for each topic
+export interface FactualNewsWithPerspectives {
+  title: string
+  description: string
+  source: string
+  publishedAt: string
+  url: string
+  urlToImage: string | null
+  category: string
+  aiOverview: string
+  controversyScore: number // 0-100
+  leftArticles: NewsArticle[]
+  rightArticles: NewsArticle[]
+}
+
+// Constants (STOP_WORDS, POLITICAL_KEYWORDS, HOT_BUTTON_KEYWORDS, LEFT_DOMAINS, RIGHT_DOMAINS)
+// are imported from @/lib/news-constants
+
+function isPoliticalArticle(article: NewsArticle): boolean {
+  const text = `${article.title} ${article.description}`.toLowerCase()
+  return POLITICAL_KEYWORDS.test(text)
+}
+
+/**
+ * Build a tight search query from a headline: keep only meaningful words,
+ * strip source attribution, and limit length.
+ */
+function buildSearchQuery(title: string): string {
+  const cleaned = title
+    .replace(/\s*[-|]\s*[A-Z][\w\s.]*$/, "") // strip trailing " - Source Name"
+    .replace(/['']/g, "'")
+    .replace(/[^a-zA-Z0-9\s']/g, " ")
+    .trim()
+
+  const words = cleaned
+    .split(/\s+/)
+    .filter((w) => w.length > 1 && !STOP_WORDS.has(w.toLowerCase()))
+
+  // Take up to 6 meaningful words to keep the query specific
+  return words.slice(0, 6).join(" ")
+}
+
+/**
+ * Calculate a controversy score (0-100) based on:
+ * - Coverage breadth: how many left AND right outlets are covering it
+ * - Topic heat: whether the headline contains hot-button keywords
+ * - Cross-spectrum coverage: bonus when both sides cover the same story
+ */
+export function calculateControversyScore(
+  article: Pick<FactualNewsWithPerspectives, "title" | "description" | "leftArticles" | "rightArticles">
+): number {
+  let score = 0
+  const leftCount = article.leftArticles.length
+  const rightCount = article.rightArticles.length
+  const totalCoverage = leftCount + rightCount
+
+  // Base score from total coverage (max 35 points)
+  score += Math.min(totalCoverage * 7, 35)
+
+  // Cross-spectrum bonus: both sides covering = more controversial (max 30 points)
+  if (leftCount > 0 && rightCount > 0) {
+    const minSide = Math.min(leftCount, rightCount)
+    score += Math.min(minSide * 15, 30)
+  }
+
+  // Hot-button keyword bonus (max 35 points)
+  const text = `${article.title} ${article.description}`
+  const matches = text.match(new RegExp(HOT_BUTTON_KEYWORDS.source, "gi"))
+  if (matches) {
+    score += Math.min(matches.length * 12, 35)
+  }
+
+  return Math.min(Math.max(score, 0), 100)
+}
+
+/**
+ * Build a factual overview from headline data and perspective coverage.
+ * Synthesizes context from the description + left/right article titles.
+ */
+export function buildOverview(
+  article: FactualNewsWithPerspectives
+): string {
+  // Start with the description as the base
+  const base = article.description
+    ? article.description.replace(/\s*\[\+\d+ chars\]$/, "").trim()
+    : ""
+
+  // Summarise how many outlets are covering it
+  const leftCount = article.leftArticles.length
+  const rightCount = article.rightArticles.length
+
+  const leftNames = [...new Set(article.leftArticles.map((a) => a.source))].slice(0, 3)
+  const rightNames = [...new Set(article.rightArticles.map((a) => a.source))].slice(0, 3)
+
+  let coverage = ""
+  if (leftCount > 0 && rightCount > 0) {
+    coverage = `This story is being covered across the political spectrum, including ${leftNames.join(", ")} on the left and ${rightNames.join(", ")} on the right.`
+  } else if (leftCount > 0) {
+    coverage = `This story is being covered by left-leaning outlets including ${leftNames.join(", ")}.`
+  } else if (rightCount > 0) {
+    coverage = `This story is being covered by right-leaning outlets including ${rightNames.join(", ")}.`
+  }
+
+  return [base, coverage].filter(Boolean).join(" ")
+}
+
+export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
+  // Fetch from multiple political queries in parallel to get a good pool
+  const [generalHeadlines, politicalSearch] = await Promise.all([
+    fetchTopHeadlines("us", "general"),
+    fetchEverything("US Congress OR White House OR legislation OR Supreme Court OR election"),
+  ])
+
+  // Combine & deduplicate
+  const seen = new Set<string>()
+  const allArticles: NewsArticle[] = []
+  for (const article of [...generalHeadlines, ...politicalSearch]) {
+    if (!seen.has(article.url)) {
+      seen.add(article.url)
+      allArticles.push(article)
+    }
+  }
+
+  // Filter to ONLY political articles
+  const politicalHeadlines = allArticles.filter(isPoliticalArticle)
+
+  if (politicalHeadlines.length === 0) return []
+
+  // Sort by most recent first
+  politicalHeadlines.sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )
+
+  // Take top 6 political headlines
+  const topHeadlines = politicalHeadlines.slice(0, 6)
+
+  // For each headline, fetch directly-related articles from left and right sources
+  const results = await Promise.all(
+    topHeadlines.map(async (headline) => {
+      const query = buildSearchQuery(headline.title)
+      if (!query || query.split(" ").length < 2) return null
+
+      const [leftArticles, rightArticles] = await Promise.all([
+        fetchEverythingFromDomains(query, LEFT_DOMAINS),
+        fetchEverythingFromDomains(query, RIGHT_DOMAINS),
+      ])
+
+      const trimmedLeft = leftArticles.slice(0, 3)
+      const trimmedRight = rightArticles.slice(0, 3)
+
+      return {
+        title: headline.title,
+        description: headline.description,
+        source: headline.source,
+        publishedAt: headline.publishedAt,
+        url: headline.url,
+        urlToImage: headline.urlToImage,
+        category: "political",
+        aiOverview: "",
+        controversyScore: calculateControversyScore({
+          title: headline.title,
+          description: headline.description,
+          leftArticles: trimmedLeft,
+          rightArticles: trimmedRight,
+        }),
+        leftArticles: trimmedLeft,
+        rightArticles: trimmedRight,
+      }
+    })
+  )
+
+  return results.filter(Boolean) as FactualNewsWithPerspectives[]
+}
+
 // ---- Internal helpers ----
 
 async function fetchTopHeadlines(
@@ -95,6 +277,15 @@ async function fetchNewsFromSources(
 async function fetchEverything(q: string): Promise<NewsArticle[]> {
   const encoded = encodeURIComponent(q);
   const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${getApiKey()}`;
+  return fetchAndParse(url);
+}
+
+async function fetchEverythingFromDomains(
+  q: string,
+  domains: string
+): Promise<NewsArticle[]> {
+  const encoded = encodeURIComponent(q);
+  const url = `${BASE_URL}/everything?q=${encoded}&domains=${domains}&sortBy=relevancy&language=en&pageSize=5&apiKey=${getApiKey()}`;
   return fetchAndParse(url);
 }
 

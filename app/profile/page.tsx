@@ -1,10 +1,29 @@
+"use client"
+
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
 import { PoliticalProfile } from "@/components/political-profile"
 
 const ProfilePage = () => {
+  const router = useRouter()
+
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-semibold mb-6">Your Profile</h1>
+    <div className="container mx-auto py-8 px-4">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}
+          className="gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+      </div>
+      <h1 className="text-3xl font-semibold mb-6">Your Ballot</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">

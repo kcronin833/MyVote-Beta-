@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Logo } from "@/components/logo"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 
 export default function SignUpPage() {
@@ -53,7 +53,17 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#1F3A93] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#1F3A93] flex flex-col p-4">
+        <div className="w-full max-w-md mx-auto pt-4 pb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-md border-[#E5E5E5]">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -72,12 +82,23 @@ export default function SignUpPage() {
             </Link>
           </CardContent>
         </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#1F3A93] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#1F3A93] flex flex-col p-4">
+      <div className="w-full max-w-md mx-auto pt-4 pb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Link>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
       <Card className="w-full max-w-md border-[#E5E5E5]">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -226,6 +247,7 @@ export default function SignUpPage() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
