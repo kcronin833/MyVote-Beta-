@@ -63,17 +63,25 @@ export async function getFactualNews(): Promise<NewsArticle[]> {
     .slice(0, 15);
 }
 
-// Fetch local Georgia political news
+// Georgia & Atlanta local news outlets
+const GEORGIA_LOCAL_DOMAINS =
+  "ajc.com,wsbtv.com,11alive.com,fox5atlanta.com,wabe.org,gpb.org,savannahnow.com,macon.com,augustachronicle.com,mdjonline.com,times-herald.com,Cherokee Tribune,gainesville.com,albanyherald.com,valdostadailytimes.com"
+
+// Fetch local Georgia political news — restricted to Georgia/Atlanta local outlets
 export async function getLocalNews(location: string = "Atlanta"): Promise<NewsArticle[]> {
-  const city = (location || "Atlanta").split(",")[0].trim();
   const queries = [
-    `"${city}" OR Georgia politics OR election OR legislature OR governor OR "city council" OR mayor OR "state senate" OR "state house"`,
-    `Georgia 2026 election OR "Georgia legislature" OR "Georgia governor" OR "Atlanta mayor" OR policy`,
+    "Georgia politics OR election OR legislature OR governor OR mayor OR \"city council\" OR \"state senate\" OR \"state house\" OR policy",
+    "Atlanta OR Georgia 2026 OR Ossoff OR \"Georgia primary\" OR \"Georgia General Assembly\"",
   ];
-  const results = await Promise.all(queries.map((q) => fetchEverything(q)));
+
+  // Try local domains first
+  const localResults = await Promise.all(
+    queries.map((q) => fetchEverythingFromDomains(q, GEORGIA_LOCAL_DOMAINS))
+  );
+
   const seen = new Set<string>();
   const combined: NewsArticle[] = [];
-  for (const articles of results) {
+  for (const articles of localResults) {
     for (const article of articles) {
       if (!seen.has(article.url)) {
         seen.add(article.url);
@@ -81,6 +89,21 @@ export async function getLocalNews(location: string = "Atlanta"): Promise<NewsAr
       }
     }
   }
+
+  // If local outlets returned enough, use them; otherwise supplement with
+  // a Georgia-keyword search across all sources (still filtered to political)
+  if (combined.length < 5) {
+    const fallback = await fetchEverything(
+      "Georgia politics OR \"Georgia legislature\" OR \"Atlanta mayor\" OR \"Georgia governor\" OR Georgia election 2026"
+    );
+    for (const article of fallback) {
+      if (!seen.has(article.url)) {
+        seen.add(article.url);
+        combined.push(article);
+      }
+    }
+  }
+
   return combined
     .filter(isPoliticalArticle)
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
