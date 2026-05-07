@@ -46,21 +46,31 @@ export async function getRightNews(): Promise<NewsArticle[]> {
   return fetchNewsFromSources(sources, "politics OR policy OR government");
 }
 
-// Fetch factual/objective news from mainstream sources
+// Fetch factual/objective news from mainstream sources - politics only
 export async function getFactualNews(): Promise<NewsArticle[]> {
-  return fetchTopHeadlines("us", "politics");
+  const [headlines, political] = await Promise.all([
+    fetchTopHeadlines("us", "politics"),
+    fetchEverything("Congress OR Senate OR White House OR Supreme Court OR election OR legislation OR Georgia politics"),
+  ]);
+  const seen = new Set<string>();
+  const combined: NewsArticle[] = [];
+  for (const a of [...headlines, ...political]) {
+    if (!seen.has(a.url)) { seen.add(a.url); combined.push(a); }
+  }
+  return combined
+    .filter(isPoliticalArticle)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 15);
 }
 
-// Fetch local news based on city/state
+// Fetch local Georgia political news
 export async function getLocalNews(location: string = "Atlanta"): Promise<NewsArticle[]> {
   const city = (location || "Atlanta").split(",")[0].trim();
-  // Use multiple query strategies for better local coverage
   const queries = [
-    `"${city}" local news OR city council OR mayor OR county`,
-    `"${city}" Georgia politics OR crime OR development OR schools`,
+    `"${city}" OR Georgia politics OR election OR legislature OR governor OR "city council" OR mayor OR "state senate" OR "state house"`,
+    `Georgia 2026 election OR "Georgia legislature" OR "Georgia governor" OR "Atlanta mayor" OR policy`,
   ];
   const results = await Promise.all(queries.map((q) => fetchEverything(q)));
-  // Deduplicate by URL
   const seen = new Set<string>();
   const combined: NewsArticle[] = [];
   for (const articles of results) {
@@ -71,9 +81,10 @@ export async function getLocalNews(location: string = "Atlanta"): Promise<NewsAr
       }
     }
   }
-  // Sort by date, most recent first
-  combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-  return combined.slice(0, 15);
+  return combined
+    .filter(isPoliticalArticle)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 15);
 }
 
 // Search news
@@ -190,8 +201,8 @@ export function buildOverview(
 export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
   // Fetch from multiple political queries in parallel to get a good pool
   const [generalHeadlines, politicalSearch] = await Promise.all([
-    fetchTopHeadlines("us", "general"),
-    fetchEverything("US Congress OR White House OR legislation OR Supreme Court OR election"),
+    fetchTopHeadlines("us", "politics"),
+    fetchEverything("US Congress OR White House OR legislation OR Supreme Court OR election OR Georgia politics"),
   ])
 
   // Combine & deduplicate
