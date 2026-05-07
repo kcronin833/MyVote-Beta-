@@ -57,10 +57,17 @@ export default function ContactPage() {
   const [suggestions, setSuggestions] = useState(mockSuggestions)
   const [votedSuggestions, setVotedSuggestions] = useState<Set<string>>(new Set())
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const form = e.currentTarget
+    const name = (form.elements.namedItem("name") as HTMLInputElement)?.value || ""
+    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value || ""
+    const message = (form.elements.namedItem("message") as HTMLTextAreaElement)?.value || ""
+    const subject = encodeURIComponent(`MyVote Contact: ${formType} from ${name}`)
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nType: ${formType}\n\nMessage:\n${message}`)
+    window.location.href = `mailto:kcronin833@gmail.com?subject=${subject}&body=${body}`
     setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
+    setTimeout(() => setSubmitted(false), 5000)
   }
 
   const handleVote = (id: string) => {
@@ -141,15 +148,15 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#4A4A4A]">Name</label>
-                    <Input placeholder="Your name" />
+                    <Input name="name" placeholder="Your name" required />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#4A4A4A]">Email</label>
-                    <Input type="email" placeholder="your@email.com" />
+                    <Input name="email" type="email" placeholder="your@email.com" required />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#4A4A4A]">Message</label>
-                    <Textarea placeholder="Tell us what's on your mind..." rows={5} />
+                    <Textarea name="message" placeholder="Tell us what's on your mind..." rows={5} required />
                   </div>
                   <Button type="submit" className="w-full bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white">
                     <Send className="w-4 h-4 mr-2" />
