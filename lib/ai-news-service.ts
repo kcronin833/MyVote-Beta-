@@ -78,4 +78,3 @@ class AiNewsService {
 }
 
 export default AiNewsService
-\`\`\`</merged_code>

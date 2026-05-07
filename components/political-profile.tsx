@@ -12,6 +12,7 @@ import { CandidateProfileDialog } from "./candidate-profile-detail"
 import { CompatibilityScore } from "./compatibility-score"
 import { calculateCompatibility } from "@/lib/compatibility-service"
 import { currentUser } from "@/lib/mock-data"
+import { getBallotForZip } from "@/lib/georgia-ballot-data"
 
 interface Candidate {
   name: string
@@ -1489,26 +1490,12 @@ const politicalData = {
 }
 
 // Race level labels for grouping
-const RACE_LEVEL: Record<string, { label: string; color: string }> = {
-  "U.S. Senate":                              { label: "Federal",      color: "bg-[#1F3A93] text-white" },
-  "U.S. House":                               { label: "Federal",      color: "bg-[#1F3A93] text-white" },
-  "Georgia Governor":                         { label: "State",        color: "bg-[#27AE60] text-white" },
-  "Georgia State Senate":                     { label: "State",        color: "bg-[#27AE60] text-white" },
-  "Georgia State House":                      { label: "State",        color: "bg-[#27AE60] text-white" },
-  "Fulton County Commission":                 { label: "County",       color: "bg-[#F39C12] text-white" },
-  "Fulton County Sheriff":                    { label: "County",       color: "bg-[#F39C12] text-white" },
-  "Fulton County District Attorney":          { label: "County",       color: "bg-[#F39C12] text-white" },
-  "Atlanta Board of Education":               { label: "School Board", color: "bg-[#8E44AD] text-white" },
-  "Fulton County Board of Education":         { label: "School Board", color: "bg-[#8E44AD] text-white" },
-  "Atlanta City Council":                     { label: "Local",        color: "bg-[#D64541] text-white" },
-  "Fulton County Soil":                       { label: "Local",        color: "bg-[#D64541] text-white" },
-}
-
-function getRaceLevel(office: string) {
-  for (const [key, val] of Object.entries(RACE_LEVEL)) {
-    if (office.includes(key)) return val
-  }
-  return { label: "Other", color: "bg-gray-500 text-white" }
+const LEVEL_COLORS: Record<string, { label: string; color: string }> = {
+  "Federal":      { label: "Federal",      color: "bg-[#1F3A93] text-white" },
+  "State":        { label: "State",        color: "bg-[#27AE60] text-white" },
+  "County":       { label: "County",       color: "bg-[#F39C12] text-white" },
+  "School Board": { label: "School Board", color: "bg-[#8E44AD] text-white" },
+  "Local":        { label: "Local",        color: "bg-[#D64541] text-white" },
 }
 
 interface Address {
@@ -1538,16 +1525,18 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     electionDate: string
   } | null>(null)
 
+  const ballotData = getBallotForZip(zipCode)
   const profileData = politicalData[zipCode as keyof typeof politicalData]
 
   const handleAddressUpdate = () => {
     const z = tempAddress.zip.trim()
-    if (z in politicalData) {
+    const result = getBallotForZip(z)
+    if (result.found) {
       setZipCode(z)
       setAddress(tempAddress)
       setEditingAddress(false)
     } else {
-      alert("We don't have ballot data for that zip code yet. Try 30309 for Atlanta.")
+      alert(`We don't have data for zip code ${z} yet. Visit mvp.sos.ga.gov to find your Georgia ballot information.`)
     }
   }
 
@@ -1675,11 +1664,21 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     )
   }
 
-  if (!profileData) {
+  if (!ballotData.found) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
-          <p>No political data available for this zip code.</p>
+        <CardContent className="p-6 text-center space-y-3">
+          <MapPin className="w-8 h-8 text-[#1F3A93] mx-auto" />
+          <p className="text-[#4A4A4A]">We don&apos;t have ballot data for zip code <strong>{zipCode}</strong> yet.</p>
+          <a
+            href={ballotData.sosLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[#1F3A93] underline text-sm"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Find your ballot on the Georgia Secretary of State website
+          </a>
         </CardContent>
       </Card>
     )
@@ -1698,7 +1697,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 <CardDescription>
                   {address.street
                     ? `${address.street}, ${address.city}, ${address.state} ${address.zip}`
-                    : profileData.location}
+                    : ballotData.location}
                 </CardDescription>
               </div>
             </div>
@@ -1749,7 +1748,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 </div>
               </div>
               <p className="text-xs text-[#4A4A4A]/60">
-                Your address is used to show your specific ballot races. We currently have data for Atlanta-area zip codes (e.g., 30309).
+                Your zip code is used to show your specific ballot races across all 159 Georgia counties.
               </p>
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleAddressUpdate} className="bg-[#1F3A93] text-white hover:bg-[#1F3A93]/90">
@@ -1768,15 +1767,15 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
               <div className="bg-[#1F3A93]/5 rounded-lg px-3 py-2">
                 <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">Congressional</p>
-                <p className="font-medium text-[#4A4A4A]">{profileData.district.congressional}</p>
+                <p className="font-medium text-[#4A4A4A]">{ballotData.congressionalDistrict}</p>
               </div>
               <div className="bg-[#27AE60]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">State Legislature</p>
-                <p className="font-medium text-[#4A4A4A]">{profileData.district.state}</p>
+                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">County</p>
+                <p className="font-medium text-[#4A4A4A]">{ballotData.county} County</p>
               </div>
               <div className="bg-[#D64541]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">Local District</p>
-                <p className="font-medium text-[#4A4A4A]">{profileData.district.local}</p>
+                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">State</p>
+                <p className="font-medium text-[#4A4A4A]">Georgia</p>
               </div>
             </div>
           )}
@@ -1804,14 +1803,14 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {profileData.upcomingElections.map((election, index) => {
-            const level = getRaceLevel(election.office)
+          {ballotData.races.map((election, index) => {
+            const levelInfo = LEVEL_COLORS[election.level] ?? { label: election.level, color: "bg-gray-500 text-white" }
             return (
             <div key={index} className="space-y-4">
               <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${level.color}`}>{level.label}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${levelInfo.color}`}>{levelInfo.label}</span>
                     <h3 className="font-semibold text-base">{election.office}</h3>
                   </div>
                   <p className="text-sm text-[#4A4A4A]/70">{election.description}</p>
@@ -1837,38 +1836,40 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   Candidates ({election.candidates.length})
                 </h4>
                 <div className="space-y-3">
-                  {election.candidates.map((candidate) => renderCandidate(candidate, election.office, election.date))}
+                  {election.candidates.map((candidate) => renderCandidate(candidate as unknown as Candidate, election.office, election.date))}
                 </div>
               </div>
 
-              {index < profileData.upcomingElections.length - 1 && <Separator />}
+              {index < ballotData.races.length - 1 && <Separator />}
             </div>
           )})}
         </CardContent>
       </Card>
 
-      {/* Representative Profiles */}
-      <div className="space-y-8">
-        <div>
-          <h2 className="text-2xl font-bold text-[#4A4A4A] mb-4">Your Current Representatives</h2>
+      {/* Representative Profiles — only available for select zip codes */}
+      {profileData && (
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-2xl font-bold text-[#4A4A4A] mb-4">Your Current Representatives</h2>
 
-          {/* House Representative */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. House of Representatives</h3>
-            <RepresentativeProfile representative={profileData.representatives.congress} />
-          </div>
+            {/* House Representative */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. House of Representatives</h3>
+              <RepresentativeProfile representative={profileData.representatives.congress} />
+            </div>
 
-          {/* Senate Representatives */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. Senate</h3>
-            <div className="space-y-6">
-              {profileData.representatives.senate.map((senator, index) => (
-                <RepresentativeProfile key={index} representative={senator} />
-              ))}
+            {/* Senate Representatives */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. Senate</h3>
+              <div className="space-y-6">
+                {profileData.representatives.senate.map((senator, index) => (
+                  <RepresentativeProfile key={index} representative={senator} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Polling Location */}
       <Card>
@@ -1879,10 +1880,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <p className="font-medium">{profileData.pollingLocation.name}</p>
-            <p className="text-sm text-[#4A4A4A]">{profileData.pollingLocation.address}</p>
-            <p className="text-sm text-gray-500">Hours: {profileData.pollingLocation.hours}</p>
+          <div className="p-3 bg-blue-50 rounded-lg space-y-1">
+            {ballotData.pollingInfo && (
+              <p className="font-medium text-[#4A4A4A]">{ballotData.pollingInfo}</p>
+            )}
+            <p className="text-sm text-[#4A4A4A]/70">Confirm your exact polling location before election day.</p>
+            <a
+              href={ballotData.sosLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[#1F3A93] underline text-sm"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Look up your polling place on mvp.sos.ga.gov
+            </a>
           </div>
         </CardContent>
       </Card>
