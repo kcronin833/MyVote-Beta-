@@ -99,7 +99,7 @@ interface Election {
 // Enhanced political data with Atlanta focus and detailed election information
 const politicalData = {
   "30309": {
-    location: "Atlanta, GA",
+    location: "Atlanta, GA 30309",
     district: {
       congressional: "GA-5",
       state: "House District 57, Senate District 38",
@@ -697,109 +697,285 @@ const politicalData = {
             isIncumbent: true,
             photo: "/placeholder.svg?height=64&width=64",
             website: "https://williams.house.gov",
-            experience: [
-              "Current U.S. Representative (2021-present)",
-              "Former Georgia State Senator",
-              "Former Georgia Democratic Party Chair",
-            ],
+            experience: ["Current U.S. Representative (2021-present)", "Former Georgia State Senator", "Former Georgia Democratic Party Chair"],
             keyIssues: ["Voting Rights", "MARTA Expansion", "Atlanta Housing", "Healthcare Access"],
             endorsements: ["Georgia Democratic Party", "AFL-CIO", "Sierra Club", "Planned Parenthood"],
-            fundraising: {
-              totalRaised: "$2.1M",
-              lastQuarter: "$485K",
-            },
-            bio: "Nikema Williams represents Georgia's 5th Congressional District, which includes most of Atlanta. Now in her third term, she previously served in the Georgia State Senate and as Chair of the Georgia Democratic Party. She continues to champion voting rights, transit expansion, and affordable housing.",
+            fundraising: { totalRaised: "$2.1M", lastQuarter: "$485K" },
+            bio: "Nikema Williams represents Georgia's 5th Congressional District. She champions voting rights, transit expansion, and affordable housing.",
             age: 48,
             education: ["Talladega College - B.A. English", "Georgia State University - M.P.A."],
             hometown: "Atlanta, Georgia",
-            family: "Married with one son",
             politicalScore: -72,
             positions: [
-              {
-                issue: "MARTA Expansion",
-                stance: "Supportive",
-                description: "Strong advocate for federal funding for MARTA expansion and Atlanta public transit. Supports connecting underserved communities to job centers.",
-              },
-              {
-                issue: "Voting Rights",
-                stance: "Supportive",
-                description: "Champion of the John Lewis Voting Rights Advancement Act. Advocates for automatic voter registration and expanded early voting access in Georgia.",
-              },
-              {
-                issue: "Atlanta Housing",
-                stance: "Progressive",
-                description: "Supports federal investment in affordable housing, tenant protections, and addressing Atlanta's housing affordability crisis.",
-              },
+              { issue: "MARTA Expansion", stance: "Supportive", description: "Strong advocate for federal funding for MARTA expansion and Atlanta public transit." },
+              { issue: "Voting Rights", stance: "Supportive", description: "Champion of the John Lewis Voting Rights Advancement Act." },
             ],
-            votingRecord: [
-              {
-                bill: "Infrastructure Investment Act",
-                vote: "Yes",
-                date: "November 5, 2021",
-                description: "Bipartisan infrastructure bill including MARTA funding",
-              },
-              {
-                bill: "John Lewis Voting Rights Act",
-                vote: "Yes",
-                date: "August 24, 2021",
-                description: "Voting rights restoration",
-              },
-              {
-                bill: "American Rescue Plan Act",
-                vote: "Yes",
-                date: "March 10, 2021",
-                description: "COVID-19 relief including Atlanta support",
-              },
+            socialMedia: { twitter: "https://twitter.com/RepNikema" },
+            contactInfo: { email: "info@nikemaforatlanta.com" },
+          },
+        ],
+      },
+      // ── STATE RACES ──────────────────────────────────────────────────────────
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Georgia State Senate – District 38",
+        description: "Georgia State Senate seat covering Midtown Atlanta and surrounding neighborhoods",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Sonya Halpern",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Georgia State Senator, District 38 (2021-present)", "Community Advocate", "Business Owner"],
+            keyIssues: ["Education Funding", "Healthcare Access", "LGBTQ+ Rights", "Affordable Housing"],
+            endorsements: ["Georgia Democratic Party"],
+            fundraising: { totalRaised: "$420K", lastQuarter: "$95K" },
+            bio: "Sen. Sonya Halpern has represented District 38 since 2021, focusing on education, healthcare, and civil rights legislation.",
+            politicalScore: -60,
+            positions: [
+              { issue: "Education", stance: "Progressive", description: "Advocates for increased state funding for Atlanta Public Schools." },
+              { issue: "Healthcare", stance: "Supportive", description: "Supports Medicaid expansion and mental health funding." },
             ],
-            endorsementDetails: [
-              {
-                organization: "Georgia Democratic Party",
-                type: "Party",
-                quote: "Representative Williams continues to be a strong voice for Atlanta and Georgia values.",
-              },
-              {
-                organization: "Sierra Club",
-                type: "Environmental",
-                quote: "A champion for clean transportation and environmental justice in Atlanta.",
-              },
+            socialMedia: { twitter: "https://twitter.com/SonyaHalpernGA" },
+            contactInfo: { email: "info@halpernforsenate.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Georgia State House – District 57",
+        description: "Georgia House of Representatives seat covering parts of Atlanta, including Buckhead and Midtown",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Teri Anulewicz",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Georgia State Representative, District 57 (2019-present)", "Former Smyrna City Council", "Attorney"],
+            keyIssues: ["Transit", "Education", "Public Safety", "Women's Rights"],
+            endorsements: ["Georgia Democratic Party", "Georgia AFL-CIO"],
+            fundraising: { totalRaised: "$280K", lastQuarter: "$62K" },
+            bio: "Rep. Teri Anulewicz has served District 57 since 2019 and is a leading voice for public transit and education in the Georgia House.",
+            politicalScore: -58,
+            positions: [
+              { issue: "Public Transit", stance: "Supportive", description: "Advocates for expanded MARTA and regional transit funding." },
+              { issue: "Education", stance: "Progressive", description: "Supports teacher pay raises and increased school funding." },
             ],
-            campaignFinance: {
-              totalRaised: "$2,100,000",
-              totalSpent: "$1,400,000",
-              cashOnHand: "$700,000",
-              averageDonation: "$130",
-              smallDonorPercentage: "66%",
-              topIndustries: [
-                { name: "Education", amount: "$310,000" },
-                { name: "Healthcare", amount: "$240,000" },
-                { name: "Labor Unions", amount: "$215,000" },
-                { name: "Transportation", amount: "$190,000" },
-              ],
-            },
-            socialMedia: {
-              twitter: "https://twitter.com/RepNikema",
-              facebook: "https://facebook.com/RepNikema",
-              instagram: "https://instagram.com/repnikema",
-            },
-            contactInfo: {
-              email: "info@nikemaforatlanta.com",
-              phone: "(404) 555-0123",
-              campaignOffice: "1234 Peachtree St, Atlanta, GA 30309",
-            },
-            events: [
-              {
-                name: "Transit & Housing Town Hall",
-                date: "April 10, 2026",
-                location: "Atlanta City Hall",
-                description: "Discussion on MARTA expansion and affordable housing in Atlanta",
-              },
-              {
-                name: "Voting Rights Community Forum",
-                date: "May 1, 2026",
-                location: "Ebenezer Baptist Church",
-                description: "Community discussion on protecting voting rights in Georgia",
-              },
+            socialMedia: { twitter: "https://twitter.com/TeriAnulewicz" },
+            contactInfo: { email: "info@anulewiczforga.com" },
+          },
+        ],
+      },
+      // ── COUNTY RACES ─────────────────────────────────────────────────────────
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Fulton County Commission – District 6",
+        description: "Fulton County Board of Commissioners seat covering central Atlanta",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Khadijah Abdur-Rahman",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Fulton County Commissioner, District 6 (2021-present)", "Community Organizer", "Public Health Advocate"],
+            keyIssues: ["Public Health", "Criminal Justice Reform", "Affordable Housing", "Mental Health Services"],
+            endorsements: ["Fulton County Democratic Party"],
+            fundraising: { totalRaised: "$185K", lastQuarter: "$41K" },
+            bio: "Commissioner Abdur-Rahman oversees county services for District 6, focusing on public health infrastructure and justice reform.",
+            politicalScore: -65,
+            positions: [
+              { issue: "Criminal Justice", stance: "Reform", description: "Supports investing in alternatives to incarceration and community-based programs." },
+              { issue: "Affordable Housing", stance: "Progressive", description: "Advocates for county-funded affordable housing and renter protections." },
             ],
+            socialMedia: {},
+            contactInfo: { email: "info@abdurrahmanforfulton.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Fulton County Sheriff",
+        description: "Fulton County Sheriff — responsible for county jail, courts, and unincorporated area law enforcement",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Patrick Labat",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Fulton County Sheriff (2021-present)", "30+ years law enforcement", "Former ATF Agent"],
+            keyIssues: ["Jail Reform", "Public Safety", "Community Policing", "Mental Health Diversion"],
+            endorsements: ["Fulton County Democratic Party"],
+            fundraising: { totalRaised: "$310K", lastQuarter: "$72K" },
+            bio: "Sheriff Patrick Labat has served as Fulton County Sheriff since 2021, overseeing the county jail and pushing for mental health diversion programs.",
+            politicalScore: -30,
+            positions: [
+              { issue: "Jail Reform", stance: "Moderate", description: "Working to reduce jail overcrowding and expand mental health services for inmates." },
+              { issue: "Community Policing", stance: "Supportive", description: "Expanding community partnerships to build trust between law enforcement and residents." },
+            ],
+            socialMedia: { twitter: "https://twitter.com/SheriffLabat" },
+            contactInfo: { email: "info@labatforsheriff.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Fulton County District Attorney",
+        description: "Fulton County District Attorney — chief prosecutor for Fulton County",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Christian Wise Smith",
+            party: "Democrat" as const,
+            isIncumbent: false,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Chief Deputy DA, Fulton County", "Senior Prosecutor", "Homicide Division Lead"],
+            keyIssues: ["Public Safety", "Violent Crime Prosecution", "Victim Services", "Accountability"],
+            endorsements: [],
+            fundraising: { totalRaised: "$220K", lastQuarter: "$58K" },
+            bio: "Christian Wise Smith is a career prosecutor running to lead the Fulton County DA's office with a focus on reducing violent crime and supporting victims.",
+            politicalScore: -20,
+            positions: [
+              { issue: "Violent Crime", stance: "Tough", description: "Prioritizes prosecution of violent and gun crimes affecting Atlanta communities." },
+              { issue: "Victim Services", stance: "Supportive", description: "Wants to expand resources and support for crime victims throughout the county." },
+            ],
+            socialMedia: {},
+            contactInfo: { email: "info@wisesmithforDA.com" },
+          },
+        ],
+      },
+      // ── LOCAL / SCHOOL BOARD ─────────────────────────────────────────────────
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Atlanta Board of Education – District 3",
+        description: "Atlanta Public Schools Board of Education seat covering Midtown, Buckhead, and surrounding neighborhoods",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Eshe' Collins",
+            party: "Independent" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["APS Board Member, District 3 (2019-present)", "Former APS Parent Advocate", "Education Consultant"],
+            keyIssues: ["School Funding", "Teacher Retention", "Special Education", "School Safety"],
+            endorsements: ["Atlanta Federation of Teachers"],
+            fundraising: { totalRaised: "$95K", lastQuarter: "$22K" },
+            bio: "Board Member Eshe' Collins has served Atlanta Public Schools' District 3 since 2019, championing teacher support and special education services.",
+            politicalScore: -45,
+            positions: [
+              { issue: "Teacher Retention", stance: "Supportive", description: "Advocates for competitive pay and support systems to keep experienced teachers in APS." },
+              { issue: "Special Education", stance: "Progressive", description: "Pushing for expanded IEP resources and inclusion programs across district schools." },
+            ],
+            socialMedia: {},
+            contactInfo: { email: "info@collinsforAPS.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Fulton County Board of Education – District 4",
+        description: "Fulton County Schools Board of Education seat (North Fulton / Sandy Springs area)",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Julia Bernath",
+            party: "Independent" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Fulton County Schools Board (2008-present)", "Former PTA President", "Education Advocate"],
+            keyIssues: ["Academic Excellence", "School Funding", "Mental Health Support", "Technology in Schools"],
+            endorsements: [],
+            fundraising: { totalRaised: "$78K", lastQuarter: "$18K" },
+            bio: "Julia Bernath is a long-serving member of the Fulton County Board of Education focused on academic achievement and student mental health.",
+            politicalScore: -10,
+            positions: [
+              { issue: "Mental Health", stance: "Supportive", description: "Pushed to hire more school counselors and expand mental health resources district-wide." },
+              { issue: "Technology", stance: "Progressive", description: "Supports 1:1 device programs and technology-integrated learning across all grade levels." },
+            ],
+            socialMedia: {},
+            contactInfo: { email: "info@bernathforschools.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Atlanta City Council – District 6",
+        description: "Atlanta City Council seat covering Buckhead, Midtown, and surrounding neighborhoods",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Alex Wan",
+            party: "Democrat" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Atlanta City Council, District 6 (2022-present)", "Former City Council Member (2010-2018)", "Nonprofit Executive"],
+            keyIssues: ["Affordable Housing", "Public Safety", "MARTA", "Small Business Support"],
+            endorsements: ["Atlanta Democratic Party"],
+            fundraising: { totalRaised: "$130K", lastQuarter: "$31K" },
+            bio: "Alex Wan is a veteran Atlanta City Council member focused on affordable housing, neighborhood safety, and transit-oriented development.",
+            politicalScore: -50,
+            positions: [
+              { issue: "Affordable Housing", stance: "Supportive", description: "Supports inclusionary zoning and city investments in affordable units." },
+              { issue: "MARTA", stance: "Supportive", description: "Advocates for transit-oriented development around MARTA stations." },
+            ],
+            socialMedia: { twitter: "https://twitter.com/AlexWanATL" },
+            contactInfo: { email: "info@alexwanatl.com" },
+          },
+        ],
+      },
+      {
+        date: "November 3, 2026",
+        type: "General Election" as const,
+        office: "Fulton County Soil & Water Conservation District Supervisor",
+        description: "Non-partisan seat overseeing land and water resource conservation in Fulton County",
+        registrationDeadline: "October 5, 2026",
+        earlyVotingStart: "October 12, 2026",
+        earlyVotingEnd: "October 30, 2026",
+        candidates: [
+          {
+            name: "Karen Spears",
+            party: "Independent" as const,
+            isIncumbent: true,
+            photo: "/placeholder.svg?height=64&width=64",
+            experience: ["Soil & Water Supervisor (2018-present)", "Environmental Scientist", "Watershed Restoration Expert"],
+            keyIssues: ["Watershed Protection", "Urban Farming", "Stormwater Management", "Tree Canopy"],
+            endorsements: [],
+            fundraising: { totalRaised: "$12K", lastQuarter: "$3K" },
+            bio: "Karen Spears oversees conservation programs for Fulton County, including watershed protection and urban green infrastructure.",
+            politicalScore: 0,
+            positions: [
+              { issue: "Stormwater", stance: "Supportive", description: "Managing urban runoff through green infrastructure to protect Atlanta's waterways." },
+              { issue: "Tree Canopy", stance: "Progressive", description: "Expanding Fulton County's urban tree canopy to reduce heat islands." },
+            ],
+            socialMedia: {},
+            contactInfo: { email: "info@spearsforsw.com" },
           },
         ],
       },
@@ -812,14 +988,50 @@ const politicalData = {
   },
 }
 
+// Race level labels for grouping
+const RACE_LEVEL: Record<string, { label: string; color: string }> = {
+  "U.S. Senate":                              { label: "Federal",      color: "bg-[#1F3A93] text-white" },
+  "U.S. House":                               { label: "Federal",      color: "bg-[#1F3A93] text-white" },
+  "Georgia Governor":                         { label: "State",        color: "bg-[#27AE60] text-white" },
+  "Georgia State Senate":                     { label: "State",        color: "bg-[#27AE60] text-white" },
+  "Georgia State House":                      { label: "State",        color: "bg-[#27AE60] text-white" },
+  "Fulton County Commission":                 { label: "County",       color: "bg-[#F39C12] text-white" },
+  "Fulton County Sheriff":                    { label: "County",       color: "bg-[#F39C12] text-white" },
+  "Fulton County District Attorney":          { label: "County",       color: "bg-[#F39C12] text-white" },
+  "Atlanta Board of Education":               { label: "School Board", color: "bg-[#8E44AD] text-white" },
+  "Fulton County Board of Education":         { label: "School Board", color: "bg-[#8E44AD] text-white" },
+  "Atlanta City Council":                     { label: "Local",        color: "bg-[#D64541] text-white" },
+  "Fulton County Soil":                       { label: "Local",        color: "bg-[#D64541] text-white" },
+}
+
+function getRaceLevel(office: string) {
+  for (const [key, val] of Object.entries(RACE_LEVEL)) {
+    if (office.includes(key)) return val
+  }
+  return { label: "Other", color: "bg-gray-500 text-white" }
+}
+
+interface Address {
+  street: string
+  city: string
+  state: string
+  zip: string
+}
+
 interface PoliticalProfileProps {
   initialZipCode?: string
 }
 
 export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileProps) {
   const [zipCode, setZipCode] = useState(initialZipCode)
-  const [editingZip, setEditingZip] = useState(false)
-  const [tempZipCode, setTempZipCode] = useState(zipCode)
+  const [editingAddress, setEditingAddress] = useState(false)
+  const [address, setAddress] = useState<Address>({
+    street: "",
+    city: "Atlanta",
+    state: "GA",
+    zip: initialZipCode,
+  })
+  const [tempAddress, setTempAddress] = useState<Address>(address)
   const [selectedCandidate, setSelectedCandidate] = useState<{
     candidate: Candidate
     office: string
@@ -828,18 +1040,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
   const profileData = politicalData[zipCode as keyof typeof politicalData]
 
-  const handleZipCodeUpdate = () => {
-    if (tempZipCode in politicalData) {
-      setZipCode(tempZipCode)
-      setEditingZip(false)
+  const handleAddressUpdate = () => {
+    const z = tempAddress.zip.trim()
+    if (z in politicalData) {
+      setZipCode(z)
+      setAddress(tempAddress)
+      setEditingAddress(false)
     } else {
-      alert("Sorry, we don't have data for that zip code yet. Try 30309 for Atlanta.")
+      alert("We don't have ballot data for that zip code yet. Try 30309 for Atlanta.")
     }
   }
 
   const cancelEdit = () => {
-    setTempZipCode(zipCode)
-    setEditingZip(false)
+    setTempAddress(address)
+    setEditingAddress(false)
   }
 
   const getPartyColor = (party: string) => {
@@ -973,45 +1187,99 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
   return (
     <div className="space-y-8">
-      {/* Location Header */}
-      <Card>
+      {/* Address / Location Header */}
+      <Card className="border-[#E5E5E5]">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-[#1F3A93]" />
               <div>
-                <CardTitle className="text-xl">Your Political Profile</CardTitle>
-                <CardDescription>{profileData.location}</CardDescription>
+                <CardTitle className="text-xl">Your Ballot</CardTitle>
+                <CardDescription>
+                  {address.street
+                    ? `${address.street}, ${address.city}, ${address.state} ${address.zip}`
+                    : profileData.location}
+                </CardDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {editingZip ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={tempZipCode}
-                    onChange={(e) => setTempZipCode(e.target.value)}
-                    placeholder="Zip Code"
-                    className="w-24"
-                  />
-                  <Button size="sm" onClick={handleZipCodeUpdate}>
-                    <Check className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={cancelEdit}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-sm">
-                    {zipCode}
-                  </Badge>
-                  <Button size="sm" variant="outline" onClick={() => setEditingZip(true)}>
-                    <Edit3 className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+            {!editingAddress && (
+              <Button size="sm" variant="outline" onClick={() => setEditingAddress(true)}>
+                <Edit3 className="w-4 h-4 mr-1" />
+                {address.street ? "Edit Address" : "Add Address"}
+              </Button>
+            )}
           </div>
+
+          {editingAddress && (
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">Street Address</label>
+                <Input
+                  value={tempAddress.street}
+                  onChange={(e) => setTempAddress({ ...tempAddress, street: e.target.value })}
+                  placeholder="123 Peachtree St NW"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-1">
+                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">City</label>
+                  <Input
+                    value={tempAddress.city}
+                    onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
+                    placeholder="Atlanta"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">State</label>
+                  <Input
+                    value={tempAddress.state}
+                    onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })}
+                    placeholder="GA"
+                    maxLength={2}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">ZIP Code</label>
+                  <Input
+                    value={tempAddress.zip}
+                    onChange={(e) => setTempAddress({ ...tempAddress, zip: e.target.value })}
+                    placeholder="30309"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-[#4A4A4A]/60">
+                Your address is used to show your specific ballot races. We currently have data for Atlanta-area zip codes (e.g., 30309).
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleAddressUpdate} className="bg-[#1F3A93] text-white hover:bg-[#1F3A93]/90">
+                  <Check className="w-4 h-4 mr-1" />
+                  Save Address
+                </Button>
+                <Button size="sm" variant="outline" onClick={cancelEdit}>
+                  <X className="w-4 h-4 mr-1" />
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!editingAddress && (
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+              <div className="bg-[#1F3A93]/5 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">Congressional</p>
+                <p className="font-medium text-[#4A4A4A]">{profileData.district.congressional}</p>
+              </div>
+              <div className="bg-[#27AE60]/5 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">State Legislature</p>
+                <p className="font-medium text-[#4A4A4A]">{profileData.district.state}</p>
+              </div>
+              <div className="bg-[#D64541]/5 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">Local District</p>
+                <p className="font-medium text-[#4A4A4A]">{profileData.district.local}</p>
+              </div>
+            </div>
+          )}
         </CardHeader>
       </Card>
 
@@ -1020,31 +1288,45 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Vote className="w-5 h-5" />
-            Upcoming Elections & Candidates
+            Your Full Ballot – 2026
           </CardTitle>
-          <CardDescription>Official candidates on your ballot with compatibility scores</CardDescription>
+          <CardDescription>All races on your ballot from federal down to school board</CardDescription>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {[
+              { label: "Federal",      color: "bg-[#1F3A93] text-white" },
+              { label: "State",        color: "bg-[#27AE60] text-white" },
+              { label: "County",       color: "bg-[#F39C12] text-white" },
+              { label: "School Board", color: "bg-[#8E44AD] text-white" },
+              { label: "Local",        color: "bg-[#D64541] text-white" },
+            ].map(({ label, color }) => (
+              <span key={label} className={`text-xs font-bold px-2 py-0.5 rounded-full ${color}`}>{label}</span>
+            ))}
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {profileData.upcomingElections.map((election, index) => (
+          {profileData.upcomingElections.map((election, index) => {
+            const level = getRaceLevel(election.office)
+            return (
             <div key={index} className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <h3 className="font-semibold text-lg">{election.office}</h3>
-                  <p className="text-[#4A4A4A]">{election.description}</p>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+              <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${level.color}`}>{level.label}</span>
+                    <h3 className="font-semibold text-base">{election.office}</h3>
+                  </div>
+                  <p className="text-sm text-[#4A4A4A]/70">{election.description}</p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-3.5 h-3.5" />
                       Election: {election.date}
                     </div>
-                    <div>Registration Deadline: {election.registrationDeadline}</div>
+                    <div>Reg. Deadline: {election.registrationDeadline}</div>
                     {election.earlyVotingStart && (
-                      <div>
-                        Early Voting: {election.earlyVotingStart} - {election.earlyVotingEnd}
-                      </div>
+                      <div>Early Voting: {election.earlyVotingStart} – {election.earlyVotingEnd}</div>
                     )}
                   </div>
                 </div>
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="outline" className="text-xs flex-shrink-0">
                   {election.type}
                 </Badge>
               </div>
@@ -1061,7 +1343,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
               {index < profileData.upcomingElections.length - 1 && <Separator />}
             </div>
-          ))}
+          )})}
         </CardContent>
       </Card>
 
