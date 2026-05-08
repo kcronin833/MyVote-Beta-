@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLeftNews, getRightNews, getFactualNews, getLocalNews } from "@/lib/news-service";
 
+export const revalidate = 1800
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const perspective = searchParams.get("perspective") || "facts";

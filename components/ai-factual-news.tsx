@@ -17,7 +17,6 @@ import {
   AlertCircle,
   HelpCircle,
 } from "lucide-react"
-import { generateFactualNewsAction } from "@/app/actions/generate-news"
 import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
@@ -361,12 +360,13 @@ export function AIFactualNews() {
     setError(null)
 
     try {
-      const result = await generateFactualNewsAction()
+      const res = await fetch("/api/news/factual", { cache: "no-store" })
+      const result = await res.json()
       if (result.success && result.news.length > 0) {
         setNews(result.news)
         setLastUpdated(new Date())
       } else {
-        setError(result.error || "Unable to load news")
+        setError(result.error || "Unable to load news at this time")
         setNews([])
       }
     } catch {
