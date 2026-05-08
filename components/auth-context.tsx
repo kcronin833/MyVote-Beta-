@@ -19,6 +19,7 @@ interface Profile {
   location: string;
   political_lean: "left" | "center" | "right";
   verified: boolean;
+  is_admin: boolean;
   created_at: string;
 }
 

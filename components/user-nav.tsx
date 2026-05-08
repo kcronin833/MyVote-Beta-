@@ -13,7 +13,7 @@ import {
 import { useAuth } from "@/components/auth-context";
 import { AuthModal } from "@/components/auth-modal";
 import Link from "next/link";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, ShieldCheck } from "lucide-react";
 
 export function UserNav() {
   const { user, profile, signOut, loading } = useAuth();
@@ -68,7 +68,15 @@ export function UserNav() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex flex-col space-y-1 p-2">
-          <p className="text-sm font-medium leading-none">{profile.display_name}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium leading-none">{profile.display_name}</p>
+            {profile.is_admin && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full">
+                <ShieldCheck className="w-2.5 h-2.5" />
+                Admin
+              </span>
+            )}
+          </div>
           <p className="text-xs leading-none text-muted-foreground">
             @{profile.username}
           </p>
@@ -86,6 +94,17 @@ export function UserNav() {
             Political Profile
           </Link>
         </DropdownMenuItem>
+        {profile.is_admin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="text-amber-700 font-medium">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Admin Panel
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-red-600 cursor-pointer"
