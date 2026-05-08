@@ -28,7 +28,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { formatNewsTime } from "@/lib/news-service";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -36,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/components/auth-context";
 
 const GEORGIA_CITIES = [
   "Atlanta",
@@ -101,10 +101,17 @@ const LOCAL_SOURCES = [
 ];
 
 export default function LocalNewsPage() {
+  const { profile } = useAuth()
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState("Atlanta");
-  const [inputLocation, setInputLocation] = useState("Atlanta");
+
+  // Seed location from the user's saved civic address once profile loads
+  useEffect(() => {
+    if (profile?.location) {
+      setLocation(profile.location)
+    }
+  }, [profile?.location])
 
   useEffect(() => {
     loadLocalNews(location);
@@ -123,13 +130,6 @@ export default function LocalNewsPage() {
       setArticles([]);
     }
     setLoading(false);
-  }
-
-  function handleLocationSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (inputLocation.trim()) {
-      setLocation(inputLocation.trim());
-    }
   }
 
   return (
@@ -155,7 +155,6 @@ export default function LocalNewsPage() {
                   value={location}
                   onValueChange={(val) => {
                     setLocation(val);
-                    setInputLocation(val);
                   }}
                 >
                   <SelectTrigger className="flex-1">

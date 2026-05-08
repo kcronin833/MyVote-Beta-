@@ -35,11 +35,6 @@ interface Article {
   urlToImage: string | null
 }
 
-interface GeoLocation {
-  city: string
-  region: string
-  country: string
-}
 
 function ArticleCard({ article }: { article: Article }) {
   const [showComments, setShowComments] = useState(false)
@@ -360,23 +355,23 @@ function YourNetworkSection() {
 }
 
 // --- LOCAL NEWS SECTION ---
-function LocalNewsSection({ location }: { location: GeoLocation | null }) {
+function LocalNewsSection({ city }: { city: string | null }) {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!location) return
+    if (!city) return
     setLoading(true)
-    fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
+    fetch(`/api/news?perspective=local&location=${encodeURIComponent(city)}`)
       .then((r) => r.json())
       .then((d) => setArticles((d.articles || []) as Article[]))
       .catch(() => setArticles([]))
       .finally(() => setLoading(false))
-  }, [location])
+  }, [city])
 
-  if (!location) return null
+  if (!city) return null
 
-  const cityLabel = location.city === location.region ? location.region : `${location.city}`
+  const cityLabel = city
 
   return (
     <section>
@@ -429,38 +424,16 @@ function PerspectivesSection() {
 // --- MAIN HOME FEED ---
 export function HomeFeed() {
   const { profile } = useAuth()
-  const [location, setLocation] = useState<GeoLocation | null>(null)
 
-  useEffect(() => {
-    // Prefer the city saved on the user's Supabase profile — avoids IP geo errors
-    if (profile?.location) {
-      setLocation({ city: profile.location, region: "Georgia", country: "US" })
-      return
-    }
-
-    // Guests or users without a saved location fall back to IP geolocation
-    async function detectLocation() {
-      try {
-        const res = await fetch("/api/geolocation")
-        if (res.ok) {
-          const data = await res.json()
-          setLocation(data)
-        } else {
-          setLocation({ city: "Atlanta", region: "Georgia", country: "US" })
-        }
-      } catch {
-        setLocation({ city: "Atlanta", region: "Georgia", country: "US" })
-      }
-    }
-    detectLocation()
-  }, [profile?.location])
+  // City comes from the user's saved Supabase profile. Guests see no local section.
+  const city = profile?.location ?? null
 
   return (
     <div className="space-y-6">
       <CommunityPostsSection />
       <CommonGroundCard />
       <YourNetworkSection />
-      <LocalNewsSection location={location} />
+      <LocalNewsSection city={city} />
       <PerspectivesSection />
     </div>
   )
