@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info, Lock } from "lucide-react"
+import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info, Lock, ChevronRight } from "lucide-react"
 import { RepresentativeProfile } from "./representative-profile"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
 import { calculateCompatibility } from "@/lib/compatibility-service"
@@ -1851,92 +1850,134 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         </CardHeader>
       </Card>
 
-      {/* Upcoming Elections */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Vote className="w-5 h-5" />
-            Your Full Ballot – 2026
-          </CardTitle>
-          <CardDescription>All races on your ballot from federal down to school board</CardDescription>
-          <div className="flex flex-wrap gap-2 mt-2 items-center">
-            <span className="text-xs text-muted-foreground">Filter by level:</span>
-            {Object.entries(LEVEL_COLORS).map(([label, { color }]) => (
-              <button
-                key={label}
-                onClick={() => setActiveFilter((f) => (f === label ? null : label))}
-                className={`text-xs font-bold px-2 py-0.5 rounded-full ${color} transition-opacity ${
-                  activeFilter && activeFilter !== label ? "opacity-35" : "opacity-100"
-                } hover:opacity-80 cursor-pointer`}
-              >
-                {label}
-              </button>
-            ))}
-            {activeFilter && (
-              <button
-                onClick={() => setActiveFilter(null)}
-                className="text-xs text-muted-foreground underline hover:text-foreground"
-              >
-                Clear filter
-              </button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {(() => {
-            const filteredRaces = activeFilter
-              ? ballotData.races.filter((r) => r.level === activeFilter)
-              : ballotData.races
-            if (filteredRaces.length === 0) {
-              return (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No races found for level &ldquo;{activeFilter}&rdquo;.
-                </p>
-              )
-            }
-            return filteredRaces.map((election, index) => {
-            const levelInfo = LEVEL_COLORS[election.level] ?? { label: election.level, color: "bg-gray-500 text-white" }
+      {/* ── Sticky jump-nav ─────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-20 bg-[#F5F6FA] py-2 -mx-4 px-4 border-b border-border">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Jump to:</span>
+          {Object.entries(LEVEL_COLORS).map(([level, { color }]) => {
+            const hasRaces = ballotData.races.some((r) => r.level === level)
+            if (!hasRaces) return null
             return (
-            <div key={index} className="space-y-4">
-              <div className="flex items-start justify-between p-4 bg-gray-50 rounded-lg gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${levelInfo.color}`}>{levelInfo.label}</span>
-                    <h3 className="font-semibold text-base">{election.office}</h3>
-                  </div>
-                  <p className="text-sm text-[#4A4A4A]/70">{election.description}</p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      Election: {election.date}
+              <button
+                key={level}
+                onClick={() => {
+                  setActiveFilter(null)
+                  document.getElementById(`level-${level}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }}
+                className={`shrink-0 text-xs font-bold px-3 py-1 rounded-full ${color} hover:opacity-80 transition-opacity`}
+              >
+                {level}
+              </button>
+            )
+          })}
+          {activeFilter && (
+            <button
+              onClick={() => setActiveFilter(null)}
+              className="shrink-0 text-xs text-muted-foreground underline hover:text-foreground"
+            >
+              Clear filter
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Races grouped by level ────────────────────────────────────────── */}
+      {(() => {
+        const LEVEL_ORDER = ["Federal", "State", "County", "School Board", "Local"]
+        const filteredRaces = activeFilter
+          ? ballotData.races.filter((r) => r.level === activeFilter)
+          : ballotData.races
+
+        if (filteredRaces.length === 0) {
+          return (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No races found for level &ldquo;{activeFilter}&rdquo;.
+            </p>
+          )
+        }
+
+        // Group races by level
+        const grouped: Record<string, typeof filteredRaces> = {}
+        for (const race of filteredRaces) {
+          if (!grouped[race.level]) grouped[race.level] = []
+          grouped[race.level].push(race)
+        }
+
+        return LEVEL_ORDER.filter((lvl) => grouped[lvl]?.length).map((level) => {
+          const levelInfo = LEVEL_COLORS[level] ?? { label: level, color: "bg-gray-500 text-white" }
+          // Extract the hex/color class for the left border accent
+          const borderColor =
+            level === "Federal"      ? "border-[#1F3A93]" :
+            level === "State"        ? "border-[#27AE60]" :
+            level === "County"       ? "border-[#F39C12]" :
+            level === "School Board" ? "border-[#8E44AD]" :
+                                       "border-[#D64541]"
+          const bgStripe =
+            level === "Federal"      ? "bg-[#1F3A93]/5" :
+            level === "State"        ? "bg-[#27AE60]/5" :
+            level === "County"       ? "bg-[#F39C12]/5" :
+            level === "School Board" ? "bg-[#8E44AD]/5" :
+                                       "bg-[#D64541]/5"
+
+          return (
+            <div key={level} id={`level-${level}`} className="scroll-mt-24 space-y-3">
+              {/* Level group header */}
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${bgStripe}`}>
+                <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelInfo.color}`}>
+                  {level}
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                  {grouped[level].length} race{grouped[level].length !== 1 ? "s" : ""} on your ballot
+                </span>
+              </div>
+
+              {/* Individual race cards */}
+              {grouped[level].map((election, idx) => (
+                <div
+                  key={idx}
+                  className={`bg-white rounded-2xl border border-border border-l-4 ${borderColor} overflow-hidden`}
+                >
+                  {/* Race header */}
+                  <div className="px-5 py-4 border-b border-border">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="font-bold text-base text-foreground">{election.office}</h3>
+                          <Badge variant="outline" className="text-xs">{election.type}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{election.description}</p>
+                      </div>
                     </div>
-                    <div>Reg. Deadline: {election.registrationDeadline}</div>
-                    {election.earlyVotingStart && (
-                      <div>Early Voting: {election.earlyVotingStart} – {election.earlyVotingEnd}</div>
-                    )}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {election.date}
+                      </span>
+                      <span>Reg. deadline: {election.registrationDeadline}</span>
+                      {election.earlyVotingStart && (
+                        <span>Early voting: {election.earlyVotingStart} – {election.earlyVotingEnd}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Candidates */}
+                  <div className="p-5 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" />
+                      {election.candidates.length === 1 ? "Candidate" : `${election.candidates.length} Candidates`}
+                    </p>
+                    <div className="space-y-3">
+                      {election.candidates.map((candidate) =>
+                        renderCandidate(candidate as unknown as Candidate, election.office, election.date)
+                      )}
+                    </div>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-xs flex-shrink-0">
-                  {election.type}
-                </Badge>
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="font-medium text-[#4A4A4A] flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Candidates ({election.candidates.length})
-                </h4>
-                <div className="space-y-3">
-                  {election.candidates.map((candidate) => renderCandidate(candidate as unknown as Candidate, election.office, election.date))}
-                </div>
-              </div>
-
-              {index < filteredRaces.length - 1 && <Separator />}
+              ))}
             </div>
-          )})
-          })()}
-        </CardContent>
-      </Card>
+          )
+        })
+      })()}
 
       {/* Representative Profiles — only available for select zip codes */}
       {profileData && (
