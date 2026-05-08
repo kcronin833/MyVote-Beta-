@@ -11,15 +11,41 @@ import {
 
 const BASE_URL = "https://newsapi.org/v2"
 
-const SPORTS_KEYWORDS = /\b(baseball|football|basketball|soccer|NFL|NBA|MLB|NHL|NASCAR|tournament|standings|draft|trade|roster|coach|athletics|Olympics|Super Bowl|World Series|March Madness|playoff|game seven|slam dunk|touchdown|home run|grand slam|hat trick)\b/i
+// Source IDs recognized by NewsAPI — used in the `sources=` param to lock API-level filtering
+const ALLOWED_SOURCE_IDS =
+  "associated-press,reuters,politico,the-hill,axios,npr,pbs-newshour"
 
-function isSportsArticle(article: { title: string; description: string }): boolean {
-  const text = `${article.title} ${article.description}`
-  if (SPORTS_KEYWORDS.test(text)) {
-    console.log(`[news-filter] Dropped sports article: ${article.title}`)
+// Canonical source names returned by NewsAPI for the allowlisted outlets.
+// WSJ, NYT, and AJC are fetched via domains rather than source IDs.
+const ALLOWED_SOURCE_NAMES = new Set([
+  "associated press",
+  "reuters",
+  "politico",
+  "the hill",
+  "axios",
+  "npr",
+  "pbs newshour",
+  "the wall street journal",
+  "the new york times",
+  "atlanta journal-constitution",
+  "ajc",
+])
+
+// Titles containing any of these terms are dropped regardless of source.
+// Covers entertainment, foreign domestic politics, and non-US sports.
+const CONTENT_BLOCKLIST =
+  /\b(Marvel|comics|superhero|cricket|Bihar|Modi|Malaysian|Malaysia|Indonesia|Indonesian|Premier League|Champions League|baseball|football standings|NBA|NFL|MLB|Bollywood|Nollywood|K-pop|anime|manga|Eurovision|LaLiga|Bundesliga|Serie A|Ligue 1|IPL|PSL|BBL|T20|Test match|Rugby|Formula 1|F1 race|UFC|MMA|WWE|boxing match|horse racing|tennis final|golf tournament)\b/i
+
+function isBlocklisted(article: { title: string }): boolean {
+  if (CONTENT_BLOCKLIST.test(article.title)) {
+    console.log(`[news-filter] Dropped blocklisted: "${article.title}"`)
     return true
   }
   return false
+}
+
+function isAllowedSource(sourceName: string): boolean {
+  return ALLOWED_SOURCE_NAMES.has(sourceName.toLowerCase())
 }
 
 // Strip HTML tags from API responses to prevent React script tag warnings
@@ -311,11 +337,13 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
 // ---- Internal helpers ----
 
 async function fetchTopHeadlines(
-  country = "us",
-  category = "politics"
+  _country = "us",
+  _category = "politics"
 ): Promise<NewsArticle[]> {
-  const url = `${BASE_URL}/top-headlines?country=${country}&category=${category}&pageSize=10&apiKey=${getApiKey()}`;
-  return fetchAndParse(url);
+  // Use sources= instead of country+category — NewsAPI disallows mixing them.
+  // This locks the pool to the allowlisted US political outlets.
+  const url = `${BASE_URL}/top-headlines?sources=${ALLOWED_SOURCE_IDS}&q=politics+OR+policy+OR+government+OR+election+OR+Congress&pageSize=15&apiKey=${getApiKey()}`
+  return fetchAndParse(url)
 }
 
 async function fetchNewsFromSources(
@@ -328,9 +356,10 @@ async function fetchNewsFromSources(
 }
 
 async function fetchEverything(q: string): Promise<NewsArticle[]> {
-  const encoded = encodeURIComponent(q);
-  const url = `${BASE_URL}/everything?q=${encoded}&sortBy=publishedAt&language=en&pageSize=8&apiKey=${getApiKey()}`;
-  return fetchAndParse(url);
+  const encoded = encodeURIComponent(q)
+  // sources= locks results to the allowlist; language=en ensures US English only
+  const url = `${BASE_URL}/everything?sources=${ALLOWED_SOURCE_IDS}&q=${encoded}&sortBy=publishedAt&language=en&pageSize=10&apiKey=${getApiKey()}`
+  return fetchAndParse(url)
 }
 
 async function fetchEverythingFromDomains(
@@ -363,7 +392,11 @@ async function fetchAndParse(url: string): Promise<NewsArticle[]> {
         urlToImage: a.urlToImage || null,
         content: stripHtml(a.content || ""),
       }))
-    return mapped.filter((a) => !isSportsArticle(a))
+
+    return mapped.filter((a) => {
+      if (isBlocklisted(a)) return false
+      return true
+    })
   } catch (err) {
     console.error("Failed to fetch news:", err);
     return [];
