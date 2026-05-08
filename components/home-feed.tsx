@@ -20,6 +20,7 @@ import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
 import { getFriendsComments, type FriendComment } from "@/lib/friends-service"
 import { CommentSystem } from "@/components/comment-system"
+import { AIFactualNews } from "@/components/ai-factual-news"
 
 interface Article {
   title: string
@@ -133,71 +134,40 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   )
 }
 
-// --- UNIFIED NEWS SECTION (local + national mixed) ---
-function NewsFeedSection({ location }: { location: GeoLocation | null }) {
+// --- LOCAL GEORGIA NEWS SECTION ---
+function LocalNewsSection({ location }: { location: GeoLocation | null }) {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function loadAll() {
-      setLoading(true)
-
-      // Always start national fetch; local waits on location
-      const nationalPromise = fetch("/api/news?perspective=facts")
-        .then((r) => r.json())
-        .then((d) => (d.articles || []) as Article[])
-        .catch(() => [] as Article[])
-
-      const localPromise = location
-        ? fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
-            .then((r) => r.json())
-            .then((d) => (d.articles || []) as Article[])
-            .catch(() => [] as Article[])
-        : Promise.resolve([] as Article[])
-
-      const [national, local] = await Promise.all([nationalPromise, localPromise])
-
-      // Merge & deduplicate by URL, then sort newest-first
-      const seen = new Set<string>()
-      const merged: Article[] = []
-      for (const a of [...local, ...national]) {
-        if (!seen.has(a.url)) {
-          seen.add(a.url)
-          merged.push(a)
-        }
-      }
-      merged.sort(
-        (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-      )
-
-      setArticles(merged)
-      setLoading(false)
-    }
-
-    // If location hasn't loaded yet, only fetch national first;
-    // refetch both once location arrives
-    loadAll()
+    if (!location) return
+    setLoading(true)
+    fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
+      .then((r) => r.json())
+      .then((d) => setArticles((d.articles || []) as Article[]))
+      .catch(() => setArticles([]))
+      .finally(() => setLoading(false))
   }, [location])
+
+  if (!location) return null
 
   return (
     <section>
       <div className="flex items-center gap-2 mb-4">
-        <Newspaper className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold text-foreground">Your News Feed</h2>
-        {location && (
-          <Badge variant="secondary" className="text-xs">
-            {location.city}, {location.region}
-          </Badge>
-        )}
+        <MapPin className="w-5 h-5 text-green-600" />
+        <h2 className="text-lg font-semibold text-foreground">Local Georgia News</h2>
+        <Badge variant="secondary" className="text-xs">
+          {location.city}, {location.region}
+        </Badge>
       </div>
 
-      {loading && <LoadingSkeleton count={5} />}
+      {loading && <LoadingSkeleton count={3} />}
 
       {!loading && articles.length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+          <CardContent className="py-6 text-center text-muted-foreground">
             <Newspaper className="w-8 h-8 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">No political news found right now. Check back soon.</p>
+            <p className="text-sm">No local news found right now. Check back soon.</p>
           </CardContent>
         </Card>
       )}
@@ -209,6 +179,20 @@ function NewsFeedSection({ location }: { location: GeoLocation | null }) {
           ))}
         </div>
       )}
+    </section>
+  )
+}
+
+// --- NATIONAL NEWS SECTION (topic-grouped with perspectives) ---
+function NationalNewsSection() {
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-4">
+        <Globe className="w-5 h-5 text-primary" />
+        <h2 className="text-lg font-semibold text-foreground">National Political News</h2>
+        <Badge variant="secondary" className="text-xs">Left & Right Perspectives</Badge>
+      </div>
+      <AIFactualNews />
     </section>
   )
 }
@@ -337,7 +321,8 @@ export function HomeFeed() {
 
   return (
     <div className="space-y-10">
-      <NewsFeedSection location={location} />
+      <NationalNewsSection />
+      <LocalNewsSection location={location} />
       <FriendsActivitySection />
     </div>
   )

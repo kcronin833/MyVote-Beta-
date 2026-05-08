@@ -90,13 +90,13 @@ export async function getLocalNews(location: string = "Atlanta"): Promise<NewsAr
     }
   }
 
-  // If local outlets returned enough, use them; otherwise supplement with
-  // a Georgia-keyword search across all sources (still filtered to political)
+  // If still thin, try one more query against the same local domains only
   if (combined.length < 5) {
-    const fallback = await fetchEverything(
-      "Georgia politics OR \"Georgia legislature\" OR \"Atlanta mayor\" OR \"Georgia governor\" OR Georgia election 2026"
+    const extra = await fetchEverythingFromDomains(
+      "Georgia vote OR legislature OR Atlanta OR Ossoff OR Kemp OR Georgia 2026",
+      GEORGIA_LOCAL_DOMAINS
     );
-    for (const article of fallback) {
+    for (const article of extra) {
       if (!seen.has(article.url)) {
         seen.add(article.url);
         combined.push(article);
