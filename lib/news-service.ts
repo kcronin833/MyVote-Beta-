@@ -9,7 +9,18 @@ import {
   RIGHT_DOMAINS,
 } from "@/lib/news-constants"
 
-const BASE_URL = "https://newsapi.org/v2";
+const BASE_URL = "https://newsapi.org/v2"
+
+const SPORTS_KEYWORDS = /\b(baseball|football|basketball|soccer|NFL|NBA|MLB|NHL|NASCAR|tournament|standings|draft|trade|roster|coach|athletics|Olympics|Super Bowl|World Series|March Madness|playoff|game seven|slam dunk|touchdown|home run|grand slam|hat trick)\b/i
+
+function isSportsArticle(article: { title: string; description: string }): boolean {
+  const text = `${article.title} ${article.description}`
+  if (SPORTS_KEYWORDS.test(text)) {
+    console.log(`[news-filter] Dropped sports article: ${article.title}`)
+    return true
+  }
+  return false
+}
 
 // Strip HTML tags from API responses to prevent React script tag warnings
 function stripHtml(html: string): string {
@@ -341,7 +352,7 @@ async function fetchAndParse(url: string): Promise<NewsArticle[]> {
     const data = await res.json();
     if (data.status !== "ok") return [];
 
-    return (data.articles || [])
+    const mapped: NewsArticle[] = (data.articles || [])
       .filter((a: any) => a.title && a.title !== "[Removed]")
       .map((a: any) => ({
         title: stripHtml(a.title || ""),
@@ -351,7 +362,8 @@ async function fetchAndParse(url: string): Promise<NewsArticle[]> {
         publishedAt: a.publishedAt,
         urlToImage: a.urlToImage || null,
         content: stripHtml(a.content || ""),
-      }));
+      }))
+    return mapped.filter((a) => !isSportsArticle(a))
   } catch (err) {
     console.error("Failed to fetch news:", err);
     return [];

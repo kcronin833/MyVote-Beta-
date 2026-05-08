@@ -14,6 +14,8 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronUp,
+  ThumbsUp,
+  Heart,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
@@ -118,71 +120,92 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   )
 }
 
-// --- LOCAL GEORGIA NEWS SECTION ---
-function LocalNewsSection({ location }: { location: GeoLocation | null }) {
-  const [articles, setArticles] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
+// --- COMMON GROUND STORY CARD ---
+const COMMON_GROUND_STORIES = [
+  {
+    id: "cg-1",
+    headline: "Most Georgians agree: infrastructure investment is overdue",
+    summary:
+      "Across party lines, Georgia voters rank roads, bridges, and broadband as a top priority. A recent survey found 74% support for increased infrastructure spending regardless of political affiliation.",
+    source: "Georgia Policy Institute",
+    publishedAt: new Date(Date.now() - 3 * 3600000).toISOString(),
+  },
+  {
+    id: "cg-2",
+    headline: "Bipartisan support grows for expanded rural healthcare access",
+    summary:
+      "Rural Georgians from both parties express concern about hospital closures. Lawmakers in both chambers have co-sponsored bills aimed at keeping rural emergency services funded.",
+    source: "Atlanta Journal-Constitution",
+    publishedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+  },
+  {
+    id: "cg-3",
+    headline: "Georgia parents united on school safety — divided on solutions",
+    summary:
+      "While 89% of Georgia parents say school safety is a top concern, proposals range from mental health funding to stricter access controls. The shared urgency has opened rare cross-aisle dialogue.",
+    source: "Georgia Public Broadcasting",
+    publishedAt: new Date(Date.now() - 9 * 3600000).toISOString(),
+  },
+]
 
-  useEffect(() => {
-    if (!location) return
-    setLoading(true)
-    fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
-      .then((r) => r.json())
-      .then((d) => setArticles((d.articles || []) as Article[]))
-      .catch(() => setArticles([]))
-      .finally(() => setLoading(false))
-  }, [location])
-
-  if (!location) return null
+function CommonGroundCard() {
+  const story = COMMON_GROUND_STORIES[new Date().getDate() % COMMON_GROUND_STORIES.length]
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(47)
+  const [showComments, setShowComments] = useState(false)
 
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-4">
-        <MapPin className="w-5 h-5 text-green-600" />
-        <h2 className="text-lg font-semibold text-foreground">Local Georgia News</h2>
-        <Badge variant="secondary" className="text-xs">
-          {location.city}, {location.region}
-        </Badge>
+    <div className="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+      <div className="bg-teal-50 px-4 pt-4 pb-3 border-b border-teal-100">
+        <Badge className="bg-teal-600 text-white text-xs mb-2">Common ground</Badge>
+        <h3 className="font-bold text-foreground text-base leading-snug">{story.headline}</h3>
       </div>
-
-      {loading && <LoadingSkeleton count={3} />}
-
-      {!loading && articles.length === 0 && (
-        <Card>
-          <CardContent className="py-6 text-center text-muted-foreground">
-            <Newspaper className="w-8 h-8 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">No local news found right now. Check back soon.</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {!loading && articles.length > 0 && (
-        <div className="grid gap-3">
-          {articles.map((article, i) => (
-            <ArticleCard key={`${article.url}-${i}`} article={article} />
-          ))}
+      <div className="p-4 space-y-3">
+        <p className="text-sm text-muted-foreground leading-relaxed">{story.summary}</p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-medium">{story.source}</span>
+          <span>·</span>
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatNewsTime(story.publishedAt)}
+          </span>
         </div>
-      )}
-    </section>
-  )
-}
-
-// --- NATIONAL NEWS SECTION (topic-grouped with perspectives) ---
-function NationalNewsSection() {
-  return (
-    <section>
-      <div className="flex items-center gap-2 mb-4">
-        <Globe className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold text-foreground">National Political News</h2>
-        <Badge variant="secondary" className="text-xs">Left & Right Perspectives</Badge>
+        <div className="flex items-center gap-2 pt-1 border-t border-border">
+          <button
+            onClick={() => {
+              setLiked(!liked)
+              setLikeCount((c) => (liked ? c - 1 : c + 1))
+            }}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+              liked
+                ? "bg-teal-50 border-teal-400 text-teal-700"
+                : "border-border text-muted-foreground hover:border-teal-300 hover:text-teal-600"
+            }`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${liked ? "fill-teal-500 text-teal-500" : ""}`} />
+            {likeCount}
+          </button>
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            Discuss
+            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
+        {showComments && (
+          <div className="pt-2 border-t border-border">
+            <CommentSystem articleUrl={`/common-ground/${story.id}`} articleTitle={story.headline} />
+          </div>
+        )}
       </div>
-      <AIFactualNews />
-    </section>
+    </div>
   )
 }
 
-// --- FRIENDS ACTIVITY SECTION ---
-function FriendsActivitySection() {
+// --- YOUR NETWORK SECTION ---
+function YourNetworkSection() {
   const { user } = useAuth()
   const [comments, setComments] = useState<FriendComment[]>([])
   const [loading, setLoading] = useState(true)
@@ -208,21 +231,19 @@ function FriendsActivitySection() {
 
   return (
     <section>
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="w-5 h-5 text-amber-500" />
-        <h2 className="text-lg font-semibold text-foreground">Friends' Activity</h2>
+      <div className="flex items-center gap-2 mb-3">
+        <Users className="w-4 h-4 text-amber-500" />
+        <h2 className="text-sm font-semibold text-foreground">Your network</h2>
       </div>
 
       {loading && <LoadingSkeleton count={2} />}
 
       {!loading && comments.length === 0 && (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
+        <Card className="border-border">
+          <CardContent className="py-6 text-center text-muted-foreground">
+            <Users className="w-7 h-7 mx-auto mb-2 opacity-40" />
             <p className="text-sm font-medium mb-1">No activity yet</p>
-            <p className="text-xs">
-              Follow other users to see their comments and discussions here.
-            </p>
+            <p className="text-xs">Follow other users to see their comments and discussions here.</p>
           </CardContent>
         </Card>
       )}
@@ -283,6 +304,73 @@ function FriendsActivitySection() {
   )
 }
 
+// --- LOCAL NEWS SECTION ---
+function LocalNewsSection({ location }: { location: GeoLocation | null }) {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!location) return
+    setLoading(true)
+    fetch(`/api/news?perspective=local&location=${encodeURIComponent(`${location.city}, ${location.region}`)}`)
+      .then((r) => r.json())
+      .then((d) => setArticles((d.articles || []) as Article[]))
+      .catch(() => setArticles([]))
+      .finally(() => setLoading(false))
+  }, [location])
+
+  if (!location) return null
+
+  const cityLabel = location.city === location.region ? location.region : `${location.city}`
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3">
+        <MapPin className="w-4 h-4 text-green-600" />
+        <h2 className="text-sm font-semibold text-foreground">Local</h2>
+        <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+          Local · {cityLabel}
+        </Badge>
+      </div>
+
+      {loading && <LoadingSkeleton count={3} />}
+
+      {!loading && articles.length === 0 && (
+        <Card>
+          <CardContent className="py-6 text-center text-muted-foreground">
+            <Newspaper className="w-7 h-7 mx-auto mb-2 opacity-40" />
+            <p className="text-sm">No local news found right now. Check back soon.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && articles.length > 0 && (
+        <div className="grid gap-3">
+          {articles.map((article, i) => (
+            <ArticleCard key={`${article.url}-${i}`} article={article} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+// --- LEFT & RIGHT PERSPECTIVES SECTION ---
+function PerspectivesSection() {
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3">
+        <Globe className="w-4 h-4 text-purple-600" />
+        <h2 className="text-sm font-semibold text-foreground">Left & right perspectives</h2>
+        <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+          National
+        </Badge>
+      </div>
+      <AIFactualNews />
+    </section>
+  )
+}
+
 // --- MAIN HOME FEED ---
 export function HomeFeed() {
   const [location, setLocation] = useState<GeoLocation | null>(null)
@@ -296,7 +384,6 @@ export function HomeFeed() {
           setLocation(data)
         }
       } catch {
-        // Fallback handled by the API route
         setLocation({ city: "Atlanta", region: "Georgia", country: "US" })
       }
     }
@@ -304,10 +391,11 @@ export function HomeFeed() {
   }, [])
 
   return (
-    <div className="space-y-10">
-      <NationalNewsSection />
+    <div className="space-y-6">
+      <CommonGroundCard />
+      <YourNetworkSection />
       <LocalNewsSection location={location} />
-      <FriendsActivitySection />
+      <PerspectivesSection />
     </div>
   )
 }

@@ -8,12 +8,20 @@ import { SearchInput } from "@/components/search-input"
 import { Logo } from "@/components/logo"
 import { UserNav } from "@/components/user-nav"
 
+const NAV_ITEMS = [
+  { href: "/", icon: Home, label: "Home" },
+  { href: "/elections", icon: Vote, label: "Elections", accent: "text-[#F39C12]" },
+  { href: "/news", icon: Globe, label: "News" },
+  { href: "/news/local", icon: MapPin, label: "Local" },
+  { href: "/profile", icon: User, label: "Profile" },
+]
+
 export function NewsNavigation() {
   const pathname = usePathname()
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+    <div className="mb-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Link href="/">
             <Logo size="lg" />
@@ -23,37 +31,24 @@ export function NewsNavigation() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <SearchInput />
-          <nav className="flex gap-1 flex-wrap">
-            <Link href="/">
-              <Button size="sm" variant={pathname === "/" ? "default" : "ghost"} className="flex items-center gap-1.5">
-                <Home className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Home</span>
-              </Button>
-            </Link>
-            <Link href="/elections">
-              <Button size="sm" variant={pathname === "/elections" ? "default" : "ghost"} className="flex items-center gap-1.5 text-[#F39C12] hover:text-[#E67E22] data-[variant=default]:text-white">
-                <Vote className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Elections 2026</span>
-              </Button>
-            </Link>
-            <Link href="/news">
-              <Button size="sm" variant={pathname === "/news" ? "default" : "ghost"} className="flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">National</span>
-              </Button>
-            </Link>
-            <Link href="/news/local">
-              <Button size="sm" variant={pathname === "/news/local" ? "default" : "ghost"} className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Local</span>
-              </Button>
-            </Link>
-            <Link href="/profile">
-              <Button size="sm" variant={pathname === "/profile" ? "default" : "ghost"} className="flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Your Ballot</span>
-              </Button>
-            </Link>
+          <nav className="flex gap-0.5">
+            {NAV_ITEMS.map(({ href, icon: Icon, label, accent }) => {
+              const active = pathname === href
+              return (
+                <Link key={href} href={href}>
+                  <button
+                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium ${
+                      active
+                        ? "bg-[#1F3A93]/10 text-[#1F3A93] border-b-2 border-[#1F3A93]"
+                        : `text-gray-500 hover:text-gray-800 hover:bg-gray-100 ${accent || ""}`
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="leading-none">{label}</span>
+                  </button>
+                </Link>
+              )
+            })}
           </nav>
           <UserNav />
         </div>

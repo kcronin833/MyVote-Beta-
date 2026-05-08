@@ -439,8 +439,15 @@ export function AIFactualNews() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive text-center">
-          {error}
+        <div className="flex flex-col items-center py-12 gap-3 text-muted-foreground">
+          <Sparkles className="w-8 h-8 opacity-30" />
+          <p className="text-sm">Checking the latest headlines...</p>
+          <button
+            onClick={() => loadNews(true)}
+            className="text-xs text-primary underline hover:no-underline"
+          >
+            Try again
+          </button>
         </div>
       )}
 

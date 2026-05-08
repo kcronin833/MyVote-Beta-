@@ -59,6 +59,18 @@ export function PoliticalSpectrumBar() {
         <CardDescription>Based on your liked viewpoints</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {viewpointLikes.length === 0 ? (
+          <div className="text-center py-8 space-y-3">
+            <p className="text-sm text-muted-foreground">Like viewpoints in the news feed to see where you stand</p>
+            <a
+              href="/news"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            >
+              Go to news feed →
+            </a>
+          </div>
+        ) : (
+        <>
         {/* Political Position Percentage */}
         <div className="text-center">
           <div className={`text-3xl font-bold ${getPositionColor(politicalPosition)}`}>
@@ -116,10 +128,7 @@ export function PoliticalSpectrumBar() {
           </div>
         )}
 
-        {viewpointLikes.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-sm">Like viewpoints in the news section to see your political position!</p>
-          </div>
+        </>
         )}
       </CardContent>
     </Card>

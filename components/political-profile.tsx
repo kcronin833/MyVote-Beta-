@@ -1,15 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info } from "lucide-react"
+import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info, Lock } from "lucide-react"
 import { RepresentativeProfile } from "./representative-profile"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
-import { CompatibilityScore } from "./compatibility-score"
 import { calculateCompatibility } from "@/lib/compatibility-service"
 import { currentUser } from "@/lib/mock-data"
 import { getBallotForZip } from "@/lib/georgia-ballot-data"
@@ -1527,6 +1526,12 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [mySelections, setMySelections] = useState<Record<string, string>>({})
   const [showMyBallot, setShowMyBallot] = useState(false)
+  const [viewpointCount, setViewpointCount] = useState(0)
+
+  useEffect(() => {
+    const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+    setViewpointCount(likes.length)
+  }, [])
 
   const ballotData = getBallotForZip(zipCode)
   const profileData = politicalData[zipCode as keyof typeof politicalData]
@@ -1570,12 +1575,32 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
   }
 
   const renderCandidate = (candidate: Candidate, office: string, electionDate: string) => {
+    // TBD placeholder — primary not yet decided
+    if (candidate.name.toLowerCase().includes("tbd")) {
+      return (
+        <Card key={candidate.name} className="border-dashed border-gray-300 bg-gray-50">
+          <CardContent className="py-8 text-center space-y-2">
+            <Lock className="w-7 h-7 text-gray-400 mx-auto" />
+            <p className="font-semibold text-gray-600">Primary pending</p>
+            <p className="text-sm text-gray-400">Check back after the May 19 primary.</p>
+          </CardContent>
+        </Card>
+      )
+    }
+
     const compatibility = calculateCompatibility(currentUser, {
       politicalScore: candidate.politicalScore || 0,
       keyIssues: candidate.keyIssues,
       positions: candidate.positions || [],
       votingRecord: candidate.votingRecord || [],
     })
+
+    const hasFundraising =
+      candidate.fundraising.totalRaised !== "TBD" &&
+      candidate.fundraising.lastQuarter !== "TBD" &&
+      candidate.fundraising.totalRaised !== "" &&
+      candidate.fundraising.lastQuarter !== ""
+    const hasEndorsements = candidate.endorsements.length > 0
 
     return (
       <Card
@@ -1591,7 +1616,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               className="w-16 h-16 rounded-full object-cover"
             />
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <h4 className="font-semibold text-lg">{candidate.name}</h4>
                 {candidate.isIncumbent && (
                   <Badge variant="default" className="bg-[#1F3A93] text-white">
@@ -1602,7 +1627,22 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 <Badge variant="outline" className={getPartyColor(candidate.party)}>
                   {candidate.party}
                 </Badge>
-                <CompatibilityScore compatibility={compatibility} mode="compact" />
+                {viewpointCount === 0 ? (
+                  <span
+                    title="Like viewpoints in the news feed to see your match score"
+                    className="text-xs px-2 py-0.5 rounded-full border border-gray-300 text-gray-400 cursor-help"
+                  >
+                    Match unknown
+                  </span>
+                ) : (
+                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
+                    compatibility.overall >= 70 ? "border-green-300 text-green-700 bg-green-50" :
+                    compatibility.overall >= 50 ? "border-yellow-300 text-yellow-700 bg-yellow-50" :
+                    "border-red-300 text-red-700 bg-red-50"
+                  }`}>
+                    {compatibility.overall}% Match
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
@@ -1629,24 +1669,26 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <h5 className="font-medium text-[#4A4A4A] mb-1">Fundraising</h5>
-              <p className="text-[#4A4A4A]">Total: {candidate.fundraising.totalRaised}</p>
-              <p className="text-[#4A4A4A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
-            </div>
-            <div>
-              <h5 className="font-medium text-[#4A4A4A] mb-1">Endorsements</h5>
-              <div className="space-y-1">
-                {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
-                  <p key={i} className="text-[#4A4A4A] text-xs">
-                    • {endorsement}
-                  </p>
-                ))}
-                {candidate.endorsements.length > 2 && (
-                  <p className="text-gray-500 text-xs">+{candidate.endorsements.length - 2} more</p>
-                )}
+            {hasFundraising && (
+              <div>
+                <h5 className="font-medium text-[#4A4A4A] mb-1">Fundraising</h5>
+                <p className="text-[#4A4A4A]">Total: {candidate.fundraising.totalRaised}</p>
+                <p className="text-[#4A4A4A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
               </div>
-            </div>
+            )}
+            {hasEndorsements && (
+              <div>
+                <h5 className="font-medium text-[#4A4A4A] mb-1">Endorsements</h5>
+                <div className="space-y-1">
+                  {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
+                    <p key={i} className="text-[#4A4A4A] text-xs">• {endorsement}</p>
+                  ))}
+                  {candidate.endorsements.length > 2 && (
+                    <p className="text-gray-500 text-xs">+{candidate.endorsements.length - 2} more</p>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="flex items-end justify-between gap-2 flex-wrap">
               {candidate.website && (
                 <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
@@ -1969,7 +2011,10 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         >
           <Vote className="w-4 h-4" />
           <span className="text-sm font-semibold">My Ballot</span>
-          <span className="bg-white text-[#1F3A93] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+          <span
+            title={`${Object.keys(mySelections).length} race${Object.keys(mySelections).length === 1 ? "" : "s"} picked`}
+            className="bg-white text-[#1F3A93] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+          >
             {Object.keys(mySelections).length}
           </span>
         </button>
