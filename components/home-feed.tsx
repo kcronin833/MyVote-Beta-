@@ -428,22 +428,32 @@ function PerspectivesSection() {
 
 // --- MAIN HOME FEED ---
 export function HomeFeed() {
+  const { profile } = useAuth()
   const [location, setLocation] = useState<GeoLocation | null>(null)
 
   useEffect(() => {
+    // Prefer the city saved on the user's Supabase profile — avoids IP geo errors
+    if (profile?.location) {
+      setLocation({ city: profile.location, region: "Georgia", country: "US" })
+      return
+    }
+
+    // Guests or users without a saved location fall back to IP geolocation
     async function detectLocation() {
       try {
         const res = await fetch("/api/geolocation")
         if (res.ok) {
           const data = await res.json()
           setLocation(data)
+        } else {
+          setLocation({ city: "Atlanta", region: "Georgia", country: "US" })
         }
       } catch {
         setLocation({ city: "Atlanta", region: "Georgia", country: "US" })
       }
     }
     detectLocation()
-  }, [])
+  }, [profile?.location])
 
   return (
     <div className="space-y-6">

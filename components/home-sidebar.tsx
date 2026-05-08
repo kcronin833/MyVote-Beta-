@@ -2,37 +2,37 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Flame, MapPin, Vote, Camera } from "lucide-react"
+import { Flame, MapPin, Vote, Camera, ClipboardList } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { Progress } from "@/components/ui/progress"
 import { UserAvatar } from "@/components/user-avatar"
 import { AvatarUploadModal } from "@/components/avatar-upload-modal"
+import { createClient } from "@/lib/supabase/client"
 
-const DEFAULT_ISSUES = [
-  { label: "Education", pct: 81 },
-  { label: "Public Safety", pct: 77 },
-  { label: "Economy", pct: 68 },
-  { label: "Healthcare", pct: 72 },
-  { label: "Environment", pct: 58 },
-]
-
-// Map quiz issue labels to sidebar issue labels
-const QUIZ_TO_SIDEBAR: Record<string, string> = {
-  Education: "Education",
-  "Public Safety": "Public Safety",
-  Economy: "Economy",
-  Environment: "Environment",
+// Question IDs → issue label in the sidebar
+const QUESTION_TO_ISSUE: Record<number, string> = {
+  1: "Education",
+  3: "Public Safety",
+  4: "Environment",
+  5: "Economy",
+  // Q2 (Voting Access) has no sidebar counterpart; Healthcare has no quiz question
 }
 
-function getIssuesWithQuizScores() {
-  if (typeof window === "undefined") return DEFAULT_ISSUES
-  const stored = localStorage.getItem("mv_quiz_scores")
-  if (!stored) return DEFAULT_ISSUES
-  const scores: Record<string, number> = JSON.parse(stored)
-  return DEFAULT_ISSUES.map((issue) => ({
-    ...issue,
-    pct: scores[QUIZ_TO_SIDEBAR[issue.label] ?? issue.label] ?? issue.pct,
-  }))
+// Maps a quiz response string to a 0-100 agreement score
+function responseToScore(response: string): number {
+  switch (response) {
+    case "Strongly Agree":    return 91
+    case "Agree":             return 68
+    case "Disagree":          return 36
+    case "Strongly Disagree": return 12
+    default:                  return 50
+  }
+}
+
+interface IssueScore {
+  label: string
+  pct: number
+  fromQuiz: boolean
 }
 
 function issueColor(pct: number) {
@@ -64,20 +64,59 @@ interface HomeSidebarProps {
 }
 
 export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
-  const { profile, updateProfile } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const [streak, setStreak] = useState(1)
   const [viewpoints, setViewpoints] = useState(0)
-  const [issues, setIssues] = useState(DEFAULT_ISSUES)
+  const [issues, setIssues] = useState<IssueScore[]>([])
+  const [quizLoading, setQuizLoading] = useState(true)
   const [showAvatarModal, setShowAvatarModal] = useState(false)
 
   useEffect(() => {
     setStreak(getCivicStreak())
     const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
     setViewpoints(likes.length)
-    setIssues(getIssuesWithQuizScores())
   }, [])
 
-  const avgAgreement = Math.round(issues.reduce((s, i) => s + i.pct, 0) / issues.length)
+  // Fetch quiz responses from Supabase and compute real issue scores
+  useEffect(() => {
+    async function loadQuizScores() {
+      if (!user) { setQuizLoading(false); return }
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("quiz_responses")
+        .select("question_id, response")
+        .eq("user_id", user.id)
+
+      if (!data || data.length === 0) {
+        setIssues([])
+        setQuizLoading(false)
+        return
+      }
+
+      // Build a map of question_id → response
+      const responseMap: Record<number, string> = {}
+      for (const row of data) {
+        responseMap[row.question_id] = row.response
+      }
+
+      // Compute scores for each sidebar issue
+      const computed: IssueScore[] = [
+        { label: "Education",     pct: responseMap[1] ? responseToScore(responseMap[1]) : 0, fromQuiz: !!responseMap[1] },
+        { label: "Public Safety", pct: responseMap[3] ? responseToScore(responseMap[3]) : 0, fromQuiz: !!responseMap[3] },
+        { label: "Economy",       pct: responseMap[5] ? responseToScore(responseMap[5]) : 0, fromQuiz: !!responseMap[5] },
+        { label: "Environment",   pct: responseMap[4] ? responseToScore(responseMap[4]) : 0, fromQuiz: !!responseMap[4] },
+      ].filter((i) => i.fromQuiz)
+
+      setIssues(computed)
+      setQuizLoading(false)
+    }
+    loadQuizScores()
+  }, [user])
+
+  const hasQuizData = issues.length > 0
+  const avgAgreement = hasQuizData
+    ? Math.round(issues.reduce((s, i) => s + i.pct, 0) / issues.length)
+    : 0
   const remaining = totalRaces - racesDecided
 
   return (
@@ -135,27 +174,57 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
       <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
         <div>
           <p className="font-semibold text-foreground text-sm">Your common ground</p>
-          <p className="text-[10px] text-muted-foreground">Agreement with Georgia voters across key issues</p>
+          <p className="text-[10px] text-muted-foreground">Your views across key civic issues</p>
         </div>
-        <div className="text-center py-1">
-          <p className="text-4xl font-bold text-teal-600">{avgAgreement}%</p>
-        </div>
-        <div className="space-y-2">
-          {issues.map(({ label, pct }) => {
-            const { bar, text } = issueColor(pct)
-            return (
-              <div key={label} className="space-y-0.5">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{label}</span>
-                  <span className={`font-semibold ${text}`}>{pct}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
-                </div>
+
+        {quizLoading ? (
+          <div className="space-y-2 animate-pulse">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="space-y-1">
+                <div className="h-2.5 bg-muted rounded w-1/2" />
+                <div className="h-1.5 bg-muted rounded" />
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        ) : hasQuizData ? (
+          <>
+            <div className="text-center py-1">
+              <p className="text-4xl font-bold text-teal-600">{avgAgreement}%</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">avg. agreement score</p>
+            </div>
+            <div className="space-y-2">
+              {issues.map(({ label, pct }) => {
+                const { bar, text } = issueColor(pct)
+                return (
+                  <div key={label} className="space-y-0.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className={`font-semibold ${text}`}>{pct}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-3 space-y-2">
+            <ClipboardList className="w-8 h-8 text-teal-500 mx-auto opacity-80" />
+            <p className="text-xs text-muted-foreground leading-snug">
+              Answer 5 quick questions to see your civic profile scores
+            </p>
+            <Link href="/">
+              <button
+                onClick={() => localStorage.removeItem("mv_quiz_shown")}
+                className="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-colors"
+              >
+                Complete your civic profile
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Card 3 — Ballot Progress */}

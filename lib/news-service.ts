@@ -31,16 +31,34 @@ const ALLOWED_SOURCE_NAMES = new Set([
   "ajc",
 ])
 
-// Titles containing any of these terms are dropped regardless of source.
-// Covers entertainment, foreign domestic politics, and non-US sports.
+// Terms in title OR description that indicate non-political content.
+// Checked server-side before any article reaches the frontend.
 const CONTENT_BLOCKLIST =
-  /\b(Marvel|comics|superhero|cricket|Bihar|Modi|Malaysian|Malaysia|Indonesia|Indonesian|Premier League|Champions League|baseball|football standings|NBA|NFL|MLB|Bollywood|Nollywood|K-pop|anime|manga|Eurovision|LaLiga|Bundesliga|Serie A|Ligue 1|IPL|PSL|BBL|T20|Test match|Rugby|Formula 1|F1 race|UFC|MMA|WWE|boxing match|horse racing|tennis final|golf tournament)\b/i
+  /\b(athlete|athletes|baseball|football|basketball|soccer|sports|sport|poll|polls|ranking|rankings|standings|NFL|NBA|MLB|NHL|Marvel|comics|superhero|cricket|Bihar|Modi|Malaysian|Malaysia|Indonesia|Indonesian|Premier League|Champions League|Bollywood|Nollywood|K-pop|anime|manga|Eurovision|LaLiga|Bundesliga|Serie\s+A|Ligue\s+1|IPL|PSL|BBL|T20|Test\s+match|Rugby|Formula\s+1|F1\s+race|UFC|MMA|WWE|boxing|horse\s+racing|tennis|golf|swim|swimmer|gymnastics|Olympics|Olympic\s+trial|track\s+and\s+field|photo\s+gallery|photo\s+of|photos\s+of|image\s+of|gallery)\b/i
 
-function isBlocklisted(article: { title: string }): boolean {
-  if (CONTENT_BLOCKLIST.test(article.title)) {
-    console.log(`[news-filter] Dropped blocklisted: "${article.title}"`)
+// Source names that are explicitly blocked regardless of topic.
+const BLOCKED_SOURCE_NAMES = new Set([
+  "savannah morning news",
+  "sports illustrated",
+  "espn",
+  "bleacher report",
+  "the athletic",
+  "deadspin",
+])
+
+function isBlocklisted(article: { title: string; description: string; source: string }): boolean {
+  const titleAndDesc = `${article.title} ${article.description}`
+
+  if (CONTENT_BLOCKLIST.test(titleAndDesc)) {
+    console.log(`[news-filter] Keyword drop – source="${article.source}": "${article.title}"`)
     return true
   }
+
+  if (BLOCKED_SOURCE_NAMES.has(article.source.toLowerCase())) {
+    console.log(`[news-filter] Source drop – "${article.source}": "${article.title}"`)
+    return true
+  }
+
   return false
 }
 
@@ -397,6 +415,8 @@ async function fetchAndParse(url: string): Promise<NewsArticle[]> {
       if (isBlocklisted(a)) return false
       return true
     })
+    // Note: source allowlist enforcement happens at the API query level via
+    // sources= param. The blocklist above is the post-fetch safety net.
   } catch (err) {
     console.error("Failed to fetch news:", err);
     return [];
