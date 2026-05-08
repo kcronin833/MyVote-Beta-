@@ -47,15 +47,22 @@ export function AIFactualNews() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set())
+  const [expandedStories, setExpandedStories] = useState<Set<number>>(new Set())
 
   const toggleComments = (index: number) => {
     setExpandedComments((prev) => {
       const next = new Set(prev)
-      if (next.has(index)) {
-        next.delete(index)
-      } else {
-        next.add(index)
-      }
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+
+  const toggleStory = (index: number) => {
+    setExpandedStories((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
       return next
     })
   }
@@ -175,8 +182,13 @@ export function AIFactualNews() {
       {news.map((article, i) => {
         const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
         const commentsOpen = expandedComments.has(i)
+        const storyExpanded = expandedStories.has(i)
+        const PREVIEW_COUNT = 3
+        const visibleLeft = storyExpanded ? article.leftArticles : article.leftArticles.slice(0, PREVIEW_COUNT)
+        const visibleRight = storyExpanded ? article.rightArticles : article.rightArticles.slice(0, PREVIEW_COUNT)
         const hasLeft = article.leftArticles.length > 0
         const hasRight = article.rightArticles.length > 0
+        const hasMore = article.leftArticles.length > PREVIEW_COUNT || article.rightArticles.length > PREVIEW_COUNT
 
         return (
           <Card key={i} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
@@ -256,7 +268,7 @@ export function AIFactualNews() {
                     </div>
                     {hasLeft ? (
                       <div className="space-y-2.5">
-                        {article.leftArticles.map((link, j) => (
+                        {visibleLeft.map((link, j) => (
                           <a
                             key={j}
                             href={link.url}
@@ -293,7 +305,7 @@ export function AIFactualNews() {
                     </div>
                     {hasRight ? (
                       <div className="space-y-2.5">
-                        {article.rightArticles.map((link, j) => (
+                        {visibleRight.map((link, j) => (
                           <a
                             key={j}
                             href={link.url}
@@ -321,6 +333,26 @@ export function AIFactualNews() {
                     )}
                   </div>
                 </div>
+              )}
+
+              {/* Show all coverage toggle */}
+              {hasMore && (
+                <button
+                  onClick={() => toggleStory(i)}
+                  className="w-full text-xs text-primary hover:underline flex items-center justify-center gap-1 py-1"
+                >
+                  {storyExpanded ? (
+                    <>
+                      <ChevronUp className="w-3 h-3" />
+                      Show fewer articles
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-3 h-3" />
+                      Show all coverage ({article.leftArticles.length + article.rightArticles.length} articles)
+                    </>
+                  )}
+                </button>
               )}
 
               {/* Footer: source link + comment toggle */}

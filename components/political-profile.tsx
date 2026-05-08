@@ -1524,6 +1524,9 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     office: string
     electionDate: string
   } | null>(null)
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
+  const [mySelections, setMySelections] = useState<Record<string, string>>({})
+  const [showMyBallot, setShowMyBallot] = useState(false)
 
   const ballotData = getBallotForZip(zipCode)
   const profileData = politicalData[zipCode as keyof typeof politicalData]
@@ -1644,7 +1647,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 )}
               </div>
             </div>
-            <div className="flex items-end justify-between">
+            <div className="flex items-end justify-between gap-2 flex-wrap">
               {candidate.website && (
                 <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
                   <a href={candidate.website} target="_blank" rel="noopener noreferrer">
@@ -1657,6 +1660,30 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 <Info className="w-3 h-3" />
                 Details
               </Button>
+              {(() => {
+                const isSelected = mySelections[office] === candidate.name
+                return (
+                  <Button
+                    size="sm"
+                    variant={isSelected ? "default" : "outline"}
+                    className={isSelected ? "bg-[#27AE60] text-white hover:bg-[#27AE60]/90" : "border-[#27AE60] text-[#27AE60] hover:bg-[#27AE60]/10"}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMySelections((prev) => {
+                        if (prev[office] === candidate.name) {
+                          const next = { ...prev }
+                          delete next[office]
+                          return next
+                        }
+                        return { ...prev, [office]: candidate.name }
+                      })
+                    }}
+                  >
+                    <Check className="w-3 h-3 mr-1" />
+                    {isSelected ? "My Pick" : "Select"}
+                  </Button>
+                )
+              })()}
             </div>
           </div>
         </CardContent>
@@ -1790,20 +1817,42 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
             Your Full Ballot – 2026
           </CardTitle>
           <CardDescription>All races on your ballot from federal down to school board</CardDescription>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {[
-              { label: "Federal",      color: "bg-[#1F3A93] text-white" },
-              { label: "State",        color: "bg-[#27AE60] text-white" },
-              { label: "County",       color: "bg-[#F39C12] text-white" },
-              { label: "School Board", color: "bg-[#8E44AD] text-white" },
-              { label: "Local",        color: "bg-[#D64541] text-white" },
-            ].map(({ label, color }) => (
-              <span key={label} className={`text-xs font-bold px-2 py-0.5 rounded-full ${color}`}>{label}</span>
+          <div className="flex flex-wrap gap-2 mt-2 items-center">
+            <span className="text-xs text-muted-foreground">Filter by level:</span>
+            {Object.entries(LEVEL_COLORS).map(([label, { color }]) => (
+              <button
+                key={label}
+                onClick={() => setActiveFilter((f) => (f === label ? null : label))}
+                className={`text-xs font-bold px-2 py-0.5 rounded-full ${color} transition-opacity ${
+                  activeFilter && activeFilter !== label ? "opacity-35" : "opacity-100"
+                } hover:opacity-80 cursor-pointer`}
+              >
+                {label}
+              </button>
             ))}
+            {activeFilter && (
+              <button
+                onClick={() => setActiveFilter(null)}
+                className="text-xs text-muted-foreground underline hover:text-foreground"
+              >
+                Clear filter
+              </button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {ballotData.races.map((election, index) => {
+          {(() => {
+            const filteredRaces = activeFilter
+              ? ballotData.races.filter((r) => r.level === activeFilter)
+              : ballotData.races
+            if (filteredRaces.length === 0) {
+              return (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No races found for level &ldquo;{activeFilter}&rdquo;.
+                </p>
+              )
+            }
+            return filteredRaces.map((election, index) => {
             const levelInfo = LEVEL_COLORS[election.level] ?? { label: election.level, color: "bg-gray-500 text-white" }
             return (
             <div key={index} className="space-y-4">
@@ -1840,9 +1889,10 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 </div>
               </div>
 
-              {index < ballotData.races.length - 1 && <Separator />}
+              {index < filteredRaces.length - 1 && <Separator />}
             </div>
-          )})}
+          )})
+          })()}
         </CardContent>
       </Card>
 
@@ -1909,6 +1959,98 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
             if (!open) setSelectedCandidate(null)
           }}
         />
+      )}
+
+      {/* My Ballot floating button */}
+      {Object.keys(mySelections).length > 0 && (
+        <button
+          onClick={() => setShowMyBallot(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#1F3A93] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#1F3A93]/90 transition-colors"
+        >
+          <Vote className="w-4 h-4" />
+          <span className="text-sm font-semibold">My Ballot</span>
+          <span className="bg-white text-[#1F3A93] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {Object.keys(mySelections).length}
+          </span>
+        </button>
+      )}
+
+      {/* My Ballot slide-in panel */}
+      {showMyBallot && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/40"
+            onClick={() => setShowMyBallot(false)}
+          />
+          {/* Panel */}
+          <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-background shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Vote className="w-5 h-5 text-[#1F3A93]" />
+                <h2 className="text-lg font-bold text-foreground">My Ballot</h2>
+              </div>
+              <button
+                onClick={() => setShowMyBallot(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Your planned votes for the 2026 election. These are saved locally and not submitted anywhere.
+              </p>
+              {ballotData.races
+                .filter((r) => mySelections[r.office])
+                .map((race) => {
+                  const picked = mySelections[race.office]
+                  const candidate = race.candidates.find((c) => c.name === picked)
+                  const levelInfo = LEVEL_COLORS[race.level] ?? { label: race.level, color: "bg-gray-500 text-white" }
+                  return (
+                    <div key={race.office} className="rounded-lg border border-border p-3 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${levelInfo.color}`}>
+                          {levelInfo.label}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{race.office}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="font-semibold text-sm text-foreground">{picked}</p>
+                          {candidate && (
+                            <p className="text-xs text-muted-foreground">{candidate.party}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() =>
+                            setMySelections((prev) => {
+                              const next = { ...prev }
+                              delete next[race.office]
+                              return next
+                            })
+                          }
+                          className="text-muted-foreground hover:text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              {Object.keys(mySelections).length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No selections yet. Go back and tap &ldquo;Select&rdquo; on a candidate.
+                </p>
+              )}
+            </div>
+            <div className="p-4 border-t border-border">
+              <p className="text-xs text-muted-foreground text-center">
+                {Object.keys(mySelections).length} of {ballotData.races.length} races selected
+              </p>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

@@ -138,6 +138,14 @@ function isPoliticalArticle(article: NewsArticle): boolean {
   return POLITICAL_KEYWORDS.test(text)
 }
 
+// Rough filter: exclude stories that are clearly about non-US countries' domestic politics
+const FOREIGN_POLITICS_PATTERN = /\b(uk parliament|british pm|prime minister (starmer|sunak|trudeau|modi|macron|scholz)|french (election|president|senate)|german (bundestag|chancellor)|canadian (parliament|trudeau)|australian (parliament|pm)|israeli (knesset|netanyahu)|russian (duma|kremlin|putin)|chinese (xi jinping|ccp|politburo)|north korea|south korean|japanese (diet|kishida)|indian (modi|parliament|bjp)|european parliament|eu commission)\b/i
+
+function isAmericanNews(article: NewsArticle): boolean {
+  const text = `${article.title} ${article.description}`
+  return !FOREIGN_POLITICS_PATTERN.test(text)
+}
+
 /**
  * Build a tight search query from a headline: keep only meaningful words,
  * strip source attribution, and limit length.
@@ -238,8 +246,8 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
     }
   }
 
-  // Filter to ONLY political articles
-  const politicalHeadlines = allArticles.filter(isPoliticalArticle)
+  // Filter to ONLY US political articles
+  const politicalHeadlines = allArticles.filter((a) => isPoliticalArticle(a) && isAmericanNews(a))
 
   if (politicalHeadlines.length === 0) return []
 
@@ -262,8 +270,8 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
         fetchEverythingFromDomains(query, RIGHT_DOMAINS),
       ])
 
-      const trimmedLeft = leftArticles.slice(0, 3)
-      const trimmedRight = rightArticles.slice(0, 3)
+      const trimmedLeft = leftArticles.slice(0, 5)
+      const trimmedRight = rightArticles.slice(0, 5)
 
       return {
         title: headline.title,
