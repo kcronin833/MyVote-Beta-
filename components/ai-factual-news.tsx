@@ -1,12 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Clock,
-  TrendingUp,
   RefreshCw,
   Sparkles,
   Loader2,
@@ -14,6 +12,10 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronUp,
+  ThumbsUp,
+  Flame,
+  AlertCircle,
+  HelpCircle,
 } from "lucide-react"
 import { generateFactualNewsAction } from "@/app/actions/generate-news"
 import { CommentSystem } from "@/components/comment-system"
@@ -33,11 +35,278 @@ interface FactualNewsItem {
   rightArticles: NewsArticle[]
 }
 
-function getControversyLabel(score: number) {
-  if (score >= 75) return { label: "Highly Controversial", color: "bg-red-500", textColor: "text-red-700", bgLight: "bg-red-100" }
-  if (score >= 50) return { label: "Controversial", color: "bg-orange-500", textColor: "text-orange-700", bgLight: "bg-orange-100" }
-  if (score >= 25) return { label: "Moderate", color: "bg-yellow-500", textColor: "text-yellow-700", bgLight: "bg-yellow-100" }
-  return { label: "Low Controversy", color: "bg-green-500", textColor: "text-green-700", bgLight: "bg-green-100" }
+type Reaction = "important" | "outraged" | "surprising" | "factual"
+
+const REACTIONS: { key: Reaction; icon: React.ReactNode; label: string; activeClass: string }[] = [
+  { key: "important", icon: <ThumbsUp className="w-3.5 h-3.5" />, label: "Important", activeClass: "bg-blue-100 text-blue-700 border-blue-300" },
+  { key: "outraged", icon: <Flame className="w-3.5 h-3.5" />, label: "Outraged", activeClass: "bg-red-100 text-red-700 border-red-300" },
+  { key: "surprising", icon: <HelpCircle className="w-3.5 h-3.5" />, label: "Surprising", activeClass: "bg-purple-100 text-purple-700 border-purple-300" },
+  { key: "factual", icon: <AlertCircle className="w-3.5 h-3.5" />, label: "Factual", activeClass: "bg-green-100 text-green-700 border-green-300" },
+]
+
+function CoverageBar({ leftCount, rightCount }: { leftCount: number; rightCount: number }) {
+  const total = leftCount + rightCount
+  if (total === 0) return null
+  const leftPct = Math.round((leftCount / total) * 100)
+  const rightPct = 100 - leftPct
+  const bothSides = leftCount > 0 && rightCount > 0
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-xs font-medium">
+        <span className="text-blue-600">{leftCount} left-leaning</span>
+        {bothSides && (
+          <span className="text-green-600 text-[10px] font-semibold tracking-wide uppercase">
+            Cross-spectrum coverage
+          </span>
+        )}
+        <span className="text-red-600">{rightCount} right-leaning</span>
+      </div>
+      <div className="h-2 rounded-full overflow-hidden flex bg-muted/60 gap-px">
+        {leftCount > 0 && (
+          <div
+            className="bg-blue-500 h-full rounded-l-full transition-all"
+            style={{ width: `${leftPct}%` }}
+          />
+        )}
+        {rightCount > 0 && (
+          <div
+            className="bg-red-500 h-full rounded-r-full transition-all"
+            style={{ width: `${rightPct}%` }}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ArticleLink({ article, side }: { article: NewsArticle; side: "left" | "right" }) {
+  const colorClass = side === "left"
+    ? "text-blue-700 hover:text-blue-900"
+    : "text-red-700 hover:text-red-900"
+  const badgeClass = side === "left"
+    ? "border-blue-200 text-blue-600"
+    : "border-red-200 text-red-600"
+
+  return (
+    <a
+      href={article.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`flex items-start gap-2 text-sm ${colorClass} hover:underline transition-colors`}
+    >
+      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 opacity-70" />
+      <span className="flex-1 line-clamp-2 leading-snug">{article.title}</span>
+      <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${badgeClass}`}>
+        {article.source}
+      </Badge>
+    </a>
+  )
+}
+
+function NewsCard({ article, index }: { article: FactualNewsItem; index: number }) {
+  const [reactions, setReactions] = useState<Record<Reaction, number>>({
+    important: Math.floor(Math.random() * 40) + 5,
+    outraged: Math.floor(Math.random() * 25),
+    surprising: Math.floor(Math.random() * 15),
+    factual: Math.floor(Math.random() * 30) + 3,
+  })
+  const [myReaction, setMyReaction] = useState<Reaction | null>(null)
+  const [showComments, setShowComments] = useState(false)
+  const [showLeft, setShowLeft] = useState(false)
+  const [showRight, setShowRight] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
+  const hasLeft = article.leftArticles.length > 0
+  const hasRight = article.rightArticles.length > 0
+
+  function handleReaction(key: Reaction) {
+    setReactions((prev) => {
+      const next = { ...prev }
+      if (myReaction === key) {
+        next[key] = Math.max(0, next[key] - 1)
+        setMyReaction(null)
+      } else {
+        if (myReaction) next[myReaction] = Math.max(0, next[myReaction] - 1)
+        next[key] = next[key] + 1
+        setMyReaction(key)
+      }
+      return next
+    })
+  }
+
+  return (
+    <article className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
+      {/* Hero Image */}
+      {article.urlToImage && !imgError && (
+        <div className="relative w-full aspect-[16/7] overflow-hidden bg-muted">
+          <img
+            src={article.urlToImage}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          {/* Controversy badge overlaid on image */}
+          <div className="absolute bottom-3 left-3">
+            {article.controversyScore >= 70 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                🔥 High Controversy
+              </span>
+            )}
+            {article.controversyScore >= 40 && article.controversyScore < 70 && (
+              <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                ⚡ Contested
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 space-y-3">
+        {/* Source + Time row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="secondary" className="text-xs font-semibold">
+            {article.source}
+          </Badge>
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatNewsTime(article.publishedAt)}
+          </span>
+          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 ml-auto">
+            Political
+          </Badge>
+        </div>
+
+        {/* Headline */}
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-lg font-bold leading-snug text-foreground hover:text-primary hover:underline transition-colors"
+        >
+          {article.title}
+        </a>
+
+        {/* Coverage bar */}
+        <CoverageBar
+          leftCount={article.leftArticles.length}
+          rightCount={article.rightArticles.length}
+        />
+
+        {/* AI Overview */}
+        {article.aiOverview && (
+          <div className="rounded-xl bg-primary/5 border border-primary/15 p-3">
+            <div className="flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                  Factual Overview
+                </span>
+                <p className="text-sm text-foreground mt-1 leading-relaxed">
+                  {article.aiOverview}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Perspective toggles */}
+        {(hasLeft || hasRight) && (
+          <div className="space-y-2">
+            {hasLeft && (
+              <div>
+                <button
+                  onClick={() => setShowLeft((v) => !v)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    Left-leaning coverage ({article.leftArticles.length})
+                  </span>
+                  {showLeft ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {showLeft && (
+                  <div className="mt-2 pl-3 space-y-2.5 border-l-2 border-blue-200">
+                    {article.leftArticles.map((a, j) => (
+                      <ArticleLink key={j} article={a} side="left" />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {hasRight && (
+              <div>
+                <button
+                  onClick={() => setShowRight((v) => !v)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500" />
+                    Right-leaning coverage ({article.rightArticles.length})
+                  </span>
+                  {showRight ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {showRight && (
+                  <div className="mt-2 pl-3 space-y-2.5 border-l-2 border-red-200">
+                    {article.rightArticles.map((a, j) => (
+                      <ArticleLink key={j} article={a} side="right" />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Reactions + Actions bar */}
+        <div className="flex items-center gap-1 pt-1 flex-wrap border-t border-border">
+          {REACTIONS.map(({ key, icon, label, activeClass }) => (
+            <button
+              key={key}
+              onClick={() => handleReaction(key)}
+              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                myReaction === key
+                  ? activeClass
+                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+              }`}
+            >
+              {icon}
+              <span>{reactions[key]}</span>
+            </button>
+          ))}
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="text-xs text-muted-foreground h-8 px-2"
+            >
+              <a href={article.url} target="_blank" rel="noopener noreferrer">
+                Read <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </Button>
+            <button
+              onClick={() => setShowComments((v) => !v)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Discuss
+              {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Comments */}
+        {showComments && (
+          <div className="pt-2 border-t border-border">
+            <CommentSystem articleUrl={articleId} articleTitle={article.title} />
+          </div>
+        )}
+      </div>
+    </article>
+  )
 }
 
 export function AIFactualNews() {
@@ -46,38 +315,14 @@ export function AIFactualNews() {
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set())
-  const [expandedStories, setExpandedStories] = useState<Set<number>>(new Set())
-
-  const toggleComments = (index: number) => {
-    setExpandedComments((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
-      return next
-    })
-  }
-
-  const toggleStory = (index: number) => {
-    setExpandedStories((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) next.delete(index)
-      else next.add(index)
-      return next
-    })
-  }
 
   const loadNews = async (isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true)
-    } else {
-      setLoading(true)
-    }
+    if (isRefresh) setRefreshing(true)
+    else setLoading(true)
     setError(null)
 
     try {
       const result = await generateFactualNewsAction()
-
       if (result.success && result.news.length > 0) {
         setNews(result.news)
         setLastUpdated(new Date())
@@ -85,8 +330,7 @@ export function AIFactualNews() {
         setError(result.error || "Unable to load news")
         setNews([])
       }
-    } catch (err) {
-      console.error("Failed to load news:", err)
+    } catch {
       setError("Network error occurred")
       setNews([])
     } finally {
@@ -95,34 +339,31 @@ export function AIFactualNews() {
     }
   }
 
-  useEffect(() => {
-    loadNews()
-  }, [])
+  useEffect(() => { loadNews() }, [])
 
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
+            <h3 className="text-lg font-semibold">Just the Facts</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground">Fetching political news...</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Fetching news...
           </div>
         </div>
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="animate-pulse border-l-4 border-l-primary">
-            <CardHeader>
-              <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-              <div className="h-3 bg-muted rounded w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-3 bg-muted rounded w-full mb-2" />
-              <div className="h-3 bg-muted rounded w-2/3" />
-            </CardContent>
-          </Card>
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="rounded-2xl border border-border overflow-hidden animate-pulse">
+            <div className="w-full aspect-[16/7] bg-muted" />
+            <div className="p-4 space-y-3">
+              <div className="h-3 bg-muted rounded w-1/3" />
+              <div className="h-5 bg-muted rounded w-5/6" />
+              <div className="h-4 bg-muted rounded w-4/6" />
+              <div className="h-2 bg-muted rounded-full" />
+            </div>
+          </div>
         ))}
       </div>
     )
@@ -131,7 +372,7 @@ export function AIFactualNews() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
@@ -141,8 +382,8 @@ export function AIFactualNews() {
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground">
-              Updated {lastUpdated.toLocaleTimeString()}
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              {lastUpdated.toLocaleTimeString()}
             </span>
           )}
           <Button
@@ -150,7 +391,7 @@ export function AIFactualNews() {
             size="sm"
             onClick={() => loadNews(true)}
             disabled={refreshing}
-            className="flex items-center gap-1"
+            className="gap-1"
           >
             <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
             {refreshing ? "Loading..." : "Refresh"}
@@ -159,249 +400,20 @@ export function AIFactualNews() {
       </div>
 
       {error && (
-        <Card className="border-destructive/50 bg-destructive/5">
-          <CardContent className="py-4 text-center text-sm text-destructive">
-            {error}
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive text-center">
+          {error}
+        </div>
       )}
 
-      {/* Info banner */}
-      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
-        <div className="flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-primary mt-0.5" />
-          <div className="text-sm text-foreground">
-            <strong>Nonpartisan political reporting:</strong> Each story includes a factual
-            overview that objectively summarizes the political issue, followed by directly
-            related articles from left-leaning and right-leaning outlets.
-          </div>
-        </div>
-      </div>
-
-      {/* News cards */}
-      {news.map((article, i) => {
-        const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
-        const commentsOpen = expandedComments.has(i)
-        const storyExpanded = expandedStories.has(i)
-        const PREVIEW_COUNT = 3
-        const visibleLeft = storyExpanded ? article.leftArticles : article.leftArticles.slice(0, PREVIEW_COUNT)
-        const visibleRight = storyExpanded ? article.rightArticles : article.rightArticles.slice(0, PREVIEW_COUNT)
-        const hasLeft = article.leftArticles.length > 0
-        const hasRight = article.rightArticles.length > 0
-        const hasMore = article.leftArticles.length > PREVIEW_COUNT || article.rightArticles.length > PREVIEW_COUNT
-
-        return (
-          <Card key={i} className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
-            <CardHeader>
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {formatNewsTime(article.publishedAt)}
-                </span>
-                <Badge variant="outline" className="text-xs">
-                  {article.source}
-                </Badge>
-                <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
-                  Political
-                </Badge>
-                {/* Controversy Score */}
-                {(() => {
-                  const c = getControversyLabel(article.controversyScore)
-                  return (
-                    <div className="flex items-center gap-1.5 ml-auto">
-                      <span className={`text-xs font-medium ${c.textColor}`}>
-                        {c.label}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${c.color} transition-all`}
-                            style={{ width: `${article.controversyScore}%` }}
-                          />
-                        </div>
-                        <span className={`text-xs font-bold ${c.textColor}`}>
-                          {article.controversyScore}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })()}
-              </div>
-              <CardTitle className="text-lg mb-2 text-foreground">
-                <a
-                  href={article.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-primary hover:underline"
-                >
-                  {article.title}
-                </a>
-              </CardTitle>
-              {/* AI Overview */}
-              {article.aiOverview && (
-                <div className="mt-3 rounded-lg bg-primary/5 border border-primary/15 p-3">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                        Overview
-                      </span>
-                      <p className="text-sm text-foreground mt-1 leading-relaxed">
-                        {article.aiOverview}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Perspective Sections */}
-              {(hasLeft || hasRight) && (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {/* Left Perspective */}
-                  <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
-                        Left-Leaning Coverage
-                      </Badge>
-                    </div>
-                    {hasLeft ? (
-                      <div className="space-y-2.5">
-                        {visibleLeft.map((link, j) => (
-                          <a
-                            key={j}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-2 text-sm text-blue-700 hover:text-blue-900 hover:underline transition-colors group"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                            <span className="flex-1 line-clamp-2 leading-snug">
-                              {link.title}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] flex-shrink-0 border-blue-200 text-blue-600"
-                            >
-                              {link.source}
-                            </Badge>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">
-                        No matching coverage found
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Right Perspective */}
-                  <div className="rounded-lg border border-red-200 bg-red-50/50 p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className="bg-red-600 hover:bg-red-700 text-white text-xs">
-                        Right-Leaning Coverage
-                      </Badge>
-                    </div>
-                    {hasRight ? (
-                      <div className="space-y-2.5">
-                        {visibleRight.map((link, j) => (
-                          <a
-                            key={j}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-2 text-sm text-red-700 hover:text-red-900 hover:underline transition-colors group"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                            <span className="flex-1 line-clamp-2 leading-snug">
-                              {link.title}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] flex-shrink-0 border-red-200 text-red-600"
-                            >
-                              {link.source}
-                            </Badge>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">
-                        No matching coverage found
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Show all coverage toggle */}
-              {hasMore && (
-                <button
-                  onClick={() => toggleStory(i)}
-                  className="w-full text-xs text-primary hover:underline flex items-center justify-center gap-1 py-1"
-                >
-                  {storyExpanded ? (
-                    <>
-                      <ChevronUp className="w-3 h-3" />
-                      Show fewer articles
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-3 h-3" />
-                      Show all coverage ({article.leftArticles.length + article.rightArticles.length} articles)
-                    </>
-                  )}
-                </button>
-              )}
-
-              {/* Footer: source link + comment toggle */}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center"
-                  >
-                    Read Original
-                    <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleComments(i)}
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="text-sm">Discussion</span>
-                  {commentsOpen ? (
-                    <ChevronUp className="w-3 h-3" />
-                  ) : (
-                    <ChevronDown className="w-3 h-3" />
-                  )}
-                </Button>
-              </div>
-
-              {/* Inline Comments */}
-              {commentsOpen && (
-                <div className="pt-2">
-                  <CommentSystem articleUrl={articleId} articleTitle={article.title} />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )
-      })}
+      {/* Cards */}
+      {news.map((article, i) => (
+        <NewsCard key={i} article={article} index={i} />
+      ))}
 
       {news.length > 0 && (
-        <div className="text-center pt-4">
-          <p className="text-xs text-muted-foreground">
-            Perspective articles are sourced from real outlets. Always verify important information
-            with official sources.
-          </p>
-        </div>
+        <p className="text-center text-xs text-muted-foreground pt-2">
+          Coverage sourced from real outlets. Always verify with official sources.
+        </p>
       )}
     </div>
   )

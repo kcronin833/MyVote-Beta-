@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,7 +14,6 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronUp,
-  Loader2,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
@@ -39,82 +38,66 @@ interface GeoLocation {
 
 function ArticleCard({ article }: { article: Article }) {
   const [showComments, setShowComments] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   return (
-    <Card className="hover:shadow-md transition-shadow border-border">
-      <CardHeader className="pb-3">
-        <div className="flex items-start gap-4">
-          {article.urlToImage && (
-            <img
-              src={article.urlToImage}
-              alt=""
-              className="w-20 h-14 object-cover rounded flex-shrink-0"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs text-muted-foreground">
-                {formatNewsTime(article.publishedAt)}
-              </span>
-              <Badge variant="outline" className="text-xs">
-                {article.source}
-              </Badge>
-            </div>
-            <CardTitle className="text-base leading-snug">
-              <a
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary hover:underline"
-              >
-                {article.title}
-              </a>
-            </CardTitle>
-            {article.description && (
-              <CardDescription className="text-sm line-clamp-2 mt-1">
-                {article.description}
-              </CardDescription>
-            )}
-          </div>
+    <article className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
+      {article.urlToImage && !imgError && (
+        <div className="relative w-full aspect-[16/7] overflow-hidden bg-muted">
+          <img
+            src={article.urlToImage}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
         </div>
-      </CardHeader>
-      <CardContent className="pt-0 space-y-3">
-        <div className="flex items-center justify-between">
-          <Button variant="outline" size="sm" asChild>
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center"
-            >
-              Read Article
-              <ExternalLink className="w-3 h-3 ml-1" />
+      )}
+      <div className="p-4 space-y-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="secondary" className="text-xs font-semibold">
+            {article.source}
+          </Badge>
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatNewsTime(article.publishedAt)}
+          </span>
+        </div>
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-base font-bold leading-snug text-foreground hover:text-primary hover:underline transition-colors"
+        >
+          {article.title}
+        </a>
+        {article.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {article.description}
+          </p>
+        )}
+        <div className="flex items-center justify-between pt-1 border-t border-border">
+          <Button variant="ghost" size="sm" asChild className="text-xs text-muted-foreground px-2">
+            <a href={article.url} target="_blank" rel="noopener noreferrer">
+              Read Article <ExternalLink className="w-3 h-3 ml-1" />
             </a>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span className="text-sm">Discussion</span>
-            {showComments ? (
-              <ChevronUp className="w-3 h-3" />
-            ) : (
-              <ChevronDown className="w-3 h-3" />
-            )}
-          </Button>
+            <MessageCircle className="w-3.5 h-3.5" />
+            Discuss
+            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
         </div>
         {showComments && (
           <div className="pt-2 border-t border-border">
             <CommentSystem articleUrl={article.url} articleTitle={article.title} />
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   )
 }
 
@@ -122,13 +105,14 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="grid gap-3">
       {Array.from({ length: count }).map((_, i) => (
-        <Card key={i} className="animate-pulse">
-          <CardHeader className="pb-3">
-            <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-            <div className="h-3 bg-muted rounded w-full" />
-            <div className="h-3 bg-muted rounded w-2/3" />
-          </CardHeader>
-        </Card>
+        <div key={i} className="rounded-2xl border border-border overflow-hidden animate-pulse">
+          <div className="w-full aspect-[16/7] bg-muted" />
+          <div className="p-4 space-y-3">
+            <div className="h-3 bg-muted rounded w-1/3" />
+            <div className="h-5 bg-muted rounded w-5/6" />
+            <div className="h-3 bg-muted rounded w-4/6" />
+          </div>
+        </div>
       ))}
     </div>
   )
