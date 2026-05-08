@@ -41,7 +41,7 @@ export default function SignUpPage() {
     }
 
     setLoading(true)
-    const { error } = await signUp(form.email, form.password, form.username, form.displayName)
+    const { error } = await signUp(form.email, form.password, form.username, form.displayName, form.location, form.politicalLean)
     setLoading(false)
 
     if (error) {

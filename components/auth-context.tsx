@@ -31,7 +31,9 @@ interface AuthContextType {
     email: string,
     password: string,
     username: string,
-    displayName: string
+    displayName: string,
+    location?: string,
+    politicalLean?: string
   ) => Promise<{ error: string | null }>;
   signIn: (
     email: string,
@@ -103,9 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     username: string,
-    displayName: string
+    displayName: string,
+    location?: string,
+    politicalLean?: string
   ) {
-    // Check username is taken
+    // Check username availability (best-effort; DB unique constraint is the real guard)
     const { data: existing } = await supabase
       .from("profiles")
       .select("username")
@@ -114,14 +118,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (existing) return { error: "Username already taken" };
 
+    const redirectTo =
+      process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
+      `${window.location.origin}/auth/callback`;
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${window.location.origin}/auth/signin`,
-        data: { username, display_name: displayName },
+        emailRedirectTo: redirectTo,
+        data: {
+          username,
+          display_name: displayName,
+          location: location || null,
+          political_lean: politicalLean && politicalLean !== "prefer-not" ? politicalLean : null,
+        },
       },
     });
 
