@@ -24,6 +24,7 @@ import { AIFactualNews } from "@/components/ai-factual-news"
 import { PostComposer } from "@/components/post-composer"
 import { PostCard, type PostData } from "@/components/post-card"
 import { UserAvatar } from "@/components/user-avatar"
+import { SuggestedNeighbors } from "@/components/suggested-neighbors"
 import { createClient } from "@/lib/supabase/client"
 
 interface Article {
@@ -292,10 +293,11 @@ function YourNetworkSection() {
 
       {!loading && comments.length === 0 && (
         <Card className="border-border">
-          <CardContent className="py-6 text-center text-muted-foreground">
-            <Users className="w-7 h-7 mx-auto mb-2 opacity-40" />
-            <p className="text-sm font-medium mb-1">No activity yet</p>
-            <p className="text-xs">Follow other users to see their comments and discussions here.</p>
+          <CardContent className="py-5 space-y-3">
+            <p className="text-sm font-semibold text-foreground text-center">
+              Start by following your neighbors
+            </p>
+            <SuggestedNeighbors limit={3} showHeader={false} showSeeAll />
           </CardContent>
         </Card>
       )}
@@ -432,6 +434,10 @@ export function HomeFeed() {
     <div className="space-y-6">
       <CommunityPostsSection />
       <CommonGroundCard />
+      {/* Mobile-only: suggested neighbors between posts and news (sidebar hidden on small screens) */}
+      <div className="lg:hidden bg-white rounded-2xl border border-border p-4">
+        <SuggestedNeighbors limit={3} showHeader showSeeAll />
+      </div>
       <YourNetworkSection />
       <LocalNewsSection city={city} />
       <PerspectivesSection />

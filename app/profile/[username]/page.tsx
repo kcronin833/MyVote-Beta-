@@ -1,205 +1,245 @@
-import { notFound } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, MapPin, Calendar, CheckCircle, MessageCircle, Heart, ExternalLink } from "lucide-react"
-import { mockUsers, mockComments } from "@/lib/mock-data"
-import { formatDistanceToNow } from "date-fns"
+"use client"
 
-interface ProfilePageProps {
-  params: {
-    username: string
-  }
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import Link from "next/link"
+import { ArrowLeft, MapPin, Calendar } from "lucide-react"
+import { NewsNavigation } from "@/components/news-nav"
+import { UserAvatar } from "@/components/user-avatar"
+import { FollowButton } from "@/components/follow-button"
+import { createClient } from "@/lib/supabase/client"
+import { isFollowing } from "@/lib/friends-service"
+import { useAuth } from "@/components/auth-context"
+import { formatNewsTime } from "@/lib/news-service"
+
+interface PublicProfile {
+  id: string
+  username: string
+  display_name: string
+  avatar_url: string | null
+  location: string | null
+  bio: string | null
+  created_at: string
 }
 
-export default function ProfilePage({ params }: ProfilePageProps) {
-  const user = mockUsers.find((u) => u.username === params.username)
+interface PublicPost {
+  id: string
+  content: string
+  topic: string | null
+  created_at: string
+  likes_count: number
+}
 
-  if (!user) {
-    notFound()
-  }
+const TOPIC_COLORS: Record<string, string> = {
+  "Election":      "bg-blue-100 text-blue-700",
+  "Local Issue":   "bg-green-100 text-green-700",
+  "Candidate":     "bg-amber-100 text-amber-700",
+  "Question":      "bg-purple-100 text-purple-700",
+}
 
-  const userComments = mockComments.filter((comment) => comment.userId === user.id)
-  const userReplies = mockComments.flatMap((comment) => comment.replies.filter((reply) => reply.userId === user.id))
-  const allUserActivity = [...userComments, ...userReplies].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-  )
+export default function ProfilePage() {
+  const params = useParams()
+  const username = params?.username as string
+  const { user } = useAuth()
 
-  const getPoliticalColor = (lean: string) => {
-    switch (lean) {
-      case "left":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "right":
-        return "bg-red-100 text-red-800 border-red-200"
-      case "center":
-        return "bg-gray-100 text-gray-800 border-gray-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+  const [profile, setProfile] = useState<PublicProfile | null>(null)
+  const [posts, setPosts] = useState<PublicPost[]>([])
+  const [followingUser, setFollowingUser] = useState(false)
+  const [followerCount, setFollowerCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    if (!username) return
+    load()
+  }, [username, user])
+
+  async function load() {
+    setLoading(true)
+    const supabase = createClient()
+
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url, location, bio, created_at")
+      .eq("username", username)
+      .single()
+
+    if (!prof) {
+      setNotFound(true)
+      setLoading(false)
+      return
     }
+
+    setProfile(prof)
+
+    const [postsRes, followersRes, followingRes, isFollowingRes] = await Promise.all([
+      supabase
+        .from("posts")
+        .select("id, content, topic, created_at, likes_count")
+        .eq("user_id", prof.id)
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("user_follows")
+        .select("id", { count: "exact", head: true })
+        .eq("following_id", prof.id),
+      supabase
+        .from("user_follows")
+        .select("id", { count: "exact", head: true })
+        .eq("follower_id", prof.id),
+      user ? isFollowing(user.id, prof.id) : Promise.resolve(false),
+    ])
+
+    setPosts(postsRes.data || [])
+    setFollowerCount(followersRes.count || 0)
+    setFollowingCount(followingRes.count || 0)
+    setFollowingUser(isFollowingRes)
+    setLoading(false)
   }
 
-  const renderCommentContent = (content: string) => {
-    const parts = content.split(/(@\w+)/g)
-    return parts.map((part, index) => {
-      if (part.startsWith("@")) {
-        const username = part.slice(1)
-        const mentionedUser = mockUsers.find((u) => u.username === username)
-        return (
-          <Link key={index} href={`/profile/${username}`} className="text-blue-600 font-medium hover:underline">
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F6FA]">
+        <div className="container mx-auto px-4 pt-4 pb-8">
+          <NewsNavigation />
+          <div className="max-w-2xl mx-auto space-y-4 animate-pulse">
+            <div className="bg-white rounded-2xl border border-border p-6">
+              <div className="flex gap-4">
+                <div className="w-16 h-16 rounded-full bg-muted flex-shrink-0" />
+                <div className="flex-1 space-y-2 pt-1">
+                  <div className="h-4 bg-muted rounded w-40" />
+                  <div className="h-3 bg-muted rounded w-28" />
+                  <div className="h-3 bg-muted rounded w-32" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (notFound || !profile) {
+    return (
+      <div className="min-h-screen bg-[#F5F6FA]">
+        <div className="container mx-auto px-4 pt-4 pb-8">
+          <NewsNavigation />
+          <div className="max-w-2xl mx-auto text-center py-20">
+            <h1 className="text-2xl font-bold text-foreground mb-2">User not found</h1>
+            <p className="text-muted-foreground mb-6">
+              This profile doesn&apos;t exist or has been removed.
+            </p>
+            <Link href="/">
+              <button className="bg-teal-600 text-white font-semibold px-5 py-2 rounded-xl hover:bg-teal-700 transition-colors">
+                Back to Home
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+    <div className="min-h-screen bg-[#F5F6FA]">
+      <div className="container mx-auto px-4 pt-4 pb-8">
+        <NewsNavigation />
+        <div className="max-w-2xl mx-auto space-y-4">
 
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Profile Header */}
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row gap-6">
-                <Avatar className="w-24 h-24">
-                  <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                  <AvatarFallback className="text-2xl">
-                    {user.displayName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h1 className="text-2xl font-bold">{user.displayName}</h1>
-                    {user.verified && <CheckCircle className="w-6 h-6 text-blue-500" />}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Link>
+
+          {/* Profile header */}
+          <div className="bg-white rounded-2xl border border-border p-6">
+            <div className="flex items-start gap-4">
+              <UserAvatar
+                avatarUrl={profile.avatar_url}
+                displayName={profile.display_name}
+                size="lg"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h1 className="text-xl font-bold text-foreground truncate">
+                      {profile.display_name}
+                    </h1>
+                    <p className="text-sm text-muted-foreground">@{profile.username}</p>
                   </div>
-                  <p className="text-gray-600 mb-2">@{user.username}</p>
-                  <p className="text-gray-700 mb-4">{user.bio}</p>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {user.location}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      Joined{" "}
-                      {new Date(user.joinDate).toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </div>
-                    <Badge variant="outline" className={getPoliticalColor(user.politicalLean)}>
-                      {user.politicalLean === "center"
-                        ? "Moderate"
-                        : user.politicalLean === "left"
-                          ? "Liberal"
-                          : "Conservative"}
-                    </Badge>
-                  </div>
+                  <FollowButton targetUserId={profile.id} initialFollowing={followingUser} />
+                </div>
+
+                {profile.bio && (
+                  <p className="text-sm text-foreground mt-2 leading-relaxed">{profile.bio}</p>
+                )}
+
+                <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
+                  {profile.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 flex-shrink-0" />
+                      {profile.location}, GA
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    Joined{" "}
+                    {new Date(profile.created_at).toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+
+                <div className="flex gap-4 mt-3 text-sm">
+                  <span>
+                    <strong className="text-foreground">{followingCount}</strong>{" "}
+                    <span className="text-muted-foreground">Following</span>
+                  </span>
+                  <span>
+                    <strong className="text-foreground">{followerCount}</strong>{" "}
+                    <span className="text-muted-foreground">Followers</span>
+                  </span>
                 </div>
               </div>
-            </CardHeader>
-          </Card>
-
-          {/* Activity Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">{userComments.length}</div>
-                <div className="text-sm text-gray-600">Comments</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">{userReplies.length}</div>
-                <div className="text-sm text-gray-600">Replies</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-red-600">
-                  {userComments.reduce((sum, comment) => sum + comment.likes, 0) +
-                    userReplies.reduce((sum, reply) => sum + reply.likes, 0)}
-                </div>
-                <div className="text-sm text-gray-600">Total Likes</div>
-              </CardContent>
-            </Card>
+            </div>
           </div>
 
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {allUserActivity.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No recent activity</p>
-              ) : (
-                allUserActivity.map((activity, index) => (
-                  <div key={`${activity.id}-${index}`} className="border-b border-gray-100 pb-4 last:border-b-0">
-                    <div className="flex items-start gap-3">
-                      <MessageCircle className="w-5 h-5 text-gray-400 mt-1" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm text-gray-600">Commented on</span>
-                          <a
-                            href={activity.articleUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline font-medium text-sm"
-                          >
-                            {activity.articleTitle}
-                            <ExternalLink className="w-3 h-3 inline ml-1" />
-                          </a>
-                          <span className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-                          </span>
-                        </div>
-                        <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                          {renderCommentContent(activity.content)}
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Heart className="w-3 h-3" />
-                            {activity.likes} likes
-                          </div>
-                          {activity.mentions.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              <span>Mentioned:</span>
-                              {activity.mentions.map((mention, i) => (
-                                <Link
-                                  key={mention}
-                                  href={`/profile/${mention}`}
-                                  className="text-blue-600 hover:underline"
-                                >
-                                  @{mention}
-                                  {i < activity.mentions.length - 1 ? "," : ""}
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+          {/* Posts */}
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold text-foreground px-1">Posts</h2>
+
+            {posts.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-border p-6 text-center">
+                <p className="text-sm text-muted-foreground">No posts yet.</p>
+              </div>
+            ) : (
+              posts.map((post) => {
+                const topicColor = post.topic ? (TOPIC_COLORS[post.topic] || "bg-gray-100 text-gray-600") : ""
+                return (
+                  <div key={post.id} className="bg-white rounded-2xl border border-border p-4">
+                    {post.topic && (
+                      <span className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full mb-2 ${topicColor}`}>
+                        {post.topic}
+                      </span>
+                    )}
+                    <p className="text-sm text-foreground leading-relaxed">{post.content}</p>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                      <span>{formatNewsTime(post.created_at)}</span>
+                      {post.likes_count > 0 && (
+                        <span>{post.likes_count} {post.likes_count === 1 ? "like" : "likes"}</span>
+                      )}
                     </div>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
+                )
+              })
+            )}
+          </div>
+
         </div>
       </div>
     </div>

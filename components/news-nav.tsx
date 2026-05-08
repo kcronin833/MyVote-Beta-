@@ -3,16 +3,18 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Globe, MapPin, User, Home, Vote } from "lucide-react"
+import { Globe, MapPin, User, Home, Vote, Users } from "lucide-react"
 import { SearchInput } from "@/components/search-input"
 import { Logo } from "@/components/logo"
 import { UserNav } from "@/components/user-nav"
+import { NotificationBell } from "@/components/notification-bell"
 
 const NAV_ITEMS = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/elections", icon: Vote, label: "Elections", accent: "text-[#F39C12]" },
   { href: "/news", icon: Globe, label: "News" },
   { href: "/news/local", icon: MapPin, label: "Local" },
+  { href: "/discover", icon: Users, label: "Discover" },
   { href: "/profile", icon: User, label: "Profile" },
 ]
 
@@ -31,6 +33,7 @@ export function NewsNavigation() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <SearchInput />
+          <NotificationBell />
           <nav className="flex gap-0.5">
             {NAV_ITEMS.map(({ href, icon: Icon, label, accent }) => {
               const active = pathname === href
