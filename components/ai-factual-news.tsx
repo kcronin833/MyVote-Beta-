@@ -20,6 +20,8 @@ import {
 import { generateFactualNewsAction } from "@/app/actions/generate-news"
 import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
+import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/components/auth-context"
 
 interface FactualNewsItem {
   title: string
@@ -104,36 +106,71 @@ function ArticleLink({ article, side }: { article: NewsArticle; side: "left" | "
   )
 }
 
+const EMPTY_COUNTS: Record<Reaction, number> = { important: 0, outraged: 0, surprising: 0, factual: 0 }
+
 function NewsCard({ article, index }: { article: FactualNewsItem; index: number }) {
-  const [reactions, setReactions] = useState<Record<Reaction, number>>({
-    important: Math.floor(Math.random() * 40) + 5,
-    outraged: Math.floor(Math.random() * 25),
-    surprising: Math.floor(Math.random() * 15),
-    factual: Math.floor(Math.random() * 30) + 3,
-  })
+  const { user } = useAuth()
+  const supabase = createClient()
+  const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
+
+  const [counts, setCounts] = useState<Record<Reaction, number>>(EMPTY_COUNTS)
   const [myReaction, setMyReaction] = useState<Reaction | null>(null)
+  const [reacting, setReacting] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const [showLeft, setShowLeft] = useState(false)
   const [showRight, setShowRight] = useState(false)
   const [imgError, setImgError] = useState(false)
 
-  const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
   const hasLeft = article.leftArticles.length > 0
   const hasRight = article.rightArticles.length > 0
 
-  function handleReaction(key: Reaction) {
-    setReactions((prev) => {
-      const next = { ...prev }
-      if (myReaction === key) {
-        next[key] = Math.max(0, next[key] - 1)
-        setMyReaction(null)
-      } else {
-        if (myReaction) next[myReaction] = Math.max(0, next[myReaction] - 1)
-        next[key] = next[key] + 1
-        setMyReaction(key)
+  useEffect(() => {
+    async function loadReactions() {
+      const { data } = await supabase
+        .from("article_reactions")
+        .select("reaction, user_id")
+        .eq("article_id", articleId)
+
+      if (!data) return
+
+      const totals = { ...EMPTY_COUNTS }
+      let mine: Reaction | null = null
+      for (const row of data) {
+        if (row.reaction in totals) totals[row.reaction as Reaction]++
+        if (user && row.user_id === user.id) mine = row.reaction as Reaction
       }
-      return next
-    })
+      setCounts(totals)
+      setMyReaction(mine)
+    }
+    loadReactions()
+  }, [articleId, user])
+
+  async function handleReaction(key: Reaction) {
+    if (!user || reacting) return
+    setReacting(true)
+
+    if (myReaction === key) {
+      // Remove reaction
+      await supabase
+        .from("article_reactions")
+        .delete()
+        .eq("article_id", articleId)
+        .eq("user_id", user.id)
+      setCounts((prev) => ({ ...prev, [key]: Math.max(0, prev[key] - 1) }))
+      setMyReaction(null)
+    } else {
+      // Upsert reaction (replaces previous if any)
+      await supabase
+        .from("article_reactions")
+        .upsert({ user_id: user.id, article_id: articleId, reaction: key }, { onConflict: "user_id,article_id" })
+      setCounts((prev) => {
+        const next = { ...prev, [key]: prev[key] + 1 }
+        if (myReaction) next[myReaction] = Math.max(0, next[myReaction] - 1)
+        return next
+      })
+      setMyReaction(key)
+    }
+    setReacting(false)
   }
 
   return (
@@ -266,14 +303,16 @@ function NewsCard({ article, index }: { article: FactualNewsItem; index: number 
             <button
               key={key}
               onClick={() => handleReaction(key)}
+              disabled={!user || reacting}
+              title={!user ? "Sign in to react" : label}
               className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 myReaction === key
                   ? activeClass
                   : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-              }`}
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {icon}
-              <span>{reactions[key]}</span>
+              <span>{counts[key]}</span>
             </button>
           ))}
           <div className="ml-auto flex items-center gap-2">
