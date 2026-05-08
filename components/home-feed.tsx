@@ -14,7 +14,6 @@ import {
   MessageCircle,
   ChevronDown,
   ChevronUp,
-  ThumbsUp,
   Heart,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
@@ -22,6 +21,10 @@ import { formatNewsTime } from "@/lib/news-service"
 import { getFriendsComments, type FriendComment } from "@/lib/friends-service"
 import { CommentSystem } from "@/components/comment-system"
 import { AIFactualNews } from "@/components/ai-factual-news"
+import { PostComposer } from "@/components/post-composer"
+import { PostCard, type PostData } from "@/components/post-card"
+import { UserAvatar } from "@/components/user-avatar"
+import { createClient } from "@/lib/supabase/client"
 
 interface Article {
   title: string
@@ -204,6 +207,60 @@ function CommonGroundCard() {
   )
 }
 
+// --- COMMUNITY POSTS SECTION ---
+function CommunityPostsSection() {
+  const { user } = useAuth()
+  const [posts, setPosts] = useState<PostData[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("posts")
+        .select("*, profile:profiles(display_name, username, avatar_url)")
+        .order("created_at", { ascending: false })
+        .limit(20)
+      setPosts((data as PostData[]) || [])
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  function handleNewPost(post: PostData) {
+    setPosts((prev) => [post, ...prev])
+  }
+
+  return (
+    <div className="space-y-3">
+      {user && <PostComposer onPost={handleNewPost} />}
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="rounded-2xl border border-border p-4 animate-pulse">
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-1/3" />
+                  <div className="h-4 bg-muted rounded w-5/6" />
+                  <div className="h-3 bg-muted rounded w-4/6" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {!loading && posts.length > 0 && (
+        <div className="space-y-3">
+          {posts.map((p) => (
+            <PostCard key={p.id} post={p} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // --- YOUR NETWORK SECTION ---
 function YourNetworkSection() {
   const { user } = useAuth()
@@ -263,9 +320,7 @@ function YourNetworkSection() {
               <Card key={comment.id} className="border-border">
                 <CardContent className="py-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0 text-sm font-semibold text-muted-foreground">
-                      {profile?.display_name?.charAt(0)?.toUpperCase() || "?"}
-                    </div>
+                    <UserAvatar avatarUrl={profile?.avatar_url} displayName={profile?.display_name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold text-foreground">
@@ -392,6 +447,7 @@ export function HomeFeed() {
 
   return (
     <div className="space-y-6">
+      <CommunityPostsSection />
       <CommonGroundCard />
       <YourNetworkSection />
       <LocalNewsSection location={location} />

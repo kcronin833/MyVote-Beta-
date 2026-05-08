@@ -52,19 +52,17 @@ export function UserNav() {
     );
   }
 
-  const initials = profile.display_name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={profile.avatar_url || "/placeholder.svg"} />
-            <AvatarFallback>{initials}</AvatarFallback>
+            {profile.avatar_url ? (
+              <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
+            ) : null}
+            <AvatarFallback className="bg-[#1F3A93] text-white text-xs font-bold">
+              {profile.display_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

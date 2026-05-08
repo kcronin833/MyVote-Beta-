@@ -19,6 +19,7 @@ import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 import { HomeFeed } from "@/components/home-feed"
 import { HomeSidebar } from "@/components/home-sidebar"
+import { OnboardingQuiz } from "@/components/onboarding-quiz"
 
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
@@ -66,11 +67,23 @@ export default function HomePage() {
     return false
   })
   const [racesDecided, setRacesDecided] = useState(0)
+  const [showQuiz, setShowQuiz] = useState(false)
 
   useEffect(() => {
     const raw = localStorage.getItem("mv_ballot_count")
     if (raw) setRacesDecided(parseInt(raw) || 0)
   }, [])
+
+  // Show quiz only to logged-in users who haven't seen it and have no liked viewpoints
+  useEffect(() => {
+    if (!user) return
+    const alreadyShown = localStorage.getItem("mv_quiz_shown")
+    if (alreadyShown) return
+    const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+    if (likes.length === 0) {
+      setShowQuiz(true)
+    }
+  }, [user])
 
   if (authLoading) {
     return (
@@ -193,6 +206,7 @@ export default function HomePage() {
   // Authenticated / guest: two-column layout
   return (
     <div className="min-h-screen bg-[#F5F6FA]">
+      {showQuiz && <OnboardingQuiz onDismiss={() => setShowQuiz(false)} />}
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
         <div className="flex gap-5 items-start max-w-6xl mx-auto">

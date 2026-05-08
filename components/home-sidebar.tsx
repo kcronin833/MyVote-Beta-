@@ -2,17 +2,38 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Flame, MapPin, Vote } from "lucide-react"
+import { Flame, MapPin, Vote, Camera } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { Progress } from "@/components/ui/progress"
+import { UserAvatar } from "@/components/user-avatar"
+import { AvatarUploadModal } from "@/components/avatar-upload-modal"
 
-const ISSUES = [
+const DEFAULT_ISSUES = [
   { label: "Education", pct: 81 },
   { label: "Public Safety", pct: 77 },
   { label: "Economy", pct: 68 },
   { label: "Healthcare", pct: 72 },
   { label: "Environment", pct: 58 },
 ]
+
+// Map quiz issue labels to sidebar issue labels
+const QUIZ_TO_SIDEBAR: Record<string, string> = {
+  Education: "Education",
+  "Public Safety": "Public Safety",
+  Economy: "Economy",
+  Environment: "Environment",
+}
+
+function getIssuesWithQuizScores() {
+  if (typeof window === "undefined") return DEFAULT_ISSUES
+  const stored = localStorage.getItem("mv_quiz_scores")
+  if (!stored) return DEFAULT_ISSUES
+  const scores: Record<string, number> = JSON.parse(stored)
+  return DEFAULT_ISSUES.map((issue) => ({
+    ...issue,
+    pct: scores[QUIZ_TO_SIDEBAR[issue.label] ?? issue.label] ?? issue.pct,
+  }))
+}
 
 function issueColor(pct: number) {
   if (pct >= 75) return { bar: "bg-teal-500", text: "text-teal-700" }
@@ -43,31 +64,43 @@ interface HomeSidebarProps {
 }
 
 export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
-  const { profile } = useAuth()
+  const { profile, updateProfile } = useAuth()
   const [streak, setStreak] = useState(1)
   const [viewpoints, setViewpoints] = useState(0)
+  const [issues, setIssues] = useState(DEFAULT_ISSUES)
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
 
   useEffect(() => {
     setStreak(getCivicStreak())
     const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
     setViewpoints(likes.length)
+    setIssues(getIssuesWithQuizScores())
   }, [])
 
-  const initials = profile?.display_name
-    ? profile.display_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "MV"
-
-  const avgAgreement = Math.round(ISSUES.reduce((s, i) => s + i.pct, 0) / ISSUES.length)
+  const avgAgreement = Math.round(issues.reduce((s, i) => s + i.pct, 0) / issues.length)
   const remaining = totalRaces - racesDecided
 
   return (
     <div className="space-y-3">
+      {showAvatarModal && (
+        <AvatarUploadModal
+          onClose={() => setShowAvatarModal(false)}
+          onSuccess={(url) => updateProfile({ avatar_url: url ?? undefined } as any)}
+        />
+      )}
       {/* Card 1 — Profile */}
       <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#1F3A93] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-            {initials}
-          </div>
+          <button
+            onClick={() => setShowAvatarModal(true)}
+            className="relative flex-shrink-0 group"
+            title="Update profile photo"
+          >
+            <UserAvatar avatarUrl={profile?.avatar_url} displayName={profile?.display_name} size="lg" />
+            <span className="absolute bottom-0 right-0 w-4 h-4 bg-teal-600 rounded-full flex items-center justify-center border border-white opacity-90 group-hover:opacity-100">
+              <Camera className="w-2.5 h-2.5 text-white" />
+            </span>
+          </button>
           <div className="min-w-0">
             <p className="font-semibold text-foreground truncate">{profile?.display_name || "Neighbor"}</p>
             {profile?.location && (
@@ -108,7 +141,7 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
           <p className="text-4xl font-bold text-teal-600">{avgAgreement}%</p>
         </div>
         <div className="space-y-2">
-          {ISSUES.map(({ label, pct }) => {
+          {issues.map(({ label, pct }) => {
             const { bar, text } = issueColor(pct)
             return (
               <div key={label} className="space-y-0.5">
