@@ -1,33 +1,47 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createServiceClient } from "@/lib/supabase/service"
+import { createClient } from "@/lib/supabase/client"
+import { runIngest } from "@/lib/pipeline/ingest"
+import { runCluster } from "@/lib/pipeline/cluster"
 
 export const maxDuration = 120
 
-function isAuthorized(req: NextRequest) {
+async function isAdminRequest(req: NextRequest): Promise<boolean> {
+  // Option 1: CRON_SECRET bearer token (for cron jobs / curl)
   const secret = process.env.CRON_SECRET
-  if (!secret) return false
-  return req.headers.get("authorization") === `Bearer ${secret}`
+  if (secret && req.headers.get("authorization") === `Bearer ${secret}`) return true
+
+  // Option 2: valid Supabase admin session (for in-browser admin panel calls)
+  const accessToken = req.headers.get("x-supabase-token")
+  if (!accessToken) return false
+  try {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser(accessToken)
+    if (!user) return false
+    const svc = createServiceClient()
+    const { data: profile } = await svc
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single()
+    return profile?.is_admin === true
+  } catch {
+    return false
+  }
 }
 
-/** Manual trigger — runs ingest then cluster in sequence. Use during testing. */
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const authorized = await isAdminRequest(req)
+  if (!authorized) {
+    return NextResponse.json({ error: "Unauthorized — need admin session or CRON_SECRET" }, { status: 401 })
   }
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-  const headers = {
-    "content-type": "application/json",
-    authorization: `Bearer ${process.env.CRON_SECRET}`,
-  }
+  const svc = createServiceClient()
 
   // Step 1: Ingest
   let ingestResult: Record<string, unknown> = {}
   try {
-    const ingestRes = await fetch(`${base}/api/pipeline/ingest`, {
-      method: "POST",
-      headers,
-    })
-    ingestResult = await ingestRes.json()
+    ingestResult = await runIngest(svc)
   } catch (err) {
     return NextResponse.json({ error: `Ingest failed: ${err}` }, { status: 500 })
   }
@@ -37,11 +51,7 @@ export async function POST(req: NextRequest) {
 
   let clusterResult: Record<string, unknown> = {}
   try {
-    const clusterRes = await fetch(`${base}/api/pipeline/cluster`, {
-      method: "POST",
-      headers,
-    })
-    clusterResult = await clusterRes.json()
+    clusterResult = await runCluster(svc)
   } catch (err) {
     return NextResponse.json({
       error: `Cluster failed: ${err}`,

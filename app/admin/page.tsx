@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ShieldCheck, Users, FileText, MessageCircle, Trash2, RefreshCw } from "lucide-react"
+import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle } from "lucide-react"
 import { NewsNavigation } from "@/components/news-nav"
 import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/components/auth-context"
@@ -30,7 +30,13 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "users" | "posts"
+type Tab = "users" | "posts" | "pipeline"
+
+interface PipelineLog {
+  ts: string
+  type: "info" | "ok" | "error"
+  message: string
+}
 
 export default function AdminPage() {
   const { user, profile, loading: authLoading } = useAuth()
@@ -41,6 +47,8 @@ export default function AdminPage() {
   const [posts, setPosts] = useState<AdminPost[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [pipelineRunning, setPipelineRunning] = useState(false)
+  const [pipelineLogs, setPipelineLogs] = useState<PipelineLog[]>([])
 
   // Redirect non-admins
   useEffect(() => {
@@ -86,6 +94,49 @@ export default function AdminPage() {
     await supabase.from("posts").delete().eq("id", postId)
     setPosts((prev) => prev.filter((p) => p.id !== postId))
     setDeletingId(null)
+  }
+
+  async function runPipeline() {
+    setPipelineRunning(true)
+    setPipelineLogs([{ ts: new Date().toLocaleTimeString(), type: "info", message: "Starting pipeline…" }])
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error("No active session")
+
+      const res = await fetch("/api/pipeline/trigger", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-supabase-token": session.access_token,
+        },
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setPipelineLogs((prev) => [
+          ...prev,
+          { ts: new Date().toLocaleTimeString(), type: "error", message: data.error || "Pipeline failed" },
+        ])
+        return
+      }
+
+      const ingest = data.ingest || {}
+      const cluster = data.cluster || {}
+      setPipelineLogs((prev) => [
+        ...prev,
+        { ts: new Date().toLocaleTimeString(), type: "ok", message: `Ingest: fetched ${ingest.fetched ?? "?"}, inserted ${ingest.articles_inserted ?? "?"} articles` },
+        { ts: new Date().toLocaleTimeString(), type: "ok", message: `Cluster: created ${cluster.clusters_created ?? "?"} stories from ${cluster.articles_processed ?? "?"} articles` },
+        { ts: new Date().toLocaleTimeString(), type: "ok", message: "Pipeline complete ✓" },
+      ])
+    } catch (err) {
+      setPipelineLogs((prev) => [
+        ...prev,
+        { ts: new Date().toLocaleTimeString(), type: "error", message: String(err) },
+      ])
+    } finally {
+      setPipelineRunning(false)
+    }
   }
 
   async function toggleAdmin(targetUser: AdminUser) {
@@ -138,7 +189,7 @@ export default function AdminPage() {
 
           {/* Tab bar */}
           <div className="flex gap-1 mb-4 bg-white border border-border rounded-xl p-1 w-fit">
-            {(["users", "posts"] as Tab[]).map((t) => (
+            {(["users", "posts", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -223,6 +274,68 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               )}
+            </div>
+          )}
+
+          {/* Pipeline tab */}
+          {tab === "pipeline" && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl border border-border p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="font-bold text-foreground flex items-center gap-2">
+                      <Rss className="w-4 h-4 text-teal-600" />
+                      News Pipeline
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Fetches articles from GNews, clusters them with Claude, and updates the Spectrum page.
+                      Requires <code className="bg-muted px-1 rounded text-[10px]">GNEWS_API_KEY</code> and{" "}
+                      <code className="bg-muted px-1 rounded text-[10px]">ANTHROPIC_API_KEY</code> in Vercel.
+                    </p>
+                  </div>
+                  <button
+                    onClick={runPipeline}
+                    disabled={pipelineRunning}
+                    className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-xl hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${pipelineRunning ? "animate-spin" : ""}`} />
+                    {pipelineRunning ? "Running…" : "Run Pipeline"}
+                  </button>
+                </div>
+
+                {pipelineLogs.length > 0 && (
+                  <div className="mt-4 bg-[#0D1117] rounded-xl p-4 font-mono text-xs space-y-1.5">
+                    {pipelineLogs.map((log, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className="text-slate-500 flex-shrink-0">{log.ts}</span>
+                        {log.type === "ok" && <CheckCircle className="w-3.5 h-3.5 text-green-400 mt-0.5 flex-shrink-0" />}
+                        {log.type === "error" && <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />}
+                        {log.type === "info" && <span className="w-3.5 flex-shrink-0 text-slate-500">›</span>}
+                        <span className={
+                          log.type === "ok" ? "text-green-400" :
+                          log.type === "error" ? "text-red-400" :
+                          "text-slate-300"
+                        }>{log.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-2xl border border-border p-4 text-xs text-muted-foreground space-y-1">
+                <p className="font-semibold text-foreground text-sm mb-2">Required environment variables</p>
+                {[
+                  { name: "GNEWS_API_KEY", desc: "gnews.io — free tier sufficient for dev (100 req/day)" },
+                  { name: "ANTHROPIC_API_KEY", desc: "console.anthropic.com — used by Claude Haiku for clustering" },
+                  { name: "SUPABASE_SERVICE_ROLE_KEY", desc: "Supabase project settings → API → service_role key" },
+                  { name: "CRON_SECRET", desc: "Any random string — only needed for automated cron jobs" },
+                ].map(({ name, desc }) => (
+                  <div key={name} className="flex items-start gap-2">
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-foreground font-mono flex-shrink-0">{name}</code>
+                    <span>{desc}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
