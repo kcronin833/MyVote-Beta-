@@ -118,51 +118,53 @@ export async function getFactualNews(): Promise<NewsArticle[]> {
     .slice(0, 15);
 }
 
-// Georgia & Atlanta local news outlets
-const GEORGIA_LOCAL_DOMAINS =
-  "ajc.com,wsbtv.com,11alive.com,fox5atlanta.com,wabe.org,gpb.org,savannahnow.com,macon.com,augustachronicle.com,mdjonline.com,times-herald.com,Cherokee Tribune,gainesville.com,albanyherald.com,valdostadailytimes.com"
-
-// Fetch local Georgia political news — restricted to Georgia/Atlanta local outlets
+// Fetch local Georgia news via GNews API (NewsAPI free tier blocked in production)
 export async function getLocalNews(location: string = "Atlanta"): Promise<NewsArticle[]> {
-  const queries = [
-    "Georgia politics OR election OR legislature OR governor OR mayor OR \"city council\" OR \"state senate\" OR \"state house\" OR policy",
-    "Atlanta OR Georgia 2026 OR Ossoff OR \"Georgia primary\" OR \"Georgia General Assembly\"",
-  ];
-
-  // Try local domains first
-  const localResults = await Promise.all(
-    queries.map((q) => fetchEverythingFromDomains(q, GEORGIA_LOCAL_DOMAINS))
-  );
-
-  const seen = new Set<string>();
-  const combined: NewsArticle[] = [];
-  for (const articles of localResults) {
-    for (const article of articles) {
-      if (!seen.has(article.url)) {
-        seen.add(article.url);
-        combined.push(article);
-      }
-    }
+  const apiKey = process.env.GNEWS_API_KEY
+  if (!apiKey) {
+    console.error("[local-news] GNEWS_API_KEY not set")
+    return []
   }
 
-  // If still thin, try one more query against the same local domains only
-  if (combined.length < 5) {
-    const extra = await fetchEverythingFromDomains(
-      "Georgia vote OR legislature OR Atlanta OR Ossoff OR Kemp OR Georgia 2026",
-      GEORGIA_LOCAL_DOMAINS
-    );
-    for (const article of extra) {
-      if (!seen.has(article.url)) {
-        seen.add(article.url);
-        combined.push(article);
+  const cityQuery = location !== "Atlanta" ? `${location} Georgia` : "Atlanta Georgia"
+  const queries = [
+    `${cityQuery} politics OR election OR city council OR mayor OR government`,
+    `Georgia legislature OR governor OR "state senate" OR "state house" OR Kemp OR Ossoff 2026`,
+  ]
+
+  const seen = new Set<string>()
+  const combined: NewsArticle[] = []
+
+  for (const q of queries) {
+    try {
+      const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=us&max=10&apikey=${apiKey}`
+      const res = await fetch(url, { next: { revalidate: 1800 } })
+      if (!res.ok) {
+        console.error(`[local-news] GNews ${res.status}`)
+        continue
       }
+      const data = await res.json()
+      for (const a of data.articles || []) {
+        if (!a.url || seen.has(a.url)) continue
+        seen.add(a.url)
+        combined.push({
+          title: a.title || "",
+          description: a.description || "",
+          url: a.url,
+          source: a.source?.name || "Unknown",
+          publishedAt: a.publishedAt,
+          urlToImage: a.image || null,
+          content: a.content || null,
+        })
+      }
+    } catch (err) {
+      console.error("[local-news] fetch error:", err)
     }
   }
 
   return combined
-    .filter(isPoliticalArticle)
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, 15);
+    .slice(0, 15)
 }
 
 // Search news

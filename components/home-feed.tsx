@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -20,7 +21,6 @@ import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
 import { getFriendsComments, type FriendComment } from "@/lib/friends-service"
 import { CommentSystem } from "@/components/comment-system"
-import { AIFactualNews } from "@/components/ai-factual-news"
 import { PostComposer } from "@/components/post-composer"
 import { PostCard, type PostData } from "@/components/post-card"
 import { UserAvatar } from "@/components/user-avatar"
@@ -407,18 +407,109 @@ function LocalNewsSection({ city }: { city: string | null }) {
   )
 }
 
-// --- LEFT & RIGHT PERSPECTIVES SECTION ---
+interface PipelineStory {
+  id: string
+  headline: string
+  synopsis: string
+  lean_min: number
+  lean_max: number
+  created_at: string
+  article_data: {
+    id: string
+    title: string
+    url: string
+    image_url: string | null
+    source_name: string
+    lean: number
+    lean_label: string
+  }[]
+}
+
+function leanColor(lean: number) {
+  if (lean < 0) return "#1E88E5"
+  if (lean > 0) return "#E53935"
+  return "#78909C"
+}
+
+function leanBg(lean: number) {
+  if (lean < 0) return "bg-blue-100 text-blue-800"
+  if (lean > 0) return "bg-red-100 text-red-800"
+  return "bg-slate-100 text-slate-700"
+}
+
+function PipelineStoryCard({ story }: { story: PipelineStory }) {
+  const [imgError, setImgError] = useState(false)
+  const hero = story.article_data.find((a) => a.image_url)
+  const spread = story.lean_max - story.lean_min
+
+  return (
+    <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+      {hero?.image_url && !imgError && (
+        <div className="w-full aspect-[16/7] overflow-hidden bg-muted">
+          <img src={hero.image_url} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
+        </div>
+      )}
+      <div className="p-4 space-y-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {spread >= 4 && <Badge className="bg-teal-100 text-teal-800 border-teal-200 text-[10px]">Cross-spectrum</Badge>}
+          <span className="text-[10px] text-muted-foreground ml-auto">{formatNewsTime(story.created_at)}</span>
+        </div>
+        <h3 className="font-bold text-foreground leading-snug">{story.headline}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2">{story.synopsis}</p>
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {story.article_data.map((a) => (
+            <a
+              key={a.id}
+              href={a.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${leanBg(a.lean)}`}
+            >
+              {a.source_name}
+              <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// --- NATIONAL NEWS SECTION (pipeline stories) ---
 function PerspectivesSection() {
+  const [stories, setStories] = useState<PipelineStory[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/pipeline/stories?hours=48&limit=5")
+      .then((r) => r.json())
+      .then((d) => setStories(d.stories || []))
+      .catch(() => setStories([]))
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <section>
       <div className="flex items-center gap-2 mb-3">
         <Globe className="w-4 h-4 text-purple-600" />
-        <h2 className="text-sm font-semibold text-foreground">Left & right perspectives</h2>
-        <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-          National
-        </Badge>
+        <h2 className="text-sm font-semibold text-foreground">National news</h2>
+        <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">Cross-spectrum</Badge>
+        <Link href="/news/spectrum" className="ml-auto text-xs text-primary hover:underline">See all →</Link>
       </div>
-      <AIFactualNews />
+
+      {loading && <LoadingSkeleton count={3} />}
+
+      {!loading && stories.length === 0 && (
+        <div className="bg-white rounded-2xl border border-border p-6 text-center text-sm text-muted-foreground">
+          No national stories yet — check back after the daily pipeline runs.
+        </div>
+      )}
+
+      {!loading && stories.length > 0 && (
+        <div className="grid gap-3">
+          {stories.map((s) => <PipelineStoryCard key={s.id} story={s} />)}
+        </div>
+      )}
     </section>
   )
 }
