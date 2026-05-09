@@ -9,73 +9,76 @@ function isAuthorized(req: NextRequest) {
   return req.headers.get("authorization") === `Bearer ${secret}`
 }
 
-// Extracts a tag's text content, handling CDATA and nested tags
-function extractTag(xml: string, tag: string): string {
-  const cdataRe = new RegExp(`<${tag}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/${tag}>`, "i")
-  const m = xml.match(cdataRe)
-  if (m) return m[1].trim()
-  const plainRe = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i")
-  const m2 = xml.match(plainRe)
-  return m2 ? m2[1].replace(/<[^>]+>/g, "").trim() : ""
+const GNEWS_KEY = process.env.GNEWS_API_KEY
+const GNEWS_BASE = "https://gnews.io/api/v4"
+
+// Political topics — each counts as one API request against the daily quota.
+// Free tier = 100 req/day. Daily cron uses 3 requests/run = safe on free tier.
+// Upgrade to GNews Basic ($9/mo) to unlock hourly runs (100 articles/call).
+const TOPICS = ["nation", "politics", "world"]
+
+// Lean scores for outlets not yet in the sources table.
+// Scale: -3 (far left) to +3 (far right), matching our sources table.
+const FALLBACK_LEANS: Record<string, { lean: number; lean_label: string; name: string }> = {
+  "nytimes.com":         { lean: -1, lean_label: "Center Left",  name: "New York Times" },
+  "washingtonpost.com":  { lean: -1, lean_label: "Center Left",  name: "Washington Post" },
+  "cnn.com":             { lean: -1, lean_label: "Center Left",  name: "CNN" },
+  "abcnews.go.com":      { lean: -1, lean_label: "Center Left",  name: "ABC News" },
+  "cbsnews.com":         { lean: -1, lean_label: "Center Left",  name: "CBS News" },
+  "nbcnews.com":         { lean: -1, lean_label: "Center Left",  name: "NBC News" },
+  "pbs.org":             { lean: -1, lean_label: "Center Left",  name: "PBS NewsHour" },
+  "theatlantic.com":     { lean: -2, lean_label: "Left",         name: "The Atlantic" },
+  "vox.com":             { lean: -2, lean_label: "Left",         name: "Vox" },
+  "slate.com":           { lean: -2, lean_label: "Left",         name: "Slate" },
+  "motherjones.com":     { lean: -3, lean_label: "Far Left",     name: "Mother Jones" },
+  "politico.com":        { lean:  0, lean_label: "Center",       name: "Politico" },
+  "bbc.com":             { lean:  0, lean_label: "Center",       name: "BBC News" },
+  "axios.com":           { lean:  0, lean_label: "Center",       name: "Axios" },
+  "bloomberg.com":       { lean:  0, lean_label: "Center",       name: "Bloomberg" },
+  "usatoday.com":        { lean:  0, lean_label: "Center",       name: "USA Today" },
+  "newsweek.com":        { lean:  0, lean_label: "Center",       name: "Newsweek" },
+  "theweek.com":         { lean:  0, lean_label: "Center",       name: "The Week" },
+  "time.com":            { lean: -1, lean_label: "Center Left",  name: "Time" },
+  "forbes.com":          { lean:  1, lean_label: "Center Right", name: "Forbes" },
+  "wsj.com":             { lean:  1, lean_label: "Center Right", name: "Wall Street Journal" },
+  "nypost.com":          { lean:  2, lean_label: "Right",        name: "New York Post" },
+  "reason.com":          { lean:  1, lean_label: "Center Right", name: "Reason" },
+  "dailycaller.com":     { lean:  2, lean_label: "Right",        name: "Daily Caller" },
+  "theepochtimes.com":   { lean:  3, lean_label: "Far Right",    name: "Epoch Times" },
+  "thefederalist.com":   { lean:  3, lean_label: "Far Right",    name: "The Federalist" },
 }
 
-function extractAttr(xml: string, tag: string, attr: string): string {
-  const re = new RegExp(`<${tag}[^>]*\\s${attr}="([^"]*)"`, "i")
-  const m = xml.match(re)
-  return m ? m[1] : ""
-}
+// Fallback source ID for domains not in DB and not in FALLBACK_LEANS
+const UNKNOWN_SOURCE_ID = "fb736fd8-12f5-4af4-8dfe-9e550de4b340"
 
-function extractImageUrl(item: string): string | null {
-  return (
-    extractAttr(item, "media:content", "url") ||
-    extractAttr(item, "media:thumbnail", "url") ||
-    extractAttr(item, "enclosure", "url") ||
-    null
-  )
-}
-
-interface RSSItem {
-  title: string
-  description: string
-  url: string
-  imageUrl: string | null
-  publishedAt: string | null
-}
-
-function parseRSS(xml: string): RSSItem[] {
-  const items: RSSItem[] = []
-  const itemRe = /<item[^>]*>([\s\S]*?)<\/item>/gi
-  let match
-  while ((match = itemRe.exec(xml)) !== null) {
-    const raw = match[1]
-    const title = extractTag(raw, "title")
-    const description = extractTag(raw, "description")
-    const link = extractTag(raw, "link") || extractTag(raw, "guid")
-    const pubDate = extractTag(raw, "pubDate") || extractTag(raw, "dc:date")
-    const imageUrl = extractImageUrl(raw)
-    if (title && link && link.startsWith("http")) {
-      items.push({
-        title: title.slice(0, 500),
-        description: description.slice(0, 1000),
-        url: link,
-        imageUrl: imageUrl ? imageUrl.slice(0, 500) : null,
-        publishedAt: pubDate ? new Date(pubDate).toISOString() : null,
-      })
-    }
-  }
-  return items
-}
-
-async function fetchRSS(url: string): Promise<RSSItem[]> {
+function extractDomain(url: string): string {
   try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "MyVote-Bot/1.0 (news aggregator)" },
-      signal: AbortSignal.timeout(12000),
-    })
-    if (!res.ok) return []
-    const xml = await res.text()
-    return parseRSS(xml)
+    return new URL(url).hostname.replace(/^www\./, "")
   } catch {
+    return ""
+  }
+}
+
+interface GNewsArticle {
+  title: string
+  description: string | null
+  content: string | null
+  url: string
+  publishedAt: string
+  source: { name: string; url: string }
+}
+
+async function fetchGNews(endpoint: string): Promise<GNewsArticle[]> {
+  try {
+    const res = await fetch(endpoint, { signal: AbortSignal.timeout(15000) })
+    if (!res.ok) {
+      console.error(`[ingest] GNews ${res.status}: ${await res.text()}`)
+      return []
+    }
+    const data = await res.json()
+    return data.articles || []
+  } catch (err) {
+    console.error("[ingest] GNews fetch error:", err)
     return []
   }
 }
@@ -85,53 +88,114 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const supabase = createServiceClient()
-
-  // Fetch all active sources
-  const { data: sources, error: srcErr } = await supabase
-    .from("sources")
-    .select("id, name, rss_url, lean, lean_label")
-    .eq("active", true)
-
-  if (srcErr || !sources) {
-    return NextResponse.json({ error: "Failed to fetch sources" }, { status: 500 })
+  if (!GNEWS_KEY) {
+    return NextResponse.json({ error: "GNEWS_API_KEY not set" }, { status: 500 })
   }
 
-  // Fetch all RSS feeds in parallel
-  const feedResults = await Promise.all(
-    sources.map(async (src) => {
-      const items = await fetchRSS(src.rss_url)
-      return { source: src, items }
-    })
+  const supabase = createServiceClient()
+
+  // Load all sources indexed by domain for O(1) lookup
+  const { data: sourceRows } = await supabase
+    .from("sources")
+    .select("id, domain, lean, lean_label, name")
+
+  // domain → source row (mutable — we add new sources during this run)
+  const sourceMap = new Map(
+    (sourceRows || []).map((s) => [s.domain, s])
   )
 
-  // Build rows, deduplicating on URL across all feeds
-  const seen = new Set<string>()
-  const rows: Array<{
-    source_id: string
-    title: string
-    description: string
-    url: string
-    image_url: string | null
-    published_at: string | null
-  }> = []
+  // Fetch GNews: top headlines + political topic feeds
+  const params = `lang=en&country=us&max=10&apikey=${GNEWS_KEY}`
+  const feeds = [
+    `${GNEWS_BASE}/top-headlines?${params}`,
+    ...TOPICS.map((t) => `${GNEWS_BASE}/top-headlines?topic=${t}&${params}`),
+  ]
 
-  for (const { source, items } of feedResults) {
-    for (const item of items) {
-      if (seen.has(item.url)) continue
-      seen.add(item.url)
-      rows.push({
-        source_id: source.id,
-        title: item.title,
-        description: item.description,
-        url: item.url,
-        image_url: item.imageUrl,
-        published_at: item.publishedAt,
-      })
+  const allArticles: GNewsArticle[] = []
+  for (const url of feeds) {
+    const articles = await fetchGNews(url)
+    allArticles.push(...articles)
+    // Small delay between requests to stay within rate limits
+    if (feeds.indexOf(url) < feeds.length - 1) {
+      await new Promise((r) => setTimeout(r, 300))
     }
   }
 
-  // Upsert in batches of 100 (ignore conflicts on URL)
+  if (allArticles.length === 0) {
+    return NextResponse.json({ error: "GNews returned no articles" }, { status: 500 })
+  }
+
+  // Deduplicate by URL
+  const seen = new Set<string>()
+  const unique = allArticles.filter((a) => {
+    if (!a.url || seen.has(a.url)) return false
+    seen.add(a.url)
+    return true
+  })
+
+  // For each article, resolve source_id — upsert unknown sources into DB
+  const newSourcesToInsert: Array<{ name: string; domain: string; lean: number; lean_label: string }> = []
+  const domainToNewSource = new Map<string, (typeof newSourcesToInsert)[0]>()
+
+  for (const article of unique) {
+    const domain = extractDomain(article.url)
+    if (!domain || sourceMap.has(domain)) continue
+
+    // Already queued for insert this run?
+    if (domainToNewSource.has(domain)) continue
+
+    const fallback = FALLBACK_LEANS[domain]
+    if (fallback) {
+      const row = { name: fallback.name, domain, lean: fallback.lean, lean_label: fallback.lean_label }
+      newSourcesToInsert.push(row)
+      domainToNewSource.set(domain, row)
+    }
+    // Truly unknown domains get UNKNOWN_SOURCE_ID — no insert needed
+  }
+
+  // Batch-upsert new sources
+  if (newSourcesToInsert.length > 0) {
+    const { data: inserted } = await supabase
+      .from("sources")
+      .upsert(newSourcesToInsert, { onConflict: "domain", ignoreDuplicates: true })
+      .select("id, domain, lean, lean_label, name")
+
+    for (const src of inserted || []) {
+      sourceMap.set(src.domain, src)
+    }
+  }
+
+  // Build raw_articles rows
+  const rows: Array<{
+    source_id: string
+    title: string
+    description: string | null
+    url: string
+    image_url: null
+    published_at: string
+  }> = []
+
+  for (const article of unique) {
+    if (!article.title || !article.url) continue
+    const domain = extractDomain(article.url)
+    const source = sourceMap.get(domain)
+    const sourceId = source?.id ?? UNKNOWN_SOURCE_ID
+
+    const description = (article.description || article.content || "").slice(0, 1000) || null
+
+    rows.push({
+      source_id: sourceId,
+      title: article.title.slice(0, 500),
+      description,
+      url: article.url,
+      image_url: null,
+      published_at: article.publishedAt
+        ? new Date(article.publishedAt).toISOString()
+        : new Date().toISOString(),
+    })
+  }
+
+  // Upsert in batches of 100, ignore duplicate URLs
   let inserted = 0
   for (let i = 0; i < rows.length; i += 100) {
     const batch = rows.slice(i, i + 100)
@@ -143,14 +207,15 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    sources: sources.length,
-    articles_fetched: rows.length,
+    fetched: allArticles.length,
+    deduped: unique.length,
     articles_inserted: inserted,
+    new_sources: newSourcesToInsert.length,
     timestamp: new Date().toISOString(),
   })
 }
 
-// Allow Vercel cron (GET) to hit this route
+// Vercel cron hits GET
 export async function GET(req: NextRequest) {
   return POST(req)
 }
