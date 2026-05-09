@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { UserAvatar } from "@/components/user-avatar"
 import { AvatarUploadModal } from "@/components/avatar-upload-modal"
 import { SuggestedNeighbors } from "@/components/suggested-neighbors"
+import { PoliticianMatch } from "@/components/politician-match"
 import { createClient } from "@/lib/supabase/client"
 
 // Question IDs → issue label in the sidebar
@@ -228,7 +229,10 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
         )}
       </div>
 
-      {/* Card 3 — Suggested Neighbors */}
+      {/* Card 3 — Politician Match */}
+      <PoliticianMatch />
+
+      {/* Card 4 — Suggested Neighbors */}
       <div className="bg-white rounded-2xl border border-border p-4">
         <SuggestedNeighbors limit={3} showHeader showSeeAll />
       </div>
