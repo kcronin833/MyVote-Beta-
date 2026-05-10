@@ -5,11 +5,12 @@ interface LogoProps {
   className?: string
 }
 
+// All sizes maintain the 3:2 aspect ratio of the actual logo PNG (1536×1024)
 const sizeMap = {
-  sm: { w: 90,  h: 36  },
-  md: { w: 130, h: 52  },
-  lg: { w: 160, h: 64  },
-  xl: { w: 260, h: 104 },
+  sm: { w: 96,  h: 64  },
+  md: { w: 135, h: 90  },
+  lg: { w: 165, h: 110 },
+  xl: { w: 390, h: 260 },
 }
 
 export function Logo({ size = "md", className = "" }: LogoProps) {
@@ -27,16 +28,10 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
 }
 
 export function LogoIcon({ size = "md", className = "" }: LogoProps) {
-  const iconMap = {
-    sm: { w: 32, h: 32 },
-    md: { w: 40, h: 40 },
-    lg: { w: 48, h: 48 },
-    xl: { w: 64, h: 64 },
-  }
-  const { w, h } = iconMap[size]
+  const { w, h } = sizeMap[size]
   return (
     <Image
-      src="/logo-icon.png"
+      src="/logo.png"
       alt="MyVote"
       width={w}
       height={h}
