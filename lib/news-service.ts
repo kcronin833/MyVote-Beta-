@@ -15,6 +15,14 @@ const BASE_URL = "https://newsapi.org/v2"
 const ALLOWED_SOURCE_IDS =
   "associated-press,reuters,politico,the-hill,axios,npr,pbs-newshour"
 
+// Left-leaning source IDs available on NewsAPI free plan
+const LEFT_SOURCE_IDS =
+  "cnn,msnbc,the-huffington-post,nbc-news,the-washington-post,the-new-york-times,abc-news"
+
+// Right-leaning source IDs available on NewsAPI free plan
+const RIGHT_SOURCE_IDS =
+  "fox-news,national-review,the-washington-examiner,the-wall-street-journal,breitbart-news"
+
 // Canonical source names returned by NewsAPI for the allowlisted outlets.
 // WSJ, NYT, and AJC are fetched via domains rather than source IDs.
 const ALLOWED_SOURCE_NAMES = new Set([
@@ -468,83 +476,128 @@ export function buildOverview(
   return [base, coverage].filter(Boolean).join(" ")
 }
 
+// ─── National news RSS sources (no API key, no rate limit) ──────────────────
+
+// Classify an outlet's political lean by name
+function getOutletLean(sourceName: string): "left" | "center" | "right" {
+  const n = sourceName.toLowerCase()
+  if (/\b(cnn|msnbc|huffpost|huffington|guardian|vox|slate|salon|daily beast|mother jones|the nation|intercept|democracy now|talking points memo)\b/.test(n)) return "left"
+  if (/\b(fox news|foxnews|daily wire|breitbart|washington examiner|national review|new york post|daily caller|federalist|newsmax|oann|western journal|epoch times)\b/.test(n)) return "right"
+  return "center"
+}
+
+// Center/neutral outlets — these are the "headline" stories shown as cards
+const NATIONAL_CENTER_RSS: { name: string; urls: string[] }[] = [
+  { name: "Associated Press", urls: ["https://feeds.apnews.com/apnews/topnews", "https://apnews.com/hub/ap-top-news?format=rss"] },
+  { name: "NPR", urls: ["https://feeds.npr.org/1001/rss.xml"] },
+  { name: "PBS NewsHour", urls: ["https://www.pbs.org/newshour/feeds/rss/headlines"] },
+  { name: "The Hill", urls: ["https://thehill.com/homenews/feed/", "https://thehill.com/feed/"] },
+  { name: "Politico", urls: ["https://www.politico.com/rss/politicopicks.xml", "https://www.politico.com/rss/congress.xml"] },
+  { name: "Axios", urls: ["https://api.axios.com/feed/"] },
+  { name: "Reuters", urls: ["https://feeds.reuters.com/reuters/topNews", "https://www.reutersagency.com/feed/?priority=top-news&format=rss"] },
+]
+
+// Left-leaning outlets — used for perspective matching
+const NATIONAL_LEFT_RSS: { name: string; urls: string[] }[] = [
+  { name: "CNN", urls: ["https://rss.cnn.com/rss/edition.rss", "https://rss.cnn.com/rss/cnn_allpolitics.rss"] },
+  { name: "The Guardian", urls: ["https://www.theguardian.com/us/rss", "https://www.theguardian.com/world/rss"] },
+  { name: "HuffPost", urls: ["https://www.huffpost.com/section/front-page/feed"] },
+  { name: "MSNBC", urls: ["https://www.msnbc.com/feeds/latest"] },
+]
+
+// Right-leaning outlets — used for perspective matching
+const NATIONAL_RIGHT_RSS: { name: string; urls: string[] }[] = [
+  { name: "Fox News", urls: ["https://moxie.foxnews.com/google-publisher/politics.xml", "https://feeds.foxnews.com/foxnews/politics"] },
+  { name: "Washington Examiner", urls: ["https://www.washingtonexaminer.com/section/politics/feed", "https://www.washingtonexaminer.com/feed"] },
+  { name: "Breitbart", urls: ["https://feeds.feedburner.com/breitbart", "https://www.breitbart.com/feed/"] },
+  { name: "Daily Caller", urls: ["https://dailycaller.com/feed/"] },
+]
+
+async function fetchNationalRssPool(
+  sources: { name: string; urls: string[] }[]
+): Promise<NewsArticle[]> {
+  const results = await Promise.allSettled(
+    sources.map(({ name, urls }) => fetchOneRss(name, urls))
+  )
+  const all: NewsArticle[] = []
+  for (const r of results) {
+    if (r.status === "fulfilled") all.push(...r.value)
+  }
+  return all
+}
+
 export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
-  // Fetch from multiple political queries in parallel to get a good pool
-  const [generalHeadlines, politicalSearch] = await Promise.all([
-    fetchTopHeadlines("us", "politics"),
-    fetchEverything("US Congress OR White House OR legislation OR Supreme Court OR election OR Georgia politics"),
+  // Fetch all three RSS pools in parallel — no API key, no rate limit
+  const [centerRaw, leftRaw, rightRaw] = await Promise.all([
+    fetchNationalRssPool(NATIONAL_CENTER_RSS),
+    fetchNationalRssPool(NATIONAL_LEFT_RSS),
+    fetchNationalRssPool(NATIONAL_RIGHT_RSS),
   ])
 
-  // Combine & deduplicate
-  const seen = new Set<string>()
-  const allArticles: NewsArticle[] = []
-  for (const article of [...generalHeadlines, ...politicalSearch]) {
-    if (!seen.has(article.url)) {
-      seen.add(article.url)
-      allArticles.push(article)
-    }
+  // Deduplicate center pool by URL + title fingerprint, filter junk
+  const seenUrl = new Set<string>()
+  const seenFp = new Set<string>()
+  const centerArticles: NewsArticle[] = []
+  for (const a of centerRaw) {
+    if (!a.title || !a.url) continue
+    const fp = titleFingerprint(a.title)
+    if (seenUrl.has(a.url) || seenFp.has(fp)) continue
+    if (isBlocklisted(a)) continue
+    seenUrl.add(a.url)
+    seenFp.add(fp)
+    centerArticles.push(a)
   }
 
-  // Filter to ONLY US political articles
-  const politicalHeadlines = allArticles.filter((a) => isPoliticalArticle(a) && isAmericanNews(a))
+  // Sort by recency, take top 12 center stories
+  centerArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+  const topHeadlines = centerArticles.slice(0, 12)
 
-  if (politicalHeadlines.length === 0) return []
+  if (topHeadlines.length === 0) return []
 
-  // Sort by most recent first
-  politicalHeadlines.sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  )
+  // For each center story, find related left/right articles by keyword overlap
+  return topHeadlines.map((headline) => {
+    const keywords = buildSearchQuery(headline.title)
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(w => w.length > 3)
 
-  // Take top 6 political headlines
-  const topHeadlines = politicalHeadlines.slice(0, 6)
+    const matchLeft = leftRaw
+      .filter(a => !isBlocklisted(a) && keywords.some(kw => `${a.title} ${a.description}`.toLowerCase().includes(kw)))
+      .slice(0, 3)
+    const matchRight = rightRaw
+      .filter(a => !isBlocklisted(a) && keywords.some(kw => `${a.title} ${a.description}`.toLowerCase().includes(kw)))
+      .slice(0, 3)
 
-  // For each headline, fetch directly-related articles from left and right sources
-  const results = await Promise.all(
-    topHeadlines.map(async (headline) => {
-      const query = buildSearchQuery(headline.title)
-      if (!query || query.split(" ").length < 2) return null
-
-      const [leftArticles, rightArticles] = await Promise.all([
-        fetchEverythingFromDomains(query, LEFT_DOMAINS),
-        fetchEverythingFromDomains(query, RIGHT_DOMAINS),
-      ])
-
-      const trimmedLeft = leftArticles.slice(0, 5)
-      const trimmedRight = rightArticles.slice(0, 5)
-
-      return {
+    return {
+      title: headline.title,
+      description: headline.description,
+      source: headline.source,
+      publishedAt: headline.publishedAt,
+      url: headline.url,
+      urlToImage: headline.urlToImage,
+      category: "political",
+      aiOverview: "",
+      controversyScore: calculateControversyScore({
         title: headline.title,
         description: headline.description,
-        source: headline.source,
-        publishedAt: headline.publishedAt,
-        url: headline.url,
-        urlToImage: headline.urlToImage,
-        category: "political",
-        aiOverview: "",
-        controversyScore: calculateControversyScore({
-          title: headline.title,
-          description: headline.description,
-          leftArticles: trimmedLeft,
-          rightArticles: trimmedRight,
-        }),
-        leftArticles: trimmedLeft,
-        rightArticles: trimmedRight,
-      }
-    })
-  )
-
-  return results.filter(Boolean) as FactualNewsWithPerspectives[]
+        leftArticles: matchLeft,
+        rightArticles: matchRight,
+      }),
+      leftArticles: matchLeft,
+      rightArticles: matchRight,
+    }
+  })
 }
 
 // ---- Internal helpers ----
 
-async function fetchTopHeadlines(
-  _country = "us",
-  _category = "politics"
-): Promise<NewsArticle[]> {
-  // Use sources= instead of country+category — NewsAPI disallows mixing them.
-  // This locks the pool to the allowlisted US political outlets.
-  const url = `${BASE_URL}/top-headlines?sources=${ALLOWED_SOURCE_IDS}&q=politics+OR+policy+OR+government+OR+election+OR+Congress&pageSize=15&apiKey=${getApiKey()}`
+async function fetchTopHeadlines(): Promise<NewsArticle[]> {
+  const url = `${BASE_URL}/top-headlines?sources=${ALLOWED_SOURCE_IDS}&pageSize=30&apiKey=${getApiKey()}`
+  return fetchAndParse(url)
+}
+
+async function fetchFromSourceIds(sourceIds: string, pageSize = 20): Promise<NewsArticle[]> {
+  const url = `${BASE_URL}/everything?sources=${sourceIds}&sortBy=publishedAt&language=en&pageSize=${pageSize}&apiKey=${getApiKey()}`
   return fetchAndParse(url)
 }
 
