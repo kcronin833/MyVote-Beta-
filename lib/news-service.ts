@@ -118,53 +118,235 @@ export async function getFactualNews(): Promise<NewsArticle[]> {
     .slice(0, 15);
 }
 
-// Fetch local Georgia news via GNews API (NewsAPI free tier blocked in production)
+// ─── Atlanta local news ───────────────────────────────────────────────────────
+// Two-layer strategy:
+//   1. RSS feeds pulled directly from each outlet — widest topic variety
+//   2. Topic-bucketed GNews queries — guaranteed coverage across civic areas
+// Results are merged, deduplicated by URL AND title fingerprint, sports/fluff filtered.
+
+// Direct RSS feeds — WordPress sites are most reliable; TV stations vary
+const ATLANTA_RSS_SOURCES: { name: string; urls: string[] }[] = [
+  {
+    name: "AJC",
+    urls: [
+      "https://www.ajc.com/news/?outputType=rss",
+      "https://www.ajc.com/news/georgia/?outputType=rss",
+      "https://www.ajc.com/news/local/?outputType=rss",
+    ],
+  },
+  {
+    name: "WSB-TV",
+    urls: [
+      "https://www.wsbtv.com/rss/section/news",
+      "https://www.wsbtv.com/rss/",
+    ],
+  },
+  {
+    name: "11Alive",
+    urls: ["https://www.11alive.com/feeds/rss/news/home"],
+  },
+  {
+    name: "The Atlanta Voice",
+    urls: ["https://theatlantavoice.com/feed/"],
+  },
+  {
+    name: "Saporta Report",
+    urls: ["https://saportareport.com/feed/"],
+  },
+  {
+    name: "Decaturish",
+    urls: ["https://decaturish.com/feed/"],
+  },
+  {
+    name: "CBS46",
+    urls: [
+      "https://www.cbs46.com/rss/section/news",
+      "https://www.cbs46.com/arcio/rss/",
+    ],
+  },
+]
+
+// Topic-bucketed GNews queries — run in parallel, one topic per bucket
+// so diverse subjects are always represented even if RSS is sparse
+const ATLANTA_GNEWS_BUCKETS = [
+  `"Atlanta" (mayor OR "city council" OR "city hall" OR zoning OR "city budget")`,
+  `"Atlanta" Georgia (crime OR police OR shooting OR arrest OR fire OR emergency)`,
+  `Georgia (school board OR "public schools" OR education OR teacher OR superintendent)`,
+  `"Atlanta" (hospital OR "public health" OR Medicaid OR healthcare OR "mental health")`,
+  `"Atlanta" (MARTA OR transit OR traffic OR road OR highway OR airport OR infrastructure)`,
+  `"Atlanta" (housing OR homeless OR "affordable housing" OR rent OR development OR zoning)`,
+  `"Atlanta" Georgia (jobs OR "economic development" OR business OR unemployment OR economy)`,
+  `Georgia (governor OR legislature OR "state senate" OR "state house" OR Kemp OR "2026 election")`,
+]
+
+// Strip sports, entertainment and lifestyle fluff — keep civic content
+const LOCAL_JUNK = /\b(NFL|NBA|MLB|NHL|MLS|WNBA|NASCAR|PGA|ATP|WTA|Falcons|Braves|Hawks|Atlanta United|Gwinnett Stripers|football game|football score|basketball game|baseball game|soccer match|soccer score|tennis match|golf tournament|boxing|MMA|UFC|WWE|Olympics|gymnastics|swim meet|draft pick|trade rumor|box score|game recap|standings|fashion week|style tips|beauty tips|makeup|skincare|celebrity|Hollywood|movie review|film review|TV recap|album review|concert review|restaurant review|food review|recipe|horoscope|zodiac|lottery results|crossword|photo gallery)\b/i
+
+// ── RSS helpers ───────────────────────────────────────────────────────────────
+
+function extractRssText(xml: string, tag: string): string {
+  const cdata = xml.match(new RegExp(`<${tag}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>`, "i"))
+  if (cdata) return cdata[1].trim()
+  const plain = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i"))
+  return plain ? plain[1].trim() : ""
+}
+
+function cleanRssHtml(text: string): string {
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&nbsp;/g, " ").replace(/&#039;|&apos;/g, "'")
+    .replace(/\s+/g, " ").trim()
+}
+
+function parseRssItems(xml: string, sourceName: string): NewsArticle[] {
+  const items: NewsArticle[] = []
+  const itemRegex = /<item>([\s\S]*?)<\/item>/gi
+  let m: RegExpExecArray | null
+  while ((m = itemRegex.exec(xml)) !== null) {
+    const raw = m[1]
+    const title = cleanRssHtml(extractRssText(raw, "title"))
+    const link =
+      extractRssText(raw, "link") ||
+      raw.match(/<link[^>]+href="([^"]+)"/)?.[1] ||
+      extractRssText(raw, "guid")
+    if (!title || !link || title === "[Removed]") continue
+    const description = cleanRssHtml(extractRssText(raw, "description") || extractRssText(raw, "summary"))
+    const pubDate = extractRssText(raw, "pubDate") || extractRssText(raw, "published") || extractRssText(raw, "dc:date")
+    const urlToImage =
+      raw.match(/<enclosure[^>]+url="([^"]+)"/)?.[1] ||
+      raw.match(/<media:content[^>]+url="([^"]+)"/)?.[1] ||
+      raw.match(/<media:thumbnail[^>]+url="([^"]+)"/)?.[1] ||
+      null
+    let publishedAt = new Date().toISOString()
+    if (pubDate) { const d = new Date(pubDate); if (!isNaN(d.getTime())) publishedAt = d.toISOString() }
+    items.push({ title, description: description.substring(0, 400), url: link.trim(), source: sourceName, publishedAt, urlToImage, content: null })
+  }
+  return items
+}
+
+async function fetchOneRss(name: string, urls: string[]): Promise<NewsArticle[]> {
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "MyVote/1.0 (news aggregator)" },
+        next: { revalidate: 3600 },
+      })
+      if (!res.ok) continue
+      const xml = await res.text()
+      const items = parseRssItems(xml, name)
+      if (items.length > 0) return items
+    } catch { /* try next URL */ }
+  }
+  console.warn(`[local-rss] ${name}: all URLs failed`)
+  return []
+}
+
+async function fetchAtlantaRss(): Promise<NewsArticle[]> {
+  const results = await Promise.allSettled(
+    ATLANTA_RSS_SOURCES.map(({ name, urls }) => fetchOneRss(name, urls))
+  )
+  const all: NewsArticle[] = []
+  for (const r of results) {
+    if (r.status === "fulfilled") all.push(...r.value)
+  }
+  return all
+}
+
+// ── GNews topic-bucket helper ─────────────────────────────────────────────────
+
+async function fetchAtlantaGNewsBuckets(apiKey: string): Promise<NewsArticle[]> {
+  const results = await Promise.allSettled(
+    ATLANTA_GNEWS_BUCKETS.map(async (q) => {
+      const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=us&max=5&apikey=${apiKey}`
+      const res = await fetch(url, { next: { revalidate: 3600 } })
+      if (!res.ok) return [] as NewsArticle[]
+      const data = await res.json()
+      return ((data.articles || []) as any[]).map((a: any) => ({
+        title: a.title || "",
+        description: a.description || "",
+        url: a.url,
+        source: a.source?.name || "Unknown",
+        publishedAt: a.publishedAt,
+        urlToImage: a.image || null,
+        content: null,
+      }))
+    })
+  )
+  const all: NewsArticle[] = []
+  for (const r of results) {
+    if (r.status === "fulfilled") all.push(...r.value)
+  }
+  return all
+}
+
+// ── Title fingerprint deduplication ──────────────────────────────────────────
+// Strips punctuation/stopwords and keeps first 8 words as a fingerprint so
+// the same story from AJC and WSB-TV only appears once.
+const TITLE_STOP = new Set(["the", "a", "an", "and", "or", "of", "in", "to", "is", "are", "was", "were", "for", "on", "at", "by", "with"])
+function titleFingerprint(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !TITLE_STOP.has(w))
+    .slice(0, 8)
+    .join(" ")
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
+
 export async function getLocalNews(location: string = "Atlanta"): Promise<NewsArticle[]> {
   const apiKey = process.env.GNEWS_API_KEY
-  if (!apiKey) {
-    console.error("[local-news] GNEWS_API_KEY not set")
-    return []
+
+  const isAtlanta = !location || location === "Atlanta"
+
+  // Fetch both layers in parallel for Atlanta
+  const [rssArticles, gnewsArticles] = await Promise.all([
+    isAtlanta ? fetchAtlantaRss().catch(() => [] as NewsArticle[]) : Promise.resolve([] as NewsArticle[]),
+    apiKey
+      ? (isAtlanta
+          ? fetchAtlantaGNewsBuckets(apiKey).catch(() => [] as NewsArticle[])
+          : (async () => {
+              const q = `"${location}" Georgia (government OR crime OR education OR health OR housing OR transit OR business)`
+              try {
+                const res = await fetch(
+                  `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=us&max=25&apikey=${apiKey}`,
+                  { next: { revalidate: 3600 } }
+                )
+                if (!res.ok) return [] as NewsArticle[]
+                const data = await res.json()
+                return ((data.articles || []) as any[]).map((a: any) => ({
+                  title: a.title || "", description: a.description || "", url: a.url,
+                  source: a.source?.name || "Unknown", publishedAt: a.publishedAt,
+                  urlToImage: a.image || null, content: null,
+                }))
+              } catch { return [] as NewsArticle[] }
+            })()
+        )
+      : Promise.resolve([] as NewsArticle[]),
+  ])
+
+  // Merge: RSS first (real outlet breadth), then GNews buckets (topic fill)
+  const seenUrl = new Set<string>()
+  const seenTitle = new Set<string>()
+  const merged: NewsArticle[] = []
+
+  for (const article of [...rssArticles, ...gnewsArticles]) {
+    if (!article.url || !article.title) continue
+    if (seenUrl.has(article.url)) continue
+    const fp = titleFingerprint(article.title)
+    if (fp && seenTitle.has(fp)) continue
+    const text = `${article.title} ${article.description}`
+    if (LOCAL_JUNK.test(text)) continue
+    seenUrl.add(article.url)
+    if (fp) seenTitle.add(fp)
+    merged.push(article)
   }
 
-  const cityQuery = location !== "Atlanta" ? `${location} Georgia` : "Atlanta Georgia"
-  const queries = [
-    `${cityQuery} politics OR election OR city council OR mayor OR government`,
-    `Georgia legislature OR governor OR "state senate" OR "state house" OR Kemp OR Ossoff 2026`,
-  ]
-
-  const seen = new Set<string>()
-  const combined: NewsArticle[] = []
-
-  for (const q of queries) {
-    try {
-      const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=us&max=10&apikey=${apiKey}`
-      const res = await fetch(url, { next: { revalidate: 1800 } })
-      if (!res.ok) {
-        console.error(`[local-news] GNews ${res.status}`)
-        continue
-      }
-      const data = await res.json()
-      for (const a of data.articles || []) {
-        if (!a.url || seen.has(a.url)) continue
-        seen.add(a.url)
-        combined.push({
-          title: a.title || "",
-          description: a.description || "",
-          url: a.url,
-          source: a.source?.name || "Unknown",
-          publishedAt: a.publishedAt,
-          urlToImage: a.image || null,
-          content: a.content || null,
-        })
-      }
-    } catch (err) {
-      console.error("[local-news] fetch error:", err)
-    }
-  }
-
-  return combined
+  return merged
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, 15)
+    .slice(0, 40)
 }
 
 // Search news

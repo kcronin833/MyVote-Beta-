@@ -1,22 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  Clock,
-  RefreshCw,
-  Sparkles,
-  Loader2,
-  ExternalLink,
-  MessageCircle,
-  ChevronDown,
-  ChevronUp,
-  ThumbsUp,
-  Flame,
-  AlertCircle,
-  HelpCircle,
-} from "lucide-react"
+import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, ThumbsUp, Flame, Zap, CheckCircle, Loader2 } from "lucide-react"
 import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
@@ -38,134 +23,95 @@ interface FactualNewsItem {
 
 type Reaction = "important" | "outraged" | "surprising" | "factual"
 
-const REACTIONS: { key: Reaction; icon: React.ReactNode; label: string; activeClass: string }[] = [
-  { key: "important", icon: <ThumbsUp className="w-3.5 h-3.5" />, label: "Important", activeClass: "bg-blue-100 text-blue-700 border-blue-300" },
-  { key: "outraged", icon: <Flame className="w-3.5 h-3.5" />, label: "Outraged", activeClass: "bg-red-100 text-red-700 border-red-300" },
-  { key: "surprising", icon: <HelpCircle className="w-3.5 h-3.5" />, label: "Surprising", activeClass: "bg-purple-100 text-purple-700 border-purple-300" },
-  { key: "factual", icon: <AlertCircle className="w-3.5 h-3.5" />, label: "Factual", activeClass: "bg-green-100 text-green-700 border-green-300" },
+const REACTIONS: { key: Reaction; emoji: string; label: string }[] = [
+  { key: "important", emoji: "👍", label: "Important" },
+  { key: "outraged",  emoji: "😡", label: "Outraged"  },
+  { key: "surprising",emoji: "😮", label: "Surprising"},
+  { key: "factual",   emoji: "✅", label: "Factual"   },
 ]
 
-function CoverageBar({ leftCount, rightCount }: { leftCount: number; rightCount: number }) {
-  const total = leftCount + rightCount
-  if (total === 0) return null
-  const leftPct = Math.round((leftCount / total) * 100)
-  const rightPct = 100 - leftPct
-  const bothSides = leftCount > 0 && rightCount > 0
+const CATEGORIES = ["Top stories", "Politics", "Economy", "World"] as const
+type Category = typeof CATEGORIES[number]
 
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-xs font-medium">
-        <span className="text-blue-600">{leftCount} left-leaning</span>
-        {bothSides && (
-          <span className="text-green-600 text-[10px] font-semibold tracking-wide uppercase">
-            Cross-spectrum coverage
-          </span>
-        )}
-        <span className="text-red-600">{rightCount} right-leaning</span>
-      </div>
-      <div className="h-2 rounded-full overflow-hidden flex bg-muted/60 gap-px">
-        {leftCount > 0 && (
-          <div
-            className="bg-blue-500 h-full rounded-l-full transition-all"
-            style={{ width: `${leftPct}%` }}
-          />
-        )}
-        {rightCount > 0 && (
-          <div
-            className="bg-red-500 h-full rounded-r-full transition-all"
-            style={{ width: `${rightPct}%` }}
-          />
-        )}
-      </div>
-    </div>
-  )
+const CATEGORY_KEYWORDS: Record<Category, RegExp | null> = {
+  "Top stories": null,
+  "Politics":   /\b(congress|senate|house|president|election|vote|bill|law|governor|legislation|democrat|republican|trump|biden|harris|white house|supreme court)\b/i,
+  "Economy":    /\b(fed|federal reserve|rate|inflation|jobs|economy|economic|trade|market|stock|bank|tax|tariff|gdp|unemployment|budget|deficit)\b/i,
+  "World":      /\b(world|international|global|ukraine|russia|china|israel|nato|europe|middle east|taiwan|iran|north korea|foreign)\b/i,
 }
 
-function ArticleLink({ article, side }: { article: NewsArticle; side: "left" | "right" }) {
-  const colorClass = side === "left"
-    ? "text-blue-700 hover:text-blue-900"
-    : "text-red-700 hover:text-red-900"
-  const badgeClass = side === "left"
-    ? "border-blue-200 text-blue-600"
-    : "border-red-200 text-red-600"
-
-  return (
-    <a
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`flex items-start gap-2 text-sm ${colorClass} hover:underline transition-colors`}
-    >
-      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 opacity-70" />
-      <span className="flex-1 line-clamp-2 leading-snug">{article.title}</span>
-      <Badge variant="outline" className={`text-[10px] flex-shrink-0 ${badgeClass}`}>
-        {article.source}
-      </Badge>
-    </a>
-  )
+function getSourceLean(name: string, side: "left" | "right"): { label: string; dot: string; badge: string } {
+  const n = name.toLowerCase()
+  if (n.includes("msnbc") || n.includes("the nation") || n.includes("mother jones"))
+    return { label: "Far left",     dot: "bg-blue-700",   badge: "bg-blue-100 text-blue-800" }
+  if (n.includes("cnn") || n.includes("washington post") || n.includes("new york times") || n.includes("nytimes") || n.includes("npr") || n.includes("pbs") || n.includes("huffpost") || n.includes("vox"))
+    return { label: "Center-left",  dot: "bg-blue-500",   badge: "bg-blue-50 text-blue-700" }
+  if (n.includes("associated press") || n.includes("reuters") || n.includes("axios") || n.includes("politico") || n.includes("the hill") || n.includes("abc") || n.includes("nbc"))
+    return { label: "Center",       dot: "bg-gray-500",   badge: "bg-gray-100 text-gray-700" }
+  if (n.includes("wall street") || n.includes("wsj") || n.includes("examiner") || n.includes("national review"))
+    return { label: "Center-right", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-700" }
+  if (n.includes("fox") || n.includes("daily wire") || n.includes("new york post") || n.includes("breitbart") || n.includes("daily caller"))
+    return { label: "Right",        dot: "bg-red-600",    badge: "bg-red-50 text-red-700" }
+  // fallback by side
+  return side === "left"
+    ? { label: "Left-leaning",  dot: "bg-blue-400",  badge: "bg-blue-50 text-blue-600" }
+    : { label: "Right-leaning", dot: "bg-red-400",   badge: "bg-red-50 text-red-600" }
 }
 
 const EMPTY_COUNTS: Record<Reaction, number> = { important: 0, outraged: 0, surprising: 0, factual: 0 }
 
-function NewsCard({ article, index }: { article: FactualNewsItem; index: number }) {
+function NewsCard({ article }: { article: FactualNewsItem }) {
   const { user } = useAuth()
   const supabase = createClient()
   const articleId = `facts-${article.title.replace(/\s+/g, "-").toLowerCase().slice(0, 50)}`
 
-  const [counts, setCounts] = useState<Record<Reaction, number>>(EMPTY_COUNTS)
+  const [counts, setCounts]         = useState<Record<Reaction, number>>(EMPTY_COUNTS)
   const [myReaction, setMyReaction] = useState<Reaction | null>(null)
-  const [reacting, setReacting] = useState(false)
+  const [reacting, setReacting]     = useState(false)
   const [showComments, setShowComments] = useState(false)
-  const [showLeft, setShowLeft] = useState(false)
-  const [showRight, setShowRight] = useState(false)
-  const [imgError, setImgError] = useState(false)
 
-  const hasLeft = article.leftArticles.length > 0
-  const hasRight = article.rightArticles.length > 0
+  // Combine all sources into one ordered list
+  const allSources = [
+    ...article.leftArticles.map(a  => ({ ...a, side: "left"  as const })),
+    ...article.rightArticles.map(a => ({ ...a, side: "right" as const })),
+  ]
+
+  // Dot position on spectrum (0 = all left, 100 = all right)
+  const total = article.leftArticles.length + article.rightArticles.length
+  const dotPct = total > 0 ? Math.round((article.rightArticles.length / total) * 100) : 50
 
   useEffect(() => {
-    async function loadReactions() {
+    async function load() {
       const { data } = await supabase
         .from("article_reactions")
         .select("reaction, user_id")
         .eq("article_id", articleId)
-
       if (!data) return
-
-      const totals = { ...EMPTY_COUNTS }
+      const t = { ...EMPTY_COUNTS }
       let mine: Reaction | null = null
       for (const row of data) {
-        if (row.reaction in totals) totals[row.reaction as Reaction]++
+        if (row.reaction in t) t[row.reaction as Reaction]++
         if (user && row.user_id === user.id) mine = row.reaction as Reaction
       }
-      setCounts(totals)
+      setCounts(t)
       setMyReaction(mine)
     }
-    loadReactions()
+    load()
   }, [articleId, user])
 
   async function handleReaction(key: Reaction) {
     if (!user || reacting) return
     setReacting(true)
-
     if (myReaction === key) {
-      // Remove reaction
-      await supabase
-        .from("article_reactions")
-        .delete()
-        .eq("article_id", articleId)
-        .eq("user_id", user.id)
-      setCounts((prev) => ({ ...prev, [key]: Math.max(0, prev[key] - 1) }))
+      await supabase.from("article_reactions").delete().eq("article_id", articleId).eq("user_id", user.id)
+      setCounts(p => ({ ...p, [key]: Math.max(0, p[key] - 1) }))
       setMyReaction(null)
     } else {
-      // Upsert reaction (replaces previous if any)
-      await supabase
-        .from("article_reactions")
-        .upsert({ user_id: user.id, article_id: articleId, reaction: key }, { onConflict: "user_id,article_id" })
-      setCounts((prev) => {
-        const next = { ...prev, [key]: prev[key] + 1 }
-        if (myReaction) next[myReaction] = Math.max(0, next[myReaction] - 1)
-        return next
+      await supabase.from("article_reactions").upsert({ user_id: user.id, article_id: articleId, reaction: key }, { onConflict: "user_id,article_id" })
+      setCounts(p => {
+        const n = { ...p, [key]: p[key] + 1 }
+        if (myReaction) n[myReaction] = Math.max(0, n[myReaction] - 1)
+        return n
       })
       setMyReaction(key)
     }
@@ -173,192 +119,149 @@ function NewsCard({ article, index }: { article: FactualNewsItem; index: number 
   }
 
   return (
-    <article className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
-      {/* Hero Image */}
-      {article.urlToImage && !imgError && (
-        <div className="relative w-full aspect-[16/7] overflow-hidden bg-muted">
-          <img
-            src={article.urlToImage}
-            alt=""
-            className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          {/* Controversy badge overlaid on image */}
-          <div className="absolute bottom-3 left-3">
-            {article.controversyScore >= 70 && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                🔥 High Controversy
-              </span>
-            )}
-            {article.controversyScore >= 40 && article.controversyScore < 70 && (
-              <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                ⚡ Contested
-              </span>
-            )}
+    <article className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+
+      {/* AI synopsis badge */}
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg border border-gray-200 font-medium">
+          <span className="w-2.5 h-2.5 border border-gray-400 rounded-sm flex-shrink-0" />
+          AI synopsis
+        </span>
+        {article.controversyScore >= 70 && (
+          <span className="text-xs font-bold text-red-600 flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5" /> High controversy
+          </span>
+        )}
+      </div>
+
+      {/* Headline */}
+      <a
+        href={article.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block text-[1.15rem] font-bold leading-snug text-gray-900 hover:text-[#1B2B5E] transition-colors"
+      >
+        {article.title}
+      </a>
+
+      {/* Summary */}
+      {(article.aiOverview || article.description) && (
+        <p className="text-sm text-gray-600 leading-relaxed">
+          {article.aiOverview || article.description}
+        </p>
+      )}
+
+      {/* Spectrum bar */}
+      {total > 0 && (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-blue-600 font-medium flex items-center gap-1 flex-shrink-0">
+            <span className="w-2.5 h-2.5 border border-blue-400 rounded-sm" />
+            Left
+          </span>
+          <div
+            className="flex-1 relative h-1.5 rounded-full"
+            style={{ background: "linear-gradient(to right, #3b82f6, #9ca3af, #ef4444)" }}
+          >
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-gray-900 border-2 border-white shadow-md transition-all"
+              style={{ left: `${dotPct}%` }}
+            />
           </div>
+          <span className="text-xs text-red-600 font-medium flex items-center gap-1 flex-shrink-0">
+            Right
+            <span className="w-2.5 h-2.5 border border-red-400 rounded-sm" />
+          </span>
         </div>
       )}
 
-      <div className="p-4 space-y-3">
-        {/* Source + Time row */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary" className="text-xs font-semibold">
-            {article.source}
-          </Badge>
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {formatNewsTime(article.publishedAt)}
-          </span>
-          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 ml-auto">
-            Political
-          </Badge>
-        </div>
-
-        {/* Headline */}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block text-lg font-bold leading-snug text-foreground hover:text-primary hover:underline transition-colors"
-        >
-          {article.title}
-        </a>
-
-        {/* Coverage bar */}
-        <CoverageBar
-          leftCount={article.leftArticles.length}
-          rightCount={article.rightArticles.length}
-        />
-
-        {/* AI Overview */}
-        {article.aiOverview && (
-          <div className="rounded-xl bg-primary/5 border border-primary/15 p-3">
-            <div className="flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                  Factual Overview
-                </span>
-                <p className="text-sm text-foreground mt-1 leading-relaxed">
-                  {article.aiOverview}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Perspective toggles */}
-        {(hasLeft || hasRight) && (
-          <div className="space-y-2">
-            {hasLeft && (
-              <div>
-                <button
-                  onClick={() => setShowLeft((v) => !v)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500" />
-                    Left-leaning coverage ({article.leftArticles.length})
+      {/* Source cards — horizontal scroll */}
+      {allSources.length > 0 && (
+        <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          {allSources.map((src, i) => {
+            const lean = getSourceLean(src.source, src.side)
+            return (
+              <a
+                key={i}
+                href={src.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 w-44 border border-gray-200 rounded-xl p-3 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-1 mb-2">
+                  <span className="text-xs font-bold text-gray-800 truncate">{src.source}</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${lean.badge}`}>
+                    {lean.label}
                   </span>
-                  {showLeft ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {showLeft && (
-                  <div className="mt-2 pl-3 space-y-2.5 border-l-2 border-blue-200">
-                    {article.leftArticles.map((a, j) => (
-                      <ArticleLink key={j} article={a} side="left" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {hasRight && (
-              <div>
-                <button
-                  onClick={() => setShowRight((v) => !v)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium hover:bg-red-100 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-500" />
-                    Right-leaning coverage ({article.rightArticles.length})
-                  </span>
-                  {showRight ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-                {showRight && (
-                  <div className="mt-2 pl-3 space-y-2.5 border-l-2 border-red-200">
-                    {article.rightArticles.map((a, j) => (
-                      <ArticleLink key={j} article={a} side="right" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Reactions + Actions bar */}
-        <div className="flex items-center gap-1 pt-1 flex-wrap border-t border-border">
-          {REACTIONS.map(({ key, icon, label, activeClass }) => (
-            <button
-              key={key}
-              onClick={() => handleReaction(key)}
-              disabled={!user || reacting}
-              title={!user ? "Sign in to react" : label}
-              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                myReaction === key
-                  ? activeClass
-                  : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {icon}
-              <span>{counts[key]}</span>
-            </button>
-          ))}
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="text-xs text-muted-foreground h-8 px-2"
-            >
-              <a href={article.url} target="_blank" rel="noopener noreferrer">
-                Read <ExternalLink className="w-3 h-3 ml-1" />
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{src.title}</p>
+                <p className="text-[10px] text-gray-400 mt-2">{formatNewsTime(src.publishedAt)}</p>
               </a>
-            </Button>
-            <button
-              onClick={() => setShowComments((v) => !v)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              Discuss
-              {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-          </div>
+            )
+          })}
         </div>
+      )}
 
-        {/* Comments */}
-        {showComments && (
-          <div className="pt-2 border-t border-border">
-            <CommentSystem articleUrl={articleId} articleTitle={article.title} />
-          </div>
-        )}
+      {/* Reactions + actions */}
+      <div className="flex items-center gap-1.5 pt-3 border-t border-gray-100 flex-wrap">
+        {REACTIONS.map(({ key, emoji, label }) => (
+          <button
+            key={key}
+            onClick={() => handleReaction(key)}
+            disabled={!user || reacting}
+            title={!user ? "Sign in to react" : label}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+              myReaction === key
+                ? "bg-gray-900 text-white border-gray-900"
+                : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800"
+            } disabled:opacity-40 disabled:cursor-not-allowed`}
+          >
+            <span>{emoji}</span>
+            <span>{counts[key]}</span>
+          </button>
+        ))}
+
+        <div className="ml-auto flex items-center gap-2">
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Read
+          </a>
+          <button
+            onClick={() => setShowComments(v => !v)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            Discuss
+            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
       </div>
+
+      {showComments && (
+        <div className="pt-2 border-t border-gray-100">
+          <CommentSystem articleUrl={articleId} articleTitle={article.title} />
+        </div>
+      )}
     </article>
   )
 }
 
 export function AIFactualNews() {
-  const [news, setNews] = useState<FactualNewsItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [news, setNews]         = useState<FactualNewsItem[]>([])
+  const [loading, setLoading]   = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+  const [category, setCategory] = useState<Category>("Top stories")
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
-  const loadNews = async (isRefresh = false) => {
+  async function loadNews(isRefresh = false) {
     if (isRefresh) setRefreshing(true)
     else setLoading(true)
     setError(null)
-
     try {
       const res = await fetch("/api/news/factual", { cache: "no-store" })
       const result = await res.json()
@@ -366,12 +269,10 @@ export function AIFactualNews() {
         setNews(result.news)
         setLastUpdated(new Date())
       } else {
-        setError(result.error || "Unable to load news at this time")
-        setNews([])
+        setError(result.error || "Unable to load news at this time.")
       }
     } catch {
-      setError("Network error occurred")
-      setNews([])
+      setError("Network error. Please try again.")
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -380,27 +281,27 @@ export function AIFactualNews() {
 
   useEffect(() => { loadNews() }, [])
 
+  const filtered = category === "Top stories"
+    ? news
+    : news.filter(a => CATEGORY_KEYWORDS[category]?.test(`${a.title} ${a.description}`))
+
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Just the Facts</h3>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Fetching news...
-          </div>
+        <div className="flex gap-2 mb-6">
+          {CATEGORIES.map(c => (
+            <div key={c} className="h-8 w-24 rounded-full bg-gray-200 animate-pulse" />
+          ))}
         </div>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="rounded-2xl border border-border overflow-hidden animate-pulse">
-            <div className="w-full aspect-[16/7] bg-muted" />
-            <div className="p-4 space-y-3">
-              <div className="h-3 bg-muted rounded w-1/3" />
-              <div className="h-5 bg-muted rounded w-5/6" />
-              <div className="h-4 bg-muted rounded w-4/6" />
-              <div className="h-2 bg-muted rounded-full" />
+          <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3 animate-pulse">
+            <div className="h-3 w-20 bg-gray-200 rounded" />
+            <div className="h-6 w-5/6 bg-gray-200 rounded" />
+            <div className="h-4 w-full bg-gray-100 rounded" />
+            <div className="h-4 w-4/5 bg-gray-100 rounded" />
+            <div className="h-2 w-full bg-gray-200 rounded-full" />
+            <div className="flex gap-2">
+              {[...Array(3)].map((_, j) => <div key={j} className="h-24 w-44 bg-gray-100 rounded-xl flex-shrink-0" />)}
             </div>
           </div>
         ))}
@@ -409,56 +310,63 @@ export function AIFactualNews() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold text-foreground">Just the Facts</h3>
-          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-            Live
-          </Badge>
+    <div className="space-y-5">
+      {/* Category tabs */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIES.map(c => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
+                category === c
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground hidden sm:block">
-              {lastUpdated.toLocaleTimeString()}
+            <span className="text-xs text-gray-400 hidden sm:block">
+              Updated {lastUpdated.toLocaleTimeString()}
             </span>
           )}
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={() => loadNews(true)}
             disabled={refreshing}
-            className="gap-1"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 transition-all disabled:opacity-50"
           >
-            <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Loading..." : "Refresh"}
-          </Button>
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "Loading…" : "Refresh"}
+          </button>
         </div>
       </div>
 
       {error && (
-        <div className="flex flex-col items-center py-12 gap-3 text-muted-foreground">
-          <Sparkles className="w-8 h-8 opacity-30" />
-          <p className="text-sm">Checking the latest headlines...</p>
-          <button
-            onClick={() => loadNews(true)}
-            className="text-xs text-primary underline hover:no-underline"
-          >
+        <div className="py-16 text-center text-gray-400 space-y-2">
+          <p className="text-sm">{error}</p>
+          <button onClick={() => loadNews(true)} className="text-xs text-[#1B2B5E] underline">
             Try again
           </button>
         </div>
       )}
 
-      {/* Cards */}
-      {news.map((article, i) => (
-        <NewsCard key={i} article={article} index={i} />
+      {filtered.length === 0 && !error && !loading && (
+        <div className="py-16 text-center text-gray-400 text-sm">
+          No {category.toLowerCase()} stories right now — try another category.
+        </div>
+      )}
+
+      {filtered.map((article, i) => (
+        <NewsCard key={i} article={article} />
       ))}
 
-      {news.length > 0 && (
-        <p className="text-center text-xs text-muted-foreground pt-2">
-          Coverage sourced from real outlets. Always verify with official sources.
+      {filtered.length > 0 && (
+        <p className="text-center text-xs text-gray-400 pt-2 pb-4">
+          Coverage sourced from real outlets across the political spectrum. Always verify with official sources.
         </p>
       )}
     </div>

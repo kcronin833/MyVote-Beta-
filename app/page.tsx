@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   MapPin,
@@ -11,6 +10,8 @@ import {
   ShieldCheck,
   Vote,
   Scale,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react"
 import { NewsNavigation } from "@/components/news-nav"
 import { useAuth } from "@/components/auth-context"
@@ -56,6 +57,37 @@ function ElectionBanner() {
   )
 }
 
+const features = [
+  {
+    icon: Scale,
+    color: "text-[#CC2020]",
+    bg: "bg-red-50",
+    title: "See Both Sides",
+    desc: "Every story from left, center, and right — so you form your own view.",
+  },
+  {
+    icon: Newspaper,
+    color: "text-[#1B2B5E]",
+    bg: "bg-blue-50",
+    title: "Stay Informed",
+    desc: "Curated national and local Georgia news, updated daily across the spectrum.",
+  },
+  {
+    icon: MapPin,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    title: "Live Local",
+    desc: "Hyper-local news and representative info for your city and district.",
+  },
+  {
+    icon: ShieldCheck,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    title: "Facts First",
+    desc: "Start with verified facts, then explore opinions — not the other way around.",
+  },
+]
+
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => {
@@ -72,7 +104,6 @@ export default function HomePage() {
     if (raw) setRacesDecided(parseInt(raw) || 0)
   }, [])
 
-  // Show quiz only to logged-in users who haven't seen it and have no liked viewpoints
   useEffect(() => {
     if (!user) return
     const alreadyShown = localStorage.getItem("mv_quiz_shown")
@@ -91,107 +122,164 @@ export default function HomePage() {
     )
   }
 
-  // Landing page for unauthenticated users
   if (!user && !guestMode) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA]">
-        <div className="bg-white border-b border-gray-100">
-          <div className="container mx-auto px-4 py-12 text-center">
-            <div className="flex justify-center mb-8">
+      <div className="min-h-screen bg-white">
+
+        {/* ── Hero ── */}
+        <section className="bg-white border-b border-gray-100">
+          <div className="container mx-auto px-4 py-16 sm:py-24 flex flex-col items-center text-center">
+            <div className="mb-10">
               <Logo size="xl" />
             </div>
-            <div className="flex gap-3 justify-center flex-wrap">
-              <Link href="/auth/signup">
-                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold px-8">
+
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#1B2B5E] max-w-xl mb-4 leading-tight">
+              Your guide to the{" "}
+              <span className="text-[#CC2020]">2026 Georgia elections</span>
+            </h1>
+            <p className="text-[#4A4A4A]/65 max-w-md mb-10 text-lg leading-relaxed">
+              Read every side. Build your ballot. Make your vote count.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm sm:max-w-none sm:w-auto">
+              <Link href="/auth/signup" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold px-8 h-12 text-base shadow-sm"
+                >
                   Sign Up Free
                 </Button>
               </Link>
-              <Link href="/auth/signin">
-                <Button size="lg" variant="outline" className="border-[#1B2B5E] text-[#1B2B5E] hover:bg-[#1B2B5E]/5 px-8">
+              <Link href="/auth/signin" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto border-[#1B2B5E] text-[#1B2B5E] hover:bg-[#1B2B5E]/5 px-8 h-12 text-base"
+                >
                   Sign In
                 </Button>
               </Link>
-              <Link href="/elections">
-                <Button size="lg" variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+              <Link href="/elections" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="w-full sm:w-auto text-gray-500 hover:text-[#1B2B5E] hover:bg-gray-50 px-6 h-12 text-base"
+                >
                   <Vote className="w-4 h-4 mr-2" />
-                  Georgia 2026 Elections
+                  View Races
                 </Button>
               </Link>
             </div>
+
             <button
               onClick={() => {
                 sessionStorage.setItem("myvote_guest", "true")
                 setGuestMode(true)
               }}
-              className="mt-4 text-sm text-gray-400 hover:text-gray-600 underline underline-offset-4 transition-colors"
+              className="mt-5 text-sm text-[#4A4A4A]/40 hover:text-[#4A4A4A]/70 transition-colors flex items-center gap-1"
             >
-              Browse as Guest
+              Browse as guest <ArrowRight className="w-3 h-3" />
             </button>
-          </div>
-        </div>
 
-        <div className="bg-[#F5F6FA] border-t border-gray-200">
-        <div className="container mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center text-[#1B2B5E] mb-2">Built for Georgia voters</h2>
-          <p className="text-center text-[#4A4A4A]/70 mb-10 max-w-xl mx-auto">
-            Understand more. Decide better. Make your vote count.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: Scale,      color: "text-[#CC2020]", title: "See Both Sides",    desc: "Read every story from left, center, and right — so you can form your own view." },
-              { icon: Newspaper,  color: "text-[#1B2B5E]", title: "Stay Informed",     desc: "Curated national and local Georgia news, updated daily across the spectrum." },
-              { icon: MapPin,     color: "text-green-600",  title: "Live Local",       desc: "Hyper-local news and representative info for your city and district." },
-              { icon: ShieldCheck,color: "text-purple-600", title: "Facts First",      desc: "Start with verified facts, then explore the opinions. Not the other way around." },
-            ].map(({ icon: Icon, color, title, desc }) => (
-              <Card key={title} className="border-[#E5E5E5] text-center">
-                <CardHeader>
-                  <Icon className={`w-10 h-10 ${color} mx-auto mb-2`} />
-                  <CardTitle className="text-[#1B2B5E] text-base">{title}</CardTitle>
-                  <CardDescription>{desc}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+            <div className="mt-12 flex gap-6 sm:gap-10 text-sm text-[#4A4A4A]/50 flex-wrap justify-center">
+              {["Free to use", "No ads", "Non-partisan"].map((t) => (
+                <span key={t} className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#CC2020]" />
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-        </div>
+        </section>
 
-        <div className="bg-[#1B2B5E] py-16">
-          <div className="container mx-auto px-4 text-center">
-            <Badge className="bg-[#CC2020] text-white mb-4">Georgia 2026 Pilot</Badge>
-            <h2 className="text-2xl font-bold text-white mb-2">Georgia 2026 Elections Are Coming</h2>
-            <p className="text-white/70 mb-6 max-w-xl mx-auto">
-              The U.S. Senate seat, all 14 House seats, and dozens of state races are on the ballot.
+        {/* ── Features ── */}
+        <section className="bg-[#F5F6FA] py-16 sm:py-20 border-t border-gray-200">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#1B2B5E] mb-3">
+              Built for Georgia voters
+            </h2>
+            <p className="text-center text-[#4A4A4A]/60 mb-12 max-w-md mx-auto">
+              Everything you need to walk into the booth with confidence.
             </p>
-            <div className="flex gap-4 justify-center flex-wrap">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
+              {features.map(({ icon: Icon, color, bg, title, desc }) => (
+                <div
+                  key={title}
+                  className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className={`w-12 h-12 ${bg} rounded-xl flex items-center justify-center mb-4`}>
+                    <Icon className={`w-6 h-6 ${color}`} />
+                  </div>
+                  <h3 className="font-semibold text-[#1B2B5E] text-base mb-2">{title}</h3>
+                  <p className="text-[#4A4A4A]/65 text-sm leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Elections CTA ── */}
+        <section className="bg-[#1B2B5E] py-16 sm:py-20">
+          <div className="container mx-auto px-4 text-center">
+            <Badge className="bg-[#CC2020] hover:bg-[#CC2020] text-white mb-5 px-4 py-1 text-xs tracking-wider uppercase">
+              Georgia 2026 Pilot
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 max-w-xl mx-auto leading-tight">
+              The 2026 Georgia elections are coming
+            </h2>
+            <p className="text-white/60 mb-8 max-w-lg mx-auto leading-relaxed">
+              The U.S. Senate seat, all 14 House seats, and dozens of state races are on the ballot.
+              Get ready now.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/elections">
-                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white">
-                  <Vote className="w-4 h-4 mr-2" />Georgia 2026 Races & Dates
+                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white px-8 h-12 font-semibold shadow-sm">
+                  <Vote className="w-4 h-4 mr-2" />
+                  Georgia 2026 Races &amp; Dates
                 </Button>
               </Link>
               <Link href="/auth/signup">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/40 text-white hover:bg-white/10 hover:border-white/60 px-8 h-12"
+                >
                   Create Free Account
                 </Button>
               </Link>
             </div>
           </div>
-        </div>
+        </section>
 
-        <footer className="border-t border-[#E5E5E5] py-8">
-          <div className="container mx-auto px-4 text-center text-sm text-[#4A4A4A]/60">
-            <Logo size="sm" />
-            <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
-            <div className="flex justify-center gap-4 mt-3 flex-wrap">
-              <Link href="/about" className="hover:text-[#1F3A93]">About</Link>
-              <Link href="/elections" className="hover:text-[#1F3A93]">Elections 2026</Link>
-              <Link href="/privacy" className="hover:text-[#1F3A93]">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-[#1F3A93]">Terms of Service</Link>
-              <Link href="/contact" className="hover:text-[#1F3A93]">Contact</Link>
+        {/* ── Footer ── */}
+        <footer className="bg-white border-t border-gray-200 py-10">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex justify-center mb-4">
+              <Logo size="sm" />
             </div>
-            <p className="mt-4 text-xs text-[#4A4A4A]/40">
+            <p className="text-sm text-[#4A4A4A]/50 mb-4">
+              Inform. Clarify. Empower all political perspectives.
+            </p>
+            <div className="flex justify-center gap-5 flex-wrap text-sm text-[#4A4A4A]/50">
+              {[
+                { href: "/about", label: "About" },
+                { href: "/elections", label: "Elections 2026" },
+                { href: "/privacy", label: "Privacy Policy" },
+                { href: "/terms", label: "Terms of Service" },
+                { href: "/contact", label: "Contact" },
+              ].map(({ href, label }) => (
+                <Link key={href} href={href} className="hover:text-[#1B2B5E] transition-colors">
+                  {label}
+                </Link>
+              ))}
+            </div>
+            <p className="mt-6 text-xs text-[#4A4A4A]/35 max-w-md mx-auto leading-relaxed">
               MyVote is not affiliated with any political party, campaign, or government entity.
               Always verify voting information at{" "}
-              <a href="https://sos.ga.gov" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#1F3A93]">sos.ga.gov</a>.
+              <a href="https://sos.ga.gov" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#1B2B5E]">
+                sos.ga.gov
+              </a>.
             </p>
           </div>
         </footer>
@@ -199,7 +287,6 @@ export default function HomePage() {
     )
   }
 
-  // Authenticated / guest: two-column layout
   return (
     <div className="min-h-screen bg-[#F5F6FA]">
       {showQuiz && <OnboardingQuiz onDismiss={() => setShowQuiz(false)} />}

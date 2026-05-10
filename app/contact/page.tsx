@@ -3,246 +3,206 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Send, ThumbsUp, Lightbulb, Bug, Handshake, CheckCircle } from "lucide-react"
-import { Logo } from "@/components/logo"
+import { ArrowLeft, Send, CheckCircle, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
 
-interface Suggestion {
-  id: string
-  title: string
-  description: string
-  votes: number
-  status: "pending" | "under-review" | "approved" | "implemented"
-  author: string
-  date: string
-}
-
-const mockSuggestions: Suggestion[] = [
+const CATEGORIES = [
   {
-    id: "1",
-    title: "Add election countdown timers",
-    description: "Show countdown timers for upcoming elections in the user dashboard.",
-    votes: 42,
-    status: "approved",
-    author: "atlanta_sarah",
-    date: "2024-01-10",
+    id: "business",
+    label: "Business Inquiry",
+    icon: Briefcase,
+    color: "text-[#1B2B5E]",
+    bg: "bg-blue-50",
+    activeBg: "bg-[#1B2B5E]",
+    desc: "Partnerships, press, or commercial opportunities",
   },
   {
-    id: "2",
-    title: "Dark mode support",
-    description: "Add a dark mode theme option for comfortable nighttime reading.",
-    votes: 38,
-    status: "under-review",
-    author: "mike_atl",
-    date: "2024-01-12",
+    id: "suggestion",
+    label: "Suggestion",
+    icon: Lightbulb,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    activeBg: "bg-amber-500",
+    desc: "Ideas to improve MyVote for Georgia voters",
   },
   {
-    id: "3",
-    title: "Candidate comparison tool",
-    description: "Side-by-side comparison of candidates on key issues.",
-    votes: 56,
-    status: "implemented",
-    author: "policy_expert_atl",
-    date: "2024-01-05",
+    id: "general",
+    label: "General",
+    icon: MessageCircle,
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    activeBg: "bg-teal-600",
+    desc: "Questions, feedback, or anything else",
   },
 ]
 
 export default function ContactPage() {
-  const [formType, setFormType] = useState("general")
+  const [category, setCategory] = useState("general")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("")
+  const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [suggestions, setSuggestions] = useState(mockSuggestions)
-  const [votedSuggestions, setVotedSuggestions] = useState<Set<string>>(new Set())
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const form = e.currentTarget
-    const name = (form.elements.namedItem("name") as HTMLInputElement)?.value || ""
-    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value || ""
-    const message = (form.elements.namedItem("message") as HTMLTextAreaElement)?.value || ""
-    const subject = encodeURIComponent(`MyVote Contact: ${formType} from ${name}`)
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nType: ${formType}\n\nMessage:\n${message}`)
-    window.location.href = `mailto:kcronin833@gmail.com?subject=${subject}&body=${body}`
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 5000)
+    setSubmitting(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, email, category, message }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.")
+      } else {
+        setSubmitted(true)
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const handleVote = (id: string) => {
-    if (votedSuggestions.has(id)) return
-    setSuggestions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, votes: s.votes + 1 } : s)),
-    )
-    setVotedSuggestions((prev) => new Set([...prev, id]))
-  }
-
-  const getStatusBadge = (status: Suggestion["status"]) => {
-    const styles = {
-      pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
-      "under-review": "bg-blue-100 text-blue-800 border-blue-300",
-      approved: "bg-green-100 text-green-800 border-green-300",
-      implemented: "bg-purple-100 text-purple-800 border-purple-300",
-    }
-    const labels = {
-      pending: "Pending",
-      "under-review": "Under Review",
-      approved: "Approved",
-      implemented: "Implemented",
-    }
-    return (
-      <Badge variant="outline" className={styles[status]}>
-        {labels[status]}
-      </Badge>
-    )
-  }
+  const selected = CATEGORIES.find((c) => c.id === category)!
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#F5F6FA]">
+      <div className="container mx-auto px-4 py-10 max-w-2xl">
         <Link href="/">
-          <Button variant="ghost" className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+          <Button variant="ghost" size="sm" className="mb-6 text-[#4A4A4A]/60 hover:text-[#1B2B5E]">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back
           </Button>
         </Link>
 
-        <div className="flex items-center gap-3 mb-8">
-          <Logo size="md" />
-          <div>
-            <h1 className="text-2xl font-bold text-[#4A4A4A]">Contact & Suggestions</h1>
-            <p className="text-[#4A4A4A]/60">Get in touch or help shape the future of MyVote</p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-[#1B2B5E]">Contact Us</h1>
+          <p className="text-[#4A4A4A]/60 mt-1">We read every message and typically respond within 24 hours.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Contact Form */}
-          <Card className="border-[#E5E5E5]">
-            <CardHeader>
-              <CardTitle className="text-[#4A4A4A]">Send Us a Message</CardTitle>
-              <CardDescription>We typically respond within 24 hours</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {submitted ? (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 text-[#27AE60] mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-[#4A4A4A]">Message Sent!</h3>
-                  <p className="text-[#4A4A4A]/60">Thank you for reaching out. We will get back to you soon.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-[#4A4A4A]">Inquiry Type</label>
-                    <Select value={formType} onValueChange={setFormType}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">General Inquiry</SelectItem>
-                        <SelectItem value="suggestion">Feature Suggestion</SelectItem>
-                        <SelectItem value="bug">Bug Report</SelectItem>
-                        <SelectItem value="partnership">Partnership</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-[#4A4A4A]">Name</label>
-                    <Input name="name" placeholder="Your name" required />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-[#4A4A4A]">Email</label>
-                    <Input name="email" type="email" placeholder="your@email.com" required />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-[#4A4A4A]">Message</label>
-                    <Textarea name="message" placeholder="Tell us what's on your mind..." rows={5} required />
-                  </div>
-                  <Button type="submit" className="w-full bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Message
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
+        {submitted ? (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 text-center">
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+            <h2 className="text-xl font-bold text-[#1B2B5E] mb-2">Message sent!</h2>
+            <p className="text-[#4A4A4A]/60 mb-6">
+              Thanks for reaching out. We'll get back to you at <strong>{email}</strong> soon.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => { setSubmitted(false); setName(""); setEmail(""); setMessage(""); setCategory("general") }}
+            >
+              Send another message
+            </Button>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
 
-          {/* Community Suggestions */}
-          <div className="space-y-6">
-            <Card className="border-[#E5E5E5]">
-              <CardHeader>
-                <CardTitle className="text-[#4A4A4A] flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-[#F39C12]" />
-                  Community Suggestions
-                </CardTitle>
-                <CardDescription>Vote on ideas or suggest your own</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {suggestions
-                  .sort((a, b) => b.votes - a.votes)
-                  .map((suggestion) => (
-                    <div
-                      key={suggestion.id}
-                      className="flex items-start gap-3 p-3 rounded-lg border border-[#E5E5E5] hover:border-[#3498DB]/30 transition-colors"
+            {/* Category selector */}
+            <div className="mb-6">
+              <p className="text-sm font-semibold text-[#1B2B5E] mb-3">What's this about?</p>
+              <div className="grid grid-cols-3 gap-3">
+                {CATEGORIES.map(({ id, label, icon: Icon, color, bg, activeBg, desc }) => {
+                  const active = category === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setCategory(id)}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+                        active
+                          ? "border-[#1B2B5E] bg-[#1B2B5E]/5"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      }`}
                     >
-                      <button
-                        onClick={() => handleVote(suggestion.id)}
-                        disabled={votedSuggestions.has(suggestion.id)}
-                        className={`flex flex-col items-center min-w-[48px] p-2 rounded ${
-                          votedSuggestions.has(suggestion.id)
-                            ? "bg-[#1F3A93]/10 text-[#1F3A93]"
-                            : "bg-[#FAFAFA] text-[#4A4A4A] hover:bg-[#1F3A93]/5"
-                        }`}
-                      >
-                        <ThumbsUp className="w-4 h-4" />
-                        <span className="text-sm font-bold">{suggestion.votes}</span>
-                      </button>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-[#4A4A4A]">{suggestion.title}</h4>
-                          {getStatusBadge(suggestion.status)}
-                        </div>
-                        <p className="text-sm text-[#4A4A4A]/60">{suggestion.description}</p>
-                        <p className="text-xs text-[#4A4A4A]/40 mt-1">
-                          by @{suggestion.author} on {new Date(suggestion.date).toLocaleDateString()}
-                        </p>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${active ? "bg-[#1B2B5E]/10" : bg}`}>
+                        <Icon className={`w-5 h-5 ${active ? "text-[#1B2B5E]" : color}`} />
                       </div>
-                    </div>
-                  ))}
-              </CardContent>
-            </Card>
+                      <span className={`text-xs font-semibold leading-tight ${active ? "text-[#1B2B5E]" : "text-[#4A4A4A]"}`}>
+                        {label}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-xs text-[#4A4A4A]/50 mt-2 text-center">{selected.desc}</p>
+            </div>
 
-            {/* Quick Help */}
-            <Card className="border-[#E5E5E5]">
-              <CardHeader>
-                <CardTitle className="text-[#4A4A4A] text-lg">Quick Help</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Lightbulb className="w-5 h-5 text-[#F39C12] mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-sm text-[#4A4A4A]">Feature ideas?</h4>
-                    <p className="text-xs text-[#4A4A4A]/60">Submit a suggestion and let the community vote on it.</p>
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#4A4A4A] mb-1.5">Name</label>
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    required
+                  />
                 </div>
-                <div className="flex items-start gap-3">
-                  <Bug className="w-5 h-5 text-[#D64541] mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-sm text-[#4A4A4A]">Found a bug?</h4>
-                    <p className="text-xs text-[#4A4A4A]/60">Use the contact form with "Bug Report" selected.</p>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#4A4A4A] mb-1.5">Email</label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                  />
                 </div>
-                <div className="flex items-start gap-3">
-                  <Handshake className="w-5 h-5 text-[#27AE60] mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-sm text-[#4A4A4A]">Partnership inquiries?</h4>
-                    <p className="text-xs text-[#4A4A4A]/60">Select "Partnership" and tell us about your organization.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#4A4A4A] mb-1.5">Message</label>
+                <Textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={
+                    category === "business"
+                      ? "Tell us about your organization and what you have in mind…"
+                      : category === "suggestion"
+                      ? "Describe your idea and how it would help Georgia voters…"
+                      : "What's on your mind?"
+                  }
+                  rows={6}
+                  required
+                />
+                <p className="text-xs text-[#4A4A4A]/40 mt-1 text-right">{message.length} / 2000</p>
+              </div>
+
+              {error && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={submitting || message.length > 2000}
+                className="w-full bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold h-11"
+              >
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    Sending…
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </span>
+                )}
+              </Button>
+            </form>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle } from "lucide-react"
+import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
 import { NewsNavigation } from "@/components/news-nav"
 import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/components/auth-context"
@@ -30,7 +30,17 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "users" | "posts" | "pipeline"
+type Tab = "users" | "posts" | "pipeline" | "messages"
+
+interface ContactMessage {
+  id: string
+  name: string
+  email: string
+  category: "business" | "suggestion" | "general"
+  message: string
+  read: boolean
+  created_at: string
+}
 
 interface PipelineLog {
   ts: string
@@ -46,6 +56,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [posts, setPosts] = useState<AdminPost[]>([])
   const [loadingData, setLoadingData] = useState(true)
+  const [messages, setMessages] = useState<ContactMessage[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pipelineRunning, setPipelineRunning] = useState(false)
   const [pipelineLogs, setPipelineLogs] = useState<PipelineLog[]>([])
@@ -82,6 +93,15 @@ export default function AdminPage() {
         .order("created_at", { ascending: false })
         .limit(50)
       setPosts((data as unknown as AdminPost[]) || [])
+    }
+
+    if (tab === "messages") {
+      const { data } = await supabase
+        .from("contact_messages")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200)
+      setMessages((data as ContactMessage[]) || [])
     }
 
     setLoadingData(false)
@@ -148,12 +168,19 @@ export default function AdminPage() {
     )
   }
 
+  async function toggleRead(msg: ContactMessage) {
+    const supabase = createClient()
+    await supabase.from("contact_messages").update({ read: !msg.read }).eq("id", msg.id)
+    setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, read: !m.read } : m))
+  }
+
   if (authLoading) return null
   if (!profile?.is_admin) return null
 
   const totalUsers = users.length
   const totalPosts = posts.length
   const adminCount = users.filter((u) => u.is_admin).length
+  const unreadCount = messages.filter((m) => !m.read).length
 
   return (
     <div className="min-h-screen bg-[#F5F6FA]">
@@ -173,11 +200,12 @@ export default function AdminPage() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-3 mb-6">
             {[
               { label: "Total Users", value: totalUsers, icon: Users, color: "text-[#1F3A93]" },
               { label: "Total Posts", value: totalPosts, icon: FileText, color: "text-teal-600" },
               { label: "Admins", value: adminCount, icon: ShieldCheck, color: "text-amber-600" },
+              { label: "Unread Msgs", value: tab === "messages" ? unreadCount : "—", icon: Mail, color: "text-[#CC2020]" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-white rounded-2xl border border-border p-4 text-center">
                 <Icon className={`w-5 h-5 ${color} mx-auto mb-1`} />
@@ -189,17 +217,22 @@ export default function AdminPage() {
 
           {/* Tab bar */}
           <div className="flex gap-1 mb-4 bg-white border border-border rounded-xl p-1 w-fit">
-            {(["users", "posts", "pipeline"] as Tab[]).map((t) => (
+            {(["users", "posts", "messages", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
+                className={`relative px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
                   tab === t
                     ? "bg-[#1F3A93] text-white"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t}
+                {t === "messages" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#CC2020] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
             ))}
             <button
@@ -336,6 +369,65 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Messages tab */}
+          {tab === "messages" && (
+            <div className="space-y-3">
+              {loadingData ? (
+                <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
+                  Loading messages…
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-border p-10 text-center">
+                  <Mail className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No contact messages yet.</p>
+                </div>
+              ) : (
+                messages.map((msg) => {
+                  const catMeta = {
+                    business:   { icon: Briefcase,      label: "Business Inquiry", color: "bg-blue-100 text-[#1B2B5E]" },
+                    suggestion: { icon: Lightbulb,      label: "Suggestion",       color: "bg-amber-100 text-amber-700" },
+                    general:    { icon: MessageCircle,  label: "General",          color: "bg-teal-100 text-teal-700" },
+                  }[msg.category]
+                  const Icon = catMeta.icon
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`bg-white rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-[#CC2020]/30 shadow-sm"}`}
+                    >
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${catMeta.color}`}>
+                            <Icon className="w-3 h-3" />
+                            {catMeta.label}
+                          </span>
+                          {!msg.read && (
+                            <span className="inline-block w-2 h-2 rounded-full bg-[#CC2020]" title="Unread" />
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(msg.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => toggleRead(msg)}
+                          className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 flex-shrink-0"
+                        >
+                          {msg.read ? "Mark unread" : "Mark read"}
+                        </button>
+                      </div>
+
+                      <div className="mt-2">
+                        <p className="text-sm font-semibold text-foreground">{msg.name}</p>
+                        <a href={`mailto:${msg.email}`} className="text-xs text-[#1B2B5E] hover:underline">{msg.email}</a>
+                      </div>
+
+                      <p className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                    </div>
+                  )
+                })
+              )}
             </div>
           )}
 
