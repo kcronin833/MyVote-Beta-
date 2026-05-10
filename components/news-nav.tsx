@@ -29,7 +29,6 @@ export function NewsNavigation() {
           <Link href="/">
             <Logo size="lg" />
           </Link>
-          <span className="text-xl font-bold text-gray-700 hidden sm:block">MyVote</span>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
