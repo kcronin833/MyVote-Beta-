@@ -95,26 +95,24 @@ export default function HomePage() {
   if (!user && !guestMode) {
     return (
       <div className="min-h-screen bg-[#FAFAFA]">
-        <div className="bg-[#1B2B5E] text-white">
-          <div className="container mx-auto px-4 py-16 text-center">
-            <Logo size="xl" className="justify-center" />
-            <p className="mt-5 text-base font-semibold tracking-widest uppercase text-white/70">
-              Understand More.{" "}
-              <span className="text-[#CC2020]">Decide Better.</span>
-            </p>
-            <div className="flex gap-4 justify-center mt-8 flex-wrap">
+        <div className="bg-white border-b border-gray-100">
+          <div className="container mx-auto px-4 py-12 text-center">
+            <div className="flex justify-center mb-8">
+              <Logo size="xl" />
+            </div>
+            <div className="flex gap-3 justify-center flex-wrap">
               <Link href="/auth/signup">
-                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold">
+                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold px-8">
                   Sign Up Free
                 </Button>
               </Link>
               <Link href="/auth/signin">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button size="lg" variant="outline" className="border-[#1B2B5E] text-[#1B2B5E] hover:bg-[#1B2B5E]/5 px-8">
                   Sign In
                 </Button>
               </Link>
               <Link href="/elections">
-                <Button size="lg" variant="outline" className="border-white/40 text-white/80 hover:bg-white/10">
+                <Button size="lg" variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
                   <Vote className="w-4 h-4 mr-2" />
                   Georgia 2026 Elections
                 </Button>
@@ -125,13 +123,14 @@ export default function HomePage() {
                 sessionStorage.setItem("myvote_guest", "true")
                 setGuestMode(true)
               }}
-              className="mt-4 text-sm text-white/50 hover:text-white underline underline-offset-4 transition-colors"
+              className="mt-4 text-sm text-gray-400 hover:text-gray-600 underline underline-offset-4 transition-colors"
             >
               Browse as Guest
             </button>
           </div>
         </div>
 
+        <div className="bg-[#F5F6FA] border-t border-gray-200">
         <div className="container mx-auto px-4 py-16">
           <h2 className="text-2xl font-bold text-center text-[#1B2B5E] mb-2">Built for Georgia voters</h2>
           <p className="text-center text-[#4A4A4A]/70 mb-10 max-w-xl mx-auto">
@@ -154,22 +153,23 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+        </div>
 
-        <div className="bg-teal-600/10 py-16">
+        <div className="bg-[#1B2B5E] py-16">
           <div className="container mx-auto px-4 text-center">
-            <Badge className="bg-teal-600 text-white mb-4">Georgia 2026 Pilot</Badge>
-            <h2 className="text-2xl font-bold text-[#1B2B5E] mb-2">Georgia 2026 Elections Are Coming</h2>
-            <p className="text-[#4A4A4A]/70 mb-6 max-w-xl mx-auto">
+            <Badge className="bg-[#CC2020] text-white mb-4">Georgia 2026 Pilot</Badge>
+            <h2 className="text-2xl font-bold text-white mb-2">Georgia 2026 Elections Are Coming</h2>
+            <p className="text-white/70 mb-6 max-w-xl mx-auto">
               The U.S. Senate seat, all 14 House seats, and dozens of state races are on the ballot.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/elections">
-                <Button size="lg" className="bg-[#1B2B5E] hover:bg-[#1B2B5E]/90 text-white">
+                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white">
                   <Vote className="w-4 h-4 mr-2" />Georgia 2026 Races & Dates
                 </Button>
               </Link>
               <Link href="/auth/signup">
-                <Button size="lg" variant="outline" className="border-[#1B2B5E] text-[#1B2B5E]">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                   Create Free Account
                 </Button>
               </Link>
