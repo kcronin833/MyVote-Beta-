@@ -170,7 +170,7 @@ export function PoliticianMatch() {
           <p className="text-sm font-bold text-foreground">Politician Match</p>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Rate <strong>{Math.max(0, 3 - totalRatings)} more</strong> {totalRatings === 0 ? "" : "story"}{totalRatings === 0 ? "stories" : totalRatings === 2 ? "" : "stories"} on the National News page to unlock your politician alignment.
+          Rate <strong>{Math.max(0, 3 - totalRatings)} more</strong> {3 - totalRatings === 1 ? "story" : "stories"} on the National News page to unlock your politician alignment.
         </p>
         <div className="flex gap-0.5">
           {[1,2,3].map((i) => (
