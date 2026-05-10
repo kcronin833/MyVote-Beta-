@@ -1,32 +1,59 @@
-import { Check } from "lucide-react"
+"use client"
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl"
   className?: string
 }
 
+const NAVY = "#1B2B5E"
+const RED = "#CC2020"
+
 export function Logo({ size = "md", className = "" }: LogoProps) {
-  const sizeClasses = {
-    sm: "text-lg",
-    md: "text-2xl",
-    lg: "text-3xl",
-    xl: "text-5xl",
+  const config = {
+    sm: { textSize: "text-xl",   box: 24, stroke: 2.5, checkScale: 1.15 },
+    md: { textSize: "text-3xl",  box: 34, stroke: 3,   checkScale: 1.2  },
+    lg: { textSize: "text-4xl",  box: 42, stroke: 3.5, checkScale: 1.2  },
+    xl: { textSize: "text-6xl",  box: 58, stroke: 4.5, checkScale: 1.2  },
   }
 
-  const iconSizes = {
-    sm: "w-4 h-4",
-    md: "w-6 h-6",
-    lg: "w-8 h-8",
-    xl: "w-12 h-12",
-  }
+  const { textSize, box, stroke, checkScale } = config[size]
+  const checkSize = box * checkScale
 
   return (
-    <div className={`flex items-center font-bold ${sizeClasses[size]} ${className}`}>
-      <span className="text-red-600">My</span>
-      <div className="relative inline-flex items-center">
-        <Check className={`${iconSizes[size]} text-white bg-blue-600 rounded-sm p-0.5 mx-0.5`} />
-      </div>
-      <span className="text-blue-800">ote</span>
+    <div className={`flex items-center leading-none select-none ${textSize} ${className}`}>
+      <span
+        style={{ fontFamily: "Georgia, 'Palatino Linotype', serif", fontStyle: "italic", fontWeight: 700, color: NAVY }}
+      >
+        My
+      </span>
+
+      {/* Ballot box with red checkmark */}
+      <span className="relative inline-flex items-center justify-center mx-1 flex-shrink-0" style={{ width: box, height: box }}>
+        {/* Box border */}
+        <svg width={box} height={box} viewBox={`0 0 ${box} ${box}`} fill="none" style={{ position: "absolute", inset: 0 }}>
+          <rect x={stroke / 2} y={stroke / 2} width={box - stroke} height={box - stroke} rx={2} stroke={NAVY} strokeWidth={stroke} />
+        </svg>
+        {/* Red checkmark — extends above box */}
+        <svg
+          width={checkSize}
+          height={checkSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={RED}
+          strokeWidth={3.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ position: "absolute", top: -box * 0.28, left: -box * 0.08 }}
+        >
+          <polyline points="4 13 9 18 20 5" />
+        </svg>
+      </span>
+
+      <span
+        style={{ fontFamily: "Georgia, 'Palatino Linotype', serif", fontStyle: "italic", fontWeight: 700, color: NAVY }}
+      >
+        ote
+      </span>
     </div>
   )
 }
@@ -39,18 +66,14 @@ export function LogoIcon({ size = "md", className = "" }: LogoProps) {
     xl: "w-16 h-16",
   }
 
-  const checkSizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-6 h-6",
-    xl: "w-8 h-8",
-  }
-
   return (
     <div
-      className={`${iconSizes[size]} bg-gradient-to-br from-red-500 via-white to-blue-600 rounded-full flex items-center justify-center border-2 border-gray-200 shadow-lg ${className}`}
+      className={`${iconSizes[size]} bg-white rounded-md flex items-center justify-center border-2 shadow-sm ${className}`}
+      style={{ borderColor: NAVY }}
     >
-      <Check className={`${checkSizes[size]} text-blue-700 font-bold`} strokeWidth={3} />
+      <svg viewBox="0 0 24 24" fill="none" stroke={RED} strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round" className="w-3/5 h-3/5">
+        <polyline points="4 13 9 18 20 5" />
+      </svg>
     </div>
   )
 }

@@ -7,12 +7,10 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge"
 import {
   MapPin,
-  Globe,
-  Users,
-  BarChart3,
   Newspaper,
   ShieldCheck,
   Vote,
+  Scale,
 } from "lucide-react"
 import { NewsNavigation } from "@/components/news-nav"
 import { useAuth } from "@/components/auth-context"
@@ -97,16 +95,16 @@ export default function HomePage() {
   if (!user && !guestMode) {
     return (
       <div className="min-h-screen bg-[#FAFAFA]">
-        <div className="bg-[#1F3A93] text-white">
+        <div className="bg-[#1B2B5E] text-white">
           <div className="container mx-auto px-4 py-16 text-center">
-            <Logo size="xl" />
-            <p className="mt-4 text-lg max-w-2xl mx-auto text-blue-100 leading-relaxed">
-              Your gateway to politically balanced news, local updates, and civic engagement.
-              Stay informed. Stay balanced. Make your vote count.
+            <Logo size="xl" className="justify-center" />
+            <p className="mt-5 text-base font-semibold tracking-widest uppercase text-white/70">
+              Understand More.{" "}
+              <span className="text-[#CC2020]">Decide Better.</span>
             </p>
             <div className="flex gap-4 justify-center mt-8 flex-wrap">
               <Link href="/auth/signup">
-                <Button size="lg" className="bg-[#F39C12] hover:bg-[#E67E22] text-white font-semibold">
+                <Button size="lg" className="bg-[#CC2020] hover:bg-[#aa1818] text-white font-semibold">
                   Sign Up Free
                 </Button>
               </Link>
@@ -116,7 +114,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/elections">
-                <Button size="lg" variant="outline" className="border-[#F39C12] text-[#F39C12] hover:bg-[#F39C12]/10">
+                <Button size="lg" variant="outline" className="border-white/40 text-white/80 hover:bg-white/10">
                   <Vote className="w-4 h-4 mr-2" />
                   Georgia 2026 Elections
                 </Button>
@@ -127,7 +125,7 @@ export default function HomePage() {
                 sessionStorage.setItem("myvote_guest", "true")
                 setGuestMode(true)
               }}
-              className="mt-4 text-sm text-blue-200 hover:text-white underline underline-offset-4 transition-colors"
+              className="mt-4 text-sm text-white/50 hover:text-white underline underline-offset-4 transition-colors"
             >
               Browse as Guest
             </button>
@@ -135,23 +133,21 @@ export default function HomePage() {
         </div>
 
         <div className="container mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-center text-[#4A4A4A] mb-2">Why MyVote?</h2>
+          <h2 className="text-2xl font-bold text-center text-[#1B2B5E] mb-2">Built for Georgia voters</h2>
           <p className="text-center text-[#4A4A4A]/70 mb-10 max-w-xl mx-auto">
-            We believe informed citizens make better decisions. Here is how we help.
+            Understand more. Decide better. Make your vote count.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Newspaper, color: "text-[#1F3A93]", title: "Balanced News", desc: "Read perspectives from across the spectrum on every story." },
-              { icon: ShieldCheck, color: "text-[#27AE60]", title: "Just the Facts", desc: "Factual summaries strip away bias and show you verified information." },
-              { icon: MapPin, color: "text-teal-600", title: "Local Focus", desc: "Get news and representative info for your area, automatically." },
-              { icon: Users, color: "text-[#3498DB]", title: "Know Your Representatives", desc: "Profiles, voting records, and compatibility scores for your officials." },
-              { icon: BarChart3, color: "text-amber-500", title: "Common Ground", desc: "Discover where you agree with your Georgia neighbors on key issues." },
-              { icon: Globe, color: "text-[#1F3A93]", title: "Community Discussion", desc: "Comment on articles and engage in meaningful civic discourse." },
+              { icon: Scale,      color: "text-[#CC2020]", title: "See Both Sides",    desc: "Read every story from left, center, and right — so you can form your own view." },
+              { icon: Newspaper,  color: "text-[#1B2B5E]", title: "Stay Informed",     desc: "Curated national and local Georgia news, updated daily across the spectrum." },
+              { icon: MapPin,     color: "text-green-600",  title: "Live Local",       desc: "Hyper-local news and representative info for your city and district." },
+              { icon: ShieldCheck,color: "text-purple-600", title: "Facts First",      desc: "Start with verified facts, then explore the opinions. Not the other way around." },
             ].map(({ icon: Icon, color, title, desc }) => (
-              <Card key={title} className="border-[#E5E5E5]">
+              <Card key={title} className="border-[#E5E5E5] text-center">
                 <CardHeader>
-                  <Icon className={`w-8 h-8 ${color} mb-2`} />
-                  <CardTitle className="text-[#4A4A4A]">{title}</CardTitle>
+                  <Icon className={`w-10 h-10 ${color} mx-auto mb-2`} />
+                  <CardTitle className="text-[#1B2B5E] text-base">{title}</CardTitle>
                   <CardDescription>{desc}</CardDescription>
                 </CardHeader>
               </Card>
@@ -162,18 +158,18 @@ export default function HomePage() {
         <div className="bg-teal-600/10 py-16">
           <div className="container mx-auto px-4 text-center">
             <Badge className="bg-teal-600 text-white mb-4">Georgia 2026 Pilot</Badge>
-            <h2 className="text-2xl font-bold text-[#4A4A4A] mb-2">Georgia 2026 Elections Are Coming</h2>
+            <h2 className="text-2xl font-bold text-[#1B2B5E] mb-2">Georgia 2026 Elections Are Coming</h2>
             <p className="text-[#4A4A4A]/70 mb-6 max-w-xl mx-auto">
               The U.S. Senate seat, all 14 House seats, and dozens of state races are on the ballot.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Link href="/elections">
-                <Button size="lg" className="bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white">
+                <Button size="lg" className="bg-[#1B2B5E] hover:bg-[#1B2B5E]/90 text-white">
                   <Vote className="w-4 h-4 mr-2" />Georgia 2026 Races & Dates
                 </Button>
               </Link>
               <Link href="/auth/signup">
-                <Button size="lg" variant="outline" className="border-[#1F3A93] text-[#1F3A93]">
+                <Button size="lg" variant="outline" className="border-[#1B2B5E] text-[#1B2B5E]">
                   Create Free Account
                 </Button>
               </Link>

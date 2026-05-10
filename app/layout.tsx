@@ -8,8 +8,8 @@ import { PostHogProvider } from "@/components/posthog-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MyVote - Balanced Political News",
-  description: "Read political news from all perspectives and engage with your community",
+  title: "MyVote — Understand More. Decide Better.",
+  description: "See both sides. Stay informed. Live local. Start with the facts, then get the opinions.",
   generator: "v0.app",
 };
 
