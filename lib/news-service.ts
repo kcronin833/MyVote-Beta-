@@ -112,7 +112,7 @@ export async function getRightNews(): Promise<NewsArticle[]> {
 // Fetch factual/objective news from mainstream sources - politics only
 export async function getFactualNews(): Promise<NewsArticle[]> {
   const [headlines, political] = await Promise.all([
-    fetchTopHeadlines("us", "politics"),
+    fetchTopHeadlines(),
     fetchEverything("Congress OR Senate OR White House OR Supreme Court OR election OR legislation OR Georgia politics"),
   ]);
   const seen = new Set<string>();
