@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, ThumbsUp, Flame, Zap, CheckCircle, Loader2 } from "lucide-react"
+import { RefreshCw, MessageCircle, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
 import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
@@ -24,10 +24,10 @@ interface FactualNewsItem {
 type Reaction = "important" | "outraged" | "surprising" | "factual"
 
 const REACTIONS: { key: Reaction; emoji: string; label: string }[] = [
-  { key: "important", emoji: "👍", label: "Important" },
-  { key: "outraged",  emoji: "😡", label: "Outraged"  },
-  { key: "surprising",emoji: "😮", label: "Surprising"},
-  { key: "factual",   emoji: "✅", label: "Factual"   },
+  { key: "important",  emoji: "👍", label: "Important"  },
+  { key: "outraged",   emoji: "😡", label: "Outraged"   },
+  { key: "surprising", emoji: "😮", label: "Surprising" },
+  { key: "factual",    emoji: "✅", label: "Factual"    },
 ]
 
 const CATEGORIES = ["Top stories", "Politics", "Economy", "World"] as const
@@ -40,26 +40,65 @@ const CATEGORY_KEYWORDS: Record<Category, RegExp | null> = {
   "World":      /\b(world|international|global|ukraine|russia|china|israel|nato|europe|middle east|taiwan|iran|north korea|foreign)\b/i,
 }
 
-function getSourceLean(name: string, side: "left" | "right"): { label: string; dot: string; badge: string } {
+// Classify lean — muted tones, never partisan red/blue
+function getLean(name: string, side: "left" | "right" | "center"): { lean: string; label: string } {
   const n = name.toLowerCase()
-  if (n.includes("msnbc") || n.includes("the nation") || n.includes("mother jones"))
-    return { label: "Far left",     dot: "bg-blue-700",   badge: "bg-blue-100 text-blue-800" }
-  if (n.includes("cnn") || n.includes("washington post") || n.includes("new york times") || n.includes("nytimes") || n.includes("npr") || n.includes("pbs") || n.includes("huffpost") || n.includes("vox"))
-    return { label: "Center-left",  dot: "bg-blue-500",   badge: "bg-blue-50 text-blue-700" }
-  if (n.includes("associated press") || n.includes("reuters") || n.includes("axios") || n.includes("politico") || n.includes("the hill") || n.includes("abc") || n.includes("nbc"))
-    return { label: "Center",       dot: "bg-gray-500",   badge: "bg-gray-100 text-gray-700" }
-  if (n.includes("wall street") || n.includes("wsj") || n.includes("examiner") || n.includes("national review"))
-    return { label: "Center-right", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-700" }
-  if (n.includes("fox") || n.includes("daily wire") || n.includes("new york post") || n.includes("breitbart") || n.includes("daily caller"))
-    return { label: "Right",        dot: "bg-red-600",    badge: "bg-red-50 text-red-700" }
-  // fallback by side
-  return side === "left"
-    ? { label: "Left-leaning",  dot: "bg-blue-400",  badge: "bg-blue-50 text-blue-600" }
-    : { label: "Right-leaning", dot: "bg-red-400",   badge: "bg-red-50 text-red-600" }
+  if (/msnbc|huffpost|huffington|guardian|vox|slate|salon|the nation|mother jones/.test(n))
+    return { lean: "left",   label: "Left lens" }
+  if (/fox|daily wire|breitbart|washington examiner|national review|new york post|daily caller/.test(n))
+    return { lean: "right",  label: "Right lens" }
+  if (/associated press|reuters|axios|politico|the hill|abc|nbc|npr|pbs/.test(n))
+    return { lean: "center", label: "Shared lens" }
+  return { lean: side, label: side === "left" ? "Left lens" : side === "right" ? "Right lens" : "Shared lens" }
 }
 
 const EMPTY_COUNTS: Record<Reaction, number> = { important: 0, outraged: 0, surprising: 0, factual: 0 }
 
+// ── Lean dot ─────────────────────────────────────────────────────────────────
+function LeanDot({ lean }: { lean: string }) {
+  const colors: Record<string, string> = {
+    left:   "var(--lean-left)",
+    right:  "var(--lean-right)",
+    center: "var(--lean-center)",
+  }
+  const labels: Record<string, string> = { left: "L", right: "R", center: "C" }
+  return (
+    <span
+      style={{
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 16, height: 16, borderRadius: 999,
+        background: colors[lean] || colors.center,
+        color: "#fff", fontSize: 8, fontWeight: 700, flexShrink: 0,
+      }}
+    >{labels[lean] || "·"}</span>
+  )
+}
+
+// ── Perspective row ────────────────────────────────────────────────────────────
+function PerspectiveRow({ article, side }: { article: NewsArticle; side: "left" | "right" | "center" }) {
+  const { lean, label } = getLean(article.source, side)
+  return (
+    <a
+      href={article.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex gap-3 p-3 rounded-xl transition-colors hover:opacity-80"
+      style={{ background: "var(--paper-100)" }}
+    >
+      <LeanDot lean={lean} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[10px] font-bold tracking-wide uppercase" style={{ color: "var(--ink-500)" }}>{label}</span>
+          <span style={{ color: "var(--rule)" }}>·</span>
+          <span className="text-[10px]" style={{ color: "var(--ink-500)" }}>{article.source}</span>
+        </div>
+        <p className="text-sm font-medium leading-snug line-clamp-2" style={{ color: "var(--ink-900)" }}>{article.title}</p>
+      </div>
+    </a>
+  )
+}
+
+// ── News card ─────────────────────────────────────────────────────────────────
 function NewsCard({ article }: { article: FactualNewsItem }) {
   const { user } = useAuth()
   const supabase = createClient()
@@ -70,15 +109,10 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   const [reacting, setReacting]     = useState(false)
   const [showComments, setShowComments] = useState(false)
 
-  // Combine all sources into one ordered list
-  const allSources = [
-    ...article.leftArticles.map(a  => ({ ...a, side: "left"  as const })),
-    ...article.rightArticles.map(a => ({ ...a, side: "right" as const })),
-  ]
-
-  // Dot position on spectrum (0 = all left, 100 = all right)
-  const total = article.leftArticles.length + article.rightArticles.length
-  const dotPct = total > 0 ? Math.round((article.rightArticles.length / total) * 100) : 50
+  // All perspective articles
+  const leftArticles   = article.leftArticles.slice(0, 2)
+  const rightArticles  = article.rightArticles.slice(0, 2)
+  const hasPerspectives = leftArticles.length > 0 || rightArticles.length > 0
 
   useEffect(() => {
     async function load() {
@@ -119,142 +153,110 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   }
 
   return (
-    <article className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+    <article className="rounded-2xl overflow-hidden" style={{ background: "var(--paper-50)", border: "1px solid var(--rule)" }}>
+      <div className="p-5 space-y-4">
 
-      {/* AI synopsis badge */}
-      <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg border border-gray-200 font-medium">
-          <span className="w-2.5 h-2.5 border border-gray-400 rounded-sm flex-shrink-0" />
-          AI synopsis
-        </span>
-        {article.controversyScore >= 70 && (
-          <span className="text-xs font-bold text-red-600 flex items-center gap-1">
-            <Flame className="w-3.5 h-3.5" /> High controversy
+        {/* Meta */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--paper-200)", color: "var(--ink-700)" }}>
+            {article.source}
           </span>
+          <span className="text-xs" style={{ color: "var(--ink-500)" }}>{formatNewsTime(article.publishedAt)}</span>
+          {article.controversyScore >= 70 && (
+            <span className="ml-auto text-xs font-bold" style={{ color: "var(--civic-red)" }}>🔥 Trending</span>
+          )}
+        </div>
+
+        {/* Headline */}
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block hover:opacity-70 transition-opacity"
+          style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.02em", color: "var(--ink-900)" }}
+        >
+          {article.title}
+        </a>
+
+        {/* Summary */}
+        {(article.aiOverview || article.description) && (
+          <p className="text-sm leading-relaxed" style={{ color: "var(--ink-700)" }}>
+            {article.aiOverview || article.description}
+          </p>
+        )}
+
+        {/* Perspective rows */}
+        {hasPerspectives && (
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: "var(--ink-500)" }}>
+              How it's being covered
+            </div>
+            {leftArticles.map((a, i)  => <PerspectiveRow key={`l${i}`} article={a} side="left"   />)}
+            {rightArticles.map((a, i) => <PerspectiveRow key={`r${i}`} article={a} side="right"  />)}
+          </div>
+        )}
+
+        {/* Reactions + actions */}
+        <div className="flex items-center gap-1.5 pt-3 flex-wrap" style={{ borderTop: "1px solid var(--rule)" }}>
+          {REACTIONS.map(({ key, emoji, label }) => (
+            <button
+              key={key}
+              onClick={() => handleReaction(key)}
+              disabled={!user || reacting}
+              title={!user ? "Sign in to react" : label}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={{
+                border: `1px solid ${myReaction === key ? "var(--ink-900)" : "var(--rule)"}`,
+                background: myReaction === key ? "var(--ink-900)" : "transparent",
+                color: myReaction === key ? "var(--paper-50)" : "var(--ink-700)",
+                opacity: !user || reacting ? 0.4 : 1,
+                cursor: !user ? "not-allowed" : "pointer",
+              }}
+            >
+              <span>{emoji}</span>
+              <span>{counts[key]}</span>
+            </button>
+          ))}
+
+          <div className="ml-auto flex items-center gap-2">
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-70"
+              style={{ border: "1px solid var(--rule)", color: "var(--ink-700)" }}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Read
+            </a>
+            <button
+              onClick={() => setShowComments(v => !v)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-70"
+              style={{ border: "1px solid var(--rule)", color: "var(--ink-700)" }}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Discuss
+              {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
+        </div>
+
+        {showComments && (
+          <div className="pt-2" style={{ borderTop: "1px solid var(--rule)" }}>
+            <CommentSystem articleUrl={articleId} articleTitle={article.title} />
+          </div>
         )}
       </div>
-
-      {/* Headline */}
-      <a
-        href={article.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block text-[1.15rem] font-bold leading-snug text-gray-900 hover:text-[#1B2B5E] transition-colors"
-      >
-        {article.title}
-      </a>
-
-      {/* Summary */}
-      {(article.aiOverview || article.description) && (
-        <p className="text-sm text-gray-600 leading-relaxed">
-          {article.aiOverview || article.description}
-        </p>
-      )}
-
-      {/* Spectrum bar */}
-      {total > 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-blue-600 font-medium flex items-center gap-1 flex-shrink-0">
-            <span className="w-2.5 h-2.5 border border-blue-400 rounded-sm" />
-            Left
-          </span>
-          <div
-            className="flex-1 relative h-1.5 rounded-full"
-            style={{ background: "linear-gradient(to right, #3b82f6, #9ca3af, #ef4444)" }}
-          >
-            <div
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-gray-900 border-2 border-white shadow-md transition-all"
-              style={{ left: `${dotPct}%` }}
-            />
-          </div>
-          <span className="text-xs text-red-600 font-medium flex items-center gap-1 flex-shrink-0">
-            Right
-            <span className="w-2.5 h-2.5 border border-red-400 rounded-sm" />
-          </span>
-        </div>
-      )}
-
-      {/* Source cards — horizontal scroll */}
-      {allSources.length > 0 && (
-        <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {allSources.map((src, i) => {
-            const lean = getSourceLean(src.source, src.side)
-            return (
-              <a
-                key={i}
-                href={src.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 w-44 border border-gray-200 rounded-xl p-3 hover:bg-gray-50 hover:border-gray-300 transition-colors"
-              >
-                <div className="flex items-center justify-between gap-1 mb-2">
-                  <span className="text-xs font-bold text-gray-800 truncate">{src.source}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${lean.badge}`}>
-                    {lean.label}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{src.title}</p>
-                <p className="text-[10px] text-gray-400 mt-2">{formatNewsTime(src.publishedAt)}</p>
-              </a>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Reactions + actions */}
-      <div className="flex items-center gap-1.5 pt-3 border-t border-gray-100 flex-wrap">
-        {REACTIONS.map(({ key, emoji, label }) => (
-          <button
-            key={key}
-            onClick={() => handleReaction(key)}
-            disabled={!user || reacting}
-            title={!user ? "Sign in to react" : label}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-              myReaction === key
-                ? "bg-gray-900 text-white border-gray-900"
-                : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800"
-            } disabled:opacity-40 disabled:cursor-not-allowed`}
-          >
-            <span>{emoji}</span>
-            <span>{counts[key]}</span>
-          </button>
-        ))}
-
-        <div className="ml-auto flex items-center gap-2">
-          <a
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Read
-          </a>
-          <button
-            onClick={() => setShowComments(v => !v)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            Discuss
-            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-        </div>
-      </div>
-
-      {showComments && (
-        <div className="pt-2 border-t border-gray-100">
-          <CommentSystem articleUrl={articleId} articleTitle={article.title} />
-        </div>
-      )}
     </article>
   )
 }
 
+// ── Main export ───────────────────────────────────────────────────────────────
 export function AIFactualNews() {
-  const [news, setNews]         = useState<FactualNewsItem[]>([])
-  const [loading, setLoading]   = useState(true)
+  const [news, setNews]       = useState<FactualNewsItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+  const [error, setError]     = useState<string | null>(null)
   const [category, setCategory] = useState<Category>("Top stories")
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
@@ -289,20 +291,14 @@ export function AIFactualNews() {
     return (
       <div className="space-y-4">
         <div className="flex gap-2 mb-6">
-          {CATEGORIES.map(c => (
-            <div key={c} className="h-8 w-24 rounded-full bg-gray-200 animate-pulse" />
-          ))}
+          {CATEGORIES.map(c => <div key={c} className="h-8 w-24 rounded-full animate-pulse" style={{ background: "var(--paper-200)" }} />)}
         </div>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3 animate-pulse">
-            <div className="h-3 w-20 bg-gray-200 rounded" />
-            <div className="h-6 w-5/6 bg-gray-200 rounded" />
-            <div className="h-4 w-full bg-gray-100 rounded" />
-            <div className="h-4 w-4/5 bg-gray-100 rounded" />
-            <div className="h-2 w-full bg-gray-200 rounded-full" />
-            <div className="flex gap-2">
-              {[...Array(3)].map((_, j) => <div key={j} className="h-24 w-44 bg-gray-100 rounded-xl flex-shrink-0" />)}
-            </div>
+          <div key={i} className="rounded-2xl p-5 space-y-3 animate-pulse" style={{ background: "var(--paper-50)", border: "1px solid var(--rule)" }}>
+            <div className="h-3 w-20 rounded" style={{ background: "var(--paper-200)" }} />
+            <div className="h-6 w-5/6 rounded" style={{ background: "var(--paper-200)" }} />
+            <div className="h-4 w-full rounded" style={{ background: "var(--paper-200)" }} />
+            <div className="h-4 w-4/5 rounded" style={{ background: "var(--paper-200)" }} />
           </div>
         ))}
       </div>
@@ -311,64 +307,51 @@ export function AIFactualNews() {
 
   return (
     <div className="space-y-5">
-      {/* Category tabs */}
+      {/* Category tabs + refresh */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex gap-2 flex-wrap">
           {CATEGORIES.map(c => (
             <button
               key={c}
               onClick={() => setCategory(c)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
-                category === c
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
-              }`}
+              className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+              style={{
+                border: `1px solid ${category === c ? "var(--ink-900)" : "var(--rule)"}`,
+                background: category === c ? "var(--ink-900)" : "transparent",
+                color: category === c ? "var(--paper-50)" : "var(--ink-700)",
+                fontFamily: "var(--font-sans)",
+              }}
             >
               {c}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          {lastUpdated && (
-            <span className="text-xs text-gray-400 hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-          <button
-            onClick={() => loadNews(true)}
-            disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Loading…" : "Refresh"}
-          </button>
-        </div>
+        <button
+          onClick={() => loadNews(true)}
+          disabled={refreshing}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-70"
+          style={{ border: "1px solid var(--rule)", color: "var(--ink-500)" }}
+        >
+          <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
+          {lastUpdated ? `Updated ${formatNewsTime(lastUpdated.toISOString())}` : "Refresh"}
+        </button>
       </div>
 
       {error && (
-        <div className="py-16 text-center text-gray-400 space-y-2">
-          <p className="text-sm">{error}</p>
-          <button onClick={() => loadNews(true)} className="text-xs text-[#1B2B5E] underline">
-            Try again
-          </button>
+        <div className="rounded-2xl p-6 text-center text-sm" style={{ background: "var(--paper-50)", border: "1px solid var(--rule)", color: "var(--ink-500)" }}>
+          {error}
         </div>
       )}
 
-      {filtered.length === 0 && !error && !loading && (
-        <div className="py-16 text-center text-gray-400 text-sm">
-          No {category.toLowerCase()} stories right now — try another category.
+      {!error && filtered.length === 0 && !loading && (
+        <div className="rounded-2xl p-8 text-center text-sm" style={{ background: "var(--paper-50)", border: "1px solid var(--rule)", color: "var(--ink-500)" }}>
+          No articles in this category right now.
         </div>
       )}
 
       {filtered.map((article, i) => (
-        <NewsCard key={i} article={article} />
+        <NewsCard key={`${article.url}-${i}`} article={article} />
       ))}
-
-      {filtered.length > 0 && (
-        <p className="text-center text-xs text-gray-400 pt-2 pb-4">
-          Coverage sourced from real outlets across the political spectrum. Always verify with official sources.
-        </p>
-      )}
     </div>
   )
 }
