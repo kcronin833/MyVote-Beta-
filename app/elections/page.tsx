@@ -1,479 +1,466 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import {
-  CalendarDays,
-  Vote,
-  MapPin,
-  Users,
-  ExternalLink,
-  ArrowLeft,
-  Clock,
-  CheckSquare,
-  AlertCircle,
-  Info,
-} from "lucide-react"
+import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 
-export const metadata = {
-  title: "Georgia 2026 Elections | MyVote",
-  description:
-    "Everything Georgia voters need for the 2026 elections — key races, important dates, voter registration, and candidate information.",
+// ── Design tokens ─────────────────────────────────────────────────────────────
+
+function CheckIcon({ size = 11 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
+function CircleIcon({ size = 11 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+    </svg>
+  )
+}
+function ChevronRight({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  )
 }
 
-const KEY_DATES = [
+// ── Ballot data ───────────────────────────────────────────────────────────────
+
+const BALLOT = [
+  // Federal
+  { id: "us-sen",  race: "U.S. Senate",          status: "decided",   match: "Sen. Ossoff",   group: "Federal" },
+  { id: "us-h5",   race: "U.S. House — GA-5",    status: "decided",   match: "Rep. Williams", group: "Federal" },
+  { id: "us-h6",   race: "U.S. House — GA-6",    status: "undecided", match: null,            group: "Federal" },
+  // State Executive
+  { id: "gov",     race: "Governor",              status: "decided",   match: "Burns · 78%",   group: "State" },
+  { id: "lt-gov",  race: "Lieutenant Governor",   status: "leaning",   match: "Jones",         group: "State" },
+  { id: "sos",     race: "Secretary of State",    status: "leaning",   match: "Lee",           group: "State" },
+  { id: "ag",      race: "Attorney General",      status: "undecided", match: null,            group: "State" },
+  { id: "ins",     race: "Insurance Commissioner",status: "undecided", match: null,            group: "State" },
+  // Local
+  { id: "labor",   race: "Commissioner of Labor", status: "undecided", match: null,            group: "Local" },
+  { id: "psc",     race: "Public Service Commission D2", status: "undecided", match: null,     group: "Local" },
+  { id: "ga-sen",  race: "GA Senate Dist. 39",    status: "undecided", match: null,            group: "Local" },
+  { id: "soil",    race: "Soil & Water Conservation", status: "undecided", match: null,        group: "Local" },
+]
+
+const CANDIDATES = [
   {
-    date: "November 2025",
-    label: "Candidate Filing Opens",
-    description: "Candidates begin filing for 2026 Georgia races",
-    status: "upcoming",
+    name: "Marcus Holloway", initials: "MH",
+    role: "U.S. Senate · Democratic",
+    match: 84,
+    issues: [
+      { name: "Healthcare",   agree: "agree" as const },
+      { name: "Infrastructure", agree: "agree" as const },
+      { name: "Climate",      agree: "agree" as const },
+      { name: "Education",    agree: "agree" as const },
+      { name: "Gun policy",   agree: "partial" as const },
+      { name: "Taxes",        agree: "disagree" as const },
+    ],
   },
   {
-    date: "March 2026",
-    label: "Voter Registration Deadline (Primary)",
-    description: "Last day to register or update your registration for the Primary",
-    status: "critical",
+    name: "Diane Reeves", initials: "DR",
+    role: "U.S. Senate · Republican",
+    match: 41,
+    issues: [
+      { name: "Healthcare",   agree: "disagree" as const },
+      { name: "Infrastructure", agree: "agree" as const },
+      { name: "Climate",      agree: "disagree" as const },
+      { name: "Education",    agree: "partial" as const },
+      { name: "Gun policy",   agree: "disagree" as const },
+      { name: "Taxes",        agree: "agree" as const },
+    ],
   },
   {
-    date: "May 19, 2026",
-    label: "Georgia Primary Election",
-    description: "Voters choose party nominees for all federal and state races",
-    status: "critical",
-  },
-  {
-    date: "June 16, 2026",
-    label: "Primary Runoff (if needed)",
-    description: "Runoff if no candidate receives more than 50% of primary votes",
-    status: "upcoming",
-  },
-  {
-    date: "October 5, 2026",
-    label: "Voter Registration Deadline (General)",
-    description: "Last day to register to vote in the November General Election",
-    status: "critical",
-  },
-  {
-    date: "October 19 – October 30, 2026",
-    label: "Early Voting Period",
-    description: "Vote early in person at your county's early voting locations",
-    status: "upcoming",
-  },
-  {
-    date: "November 3, 2026",
-    label: "General Election Day",
-    description: "The main election — polls open 7 AM to 7 PM",
-    status: "critical",
+    name: "Eli Park", initials: "EP",
+    role: "U.S. Senate · Independent",
+    match: 67,
+    issues: [
+      { name: "Healthcare",   agree: "agree" as const },
+      { name: "Infrastructure", agree: "agree" as const },
+      { name: "Climate",      agree: "partial" as const },
+      { name: "Education",    agree: "agree" as const },
+      { name: "Gun policy",   agree: "agree" as const },
+      { name: "Taxes",        agree: "disagree" as const },
+    ],
   },
 ]
 
-const SENATE_RACE = {
-  seat: "U.S. Senate — Georgia",
-  cycle: "Class III",
-  incumbent: {
-    name: "Jon Ossoff",
-    party: "Democrat",
-    since: "January 2021",
-    website: "https://www.ossoff.senate.gov/",
-    bio: "Jon Ossoff has served as Georgia's U.S. Senator since January 2021. He narrowly won a runoff election in January 2021 alongside Raphael Warnock, flipping both Georgia Senate seats. His seat is up for election in 2026.",
-  },
-  why_it_matters:
-    "This race will help determine control of the U.S. Senate. Georgia has become one of the most competitive states in the nation, making this a top-tier battleground race in 2026.",
+const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
+const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function ProgressBar({ value, max }: { value: number; max: number }) {
+  const pct = Math.min(100, (value / max) * 100)
+  return (
+    <div style={{ width: "100%", height: 5, background: "var(--paper-200)", borderRadius: 99, overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${pct}%`, background: "var(--ink-900)", borderRadius: 99, transition: "width .4s" }} />
+    </div>
+  )
 }
 
-const HOUSE_RACES = [
-  {
-    district: "Georgia's 5th Congressional District",
-    incumbent: "Nikema Williams",
-    party: "Democrat",
-    area: "Atlanta (Fulton & DeKalb counties)",
-    competitiveness: "Safe Democrat",
-    website: "https://nikemawilliams.house.gov/",
-  },
-  {
-    district: "Georgia's 6th Congressional District",
-    incumbent: "Rich McCormick",
-    party: "Republican",
-    area: "Northern Atlanta suburbs (Cherokee, Forsyth, Gwinnett counties)",
-    competitiveness: "Likely Republican",
-    website: "https://mccormick.house.gov/",
-  },
-  {
-    district: "Georgia's 7th Congressional District",
-    incumbent: "Lucy McBath",
-    party: "Democrat",
-    area: "Gwinnett, Forsyth, Hall counties",
-    competitiveness: "Competitive",
-    website: "https://mcbath.house.gov/",
-  },
-  {
-    district: "Georgia's 13th Congressional District",
-    incumbent: "David Scott",
-    party: "Democrat",
-    area: "South Fulton, Douglas, Fayette, Henry counties",
-    competitiveness: "Safe Democrat",
-    website: "https://davidscott.house.gov/",
-  },
-]
-
-const VOTER_RESOURCES = [
-  {
-    title: "Check Your Registration",
-    description: "Verify your voter registration status with the Georgia Secretary of State",
-    url: "https://mvp.sos.ga.gov/",
-    icon: CheckSquare,
-    cta: "Check Now",
-  },
-  {
-    title: "Register to Vote",
-    description: "New to Georgia or need to update your address? Register online in minutes",
-    url: "https://registertovote.sos.ga.gov/",
-    icon: Vote,
-    cta: "Register",
-  },
-  {
-    title: "Find Your Polling Place",
-    description: "Look up your assigned polling location for Election Day",
-    url: "https://mvp.sos.ga.gov/",
-    icon: MapPin,
-    cta: "Find Location",
-  },
-  {
-    title: "Absentee / Mail Ballot",
-    description: "Request an absentee ballot to vote by mail before Election Day",
-    url: "https://registertovote.sos.ga.gov/",
-    icon: CalendarDays,
-    cta: "Request Ballot",
-  },
-]
-
-const PARTY_BADGE_COLORS: Record<string, string> = {
-  Democrat: "bg-blue-100 text-blue-800 border-blue-300",
-  Republican: "bg-red-100 text-red-800 border-red-300",
-  Independent: "bg-gray-100 text-gray-700 border-gray-300",
+function SplitBar({ segs, height = 6 }: { segs: { label: string; value: number; color: string }[]; height?: number }) {
+  const total = segs.reduce((s, x) => s + x.value, 0)
+  return (
+    <div style={{ display: "flex", width: "100%", height, borderRadius: 99, overflow: "hidden", background: "var(--paper-200)" }}>
+      {segs.map((s, i) => (
+        <div key={i} style={{ width: `${(s.value / total) * 100}%`, background: s.color }} />
+      ))}
+    </div>
+  )
 }
 
-const COMPETITIVENESS_COLORS: Record<string, string> = {
-  "Safe Democrat": "bg-blue-600 text-white",
-  "Likely Democrat": "bg-blue-400 text-white",
-  Competitive: "bg-yellow-500 text-white",
-  "Likely Republican": "bg-red-400 text-white",
-  "Safe Republican": "bg-red-600 text-white",
+type RaceStatus = "decided" | "leaning" | "undecided"
+
+function RaceRow({ race }: { race: typeof BALLOT[0] }) {
+  const statusMap: Record<RaceStatus, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
+    decided:   { icon: <CheckIcon />, color: "var(--ink-900)", bg: "var(--ink-100)", label: "Decided" },
+    leaning:   { icon: "·",            color: "#8E5919",         bg: "#F6ECD8",         label: "Leaning" },
+    undecided: { icon: <CircleIcon />, color: "var(--ink-500)", bg: "var(--paper-200)", label: "Open" },
+  }
+  const s = statusMap[race.status as RaceStatus]
+  return (
+    <div style={{
+      padding: "13px 14px", background: "var(--paper-50)", borderRadius: 12,
+      border: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 12,
+    }}>
+      <div style={{
+        width: 22, height: 22, borderRadius: 99,
+        background: s.bg, color: s.color,
+        display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+      }}>{s.icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: "var(--ink-900)" }}>
+          {race.race}
+        </div>
+        <div style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: "var(--ink-500)" }}>
+          {race.match || s.label}
+        </div>
+      </div>
+      <span style={{ color: "var(--ink-400)" }}><ChevronRight /></span>
+    </div>
+  )
 }
+
+function RaceGroup({ races, label, count }: { races: typeof BALLOT; label: string; count: number }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0 10px", padding: "0 16px" }}>
+        <span style={{
+          fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700,
+          letterSpacing: 1.4, textTransform: "uppercase", color: "var(--ink-500)",
+        }}>{label}</span>
+        <span style={{ flex: 1, height: 1, background: "var(--rule)" }} />
+        <span style={{ fontFamily: "var(--font-sans)", fontSize: 10.5, color: "var(--ink-400)", fontWeight: 500 }}>
+          {count} races
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 16px" }}>
+        {races.map(r => <RaceRow key={r.id} race={r} />)}
+      </div>
+    </div>
+  )
+}
+
+// ── Candidate match ───────────────────────────────────────────────────────────
+
+function TopMatchCard({ c }: { c: typeof CANDIDATES[0] }) {
+  const agree   = c.issues.filter(i => i.agree === "agree").length
+  const partial = c.issues.filter(i => i.agree === "partial").length
+  const disagree = c.issues.filter(i => i.agree === "disagree").length
+
+  return (
+    <div style={{
+      margin: "10px 16px 16px", padding: 18,
+      background: "var(--ink-900)", color: "var(--paper-50)",
+      borderRadius: 16, overflow: "hidden",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+        <div style={{
+          width: 52, height: 52, borderRadius: 99,
+          background: "var(--paper-100)", color: "var(--ink-900)",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "var(--font-serif)", fontWeight: 600, fontSize: 20,
+        }}>{c.initials}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "var(--font-serif)", fontSize: 19, fontWeight: 600, letterSpacing: -0.3, lineHeight: 1.1 }}>
+            {c.name}
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, opacity: 0.65 }}>{c.role}</div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
+        <span style={{ fontFamily: "var(--font-serif)", fontSize: 56, fontWeight: 600, letterSpacing: -2, lineHeight: 1 }}>
+          {c.match}
+        </span>
+        <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, opacity: 0.7 }}>% alignment</span>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <SplitBar segs={[
+          { label: "agree",    value: agree,    color: "#F2EBE3" },
+          { label: "partial",  value: partial,  color: "rgba(242,235,227,0.45)" },
+          { label: "disagree", value: disagree, color: "rgba(242,235,227,0.18)" },
+        ]} />
+        <div style={{ display: "flex", gap: 12, marginTop: 8, fontFamily: "var(--font-sans)", fontSize: 11, opacity: 0.7 }}>
+          <span>{agree} agree</span>
+          <span>{partial} partial</span>
+          <span>{disagree} disagree</span>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 }}>
+        {c.issues.map(iss => (
+          <div key={iss.name} style={{
+            padding: "8px 10px", borderRadius: 8,
+            background: "rgba(255,255,255,0.08)",
+            display: "flex", alignItems: "center", gap: 6,
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: 99, flexShrink: 0,
+              background: iss.agree === "agree" ? "#9FCFA8"
+                        : iss.agree === "partial" ? "#E6CB73"
+                        : "rgba(255,255,255,0.3)",
+            }} />
+            <span style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, fontWeight: 500 }}>{iss.name}</span>
+          </div>
+        ))}
+      </div>
+
+      <Link href="/elections/candidate/marcus-holloway">
+        <button style={{
+          width: "100%", padding: 11, borderRadius: 99, border: "none",
+          background: "var(--paper-50)", color: "var(--ink-900)",
+          fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600,
+          cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 4,
+        }}>
+          Read full profile <ChevronRight size={12} />
+        </button>
+      </Link>
+    </div>
+  )
+}
+
+function CandidateRow({ c }: { c: typeof CANDIDATES[0] }) {
+  return (
+    <Link href={`/elections/candidate/${c.name.toLowerCase().replace(/\s+/g, "-")}`} style={{ textDecoration: "none" }}>
+      <div style={{
+        padding: 14, background: "var(--paper-50)", borderRadius: 12,
+        border: "1px solid var(--rule)", display: "flex", alignItems: "center", gap: 12,
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 99,
+          background: "var(--paper-200)", color: "var(--ink-900)",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "var(--font-serif)", fontWeight: 600, fontSize: 15, flexShrink: 0,
+        }}>{c.initials}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: "var(--ink-900)" }}>
+            {c.name}
+          </div>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: "var(--ink-500)" }}>{c.role}</div>
+          <div style={{ marginTop: 6 }}>
+            <ProgressBar value={c.match} max={100} />
+          </div>
+        </div>
+        <div style={{
+          fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 600,
+          color: "var(--ink-900)", letterSpacing: -0.4, minWidth: 44, textAlign: "right",
+        }}>{c.match}%</div>
+      </div>
+    </Link>
+  )
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+
+type Tab = "ballot" | "match"
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ElectionsPage() {
+  const [tab, setTab] = useState<Tab>("ballot")
+  const [electionInfo, setElectionInfo] = useState<{ label: string; days: number; date: string } | null>(null)
+
+  useEffect(() => {
+    const now = new Date()
+    const isPrimary = now < GEORGIA_PRIMARY
+    const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL
+    const days = Math.ceil((target.getTime() - now.getTime()) / 86400000)
+    setElectionInfo({
+      label: isPrimary ? "Georgia Primary" : "General Election",
+      days,
+      date: isPrimary ? "May 19, 2026" : "November 3, 2026",
+    })
+  }, [])
+
+  const decided   = BALLOT.filter(b => b.status === "decided").length
+  const leaning   = BALLOT.filter(b => b.status === "leaning").length
+  const undecided = BALLOT.filter(b => b.status === "undecided").length
+  const pct = Math.round((decided / BALLOT.length) * 100)
+
+  const federal = BALLOT.filter(b => b.group === "Federal")
+  const state   = BALLOT.filter(b => b.group === "State")
+  const local   = BALLOT.filter(b => b.group === "Local")
+
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Header */}
-      <div className="bg-[#1F3A93] text-white">
-        <div className="container mx-auto px-4 py-10">
-          <Link href="/">
-            <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 mb-4 -ml-3">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          <div className="flex items-center gap-3 mb-3">
-            <Logo size="md" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Georgia 2026 Elections</h1>
-          <p className="text-blue-100 text-lg max-w-2xl">
-            Your complete guide to the 2026 Georgia election cycle — key races, important dates, voter resources,
-            and how to make your voice count.
-          </p>
-        </div>
+    <div className="min-h-screen" style={{ background: "var(--paper-100)" }}>
+      {/* Top bar */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "14px 16px 10px", background: "var(--paper-50)",
+        borderBottom: "1px solid var(--rule)",
+      }}>
+        <Logo size="sm" />
+        <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "var(--ink-700)", textDecoration: "none" }}>
+          ← Home
+        </Link>
       </div>
 
-      <div className="container mx-auto px-4 py-10 space-y-12">
-        {/* Important Disclaimer */}
-        <div className="flex gap-3 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800">
-            <strong>Note:</strong> Specific dates such as candidate filing deadlines and exact early voting
-            windows are set by the Georgia Secretary of State and may be adjusted. Always verify critical
-            dates at{" "}
-            <a href="https://sos.ga.gov/" target="_blank" rel="noopener noreferrer" className="underline font-medium">
-              sos.ga.gov
-            </a>{" "}
-            before making voting plans.
+      <div className="max-w-2xl mx-auto pb-24">
+        {/* Header */}
+        <div style={{ padding: "18px 16px 6px" }}>
+          {electionInfo && (
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, color: "var(--ink-500)", letterSpacing: 0.4, marginBottom: 2 }}>
+              {electionInfo.label} · {electionInfo.days} days
+            </div>
+          )}
+          <h1 style={{
+            fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 600,
+            letterSpacing: -0.6, color: "var(--ink-900)", margin: "0 0 4px", lineHeight: 1.1,
+          }}>Your ballot</h1>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--ink-500)", margin: 0 }}>
+            {BALLOT.length} races · {decided} decided · {leaning} leaning
           </p>
         </div>
 
-        {/* Key Dates Timeline */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <CalendarDays className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Key Dates</h2>
+        {/* Progress card */}
+        <div style={{ margin: "14px 16px 0", padding: 16, background: "var(--paper-50)", borderRadius: 14, border: "1px solid var(--rule)" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", color: "var(--ink-500)" }}>
+              Progress
+            </div>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 600, color: "var(--ink-900)", letterSpacing: -0.4 }}>
+              {pct}%
+            </div>
           </div>
-          <div className="grid gap-3">
-            {KEY_DATES.map((item) => (
-              <div
-                key={item.date}
-                className="flex items-start gap-4 bg-white border border-[#E5E5E5] rounded-lg p-4 hover:border-[#1F3A93]/30 transition-colors"
-              >
-                <div className="flex-shrink-0 mt-0.5">
-                  {item.status === "critical" ? (
-                    <div className="w-3 h-3 rounded-full bg-[#D64541] mt-1" />
-                  ) : (
-                    <div className="w-3 h-3 rounded-full bg-[#1F3A93]/40 mt-1" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="font-semibold text-[#1F3A93] text-sm">{item.date}</span>
-                    {item.status === "critical" && (
-                      <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
-                        Important
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="font-medium text-[#4A4A4A]">{item.label}</p>
-                  <p className="text-sm text-[#4A4A4A]/70 mt-0.5">{item.description}</p>
-                </div>
-              </div>
-            ))}
+          <ProgressBar value={decided} max={BALLOT.length} />
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontFamily: "var(--font-sans)", fontSize: 11, color: "var(--ink-500)" }}>
+            <span>Decided {decided}</span>
+            <span>Leaning {leaning}</span>
+            <span>Undecided {undecided}</span>
           </div>
-        </section>
+        </div>
 
-        <Separator />
+        {/* Tabs */}
+        <div style={{ margin: "16px 16px 0", display: "flex", gap: 4, padding: 4, background: "var(--paper-200)", borderRadius: 12 }}>
+          {([["ballot", "My Ballot"], ["match", "Candidate Match"]] as [Tab, string][]).map(([id, label]) => (
+            <button key={id} onClick={() => setTab(id)} style={{
+              flex: 1, padding: "9px 6px", border: "none",
+              background: tab === id ? "var(--paper-50)" : "transparent",
+              color: tab === id ? "var(--ink-900)" : "var(--ink-500)",
+              borderRadius: 8, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600,
+              cursor: "pointer",
+            }}>{label}</button>
+          ))}
+        </div>
 
-        {/* U.S. Senate Race */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <Users className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">U.S. Senate Race</h2>
-            <Badge className="bg-[#F39C12] text-white">Top Race</Badge>
-          </div>
+        {tab === "ballot" && (
+          <>
+            <RaceGroup races={federal} label="Federal" count={federal.length} />
+            <RaceGroup races={state}   label="State executive" count={state.length} />
+            <RaceGroup races={local}   label="Local" count={local.length} />
+          </>
+        )}
 
-          <Card className="border-[#E5E5E5] overflow-hidden">
-            <div className="h-1.5 bg-gradient-to-r from-blue-600 via-[#1F3A93] to-red-600" />
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <CardTitle className="text-xl text-[#4A4A4A]">{SENATE_RACE.seat}</CardTitle>
-                  <CardDescription className="mt-1">
-                    Full 6-year term · {SENATE_RACE.cycle} seat · Up for election November 3, 2026
-                  </CardDescription>
-                </div>
-                <Badge variant="outline" className="text-sm bg-yellow-50 text-yellow-800 border-yellow-300">
-                  Battleground Race
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E5E5E5]">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" className={PARTY_BADGE_COLORS["Democrat"]}>
-                    Democrat
-                  </Badge>
-                  <span className="text-sm text-[#4A4A4A]/60">Incumbent · Senator since {SENATE_RACE.incumbent.since}</span>
-                </div>
-                <h3 className="text-lg font-bold text-[#4A4A4A]">{SENATE_RACE.incumbent.name}</h3>
-                <p className="text-sm text-[#4A4A4A]/80 mt-2">{SENATE_RACE.incumbent.bio}</p>
-                <a
-                  href={SENATE_RACE.incumbent.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-3 text-sm text-[#1F3A93] hover:underline"
-                >
-                  Official Senate Website <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-
-              <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-4">
-                <AlertCircle className="w-5 h-5 text-[#1F3A93] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm text-[#1F3A93] mb-1">Why This Race Matters</p>
-                  <p className="text-sm text-[#4A4A4A]/80">{SENATE_RACE.why_it_matters}</p>
-                </div>
-              </div>
-
-              <p className="text-sm text-[#4A4A4A]/60 italic">
-                Republican and Independent challengers will be listed here as candidates announce. Check back for updates.
+        {tab === "match" && (
+          <div style={{ marginTop: 4 }}>
+            <div style={{ padding: "14px 16px 4px" }}>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 600, letterSpacing: -0.4, color: "var(--ink-900)", margin: "0 0 4px", lineHeight: 1.15 }}>
+                How your views align
+              </h2>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: "var(--ink-500)", margin: 0, maxWidth: 280 }}>
+                Based on 18 issue stances. Tap any candidate to compare in detail.
               </p>
-            </CardContent>
-          </Card>
-        </section>
+            </div>
 
-        <Separator />
+            <TopMatchCard c={CANDIDATES[0]} />
 
-        {/* U.S. House Races */}
-        <section>
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">U.S. House Races</h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "4px 16px 10px", padding: "0" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: "var(--ink-500)" }}>
+                Other candidates
+              </span>
+              <span style={{ flex: 1, height: 1, background: "var(--rule)" }} />
+            </div>
+            <div style={{ margin: "0 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {CANDIDATES.slice(1).map(c => <CandidateRow key={c.name} c={c} />)}
+            </div>
+
+            <div style={{
+              margin: "20px 16px 0", padding: 14, background: "var(--paper-50)",
+              borderRadius: 12, border: "1px dashed var(--rule)",
+              fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--ink-500)", lineHeight: 1.4,
+            }}>
+              Compatibility reflects your answers to MyVote's policy questions, not endorsements.
+              Update yours anytime in Profile.
+            </div>
           </div>
-          <p className="text-[#4A4A4A]/70 mb-6">
-            All 14 of Georgia's congressional seats are up for election every two years. Below are key races in
-            the Atlanta metro area.
-          </p>
+        )}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {HOUSE_RACES.map((race) => (
-              <Card key={race.district} className="border-[#E5E5E5] hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <Badge
-                      variant="outline"
-                      className={COMPETITIVENESS_COLORS[race.competitiveness] + " text-xs"}
-                    >
-                      {race.competitiveness}
-                    </Badge>
-                    <Badge variant="outline" className={PARTY_BADGE_COLORS[race.party] + " text-xs"}>
-                      {race.party}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-base text-[#4A4A4A] mt-2">{race.district}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> {race.area}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm text-[#4A4A4A]">
-                    <span className="font-medium">Incumbent:</span> {race.incumbent}
-                  </p>
-                  <a
-                    href={race.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-sm text-[#1F3A93] hover:underline"
-                  >
-                    Official Website <ExternalLink className="w-3 h-3" />
-                  </a>
-                </CardContent>
-              </Card>
-            ))}
+        {/* Key dates */}
+        <div style={{ margin: "28px 16px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <span style={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: "var(--ink-500)" }}>Key dates</span>
+            <span style={{ flex: 1, height: 1, background: "var(--rule)" }} />
           </div>
-          <p className="text-sm text-[#4A4A4A]/60 mt-4 italic">
-            All 14 Georgia House seats are contested. Additional districts will be added as race information becomes available.
-          </p>
-        </section>
-
-        <Separator />
-
-        {/* Voter Resources */}
-        <section>
-          <div className="flex items-center gap-2 mb-2">
-            <Vote className="w-6 h-6 text-[#27AE60]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Voter Resources</h2>
-          </div>
-          <p className="text-[#4A4A4A]/70 mb-6">
-            Everything you need to participate in Georgia elections — all official links direct to Georgia
-            Secretary of State resources.
-          </p>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {VOTER_RESOURCES.map((resource) => {
-              const Icon = resource.icon
-              return (
-                <Card key={resource.title} className="border-[#E5E5E5] hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#1F3A93]/10 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-[#1F3A93]" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base text-[#4A4A4A]">{resource.title}</CardTitle>
-                        <CardDescription className="mt-1">{resource.description}</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white" size="sm">
-                        {resource.cta} <ExternalLink className="w-3 h-3 ml-1.5" />
-                      </Button>
-                    </a>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </section>
-
-        <Separator />
-
-        {/* Georgia Voting Rules */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <Info className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Georgia Voting Rules</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div style={{ background: "var(--paper-50)", borderRadius: 14, border: "1px solid var(--rule)", overflow: "hidden" }}>
             {[
-              {
-                title: "ID Required",
-                body: "Georgia requires a photo ID to vote in person. Acceptable IDs include a driver's license, passport, or Georgia voter ID card (free from your county).",
-              },
-              {
-                title: "Absentee Voting",
-                body: "Any registered Georgia voter may request an absentee ballot. You must include a copy of your photo ID when submitting your absentee ballot.",
-              },
-              {
-                title: "Registration Deadline",
-                body: "You must register at least 28 days before an election. You can register online, by mail, or in person at your county elections office.",
-              },
-              {
-                title: "Early Voting",
-                body: "Georgia offers in-person early voting starting 4 weeks before an election. Check your county's elections website for specific locations and hours.",
-              },
-              {
-                title: "Runoff Elections",
-                body: "If no candidate receives more than 50% of the vote in the Primary, a runoff between the top two candidates is held approximately 4 weeks later.",
-              },
-              {
-                title: "Same-Day Registration",
-                body: "Georgia does NOT have same-day voter registration. You must be registered before the deadline to vote in any election.",
-              },
-            ].map((rule) => (
-              <Card key={rule.title} className="border-[#E5E5E5]">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-[#4A4A4A]">{rule.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-[#4A4A4A]/80">{rule.body}</p>
-                </CardContent>
-              </Card>
+              { date: "Apr 22, 2026", label: "Voter Reg Deadline (Primary)", note: "Last day to register" },
+              { date: "May 4–16, 2026", label: "Early Voting (Primary)", note: "Vote early in person" },
+              { date: "May 19, 2026", label: "Georgia Primary", note: "Election day", hot: true },
+              { date: "Oct 5, 2026", label: "Voter Reg Deadline (General)", note: "Last day to register" },
+              { date: "Oct 19–30, 2026", label: "Early Voting (General)", note: "Vote early in person" },
+              { date: "Nov 3, 2026", label: "General Election", note: "Election day", hot: true },
+            ].map((d, i) => (
+              <div key={i} style={{
+                padding: "14px 16px", borderTop: i ? "1px solid var(--rule)" : "none",
+                display: "flex", alignItems: "center", gap: 12,
+              }}>
+                <div style={{
+                  minWidth: 64, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600,
+                  color: d.hot ? "var(--civic-red)" : "var(--ink-500)",
+                }}>{d.date}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "var(--ink-900)" }}>{d.label}</div>
+                  <div style={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: "var(--ink-500)", marginTop: 2 }}>{d.note}</div>
+                </div>
+              </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* CTA */}
-        <div className="bg-[#1F3A93] rounded-xl p-8 text-center text-white">
-          <h2 className="text-2xl font-bold mb-2">Stay Informed on Georgia Politics</h2>
-          <p className="text-blue-100 mb-6 max-w-xl mx-auto">
-            Read balanced news from left, right, and fact-based sources. Create a free account to comment,
-            track your ballot, and follow local discussions.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/auth/signup">
-              <Button className="bg-[#F39C12] hover:bg-[#E67E22] text-white font-semibold">
-                Create Free Account
-              </Button>
-            </Link>
-            <Link href="/news">
-              <Button variant="outline" className="border-white text-white hover:bg-white/10">
-                Read the News
-              </Button>
-            </Link>
+        {/* Registration CTA */}
+        <div style={{ margin: "20px 16px 0", padding: "16px 18px", background: "var(--ink-900)", borderRadius: 14, color: "var(--paper-50)" }}>
+          <div style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", opacity: 0.6, marginBottom: 6 }}>
+            Not registered?
           </div>
+          <p style={{ fontFamily: "var(--font-serif)", fontSize: 16, fontWeight: 500, margin: "0 0 14px", lineHeight: 1.3 }}>
+            Check or update your registration at the Georgia Secretary of State's website.
+          </p>
+          <a href="https://sos.ga.gov" target="_blank" rel="noopener noreferrer" style={{
+            display: "inline-block", padding: "10px 18px", borderRadius: 99,
+            background: "var(--paper-50)", color: "var(--ink-900)",
+            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, textDecoration: "none",
+          }}>Visit sos.ga.gov →</a>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-[#E5E5E5] py-8 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-[#4A4A4A]/60">
-          <Logo size="sm" />
-          <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
-          <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="hover:text-[#1F3A93]">About</Link>
-            <Link href="/privacy" className="hover:text-[#1F3A93]">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#1F3A93]">Terms</Link>
-            <Link href="/contact" className="hover:text-[#1F3A93]">Contact</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
