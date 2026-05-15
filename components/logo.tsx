@@ -31,14 +31,15 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
         style={{
           width: s.mark,
           height: s.mark,
-          borderRadius: isXL ? 20 : 12,
-          background: "var(--paper-50)",
+          borderRadius: isXL ? 18 : 12,
+          background: "rgba(255,255,255,0.62)",
           border: "1px solid var(--rule)",
-          boxShadow: "0 10px 26px rgba(26, 33, 56, 0.08)",
+          boxShadow: "0 8px 24px rgba(26, 33, 56, 0.06)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           overflow: "hidden",
+          backdropFilter: "blur(8px)",
         }}
       >
         <Image
@@ -50,11 +51,12 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
             width: "118%",
             height: "auto",
             objectFit: "contain",
-            transform: "scale(1.12)",
+            transform: "scale(1.08)",
           }}
           priority
         />
       </div>
+
       <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
         <span
           style={{
@@ -67,19 +69,20 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
         >
           MyVote
         </span>
+
         {size !== "sm" && (
           <span
             style={{
-              marginTop: 4,
+              marginTop: 5,
               fontFamily: "var(--font-sans)",
               fontSize: s.tagline,
-              fontWeight: 700,
-              letterSpacing: "0.11em",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
               textTransform: "uppercase",
               color: "var(--ink-500)",
             }}
           >
-            Facts first
+            Live Local
           </span>
         )}
       </div>
@@ -89,20 +92,22 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
 
 export function LogoIcon({ size = "md", className = "" }: LogoProps) {
   const s = sizes[size]
+
   return (
     <div
       className={className}
       style={{
         width: s.mark,
         height: s.mark,
-        borderRadius: size === "xl" ? 20 : 12,
-        background: "var(--paper-50)",
+        borderRadius: size === "xl" ? 18 : 12,
+        background: "rgba(255,255,255,0.62)",
         border: "1px solid var(--rule)",
-        boxShadow: "0 10px 26px rgba(26, 33, 56, 0.08)",
+        boxShadow: "0 8px 24px rgba(26, 33, 56, 0.06)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
+        backdropFilter: "blur(8px)",
         flexShrink: 0,
       }}
       aria-label="MyVote"
@@ -112,7 +117,12 @@ export function LogoIcon({ size = "md", className = "" }: LogoProps) {
         alt=""
         width={s.mark * 1.5}
         height={s.mark}
-        style={{ width: "118%", height: "auto", objectFit: "contain", transform: "scale(1.12)" }}
+        style={{
+          width: "118%",
+          height: "auto",
+          objectFit: "contain",
+          transform: "scale(1.08)",
+        }}
         priority
       />
     </div>
