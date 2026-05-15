@@ -16,6 +16,9 @@ import {
   ChevronDown,
   ChevronUp,
   Heart,
+  Compass,
+  CalendarDays,
+  Vote,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
@@ -36,13 +39,108 @@ interface Article {
   urlToImage: string | null
 }
 
+function SectionHeader({
+  icon,
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  icon: React.ReactNode
+  eyebrow: string
+  title: string
+  description?: string
+  action?: React.ReactNode
+}) {
+  return (
+    <div className="mb-4 flex items-start justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <div
+          className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl"
+          style={{
+            background: "rgba(255,253,248,0.78)",
+            border: "1px solid var(--rule)",
+            color: "var(--civic-blue)",
+          }}
+        >
+          {icon}
+        </div>
+        <div>
+          <div
+            className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em]"
+            style={{ color: "var(--ink-500)" }}
+          >
+            {eyebrow}
+          </div>
+          <h2 className="text-xl font-semibold leading-tight" style={{ color: "var(--ink-900)" }}>
+            {title}
+          </h2>
+          {description && (
+            <p className="mt-1 max-w-xl text-sm leading-relaxed" style={{ color: "var(--ink-500)" }}>
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+      {action}
+    </div>
+  )
+}
+
+function FeedNavigation({ city }: { city: string | null }) {
+  const quickLinks = [
+    { href: "#conversation", label: "Conversation", icon: MessageCircle },
+    { href: "#local", label: city ? city : "Local", icon: MapPin },
+    { href: "#neighbors", label: "Neighbors", icon: Users },
+    { href: "/elections", label: "Elections", icon: Vote },
+    { href: "/news/spectrum", label: "News", icon: Newspaper },
+  ]
+
+  return (
+    <div className="sticky top-0 z-30 -mx-4 mb-5 px-4 pt-1 pb-3 backdrop-blur-xl lg:top-3 lg:rounded-[1.5rem]">
+      <div className="community-card rounded-[1.35rem] p-3">
+        <div className="mb-3 flex items-center justify-between gap-3 px-1">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--ink-500)" }}>
+              Navigate MyVote
+            </div>
+            <div className="text-sm font-semibold" style={{ color: "var(--ink-900)" }}>
+              Jump into the local civic loop
+            </div>
+          </div>
+          <Link href="/elections" className="hidden rounded-full px-4 py-2 text-xs font-semibold sm:inline-flex primary-action">
+            View ballot
+          </Link>
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {quickLinks.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+              style={{
+                background: "rgba(255,253,248,0.72)",
+                border: "1px solid var(--rule)",
+                color: "var(--ink-700)",
+              }}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ArticleCard({ article }: { article: Article }) {
   const [showComments, setShowComments] = useState(false)
   const [imgError, setImgError] = useState(false)
 
   return (
-    <article className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
+    <article className="community-card overflow-hidden rounded-[1.35rem] transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {article.urlToImage && !imgError && (
         <div className="relative w-full aspect-[16/7] overflow-hidden bg-muted">
           <img
@@ -106,7 +204,7 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   return (
     <div className="grid gap-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-border overflow-hidden animate-pulse">
+        <div key={i} className="community-card rounded-[1.35rem] overflow-hidden animate-pulse">
           <div className="w-full aspect-[16/7] bg-muted" />
           <div className="p-4 space-y-3">
             <div className="h-3 bg-muted rounded w-1/3" />
@@ -119,7 +217,6 @@ function LoadingSkeleton({ count = 3 }: { count?: number }) {
   )
 }
 
-// --- COMMON GROUND STORY CARD ---
 const COMMON_GROUND_STORIES = [
   {
     id: "cg-1",
@@ -154,56 +251,63 @@ function CommonGroundCard() {
   const [showComments, setShowComments] = useState(false)
 
   return (
-    <div className="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
-      <div className="bg-teal-50 px-4 pt-4 pb-3 border-b border-teal-100">
-        <Badge className="bg-teal-600 text-white text-xs mb-2">Common ground</Badge>
-        <h3 className="font-bold text-foreground text-base leading-snug">{story.headline}</h3>
-      </div>
-      <div className="p-4 space-y-3">
-        <p className="text-sm text-muted-foreground leading-relaxed">{story.summary}</p>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-medium">{story.source}</span>
-          <span>·</span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {formatNewsTime(story.publishedAt)}
-          </span>
+    <section id="common-ground" className="scroll-mt-32">
+      <SectionHeader
+        icon={<Heart className="h-5 w-5" />}
+        eyebrow="Common ground"
+        title="Places people already agree"
+        description="A calmer on-ramp into political conversation: start with shared concerns, then discuss solutions."
+      />
+      <div className="community-card rounded-[1.35rem] overflow-hidden">
+        <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: "var(--rule)", background: "rgba(36,133,111,0.08)" }}>
+          <Badge className="bg-teal-600 text-white text-xs mb-2">Common ground</Badge>
+          <h3 className="font-bold text-foreground text-base leading-snug">{story.headline}</h3>
         </div>
-        <div className="flex items-center gap-2 pt-1 border-t border-border">
-          <button
-            onClick={() => {
-              setLiked(!liked)
-              setLikeCount((c) => (liked ? c - 1 : c + 1))
-            }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-              liked
-                ? "bg-teal-50 border-teal-400 text-teal-700"
-                : "border-border text-muted-foreground hover:border-teal-300 hover:text-teal-600"
-            }`}
-          >
-            <Heart className={`w-3.5 h-3.5 ${liked ? "fill-teal-500 text-teal-500" : ""}`} />
-            {likeCount}
-          </button>
-          <button
-            onClick={() => setShowComments(!showComments)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            Discuss
-            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-        </div>
-        {showComments && (
-          <div className="pt-2 border-t border-border">
-            <CommentSystem articleUrl={`/common-ground/${story.id}`} articleTitle={story.headline} />
+        <div className="p-4 space-y-3">
+          <p className="text-sm text-muted-foreground leading-relaxed">{story.summary}</p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-medium">{story.source}</span>
+            <span>·</span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {formatNewsTime(story.publishedAt)}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-2 pt-1 border-t border-border">
+            <button
+              onClick={() => {
+                setLiked(!liked)
+                setLikeCount((c) => (liked ? c - 1 : c + 1))
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                liked
+                  ? "bg-teal-50 border-teal-400 text-teal-700"
+                  : "border-border text-muted-foreground hover:border-teal-300 hover:text-teal-600"
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${liked ? "fill-teal-500 text-teal-500" : ""}`} />
+              {likeCount}
+            </button>
+            <button
+              onClick={() => setShowComments(!showComments)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Discuss
+              {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
+          {showComments && (
+            <div className="pt-2 border-t border-border">
+              <CommentSystem articleUrl={`/common-ground/${story.id}`} articleTitle={story.headline} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
-// --- COMMUNITY POSTS SECTION ---
 function CommunityPostsSection() {
   const { user } = useAuth()
   const [posts, setPosts] = useState<PostData[]>([])
@@ -228,12 +332,18 @@ function CommunityPostsSection() {
   }
 
   return (
-    <div className="space-y-3">
+    <section id="conversation" className="scroll-mt-32 space-y-3">
+      <SectionHeader
+        icon={<MessageCircle className="h-5 w-5" />}
+        eyebrow="Conversation"
+        title="What your community is saying"
+        description="Post, respond, and follow the local issues people are already talking about."
+      />
       {user && <PostComposer onPost={handleNewPost} />}
       {loading && (
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="rounded-2xl border border-border p-4 animate-pulse">
+            <div key={i} className="community-card rounded-[1.35rem] p-4 animate-pulse">
               <div className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-muted" />
                 <div className="flex-1 space-y-2">
@@ -253,11 +363,15 @@ function CommunityPostsSection() {
           ))}
         </div>
       )}
-    </div>
+      {!loading && posts.length === 0 && (
+        <div className="community-card rounded-[1.35rem] p-5 text-sm" style={{ color: "var(--ink-500)" }}>
+          Be the first to start a local conversation. Ask about a city meeting, a candidate, a ballot issue, or something happening in your neighborhood.
+        </div>
+      )}
+    </section>
   )
 }
 
-// --- YOUR NETWORK SECTION ---
 function YourNetworkSection() {
   const { user } = useAuth()
   const [comments, setComments] = useState<FriendComment[]>([])
@@ -283,16 +397,18 @@ function YourNetworkSection() {
   if (!user) return null
 
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-3">
-        <Users className="w-4 h-4 text-amber-500" />
-        <h2 className="text-sm font-semibold text-foreground">Your network</h2>
-      </div>
+    <section id="neighbors" className="scroll-mt-32">
+      <SectionHeader
+        icon={<Users className="h-5 w-5" />}
+        eyebrow="Neighbors"
+        title="Your local network"
+        description="Follow nearby voters and see the conversations your civic circle is joining."
+      />
 
       {loading && <LoadingSkeleton count={2} />}
 
       {!loading && comments.length === 0 && (
-        <Card className="border-border">
+        <Card className="community-card border-0">
           <CardContent className="py-5 space-y-3">
             <p className="text-sm font-semibold text-foreground text-center">
               Start by following your neighbors
@@ -314,7 +430,7 @@ function YourNetworkSection() {
                   : "text-muted-foreground"
 
             return (
-              <Card key={comment.id} className="border-border">
+              <Card key={comment.id} className="community-card border-0">
                 <CardContent className="py-4">
                   <div className="flex items-start gap-3">
                     <UserAvatar avatarUrl={profile?.avatar_url} displayName={profile?.display_name} size="sm" />
@@ -356,7 +472,6 @@ function YourNetworkSection() {
   )
 }
 
-// --- LOCAL NEWS SECTION ---
 function LocalNewsSection({ city }: { city: string | null }) {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
@@ -371,24 +486,32 @@ function LocalNewsSection({ city }: { city: string | null }) {
       .finally(() => setLoading(false))
   }, [city])
 
-  if (!city) return null
-
-  const cityLabel = city
-
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-3">
-        <MapPin className="w-4 h-4 text-green-600" />
-        <h2 className="text-sm font-semibold text-foreground">Local</h2>
-        <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
-          Local · {cityLabel}
-        </Badge>
-      </div>
+    <section id="local" className="scroll-mt-32">
+      <SectionHeader
+        icon={<MapPin className="h-5 w-5" />}
+        eyebrow="Local pulse"
+        title={city ? `${city} updates` : "Choose your local area"}
+        description={city ? "Local stories become the doorway into discussion, candidates, meetings, and ballot decisions." : "Add your city or district to unlock local news and neighborhood conversations."}
+        action={
+          !city ? (
+            <Link href="/profile" className="hidden rounded-full px-4 py-2 text-xs font-semibold sm:inline-flex primary-action">
+              Add location
+            </Link>
+          ) : null
+        }
+      />
 
-      {loading && <LoadingSkeleton count={3} />}
+      {!city && (
+        <div className="community-card rounded-[1.35rem] p-6 text-sm" style={{ color: "var(--ink-500)" }}>
+          MyVote gets more useful when it knows where you vote. Add your location to see local news, district conversations, and election updates near you.
+        </div>
+      )}
 
-      {!loading && articles.length === 0 && (
-        <Card>
+      {city && loading && <LoadingSkeleton count={3} />}
+
+      {city && !loading && articles.length === 0 && (
+        <Card className="community-card border-0">
           <CardContent className="py-6 text-center text-muted-foreground">
             <Newspaper className="w-7 h-7 mx-auto mb-2 opacity-40" />
             <p className="text-sm">No local news found right now. Check back soon.</p>
@@ -396,7 +519,7 @@ function LocalNewsSection({ city }: { city: string | null }) {
         </Card>
       )}
 
-      {!loading && articles.length > 0 && (
+      {city && !loading && articles.length > 0 && (
         <div className="grid gap-3">
           {articles.map((article, i) => (
             <ArticleCard key={`${article.url}-${i}`} article={article} />
@@ -425,12 +548,6 @@ interface PipelineStory {
   }[]
 }
 
-function leanColor(lean: number) {
-  if (lean < 0) return "#1E88E5"
-  if (lean > 0) return "#E53935"
-  return "#78909C"
-}
-
 function leanBg(lean: number) {
   if (lean < 0) return "bg-blue-100 text-blue-800"
   if (lean > 0) return "bg-red-100 text-red-800"
@@ -443,7 +560,7 @@ function PipelineStoryCard({ story }: { story: PipelineStory }) {
   const spread = story.lean_max - story.lean_min
 
   return (
-    <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+    <div className="community-card rounded-[1.35rem] overflow-hidden">
       {hero?.image_url && !imgError && (
         <div className="w-full aspect-[16/7] overflow-hidden bg-muted">
           <img src={hero.image_url} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
@@ -475,7 +592,6 @@ function PipelineStoryCard({ story }: { story: PipelineStory }) {
   )
 }
 
-// --- NATIONAL NEWS SECTION (pipeline stories) ---
 function PerspectivesSection() {
   const [stories, setStories] = useState<PipelineStory[]>([])
   const [loading, setLoading] = useState(true)
@@ -489,18 +605,19 @@ function PerspectivesSection() {
   }, [])
 
   return (
-    <section>
-      <div className="flex items-center gap-2 mb-3">
-        <Globe className="w-4 h-4 text-purple-600" />
-        <h2 className="text-sm font-semibold text-foreground">National news</h2>
-        <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">Cross-spectrum</Badge>
-        <Link href="/news/spectrum" className="ml-auto text-xs text-primary hover:underline">See all →</Link>
-      </div>
+    <section id="news" className="scroll-mt-32">
+      <SectionHeader
+        icon={<Globe className="h-5 w-5" />}
+        eyebrow="News engine"
+        title="Stories feeding the conversation"
+        description="News keeps people engaged, but the goal is to move readers into local discussion, representatives, and elections."
+        action={<Link href="/news/spectrum" className="hidden rounded-full px-4 py-2 text-xs font-semibold sm:inline-flex primary-action">See all</Link>}
+      />
 
       {loading && <LoadingSkeleton count={3} />}
 
       {!loading && stories.length === 0 && (
-        <div className="bg-white rounded-2xl border border-border p-6 text-center text-sm text-muted-foreground">
+        <div className="community-card rounded-[1.35rem] p-6 text-center text-sm text-muted-foreground">
           No national stories yet — check back after the daily pipeline runs.
         </div>
       )}
@@ -514,19 +631,16 @@ function PerspectivesSection() {
   )
 }
 
-// --- MAIN HOME FEED ---
 export function HomeFeed() {
   const { profile } = useAuth()
-
-  // City comes from the user's saved Supabase profile. Guests see no local section.
   const city = profile?.location ?? null
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <FeedNavigation city={city} />
       <CommunityPostsSection />
       <CommonGroundCard />
-      {/* Mobile-only: suggested neighbors between posts and news (sidebar hidden on small screens) */}
-      <div className="lg:hidden bg-white rounded-2xl border border-border p-4">
+      <div id="neighbors-mobile" className="scroll-mt-32 lg:hidden community-card rounded-[1.35rem] p-4">
         <SuggestedNeighbors limit={3} showHeader showSeeAll />
       </div>
       <YourNetworkSection />
