@@ -294,7 +294,7 @@ export default function HomePage() {
         <NewsNavigation />
         <div className="flex gap-5 items-start max-w-6xl mx-auto">
           {user && (
-            <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-4">
+            <aside className="hidden lg:block w-64 flex-shrink-0 sticky top-5">
               <HomeSidebar racesDecided={racesDecided} totalRaces={TOTAL_RACES} />
             </aside>
           )}
