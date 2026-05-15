@@ -5,47 +5,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&display=swap');
 
 :root {
-  --paper-50:  #FFFCF7;
-  --paper-100: #F4EFE6;
-  --paper-200: #E7E0D5;
+  /* Warmer civic-social palette designed around the existing MyVote logo */
+  --paper-50:  #FFFDF8;
+  --paper-100: #F7F0E4;
+  --paper-200: #E8DDCC;
+  --paper-300: #D8C9B4;
 
-  --ink-900:   #182033;
-  --ink-700:   #41485F;
-  --ink-500:   #717791;
-  --ink-400:   #959AAF;
-  --ink-100:   #E1E4EF;
+  --ink-900:   #16213A;
+  --ink-700:   #3C4965;
+  --ink-500:   #6E7891;
+  --ink-400:   #9AA1B3;
+  --ink-100:   #E7EAF2;
 
-  --rule:      rgba(24,32,51,0.09);
-  --civic-red: #C62828;
-  --common-teal: #1E8A72;
+  --rule:      rgba(22,33,58,0.10);
+  --civic-red: #B83B2E;
+  --civic-gold:#C8963E;
+  --civic-blue:#223C75;
+  --common-teal: #24856F;
+  --local-green:#5C8A58;
 
-  --lean-left:   #7796C2;
-  --lean-right:  #C29377;
-  --lean-center: #9CA39C;
+  --lean-left:   #7896C1;
+  --lean-right:  #C08A70;
+  --lean-center: #8FA094;
 
   --font-serif: "Source Serif 4", Georgia, serif;
   --font-sans:  "Inter", system-ui, sans-serif;
 
-  --background: 40 30% 97%;
-  --foreground: 228 33% 17%;
-  --card: 40 60% 99%;
-  --card-foreground: 228 33% 17%;
-  --popover: 40 60% 99%;
-  --popover-foreground: 228 33% 17%;
-  --primary: 228 50% 25%;
+  --background: 39 43% 96%;
+  --foreground: 222 44% 16%;
+  --card: 42 70% 99%;
+  --card-foreground: 222 44% 16%;
+  --popover: 42 70% 99%;
+  --popover-foreground: 222 44% 16%;
+  --primary: 222 54% 29%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 38 20% 86%;
-  --secondary-foreground: 228 33% 17%;
-  --muted: 38 16% 89%;
-  --muted-foreground: 228 13% 48%;
-  --accent: 38 20% 86%;
-  --accent-foreground: 228 33% 17%;
-  --destructive: 0 72% 46%;
+  --secondary: 37 29% 86%;
+  --secondary-foreground: 222 44% 16%;
+  --muted: 37 25% 89%;
+  --muted-foreground: 222 15% 50%;
+  --accent: 39 43% 88%;
+  --accent-foreground: 222 44% 16%;
+  --destructive: 6 60% 45%;
   --destructive-foreground: 0 0% 100%;
-  --border: 38 16% 87%;
-  --input: 38 16% 87%;
-  --ring: 228 50% 25%;
-  --radius: 1rem;
+  --border: 37 24% 84%;
+  --input: 37 24% 84%;
+  --ring: 222 54% 29%;
+  --radius: 1.15rem;
 }
 
 @layer base {
@@ -60,8 +65,9 @@
 
   body {
     background:
-      radial-gradient(circle at top, rgba(255,255,255,0.45), transparent 42%),
-      var(--paper-100);
+      radial-gradient(circle at 12% 0%, rgba(200,150,62,0.18), transparent 28%),
+      radial-gradient(circle at 88% 4%, rgba(34,60,117,0.12), transparent 30%),
+      linear-gradient(180deg, #FFFDF8 0%, var(--paper-100) 54%, #EFE5D6 100%);
     color: var(--ink-900);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -69,7 +75,11 @@
   }
 
   ::selection {
-    background: rgba(24,32,51,0.12);
+    background: rgba(200,150,62,0.28);
+  }
+
+  button, a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -82,10 +92,18 @@
 .lean-center { background: var(--lean-center); }
 
 .card-soft {
-  background: var(--paper-50);
+  background: rgba(255,253,248,0.82);
   border: 1px solid var(--rule);
-  box-shadow: 0 8px 30px rgba(24, 32, 51, 0.04);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 14px 42px rgba(22, 33, 58, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.community-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,253,248,0.9)),
+    var(--paper-50);
+  border: 1px solid rgba(22,33,58,0.09);
+  box-shadow: 0 18px 50px rgba(22, 33, 58, 0.07);
 }
 
 .editorial-headline {
@@ -95,5 +113,18 @@
 }
 
 .subtle-divider {
-  border-color: rgba(24,32,51,0.07);
+  border-color: rgba(22,33,58,0.07);
+}
+
+.local-pill {
+  background: rgba(255,253,248,0.72);
+  border: 1px solid rgba(22,33,58,0.10);
+  color: var(--ink-700);
+  box-shadow: 0 8px 22px rgba(22,33,58,0.04);
+}
+
+.primary-action {
+  background: linear-gradient(135deg, var(--civic-blue), #1A2A52);
+  color: var(--paper-50);
+  box-shadow: 0 14px 34px rgba(34,60,117,0.22);
 }
