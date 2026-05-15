@@ -22,11 +22,13 @@ export function NewsNavigation() {
   const pathname = usePathname()
 
   return (
-    <div className="mb-6 rounded-2xl px-4 py-3" style={{ background: "var(--paper-50)", border: "1px solid var(--rule)" }}>
+    <div className="mb-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <Link href="/">
-          <Logo size="lg" />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/">
+            <Logo size="lg" />
+          </Link>
+        </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <SearchInput />
@@ -37,11 +39,11 @@ export function NewsNavigation() {
               return (
                 <Link key={href} href={href}>
                   <button
-                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium`}
-                    style={{
-                      background: active ? "var(--ink-900)" : "transparent",
-                      color: active ? "var(--paper-50)" : "var(--ink-500)",
-                    }}
+                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium ${
+                      active
+                        ? "bg-[#1B2B5E]/10 text-[#1B2B5E] border-b-2 border-[#1B2B5E]"
+                        : `text-gray-500 hover:text-gray-800 hover:bg-gray-100 ${accent || ""}`
+                    }`}
                   >
                     <Icon className="w-4 h-4" />
                     <span className="leading-none">{label}</span>

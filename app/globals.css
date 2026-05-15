@@ -2,69 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── MyVote Design System ─────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&display=swap');
-
-:root {
-  /* Warm parchment palette */
-  --paper-50:  #FDFAF5;
-  --paper-100: #ECE8DD;
-  --paper-200: #E3DDD3;
-  --ink-900:   #1A2138;
-  --ink-700:   #3D435A;
-  --ink-500:   #6B7088;
-  --ink-400:   #8B8FA8;
-  --ink-100:   #D8DBEA;
-  --rule:      rgba(26,33,56,0.10);
-  --civic-red: #CC2020;
-  --common-teal: #1F8F74;
-
-  /* Lean dot palette — muted, never partisan */
-  --lean-left:   #7796C2;
-  --lean-right:  #C29377;
-  --lean-center: #9CA39C;
-
-  /* Fonts */
-  --font-serif: "Source Serif 4", Georgia, serif;
-  --font-sans:  "Inter", system-ui, sans-serif;
-
-  /* shadcn/ui compat */
-  --background: 40 30% 97%;
-  --foreground: 228 33% 17%;
-  --card: 40 60% 99%;
-  --card-foreground: 228 33% 17%;
-  --popover: 40 60% 99%;
-  --popover-foreground: 228 33% 17%;
-  --primary: 228 50% 25%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 38 20% 86%;
-  --secondary-foreground: 228 33% 17%;
-  --muted: 38 16% 89%;
-  --muted-foreground: 228 13% 48%;
-  --accent: 38 20% 86%;
-  --accent-foreground: 228 33% 17%;
-  --destructive: 0 72% 46%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 38 16% 87%;
-  --input: 38 16% 87%;
-  --ring: 228 50% 25%;
-  --radius: 0.75rem;
-}
-
 @layer base {
-  * { @apply border-border; }
-  body {
-    background: var(--paper-100);
-    color: var(--ink-900);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
+  :root {
+    /* MyVote Civic Color Scheme */
+    /* Primary: Deep Blue #1F3A93 | Red: #D64541 | Gold: #F39C12 */
+    /* Sky Blue: #3498DB | Green: #27AE60 | Slate: #4A4A4A | Light Gray: #E5E5E5 */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 29%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 29%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 29%;
+    --primary: 224 66% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 204 70% 53%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 37 90% 51%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 3 66% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 224 66% 35%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 40% 8%;
+    --foreground: 0 0% 95%;
+    --card: 224 40% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 224 40% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 224 66% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 204 70% 53%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 224 30% 18%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 37 90% 51%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 3 66% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 30% 18%;
+    --input: 224 30% 18%;
+    --ring: 224 66% 45%;
   }
 }
 
-/* Serif utility */
-.font-serif { font-family: var(--font-serif); }
-
-/* Lean dot */
-.lean-left   { background: var(--lean-left); }
-.lean-right  { background: var(--lean-right); }
-.lean-center { background: var(--lean-center); }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
