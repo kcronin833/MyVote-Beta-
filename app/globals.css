@@ -2,33 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── MyVote Design System ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&display=swap');
 
 :root {
-  /* Warm parchment palette */
-  --paper-50:  #FDFAF5;
-  --paper-100: #ECE8DD;
-  --paper-200: #E3DDD3;
-  --ink-900:   #1A2138;
-  --ink-700:   #3D435A;
-  --ink-500:   #6B7088;
-  --ink-400:   #8B8FA8;
-  --ink-100:   #D8DBEA;
-  --rule:      rgba(26,33,56,0.10);
-  --civic-red: #CC2020;
-  --common-teal: #1F8F74;
+  --paper-50:  #FFFCF7;
+  --paper-100: #F4EFE6;
+  --paper-200: #E7E0D5;
 
-  /* Lean dot palette — muted, never partisan */
+  --ink-900:   #182033;
+  --ink-700:   #41485F;
+  --ink-500:   #717791;
+  --ink-400:   #959AAF;
+  --ink-100:   #E1E4EF;
+
+  --rule:      rgba(24,32,51,0.09);
+  --civic-red: #C62828;
+  --common-teal: #1E8A72;
+
   --lean-left:   #7796C2;
   --lean-right:  #C29377;
   --lean-center: #9CA39C;
 
-  /* Fonts */
   --font-serif: "Source Serif 4", Georgia, serif;
   --font-sans:  "Inter", system-ui, sans-serif;
 
-  /* shadcn/ui compat */
   --background: 40 30% 97%;
   --foreground: 228 33% 17%;
   --card: 40 60% 99%;
@@ -48,23 +45,55 @@
   --border: 38 16% 87%;
   --input: 38 16% 87%;
   --ring: 228 50% 25%;
-  --radius: 0.75rem;
+  --radius: 1rem;
 }
 
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    background: var(--paper-100);
+    background:
+      radial-gradient(circle at top, rgba(255,255,255,0.45), transparent 42%),
+      var(--paper-100);
     color: var(--ink-900);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgba(24,32,51,0.12);
   }
 }
 
-/* Serif utility */
-.font-serif { font-family: var(--font-serif); }
+.font-serif {
+  font-family: var(--font-serif);
+}
 
-/* Lean dot */
 .lean-left   { background: var(--lean-left); }
 .lean-right  { background: var(--lean-right); }
 .lean-center { background: var(--lean-center); }
+
+.card-soft {
+  background: var(--paper-50);
+  border: 1px solid var(--rule);
+  box-shadow: 0 8px 30px rgba(24, 32, 51, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.editorial-headline {
+  font-family: var(--font-serif);
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+}
+
+.subtle-divider {
+  border-color: rgba(24,32,51,0.07);
+}
