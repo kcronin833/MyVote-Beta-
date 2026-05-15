@@ -7,7 +7,6 @@ import { Logo } from "@/components/logo"
 import { HomeFeed } from "@/components/home-feed"
 import { HomeSidebar } from "@/components/home-sidebar"
 import { OnboardingQuiz } from "@/components/onboarding-quiz"
-import { NewsNavigation } from "@/components/news-nav"
 import { NotificationBell } from "@/components/notification-bell"
 import { UserNav } from "@/components/user-nav"
 
@@ -19,8 +18,6 @@ const TOTAL_RACES = 12
 function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--paper-100)" }}>
-
-      {/* Top bar */}
       <header className="flex items-center justify-between px-5 py-4" style={{ background: "var(--paper-50)" }}>
         <Logo size="md" />
         <Link href="/auth/signin">
@@ -30,13 +27,11 @@ function LandingPage() {
         </Link>
       </header>
 
-      {/* Hero */}
       <main className="flex-1 px-5 pt-10 pb-8 max-w-lg mx-auto w-full">
-        {/* Election pill */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide mb-6"
           style={{ background: "var(--paper-50)", border: "1px solid var(--rule)", color: "var(--ink-700)" }}>
           <span className="w-2 h-2 rounded-full" style={{ background: "var(--civic-red)" }} />
-          Georgia Primary · May 19, 2026
+          Facts first · Georgia local politics
         </div>
 
         <h1 className="mb-4 leading-tight" style={{
@@ -53,32 +48,30 @@ function LandingPage() {
           where you live.
         </h1>
 
-        <p className="mb-8 leading-relaxed" style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "var(--ink-700)", maxWidth: 320 }}>
-          Read the same shared facts as your neighbors — left, center, and right.
-          Build a ballot you can defend. No ads, no algorithm bait.
+        <p className="mb-8 leading-relaxed" style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "var(--ink-700)", maxWidth: 340 }}>
+          MyVote starts with the shared facts, then shows how different sides are framing the same local issue. Less outrage. More clarity.
         </p>
 
         <div className="flex flex-col gap-3 mb-8">
-          <Link href="/auth/signup" className="w-full">
-            <button className="w-full py-3.5 rounded-full text-sm font-semibold text-center transition-opacity hover:opacity-90"
-              style={{ background: "var(--ink-900)", color: "var(--paper-50)", fontFamily: "var(--font-sans)" }}>
-              Get my Georgia ballot →
-            </button>
-          </Link>
           <button
             onClick={() => { sessionStorage.setItem("myvote_guest", "true"); window.location.reload() }}
-            className="w-full py-3.5 rounded-full text-sm font-semibold text-center transition-colors hover:bg-black/5"
-            style={{ background: "transparent", color: "var(--ink-900)", border: "1px solid var(--rule)", fontFamily: "var(--font-sans)" }}>
-            Browse without signing up
+            className="w-full py-3.5 rounded-full text-sm font-semibold text-center transition-opacity hover:opacity-90"
+            style={{ background: "var(--ink-900)", color: "var(--paper-50)", fontFamily: "var(--font-sans)", border: "none" }}>
+            Browse local stories →
           </button>
+          <Link href="/auth/signup" className="w-full">
+            <button className="w-full py-3.5 rounded-full text-sm font-semibold text-center transition-colors hover:bg-black/5"
+              style={{ background: "transparent", color: "var(--ink-900)", border: "1px solid var(--rule)", fontFamily: "var(--font-sans)" }}>
+              Create a profile
+            </button>
+          </Link>
         </div>
 
-        {/* Value props */}
         <div className="space-y-0">
           {[
-            { k: "Three lenses, one truth", v: "Every story shown left, center, right — facts on top." },
-            { k: "Your district, your voice", v: "See what neighbors in your zip code are debating right now." },
-            { k: "A ballot you can defend", v: "Match your views to every race — federal to soil & water." },
+            { k: "Start with the facts", v: "Every story is organized around what the sources agree actually happened." },
+            { k: "Then compare the framing", v: "See how left, center, and right sources explain the same issue." },
+            { k: "Keep it local", v: "Focus on Georgia issues, elections, and decisions that affect your community." },
           ].map((item, i) => (
             <div key={i} className="flex gap-4 py-4" style={{ borderTop: "1px solid var(--rule)" }}>
               <span style={{ fontFamily: "var(--font-serif)", fontSize: 13, fontWeight: 600, color: "var(--ink-400)", paddingTop: 1, minWidth: 20 }}>0{i + 1}</span>
@@ -98,7 +91,6 @@ function LandingPage() {
   )
 }
 
-// ── Election countdown strip ───────────────────────────────────────────────────
 function CountdownStrip({ days, label, racesDecided, totalRaces }: {
   days: number; label: string; racesDecided: number; totalRaces: number
 }) {
@@ -116,7 +108,7 @@ function CountdownStrip({ days, label, racesDecided, totalRaces }: {
         <Link href="/profile">
           <button className="text-xs font-semibold px-3 py-2 rounded-full flex items-center gap-1.5 hover:opacity-90 transition-opacity"
             style={{ background: "var(--paper-50)", color: "var(--ink-900)" }}>
-            Finish ballot →
+            Save ballot →
           </button>
         </Link>
       </div>
@@ -133,7 +125,6 @@ function CountdownStrip({ days, label, racesDecided, totalRaces }: {
   )
 }
 
-// ── Logged-in home bar ────────────────────────────────────────────────────────
 function HomeTopBar() {
   const { profile } = useAuth()
   return (
@@ -154,10 +145,9 @@ function HomeTopBar() {
   )
 }
 
-// ── Logged-in view ─────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth()
-  const [guestMode, setGuestMode] = useState(() =>
+  const [guestMode] = useState(() =>
     typeof window !== "undefined" && sessionStorage.getItem("myvote_guest") === "true"
   )
   const [racesDecided, setRacesDecided] = useState(0)
@@ -168,7 +158,7 @@ export default function HomePage() {
     const now = new Date()
     const isPrimary = now < GEORGIA_PRIMARY
     const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL
-    const days = Math.ceil((target.getTime() - now.getTime()) / 86400000)
+    const days = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 86400000))
     setElectionInfo({ label: isPrimary ? "Georgia Primary" : "General Election", days })
   }, [])
 
@@ -201,14 +191,12 @@ export default function HomePage() {
       <div className="container mx-auto px-4 pt-4 pb-24 max-w-5xl">
         <HomeTopBar />
         <div className="flex gap-5 items-start">
-          {/* Left sidebar — desktop only */}
           {user && (
             <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-4">
               <HomeSidebar racesDecided={racesDecided} totalRaces={TOTAL_RACES} />
             </aside>
           )}
 
-          {/* Main feed */}
           <main className="flex-1 min-w-0">
             {electionInfo && (
               <CountdownStrip
