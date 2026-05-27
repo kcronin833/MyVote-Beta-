@@ -278,7 +278,7 @@ function LeftRail({ election }: { election: ReturnType<typeof useElectionInfo> }
    loads the most-recent community posts below it. Posting refreshes
    the feed in place. */
 function ComposerAndFeed() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [posts, setPosts] = useState<PostData[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
 
@@ -305,38 +305,64 @@ function ComposerAndFeed() {
     setPosts((prev) => [p, ...prev]);
   }
 
+  /* Compute exactly which composer state to show so we never
+     render an inert pill that looks clickable but does nothing. */
+  let composerSlot: React.ReactNode;
+  if (loading) {
+    composerSlot = (
+      <div style={{ ...cardStyle, padding: 14, color: C.ink500, fontSize: 13 }}>
+        Loading composer…
+      </div>
+    );
+  } else if (user && profile) {
+    // The happy path — real composer with profile, writes to Supabase.
+    composerSlot = (
+      <div style={cardStyle}>
+        <PostComposer onPost={handleNewPost} />
+      </div>
+    );
+  } else if (user && !profile) {
+    // Signed in but profile row missing (trigger didn't fire / new account).
+    // Don't render a broken composer — explain the situation and link them out.
+    composerSlot = (
+      <div style={{ ...cardStyle, padding: 16 }}>
+        <div style={{ fontSize: 13.5, color: C.ink900, fontWeight: 600, marginBottom: 6 }}>
+          Almost ready to post.
+        </div>
+        <div style={{ fontSize: 12.5, color: C.ink500, lineHeight: 1.5, marginBottom: 10 }}>
+          We need a display name and a username before your posts can attribute
+          to you. Finish setting up your profile to start posting.
+        </div>
+        <Link href="/profile" style={{ textDecoration: "none" }}>
+          <Btn variant="primary" size="sm">Complete profile →</Btn>
+        </Link>
+      </div>
+    );
+  } else {
+    // Signed out — explicit sign-in CTA. No pseudo-input that could mislead.
+    composerSlot = (
+      <div style={{ ...cardStyle, padding: 16 }}>
+        <div style={{ fontSize: 13.5, color: C.ink900, fontWeight: 600, marginBottom: 6 }}>
+          Join the conversation.
+        </div>
+        <div style={{ fontSize: 12.5, color: C.ink500, lineHeight: 1.5, marginBottom: 10 }}>
+          Sign in to share what your neighbors are thinking about Georgia 2026.
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link href="/auth/signin" style={{ textDecoration: "none" }}>
+            <Btn variant="primary" size="sm">Sign in</Btn>
+          </Link>
+          <Link href="/auth/signup" style={{ textDecoration: "none" }}>
+            <Btn variant="outline" size="sm">Sign up</Btn>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {/* Composer — real PostComposer if signed in, CTA otherwise */}
-      {loading ? (
-        <div style={{ ...cardStyle, padding: 14, color: C.ink500, fontSize: 13 }}>
-          Loading…
-        </div>
-      ) : user ? (
-        <div style={cardStyle}>
-          <PostComposer onPost={handleNewPost} />
-        </div>
-      ) : (
-        <div style={{ ...cardStyle, padding: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Avatar initials="GA" size={42} />
-            <Link
-              href="/auth/signin"
-              style={{
-                flex: 1,
-                padding: "10px 14px",
-                border: `1px solid ${C.rule}`,
-                borderRadius: 999,
-                color: C.ink500,
-                fontSize: 13.5,
-                textDecoration: "none",
-              }}
-            >
-              Sign in to share your civic thoughts…
-            </Link>
-          </div>
-        </div>
-      )}
+      {composerSlot}
 
       {/* Recent community posts */}
       {postsLoading ? (
