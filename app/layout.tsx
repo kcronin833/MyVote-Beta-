@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-context";
 import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
+import { UnderConstructionBanner } from "@/components/under-construction-banner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body className="font-sans flex flex-col min-h-screen bg-page text-ink-900">
         <PostHogProvider>
           <AuthProvider>
+            <UnderConstructionBanner />
             <div className="flex-1">{children}</div>
             <SiteFooter />
           </AuthProvider>

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, PALETTE as C } from "./atoms";
+import { PALETTE as C } from "./atoms";
 import { Icons } from "./icons";
+import { UserNav } from "@/components/user-nav";
 
 type NavId = "home" | "national" | "local" | "ballot" | "alerts" | "msg";
 
@@ -127,18 +128,9 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
 
           <div style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
 
-          <Link
-            href="/profile"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              textDecoration: "none",
-            }}
-          >
-            <Avatar initials="MC" size={32} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: C.ink900 }}>Me ▾</span>
-          </Link>
+          {/* Real user dropdown — surfaces "My Profile", "Political Profile",
+              "Admin Panel" (for admins), and "Sign Out". */}
+          <UserNav />
         </div>
       </div>
     </div>
