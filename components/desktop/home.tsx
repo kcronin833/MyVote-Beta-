@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-context";
 import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
-import { Avatar, Btn, Chip, PALETTE as C, VerifiedMark, type AvatarTone } from "./atoms";
+import { Avatar, Btn, Chip, PALETTE as C, type AvatarTone } from "./atoms";
 import { Icons } from "./icons";
 import { TopNav } from "./top-nav";
 
@@ -67,14 +67,15 @@ type SuggestedCandidate = {
   initials: string;
   office: string;
   party: string;
-  match: number;
-  followers: number;
+  incumbent: boolean;
   tone: AvatarTone;
   href: string;
 };
 
 function useSuggestedCandidates(): SuggestedCandidate[] {
-  // Pull top non-incumbent (or any) candidates from a few statewide races.
+  // Pull a few real candidates from statewide races. We deliberately do
+  // NOT show a "match %" because we don't compute issue-alignment yet —
+  // showing a fake number would be a credibility hit.
   const picks: SuggestedCandidate[] = [];
   for (const race of STATEWIDE_RACES) {
     for (const cand of race.candidates) {
@@ -84,8 +85,7 @@ function useSuggestedCandidates(): SuggestedCandidate[] {
         initials: initialsFrom(cand.name),
         office: race.office,
         party: cand.party,
-        match: 60 + Math.round(cand.politicalScore / 4), // friendly placeholder match
-        followers: 1000 + Math.round(cand.politicalScore * 137),
+        incumbent: cand.isIncumbent,
         tone: TONE_BY_PARTY[cand.party] || "navy",
         href: "/elections",
       });
@@ -640,20 +640,16 @@ function RightRail() {
                   color: C.ink900,
                   display: "flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 6,
                   textDecoration: "none",
+                  flexWrap: "wrap",
                 }}
               >
                 {c.name}
-                <VerifiedMark />
+                {c.incumbent && <Chip tone="amber" size="sm">Incumbent</Chip>}
               </Link>
-              <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 1 }}>
+              <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
                 {c.office} · {c.party}
-              </div>
-              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.teal }}>
-                  Learn more
-                </span>
               </div>
               <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
                 <Link href="/elections" style={{ textDecoration: "none" }}>
@@ -682,8 +678,11 @@ function RightRail() {
       {/* Trending */}
       <div style={cardStyle}>
         <div style={{ padding: "14px 16px 6px" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>
-            Trending in Atlanta
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>
+              Trending in Atlanta
+            </div>
+            <Chip tone="neutral" size="sm">Preview</Chip>
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
             What neighbors are reading
@@ -727,19 +726,22 @@ function RightRail() {
         }}
       >
         <div style={{ padding: "14px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-                color: C.tealDk,
-              }}
-            >
-              Common ground
-            </span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                  color: C.tealDk,
+                }}
+              >
+                Common ground
+              </span>
+            </div>
+            <Chip tone="neutral" size="sm">Preview</Chip>
           </div>
           <div
             style={{
@@ -777,19 +779,9 @@ function RightRail() {
 export function DesktopHome() {
   const election = useElectionInfo();
   return (
-    <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900 }}>
+    <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900, overflowX: "hidden" }}>
       <TopNav active="home" />
-      <div
-        style={{
-          maxWidth: 1240,
-          margin: "0 auto",
-          padding: "16px 24px 40px",
-          display: "grid",
-          gridTemplateColumns: "260px 1fr 320px",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <div className="max-w-[1240px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         <LeftRail election={election} />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Composer />

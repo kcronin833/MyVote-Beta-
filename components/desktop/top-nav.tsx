@@ -28,15 +28,7 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
       }}
     >
       <div
-        style={{
-          maxWidth: 1240,
-          margin: "0 auto",
-          height: 56,
-          padding: "0 24px",
-          display: "flex",
-          alignItems: "center",
-          gap: 18,
-        }}
+        className="max-w-[1240px] mx-auto h-14 flex items-center gap-3 sm:gap-4 lg:gap-[18px] px-3 lg:px-6"
       >
         {/* Logo */}
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
@@ -59,15 +51,15 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
           </div>
         </Link>
 
-        {/* Search */}
+        {/* Search — hidden on small screens */}
         <div
+          className="hidden md:flex"
           style={{
             flex: "0 1 320px",
             height: 36,
             background: C.shade,
             border: `1px solid ${C.ruleSoft}`,
             borderRadius: 6,
-            display: "flex",
             alignItems: "center",
             padding: "0 12px",
             gap: 8,
@@ -87,8 +79,11 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
               <Link
                 key={it.id}
                 href={it.href}
+                aria-label={it.label}
+                className="px-2 sm:px-3 lg:px-[14px]"
                 style={{
-                  padding: "8px 14px",
+                  paddingTop: 8,
+                  paddingBottom: 8,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -121,12 +116,12 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
                     </span>
                   ) : null}
                 </span>
-                <span>{it.label}</span>
+                <span className="hidden sm:inline">{it.label}</span>
               </Link>
             );
           })}
 
-          <div style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
+          <div className="hidden sm:block" style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
 
           {/* Real user dropdown — surfaces "My Profile", "Political Profile",
               "Admin Panel" (for admins), and "Sign Out". */}
