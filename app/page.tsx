@@ -13,10 +13,49 @@ import {
   CheckCircle2,
   ArrowRight,
 } from "lucide-react"
+import { NewsNavigation } from "@/components/news-nav"
 import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
+import { HomeFeed } from "@/components/home-feed"
+import { HomeSidebar } from "@/components/home-sidebar"
 import { OnboardingQuiz } from "@/components/onboarding-quiz"
-import { DesktopHome } from "@/components/desktop/home"
+
+const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
+const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
+const TOTAL_RACES = 12
+
+function ElectionBanner() {
+  const [info, setInfo] = useState<{ label: string; days: number; date: string } | null>(null)
+
+  useEffect(() => {
+    const now = new Date()
+    const isPrimary = now < GEORGIA_PRIMARY
+    const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL
+    const days = Math.ceil((target.getTime() - now.getTime()) / 86400000)
+    setInfo({
+      label: isPrimary ? "Georgia Primary" : "General Election",
+      days,
+      date: isPrimary ? "May 19, 2026" : "November 3, 2026",
+    })
+  }, [])
+
+  if (!info) return null
+
+  return (
+    <div className="rounded-2xl bg-teal-600 text-white p-4 flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-teal-100">{info.label}</p>
+        <p className="text-2xl font-bold">{info.days} days away</p>
+        <p className="text-sm text-teal-100">{info.date}</p>
+      </div>
+      <Link href="/profile">
+        <button className="bg-card text-teal-700 font-bold text-sm px-4 py-2 rounded-xl hover:bg-teal-50 transition-colors">
+          Finish your ballot →
+        </button>
+      </Link>
+    </div>
+  )
+}
 
 const features = [
   {
@@ -57,7 +96,13 @@ export default function HomePage() {
     }
     return false
   })
+  const [racesDecided, setRacesDecided] = useState(0)
   const [showQuiz, setShowQuiz] = useState(false)
+
+  useEffect(() => {
+    const raw = localStorage.getItem("mv_ballot_count")
+    if (raw) setRacesDecided(parseInt(raw) || 0)
+  }, [])
 
   useEffect(() => {
     if (!user) return
@@ -243,9 +288,22 @@ export default function HomePage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-paper-100">
       {showQuiz && <OnboardingQuiz onDismiss={() => setShowQuiz(false)} />}
-      <DesktopHome />
-    </>
+      <div className="container mx-auto px-4 pt-4 pb-8">
+        <NewsNavigation />
+        <div className="flex gap-5 items-start max-w-6xl mx-auto">
+          {user && (
+            <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-4">
+              <HomeSidebar racesDecided={racesDecided} totalRaces={TOTAL_RACES} />
+            </aside>
+          )}
+          <main className="flex-1 min-w-0 space-y-4">
+            <ElectionBanner />
+            <HomeFeed />
+          </main>
+        </div>
+      </div>
+    </div>
   )
 }
