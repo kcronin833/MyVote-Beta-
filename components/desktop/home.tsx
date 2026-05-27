@@ -21,6 +21,9 @@ import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
 import { Avatar, Btn, Chip, PALETTE as C, type AvatarTone } from "./atoms";
 import { Icons } from "./icons";
 import { TopNav } from "./top-nav";
+import { PostComposer } from "@/components/post-composer";
+import { PostCard, type PostData } from "@/components/post-card";
+import { createClient } from "@/lib/supabase/client";
 
 /* ── data helpers ─────────────────────────────────────────────────── */
 
@@ -270,66 +273,83 @@ function LeftRail({ election }: { election: ReturnType<typeof useElectionInfo> }
   );
 }
 
-/* ── COMPOSER ─────────────────────────────────────────────────────── */
-function Composer() {
-  const { user, profile } = useAuth();
-  const initials = initialsFrom(profile?.display_name || user?.email || "MC");
+/* ── COMPOSER + COMMUNITY FEED ─────────────────────────────────────
+   Renders the real PostComposer (inserts into the `posts` table) and
+   loads the most-recent community posts below it. Posting refreshes
+   the feed in place. */
+function ComposerAndFeed() {
+  const { user, loading } = useAuth();
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("posts")
+        .select("*, profile:profiles(display_name, username, avatar_url)")
+        .order("created_at", { ascending: false })
+        .limit(15);
+      if (!cancelled) {
+        setPosts((data as PostData[]) || []);
+        setPostsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function handleNewPost(p: PostData) {
+    setPosts((prev) => [p, ...prev]);
+  }
+
   return (
-    <div style={{ ...cardStyle, padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Avatar initials={initials} size={42} />
-        <Link
-          href={user ? "/profile" : "/auth/signin"}
-          style={{
-            flex: 1,
-            padding: "10px 14px",
-            border: `1px solid ${C.rule}`,
-            borderRadius: 999,
-            color: C.ink500,
-            fontSize: 13.5,
-            textDecoration: "none",
-          }}
-        >
-          {user ? "Share what you’re thinking…" : "Sign in to post"}
-        </Link>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          gap: 4,
-          marginTop: 10,
-          paddingTop: 10,
-          borderTop: `1px solid ${C.ruleSoft}`,
-        }}
-      >
-        {[
-          { l: "Poll",     c: C.teal,  ico: Icons.thumb(),   href: user ? "/profile" : "/auth/signin" },
-          { l: "Event",    c: C.amber, ico: Icons.cal(),     href: "/elections" },
-          { l: "Report",   c: C.navy,  ico: Icons.flag(),    href: user ? "/profile" : "/auth/signin" },
-          { l: "Question", c: C.plum,  ico: Icons.comment(), href: user ? "/profile" : "/auth/signin" },
-        ].map((x) => (
-          <Link
-            key={x.l}
-            href={x.href}
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 7,
-              padding: "8px 6px",
-              borderRadius: 6,
-              color: C.ink700,
-              fontSize: 13,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            <span style={{ color: x.c, display: "flex" }}>{x.ico}</span>
-            {x.l}
-          </Link>
-        ))}
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* Composer — real PostComposer if signed in, CTA otherwise */}
+      {loading ? (
+        <div style={{ ...cardStyle, padding: 14, color: C.ink500, fontSize: 13 }}>
+          Loading…
+        </div>
+      ) : user ? (
+        <div style={cardStyle}>
+          <PostComposer onPost={handleNewPost} />
+        </div>
+      ) : (
+        <div style={{ ...cardStyle, padding: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Avatar initials="GA" size={42} />
+            <Link
+              href="/auth/signin"
+              style={{
+                flex: 1,
+                padding: "10px 14px",
+                border: `1px solid ${C.rule}`,
+                borderRadius: 999,
+                color: C.ink500,
+                fontSize: 13.5,
+                textDecoration: "none",
+              }}
+            >
+              Sign in to share your civic thoughts…
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Recent community posts */}
+      {postsLoading ? (
+        <div style={{ ...cardStyle, padding: 14, color: C.ink500, fontSize: 13 }}>
+          Loading community posts…
+        </div>
+      ) : posts.length === 0 ? (
+        <div style={{ ...cardStyle, padding: 16, color: C.ink500, fontSize: 13 }}>
+          No community posts yet — be the first.
+        </div>
+      ) : (
+        posts.map((p) => <PostCard key={p.id} post={p} />)
+      )}
     </div>
   );
 }
@@ -784,7 +804,7 @@ export function DesktopHome() {
       <div className="max-w-[1240px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         <LeftRail election={election} />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <Composer />
+          <ComposerAndFeed />
           <DailyQuestionCard />
           <NewsPost />
         </div>
