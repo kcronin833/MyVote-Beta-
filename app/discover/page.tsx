@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
@@ -36,7 +36,7 @@ export default function DiscoverPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA]">
+    <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
 
@@ -56,7 +56,7 @@ export default function DiscoverPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name…"
-                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full pl-9 pr-4 py-2 text-sm bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
             <div className="flex gap-1.5 flex-wrap">
@@ -67,7 +67,7 @@ export default function DiscoverPage() {
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     filter === f
                       ? "bg-teal-600 text-white"
-                      : "bg-white border border-border text-muted-foreground hover:border-teal-300 hover:text-teal-700"
+                      : "bg-card border border-border text-muted-foreground hover:border-teal-300 hover:text-teal-700"
                   }`}
                 >
                   {f}
@@ -82,7 +82,7 @@ export default function DiscoverPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-border p-4 animate-pulse space-y-3"
+                  className="bg-card rounded-2xl border border-border p-4 animate-pulse space-y-3"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-muted flex-shrink-0" />
@@ -128,7 +128,7 @@ export default function DiscoverPage() {
               {displayed.map((suggested) => (
                 <div
                   key={suggested.id}
-                  className="bg-white rounded-2xl border border-border p-4 space-y-3 hover:shadow-sm transition-shadow"
+                  className="bg-card rounded-2xl border border-border p-4 space-y-3 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-start gap-3">
                     <Link href={`/profile/${suggested.username}`} className="flex-shrink-0">

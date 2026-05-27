@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MyVote — Engagement Redesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; background: #ECE8DD; }
+    body { font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: #1A2138; }
+    * { box-sizing: border-box; }
+    .page { max-width: 1400px; margin: 0 auto; padding: 56px 32px 80px; }
+    .head { margin-bottom: 32px; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #6B7088; }
+    h1 { font-family: "Source Serif 4", Georgia, serif; font-size: 44px; font-weight: 500; letter-spacing: -1.2px; line-height: 1.05; margin: 6px 0 8px; }
+    .sub { font-size: 15px; color: #3D435A; max-width: 640px; line-height: 1.5; }
+    .sect-title { font-family: "Source Serif 4", Georgia, serif; font-size: 22px; font-weight: 500; letter-spacing: -0.4px; margin: 48px 0 4px; }
+    .sect-sub { font-size: 13px; color: #6B7088; margin-bottom: 22px; }
+    .row { display: flex; gap: 28px; overflow-x: auto; padding-bottom: 8px; }
+    .card { flex-shrink: 0; }
+    .label { font-size: 12px; font-weight: 600; color: #3D435A; margin-bottom: 10px; }
+    #root { display: contents; }
+  </style>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" fill="#FAF7F2"/>
+      <rect x="60" y="50" width="80" height="100" rx="12" fill="#1A2138"/>
+      <text x="100" y="170" font-family="Georgia,serif" font-size="14" fill="#1A2138" text-anchor="middle" font-weight="600">MyVote</text>
+    </svg>
+  </template>
+</head>
+<body>
+  <div class="page">
+    <div class="head">
+      <div class="eyebrow">MyVote · Mobile Redesign</div>
+      <h1>Engagement-first.<br>Anti-partisan by design.</h1>
+      <p class="sub">Daily Question returns users without push-spam. Cross-spectrum stories surface shared facts before partisan framing. Local Pulse reminds users they share a district, not just an algorithm.</p>
+    </div>
+
+    <div id="root"></div>
+  </div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script src="redesign/data.js"></script>
+  <script type="text/babel" src="redesign/ios-frame.jsx"></script>
+  <script type="text/babel" src="redesign/atoms.jsx"></script>
+  <script type="text/babel" src="redesign/feed.jsx"></script>
+  <script type="text/babel" src="redesign/ballot-screens.jsx"></script>
+  <script type="text/babel" src="redesign/main-screens.jsx"></script>
+  <script type="text/babel" src="redesign/profile-screens.jsx"></script>
+
+  <script type="text/babel">
+    function HomeScreenAnswered() {
+      const q = MV_DATA.dailyQuestion;
+      const totalVotes = q.choices.reduce((s, c) => s + c.count, 0);
+      return (
+        <div style={{ minHeight: "100%", background: "var(--paper-100)", paddingBottom: 80 }}>
+          <TopBar user={MV_DATA.user} days={MV_DATA.election.daysAway} />
+          <CountdownStrip election={{ ...MV_DATA.election, racesDecided: 8 }} />
+          <div style={{ margin: "0 14px 16px", padding: 18, background: "var(--paper-50)", borderRadius: 16, border: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <Pill tone="ink"><IconSpark size={10}/> Daily Question · Day 8</Pill>
+              <Pill tone="teal" style={{ marginLeft: "auto" }}><IconCheck size={9}/> Answered</Pill>
+            </div>
+            <h3 style={{ fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 18, lineHeight: 1.25, letterSpacing: -0.2, color: "var(--ink-900)", margin: "0 0 14px" }}>{q.prompt}</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+              {q.choices.map((c) => {
+                const pct = Math.round((c.count / totalVotes) * 100);
+                const isPicked = c.id === "yes";
+                return (
+                  <div key={c.id} style={{ position: "relative", overflow: "hidden", border: `1px solid ${isPicked ? "var(--ink-900)" : "var(--rule)"}`, borderRadius: 10, padding: "11px 13px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--paper-100)" }}>
+                    <div style={{ position: "absolute", inset: 0, width: `${pct}%`, background: isPicked ? "var(--ink-100)" : "var(--paper-200)" }} />
+                    <span style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 500, color: "var(--ink-900)" }}>{isPicked && <IconCheck size={12}/>}{c.label}</span>
+                    <span style={{ position: "relative", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: "var(--ink-700)" }}>{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ paddingTop: 12, borderTop: "1px solid var(--rule)" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "var(--ink-500)", marginBottom: 8 }}>How Georgia answered</div>
+              {[{label:"Fulton County",pct:q.countyBreakdown},{label:"Georgia statewide",pct:q.stateBreakdown}].map(b => (
+                <div key={b.label} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-sans)", fontSize: 11.5, marginBottom: 4, color: "var(--ink-700)" }}>
+                    <span>{b.label}</span><span style={{ color: "var(--ink-500)" }}>{b.pct.yes}% yes · {b.pct.no}% no · {b.pct.unsure}% unsure</span>
+                  </div>
+                  <SplitBar segs={[{label:"y",value:b.pct.yes,color:"var(--ink-900)"},{label:"n",value:b.pct.no,color:"var(--ink-400)"},{label:"u",value:b.pct.unsure,color:"var(--paper-200)"}]}/>
+                </div>
+              ))}
+            </div>
+          </div>
+          <CommonGround cg={MV_DATA.commonGround}/>
+          <StoryCard story={MV_DATA.stories[0]}/>
+          <BottomNav active="home"/>
+        </div>
+      );
+    }
+
+    function Phone({ children, label }) {
+      return (
+        <div className="card">
+          <div className="label">{label}</div>
+          <IOSDevice width={402} height={874}>{children}</IOSDevice>
+        </div>
+      );
+    }
+
+    function Showcase() {
+      const tokens = (
+        <style>{`
+          :root {
+            --font-serif: "Source Serif 4", Georgia, serif;
+            --font-sans: "Inter", system-ui, sans-serif;
+            --paper-50: #FAF7F2; --paper-100: #F2EEE6; --paper-200: #E6E0D4; --rule: #DDD6C7;
+            --ink-900: #1A2138; --ink-700: #3D435A; --ink-500: #6B7088; --ink-400: #8B8FA3; --ink-100: #DEE0E9;
+            --civic-red: #B33A2C; --common-teal: #3D8073;
+          }
+        `}</style>
+      );
+      return (
+        <React.Fragment>
+          {tokens}
+          <div className="sect-title">Daily home</div>
+          <div className="sect-sub">The engagement spine — countdown, daily question, story, common ground, local pulse.</div>
+          <div className="row">
+            <Phone label="Home — feed"><HomeScreen/></Phone>
+            <Phone label="Home — after answering"><HomeScreenAnswered/></Phone>
+          </div>
+
+          <div className="sect-title">Story — three lenses</div>
+          <div className="sect-sub">Shared facts on top. Partisan framing recessed behind tabs.</div>
+          <div className="row">
+            <Phone label="Story — shared facts"><StoryDetailScreen/></Phone>
+          </div>
+
+          <div className="sect-title">Ballot & candidate match</div>
+          <div className="sect-sub">A ballot you can defend. Progress is ambient, not panic-inducing.</div>
+          <div className="row">
+            <Phone label="Ballot — progress"><BallotScreen/></Phone>
+            <Phone label="Candidate match"><MatchScreen/></Phone>
+          </div>
+
+          <div className="sect-title">Your profile · social-network style</div>
+          <div className="sect-sub">Activity, streak, friends across the spectrum. Built to bring you back.</div>
+          <div className="row">
+            <Phone label="Profile — you"><VoterProfileScreen/></Phone>
+          </div>
+
+          <div className="sect-title">Politician profile · website replacement</div>
+          <div className="sect-sub">Verified hero, your match, positions, events, endorsements. Donate slot ready for the fundraising partner.</div>
+          <div className="row">
+            <Phone label="Politician — overview"><PoliticianProfileScreen/></Phone>
+            <Phone label="Politician — updates feed"><PoliticianUpdatesScreen/></Phone>
+          </div>
+
+          <div className="sect-title">Logged-out landing</div>
+          <div className="sect-sub">Trust-first. Local promise leads.</div>
+          <div className="row">
+            <Phone label="Landing — guest"><LandingScreen/></Phone>
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<Showcase/>);
+  </script>
+</body>
+</html>

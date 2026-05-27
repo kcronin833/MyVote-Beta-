@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -1489,11 +1489,11 @@ const politicalData = {
 
 // Race level labels for grouping
 const LEVEL_COLORS: Record<string, { label: string; color: string }> = {
-  "Federal":      { label: "Federal",      color: "bg-[#1F3A93] text-white" },
+  "Federal":      { label: "Federal",      color: "bg-ink-900 text-white" },
   "State":        { label: "State",        color: "bg-[#27AE60] text-white" },
   "County":       { label: "County",       color: "bg-[#F39C12] text-white" },
   "School Board": { label: "School Board", color: "bg-[#8E44AD] text-white" },
-  "Local":        { label: "Local",        color: "bg-[#D64541] text-white" },
+  "Local":        { label: "Local",        color: "bg-civic-red text-white" },
 }
 
 interface Address {
@@ -1555,9 +1555,9 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
   const getPartyColor = (party: string) => {
     switch (party) {
       case "Democrat":
-        return "bg-[#1F3A93] text-white border-[#1F3A93]"
+        return "bg-ink-900 text-white border-[#1A2138]"
       case "Republican":
-        return "bg-[#D64541] text-white border-[#D64541]"
+        return "bg-civic-red text-white border-[#B33A2C]"
       case "Independent":
         return "bg-[#F39C12] text-white border-[#F39C12]"
       case "Green":
@@ -1565,7 +1565,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       case "Libertarian":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-paper-100 text-foreground border-rule"
     }
   }
 
@@ -1577,11 +1577,11 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     // TBD placeholder — primary not yet decided
     if (candidate.name.toLowerCase().includes("tbd")) {
       return (
-        <Card key={candidate.name} className="border-dashed border-gray-300 bg-gray-50">
+        <Card key={candidate.name} className="border-dashed border-rule bg-paper-50">
           <CardContent className="py-8 text-center space-y-2">
-            <Lock className="w-7 h-7 text-gray-400 mx-auto" />
-            <p className="font-semibold text-gray-600">Primary pending</p>
-            <p className="text-sm text-gray-400">Check back after the May 19 primary.</p>
+            <Lock className="w-7 h-7 text-ink-400 mx-auto" />
+            <p className="font-semibold text-muted-foreground">Primary pending</p>
+            <p className="text-sm text-ink-400">Check back after the May 19 primary.</p>
           </CardContent>
         </Card>
       )
@@ -1604,7 +1604,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     return (
       <Card
         key={candidate.name}
-        className={`${candidate.isIncumbent ? "border-2 border-[#1F3A93] bg-blue-50" : ""} hover:shadow-lg transition-shadow cursor-pointer`}
+        className={`${candidate.isIncumbent ? "border-2 border-[#1A2138] bg-blue-50" : ""} hover:shadow-lg transition-shadow cursor-pointer`}
         onClick={() => openCandidateProfile(candidate, office, electionDate)}
       >
         <CardHeader>
@@ -1618,7 +1618,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <h4 className="font-semibold text-lg">{candidate.name}</h4>
                 {candidate.isIncumbent && (
-                  <Badge variant="default" className="bg-[#1F3A93] text-white">
+                  <Badge variant="default" className="bg-ink-900 text-white">
                     <Crown className="w-3 h-3 mr-1" />
                     Incumbent
                   </Badge>
@@ -1629,7 +1629,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 {viewpointCount === 0 ? (
                   <span
                     title="Like viewpoints in the news feed to see your match score"
-                    className="text-xs px-2 py-0.5 rounded-full border border-gray-300 text-gray-400 cursor-help"
+                    className="text-xs px-2 py-0.5 rounded-full border border-rule text-ink-400 cursor-help"
                   >
                     Match unknown
                   </span>
@@ -1645,15 +1645,15 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <h5 className="font-medium text-[#4A4A4A] mb-1">Experience</h5>
-                  <ul className="text-[#4A4A4A] space-y-1">
+                  <h5 className="font-medium text-[#3D435A] mb-1">Experience</h5>
+                  <ul className="text-[#3D435A] space-y-1">
                     {candidate.experience.slice(0, 3).map((exp, i) => (
                       <li key={i}>• {exp}</li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <h5 className="font-medium text-[#4A4A4A] mb-1">Key Issues</h5>
+                  <h5 className="font-medium text-[#3D435A] mb-1">Key Issues</h5>
                   <div className="flex flex-wrap gap-1">
                     {candidate.keyIssues.slice(0, 4).map((issue, i) => (
                       <Badge key={i} variant="secondary" className="text-xs">
@@ -1670,20 +1670,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             {hasFundraising && (
               <div>
-                <h5 className="font-medium text-[#4A4A4A] mb-1">Fundraising</h5>
-                <p className="text-[#4A4A4A]">Total: {candidate.fundraising.totalRaised}</p>
-                <p className="text-[#4A4A4A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
+                <h5 className="font-medium text-[#3D435A] mb-1">Fundraising</h5>
+                <p className="text-[#3D435A]">Total: {candidate.fundraising.totalRaised}</p>
+                <p className="text-[#3D435A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
               </div>
             )}
             {hasEndorsements && (
               <div>
-                <h5 className="font-medium text-[#4A4A4A] mb-1">Endorsements</h5>
+                <h5 className="font-medium text-[#3D435A] mb-1">Endorsements</h5>
                 <div className="space-y-1">
                   {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
-                    <p key={i} className="text-[#4A4A4A] text-xs">• {endorsement}</p>
+                    <p key={i} className="text-[#3D435A] text-xs">• {endorsement}</p>
                   ))}
                   {candidate.endorsements.length > 2 && (
-                    <p className="text-gray-500 text-xs">+{candidate.endorsements.length - 2} more</p>
+                    <p className="text-muted-foreground text-xs">+{candidate.endorsements.length - 2} more</p>
                   )}
                 </div>
               </div>
@@ -1736,13 +1736,13 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     return (
       <Card>
         <CardContent className="p-6 text-center space-y-3">
-          <MapPin className="w-8 h-8 text-[#1F3A93] mx-auto" />
-          <p className="text-[#4A4A4A]">We don&apos;t have ballot data for zip code <strong>{zipCode}</strong> yet.</p>
+          <MapPin className="w-8 h-8 text-ink-900 mx-auto" />
+          <p className="text-[#3D435A]">We don&apos;t have ballot data for zip code <strong>{zipCode}</strong> yet.</p>
           <a
             href={ballotData.sosLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[#1F3A93] underline text-sm"
+            className="inline-flex items-center gap-1 text-ink-900 underline text-sm"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Find your ballot on the Georgia Secretary of State website
@@ -1759,7 +1759,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#1F3A93]" />
+              <MapPin className="w-5 h-5 text-ink-900" />
               <div>
                 <CardTitle className="text-xl">Your Ballot</CardTitle>
                 <CardDescription>
@@ -1780,7 +1780,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           {editingAddress && (
             <div className="mt-4 space-y-3">
               <div>
-                <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">Street Address</label>
+                <label className="text-xs font-medium text-[#3D435A] mb-1 block">Street Address</label>
                 <Input
                   value={tempAddress.street}
                   onChange={(e) => setTempAddress({ ...tempAddress, street: e.target.value })}
@@ -1789,7 +1789,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">City</label>
+                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">City</label>
                   <Input
                     value={tempAddress.city}
                     onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
@@ -1797,7 +1797,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   />
                 </div>
                 <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">State</label>
+                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">State</label>
                   <Input
                     value={tempAddress.state}
                     onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })}
@@ -1806,7 +1806,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   />
                 </div>
                 <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#4A4A4A] mb-1 block">ZIP Code</label>
+                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">ZIP Code</label>
                   <Input
                     value={tempAddress.zip}
                     onChange={(e) => setTempAddress({ ...tempAddress, zip: e.target.value })}
@@ -1815,11 +1815,11 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   />
                 </div>
               </div>
-              <p className="text-xs text-[#4A4A4A]/60">
+              <p className="text-xs text-[#3D435A]/60">
                 Your zip code is used to show your specific ballot races across all 159 Georgia counties.
               </p>
               <div className="flex gap-2">
-                <Button size="sm" onClick={handleAddressUpdate} className="bg-[#1F3A93] text-white hover:bg-[#1F3A93]/90">
+                <Button size="sm" onClick={handleAddressUpdate} className="bg-ink-900 text-white hover:bg-ink-900/90">
                   <Check className="w-4 h-4 mr-1" />
                   Save Address
                 </Button>
@@ -1833,17 +1833,17 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
           {!editingAddress && (
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-              <div className="bg-[#1F3A93]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">Congressional</p>
-                <p className="font-medium text-[#4A4A4A]">{ballotData.congressionalDistrict}</p>
+              <div className="bg-ink-900/5 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">Congressional</p>
+                <p className="font-medium text-[#3D435A]">{ballotData.congressionalDistrict}</p>
               </div>
               <div className="bg-[#27AE60]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">County</p>
-                <p className="font-medium text-[#4A4A4A]">{ballotData.county} County</p>
+                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">County</p>
+                <p className="font-medium text-[#3D435A]">{ballotData.county} County</p>
               </div>
-              <div className="bg-[#D64541]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#4A4A4A]/60 font-medium uppercase tracking-wide">State</p>
-                <p className="font-medium text-[#4A4A4A]">Georgia</p>
+              <div className="bg-civic-red/5 rounded-lg px-3 py-2">
+                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">State</p>
+                <p className="font-medium text-[#3D435A]">Georgia</p>
               </div>
             </div>
           )}
@@ -1851,7 +1851,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       </Card>
 
       {/* ── Sticky jump-nav ─────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-[#F5F6FA] py-2 -mx-4 px-4 border-b border-border">
+      <div className="sticky top-0 z-20 bg-paper-100 py-2 -mx-4 px-4 border-b border-border">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
           <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Jump to:</span>
           {Object.entries(LEVEL_COLORS).map(([level, { color }]) => {
@@ -1904,20 +1904,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         }
 
         return LEVEL_ORDER.filter((lvl) => grouped[lvl]?.length).map((level) => {
-          const levelInfo = LEVEL_COLORS[level] ?? { label: level, color: "bg-gray-500 text-white" }
+          const levelInfo = LEVEL_COLORS[level] ?? { label: level, color: "bg-paper-500 text-white" }
           // Extract the hex/color class for the left border accent
           const borderColor =
-            level === "Federal"      ? "border-[#1F3A93]" :
+            level === "Federal"      ? "border-[#1A2138]" :
             level === "State"        ? "border-[#27AE60]" :
             level === "County"       ? "border-[#F39C12]" :
             level === "School Board" ? "border-[#8E44AD]" :
-                                       "border-[#D64541]"
+                                       "border-[#B33A2C]"
           const bgStripe =
-            level === "Federal"      ? "bg-[#1F3A93]/5" :
+            level === "Federal"      ? "bg-ink-900/5" :
             level === "State"        ? "bg-[#27AE60]/5" :
             level === "County"       ? "bg-[#F39C12]/5" :
             level === "School Board" ? "bg-[#8E44AD]/5" :
-                                       "bg-[#D64541]/5"
+                                       "bg-civic-red/5"
 
           return (
             <div key={level} id={`level-${level}`} className="scroll-mt-24 space-y-3">
@@ -1935,7 +1935,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               {grouped[level].map((election, idx) => (
                 <div
                   key={idx}
-                  className={`bg-white rounded-2xl border border-border border-l-4 ${borderColor} overflow-hidden`}
+                  className={`bg-card rounded-2xl border border-border border-l-4 ${borderColor} overflow-hidden`}
                 >
                   {/* Race header */}
                   <div className="px-5 py-4 border-b border-border">
@@ -1983,17 +1983,17 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       {profileData && (
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-[#4A4A4A] mb-4">Your Current Representatives</h2>
+            <h2 className="text-2xl font-bold text-[#3D435A] mb-4">Your Current Representatives</h2>
 
             {/* House Representative */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. House of Representatives</h3>
+              <h3 className="text-lg font-semibold text-ink-900 mb-4">U.S. House of Representatives</h3>
               <RepresentativeProfile representative={profileData.representatives.congress} />
             </div>
 
             {/* Senate Representatives */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-[#1F3A93] mb-4">U.S. Senate</h3>
+              <h3 className="text-lg font-semibold text-ink-900 mb-4">U.S. Senate</h3>
               <div className="space-y-6">
                 {profileData.representatives.senate.map((senator, index) => (
                   <RepresentativeProfile key={index} representative={senator} />
@@ -2015,14 +2015,14 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         <CardContent>
           <div className="p-3 bg-blue-50 rounded-lg space-y-1">
             {ballotData.pollingInfo && (
-              <p className="font-medium text-[#4A4A4A]">{ballotData.pollingInfo}</p>
+              <p className="font-medium text-[#3D435A]">{ballotData.pollingInfo}</p>
             )}
-            <p className="text-sm text-[#4A4A4A]/70">Confirm your exact polling location before election day.</p>
+            <p className="text-sm text-[#3D435A]/70">Confirm your exact polling location before election day.</p>
             <a
               href={ballotData.sosLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[#1F3A93] underline text-sm"
+              className="inline-flex items-center gap-1 text-ink-900 underline text-sm"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Look up your polling place on mvp.sos.ga.gov
@@ -2048,13 +2048,13 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       {Object.keys(mySelections).length > 0 && (
         <button
           onClick={() => setShowMyBallot(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#1F3A93] text-white px-4 py-3 rounded-full shadow-lg hover:bg-[#1F3A93]/90 transition-colors"
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-ink-900 text-white px-4 py-3 rounded-full shadow-lg hover:bg-ink-900/90 transition-colors"
         >
           <Vote className="w-4 h-4" />
           <span className="text-sm font-semibold">My Ballot</span>
           <span
             title={`${Object.keys(mySelections).length} race${Object.keys(mySelections).length === 1 ? "" : "s"} picked`}
-            className="bg-white text-[#1F3A93] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+            className="bg-card text-ink-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
           >
             {Object.keys(mySelections).length}
           </span>
@@ -2073,7 +2073,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-background shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
-                <Vote className="w-5 h-5 text-[#1F3A93]" />
+                <Vote className="w-5 h-5 text-ink-900" />
                 <h2 className="text-lg font-bold text-foreground">My Ballot</h2>
               </div>
               <button
@@ -2092,7 +2092,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                 .map((race) => {
                   const picked = mySelections[race.office]
                   const candidate = race.candidates.find((c) => c.name === picked)
-                  const levelInfo = LEVEL_COLORS[race.level] ?? { label: race.level, color: "bg-gray-500 text-white" }
+                  const levelInfo = LEVEL_COLORS[race.level] ?? { label: race.level, color: "bg-paper-500 text-white" }
                   return (
                     <div key={race.office} className="rounded-lg border border-border p-3 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">

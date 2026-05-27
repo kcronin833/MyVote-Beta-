@@ -42,7 +42,7 @@ function ArticleCard({ article }: { article: Article }) {
   const [imgError, setImgError] = useState(false)
 
   return (
-    <article className="bg-white dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
+    <article className="bg-paper-50 dark:bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow">
       {article.urlToImage && !imgError && (
         <div className="relative w-full aspect-[16/7] overflow-hidden bg-muted">
           <img
@@ -68,7 +68,7 @@ function ArticleCard({ article }: { article: Article }) {
           href={article.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-base font-bold leading-snug text-foreground hover:text-primary hover:underline transition-colors"
+          className="block text-base font-bold font-serif leading-snug text-foreground hover:text-primary hover:underline transition-colors"
         >
           {article.title}
         </a>
@@ -154,7 +154,7 @@ function CommonGroundCard() {
   const [showComments, setShowComments] = useState(false)
 
   return (
-    <div className="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+    <div className="bg-paper-50 rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
       <div className="bg-teal-50 px-4 pt-4 pb-3 border-b border-teal-100">
         <Badge className="bg-teal-600 text-white text-xs mb-2">Common ground</Badge>
         <h3 className="font-bold text-foreground text-base leading-snug">{story.headline}</h3>
@@ -427,7 +427,7 @@ interface PipelineStory {
 
 function leanColor(lean: number) {
   if (lean < 0) return "#1E88E5"
-  if (lean > 0) return "#E53935"
+  if (lean > 0) return "#B33A2C"
   return "#78909C"
 }
 
@@ -443,7 +443,7 @@ function PipelineStoryCard({ story }: { story: PipelineStory }) {
   const spread = story.lean_max - story.lean_min
 
   return (
-    <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+    <div className="bg-paper-50 rounded-2xl border border-border overflow-hidden shadow-sm">
       {hero?.image_url && !imgError && (
         <div className="w-full aspect-[16/7] overflow-hidden bg-muted">
           <img src={hero.image_url} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
@@ -500,7 +500,7 @@ function PerspectivesSection() {
       {loading && <LoadingSkeleton count={3} />}
 
       {!loading && stories.length === 0 && (
-        <div className="bg-white rounded-2xl border border-border p-6 text-center text-sm text-muted-foreground">
+        <div className="bg-paper-50 rounded-2xl border border-border p-6 text-center text-sm text-muted-foreground">
           No national stories yet — check back after the daily pipeline runs.
         </div>
       )}
@@ -526,7 +526,7 @@ export function HomeFeed() {
       <CommunityPostsSection />
       <CommonGroundCard />
       {/* Mobile-only: suggested neighbors between posts and news (sidebar hidden on small screens) */}
-      <div className="lg:hidden bg-white rounded-2xl border border-border p-4">
+      <div className="lg:hidden bg-paper-50 rounded-2xl border border-border p-4">
         <SuggestedNeighbors limit={3} showHeader showSeeAll />
       </div>
       <YourNetworkSection />

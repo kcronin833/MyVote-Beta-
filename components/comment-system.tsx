@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -182,7 +182,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
   function getPoliticalColor(lean?: string) {
     if (lean === "left") return "bg-blue-100 text-blue-800";
     if (lean === "right") return "bg-red-100 text-red-800";
-    return "bg-gray-100 text-gray-800";
+    return "bg-paper-100 text-foreground";
   }
 
   function renderContent(content: string) {
@@ -209,7 +209,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-medium text-sm">{comment.profile?.display_name}</span>
-            <span className="text-gray-500 text-xs">@{comment.profile?.username}</span>
+            <span className="text-muted-foreground text-xs">@{comment.profile?.username}</span>
             <Badge
               variant="outline"
               className={`text-xs ${getPoliticalColor(comment.profile?.political_lean)}`}
@@ -220,11 +220,11 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 ? "Conservative"
                 : "Moderate"}
             </Badge>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-ink-400">
               {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
             </span>
             {comment.edited && (
-              <span className="text-xs text-gray-400 italic">(edited)</span>
+              <span className="text-xs text-ink-400 italic">(edited)</span>
             )}
           </div>
 
@@ -246,7 +246,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-700">{renderContent(comment.content)}</p>
+            <p className="text-sm text-foreground">{renderContent(comment.content)}</p>
           )}
 
           <div className="flex items-center gap-3 mt-2">
@@ -255,7 +255,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
               className={`flex items-center gap-1 text-xs transition-colors ${
                 comment.user_has_liked
                   ? "text-red-500"
-                  : "text-gray-500 hover:text-red-500"
+                  : "text-muted-foreground hover:text-red-500"
               }`}
             >
               <Heart
@@ -270,7 +270,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                   setReplyingTo(replyingTo === comment.id ? null : comment.id);
                   setReplyContent("");
                 }}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-blue-600 transition-colors"
               >
                 <MessageCircle className="w-3 h-3" />
                 Reply
@@ -283,13 +283,13 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                     setEditingId(comment.id);
                     setEditContent(comment.content);
                   }}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-blue-600 transition-colors"
                 >
                   <Edit2 className="w-3 h-3" />
                 </button>
                 <button
                   onClick={() => handleDelete(comment.id)}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -308,11 +308,11 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 className="text-sm"
               />
               {suggestions.length > 0 && (
-                <div className="absolute z-10 bg-white border rounded shadow-lg w-48 mt-1">
+                <div className="absolute z-10 bg-card border rounded shadow-lg w-48 mt-1">
                   {suggestions.map((s) => (
                     <button
                       key={s.username}
-                      className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                      className="block w-full text-left px-3 py-2 text-sm hover:bg-paper-50"
                       onClick={() => insertMention(s.username, replyContent, setReplyContent)}
                     >
                       @{s.username}
@@ -359,11 +359,11 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
             readOnly={!user}
           />
           {suggestions.length > 0 && (
-            <div className="absolute z-10 bg-white border rounded shadow-lg w-48 mt-1">
+            <div className="absolute z-10 bg-card border rounded shadow-lg w-48 mt-1">
               {suggestions.map((s) => (
                 <button
                   key={s.username}
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-paper-50"
                   onClick={() => insertMention(s.username, newComment, setNewComment)}
                 >
                   @{s.username}
@@ -372,7 +372,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
             </div>
           )}
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-gray-400">{newComment.length}/500</span>
+            <span className="text-xs text-ink-400">{newComment.length}/500</span>
             <Button
               size="sm"
               onClick={() => handleSubmit()}
@@ -389,18 +389,18 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex gap-3 animate-pulse">
-                <div className="w-8 h-8 rounded-full bg-gray-200" />
+                <div className="w-8 h-8 rounded-full bg-paper-200" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-gray-200 rounded w-1/3" />
-                  <div className="h-4 bg-gray-200 rounded" />
-                  <div className="h-4 bg-gray-200 rounded w-2/3" />
+                  <div className="h-3 bg-paper-200 rounded w-1/3" />
+                  <div className="h-4 bg-paper-200 rounded" />
+                  <div className="h-4 bg-paper-200 rounded w-2/3" />
                 </div>
               </div>
             ))}
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <MessageCircle className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+          <div className="text-center py-8 text-muted-foreground">
+            <MessageCircle className="w-10 h-10 mx-auto mb-2 text-ink-100" />
             <p>No comments yet. Be the first to discuss this article!</p>
           </div>
         ) : (

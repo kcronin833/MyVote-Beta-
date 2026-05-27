@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { ExternalLink, RefreshCw, AlertCircle, Star } from "lucide-react"
@@ -25,7 +25,7 @@ function leanLabel(lean: number): string {
 
 function leanDotColor(lean: number): string {
   if (lean < 0) return "#1E88E5"
-  if (lean > 0) return "#E53935"
+  if (lean > 0) return "#B33A2C"
   return "#78909C"
 }
 
@@ -207,7 +207,7 @@ function StoryCard({ story, filter }: { story: ClusteredStory; filter: LeanFilte
   const storyLeanAvg = (story.lean_min + story.lean_max) / 2
 
   return (
-    <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+    <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
       <div className="p-4 pb-2 space-y-2">
         {/* Meta row */}
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
@@ -318,7 +318,7 @@ export function SpectrumWheel() {
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-border p-4 space-y-3 animate-pulse">
+            <div key={i} className="bg-card rounded-2xl border border-border p-4 space-y-3 animate-pulse">
               <div className="h-4 bg-muted rounded w-3/4" />
               <div className="h-3 bg-muted rounded w-full" />
               <div className="flex gap-3 pt-2">
@@ -334,7 +334,7 @@ export function SpectrumWheel() {
           ))}
         </div>
       ) : error ? (
-        <div className="bg-white rounded-2xl border border-border p-8 text-center space-y-2">
+        <div className="bg-card rounded-2xl border border-border p-8 text-center space-y-2">
           <AlertCircle className="w-8 h-8 text-red-500 mx-auto opacity-60" />
           <p className="text-sm font-medium">Failed to load stories</p>
           <p className="text-xs text-muted-foreground">{error}</p>
@@ -343,11 +343,11 @@ export function SpectrumWheel() {
           </button>
         </div>
       ) : stories.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-border p-8 text-center">
+        <div className="bg-card rounded-2xl border border-border p-8 text-center">
           <p className="text-sm text-muted-foreground">No stories yet — run the pipeline from the admin panel.</p>
         </div>
       ) : visibleStories.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-border p-8 text-center">
+        <div className="bg-card rounded-2xl border border-border p-8 text-center">
           <p className="text-sm text-muted-foreground">No {filter}-leaning articles in current stories.</p>
         </div>
       ) : (

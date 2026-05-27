@@ -104,7 +104,7 @@ function SearchResults() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <Newspaper className="w-4 h-4 text-blue-600" />
+                    <Newspaper className="w-4 h-4 text-teal-600" />
                     <Badge variant="outline" className="text-xs">
                       News Article
                     </Badge>
@@ -119,7 +119,7 @@ function SearchResults() {
                       </Badge>
                     )}
                     {result.timestamp && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-ink-500">
                         {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
                       </span>
                     )}
@@ -130,7 +130,7 @@ function SearchResults() {
                         href={result.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-blue-600 hover:underline"
+                        className="hover:text-teal-600 hover:underline"
                       >
                         {result.title}
                       </a>
@@ -159,8 +159,8 @@ function SearchResults() {
           <Card key={result.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start gap-3">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <Users className="w-5 h-5 text-blue-600" />
+                <div className="bg-teal-100 p-2 rounded-full">
+                  <Users className="w-5 h-5 text-teal-600" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -175,7 +175,7 @@ function SearchResults() {
                             ? "bg-blue-100 text-blue-800"
                             : result.metadata.party === "Republican"
                               ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
+                              : "bg-paper-200 text-ink-700"
                         }`}
                       >
                         {result.metadata.party}
@@ -184,7 +184,7 @@ function SearchResults() {
                   </div>
                   <CardTitle className="text-lg mb-1">{result.title}</CardTitle>
                   <CardDescription className="mb-2">{result.description}</CardDescription>
-                  {result.metadata?.location && <p className="text-sm text-gray-600">{result.metadata.location}</p>}
+                  {result.metadata?.location && <p className="text-sm text-ink-700">{result.metadata.location}</p>}
                 </div>
               </div>
             </CardHeader>
@@ -218,7 +218,7 @@ function SearchResults() {
                     <Badge variant="outline" className="text-xs">
                       User
                     </Badge>
-                    {user?.verified && <CheckCircle className="w-4 h-4 text-blue-500" />}
+                    {user?.verified && <CheckCircle className="w-4 h-4 text-teal-500" />}
                     {result.category && (
                       <Badge
                         variant="outline"
@@ -227,7 +227,7 @@ function SearchResults() {
                             ? "bg-blue-100 text-blue-800"
                             : result.category === "right"
                               ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
+                              : "bg-paper-200 text-ink-700"
                         }`}
                       >
                         {result.category === "center" ? "Moderate" : result.category}
@@ -235,10 +235,10 @@ function SearchResults() {
                     )}
                   </div>
                   <CardTitle className="text-lg mb-1">{result.title}</CardTitle>
-                  <p className="text-sm text-gray-600 mb-1">{result.metadata?.author}</p>
+                  <p className="text-sm text-ink-700 mb-1">{result.metadata?.author}</p>
                   <CardDescription>{result.description}</CardDescription>
                   {result.metadata?.location && (
-                    <p className="text-sm text-gray-500 mt-1">{result.metadata.location}</p>
+                    <p className="text-sm text-ink-500 mt-1">{result.metadata.location}</p>
                   )}
                 </div>
               </div>
@@ -259,21 +259,21 @@ function SearchResults() {
           <Card key={result.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-green-600 mt-1" />
+                <MessageCircle className="w-5 h-5 text-teal-600 mt-1" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
                       Comment
                     </Badge>
                     {result.timestamp && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-ink-500">
                         {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
                       </span>
                     )}
                   </div>
                   <CardTitle className="text-lg mb-2">{result.title}</CardTitle>
                   <CardDescription className="mb-2">{result.description}</CardDescription>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-ink-700">
                     <span>By {result.metadata?.author}</span>
                     {result.metadata?.likes && (
                       <div className="flex items-center gap-1">
@@ -305,13 +305,13 @@ function SearchResults() {
 
       case "factual":
         return (
-          <Card key={result.id} className="hover:shadow-md transition-shadow border-l-4 border-l-blue-400">
+          <Card key={result.id} className="hover:shadow-md transition-shadow border-l-4 border-l-teal-400">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
-                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                    <Sparkles className="w-4 h-4 text-teal-600" />
+                    <Badge variant="outline" className="text-xs bg-teal-100 text-teal-700">
                       AI Generated
                     </Badge>
                     {result.source && (
@@ -331,7 +331,7 @@ function SearchResults() {
               </div>
             </CardHeader>
             <CardContent>
-              <Badge variant="outline" className="text-xs bg-gray-50">
+              <Badge variant="outline" className="text-xs bg-paper-100">
                 Factual Summary
               </Badge>
             </CardContent>
@@ -348,9 +348,9 @@ function SearchResults() {
   if (!query) {
     return (
       <div className="text-center py-12">
-        <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Search MyVote</h2>
-        <p className="text-gray-600">Enter a search term to find news, representatives, users, and more.</p>
+        <Search className="w-12 h-12 text-ink-400 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-foreground mb-2">Search MyVote</h2>
+        <p className="text-ink-700">Enter a search term to find news, representatives, users, and more.</p>
       </div>
     )
   }
@@ -360,8 +360,8 @@ function SearchResults() {
       {/* Search Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Search Results</h1>
-          <p className="text-gray-600">{loading ? "Searching..." : `${results.length} results for "${query}"`}</p>
+          <h1 className="text-2xl font-bold text-foreground">Search Results</h1>
+          <p className="text-ink-700">{loading ? "Searching..." : `${results.length} results for "${query}"`}</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>
@@ -392,16 +392,16 @@ function SearchResults() {
         <div className="mt-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600">Searching...</span>
+              <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+              <span className="ml-2 text-ink-700">Searching...</span>
             </div>
           ) : sortedResults.length > 0 ? (
             <div className="space-y-4">{sortedResults.map(renderResult)}</div>
           ) : (
             <div className="text-center py-12">
-              <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
-              <p className="text-gray-600">Try adjusting your search terms or filters.</p>
+              <Search className="w-12 h-12 text-ink-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No results found</h3>
+              <p className="text-ink-700">Try adjusting your search terms or filters.</p>
             </div>
           )}
         </div>
@@ -412,7 +412,7 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/">
@@ -428,7 +428,7 @@ export default function SearchPage() {
           <Suspense
             fallback={
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
               </div>
             }
           >

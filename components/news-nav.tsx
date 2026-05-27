@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
@@ -41,8 +41,8 @@ export function NewsNavigation() {
                   <button
                     className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium ${
                       active
-                        ? "bg-[#1B2B5E]/10 text-[#1B2B5E] border-b-2 border-[#1B2B5E]"
-                        : `text-gray-500 hover:text-gray-800 hover:bg-gray-100 ${accent || ""}`
+                        ? "bg-ink-900/10 text-ink-900 border-b-2 border-[#1A2138]"
+                        : `text-muted-foreground hover:text-foreground hover:bg-paper-100 ${accent || ""}`
                     }`}
                   >
                     <Icon className="w-4 h-4" />

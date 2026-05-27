@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -79,20 +79,20 @@ export function PoliticalSpectrumBar() {
           <div className={`text-lg font-medium ${getPositionColor(politicalPosition)}`}>
             {getPositionLabel(politicalPosition)}
           </div>
-          <div className="text-sm text-gray-500 mt-1">Based on {viewpointLikes.length} liked viewpoints</div>
+          <div className="text-sm text-muted-foreground mt-1">Based on {viewpointLikes.length} liked viewpoints</div>
         </div>
 
         {/* Spectrum Bar */}
         <div className="relative">
           <div className="h-8 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 rounded-lg"></div>
           <div
-            className="absolute top-0 w-1 h-8 bg-white border-2 border-gray-800 rounded transition-all duration-300"
+            className="absolute top-0 w-1 h-8 bg-card border-2 border-gray-800 rounded transition-all duration-300"
             style={{ left: `${politicalPosition}%`, transform: "translateX(-50%)" }}
           ></div>
         </div>
 
         {/* Scale Labels */}
-        <div className="flex justify-between text-xs text-gray-500">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>0% Progressive</span>
           <span>50% Moderate</span>
           <span>100% Conservative</span>
@@ -101,13 +101,13 @@ export function PoliticalSpectrumBar() {
         {/* Recent Viewpoint Likes */}
         {viewpointLikes.length > 0 && (
           <div className="mt-6">
-            <h4 className="font-medium text-gray-800 mb-3">Recent Viewpoint Likes</h4>
+            <h4 className="font-medium text-foreground mb-3">Recent Viewpoint Likes</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {viewpointLikes
                 .slice(-5)
                 .reverse()
                 .map((like, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
+                  <div key={index} className="flex items-start gap-2 p-2 bg-paper-50 rounded">
                     <Badge
                       variant="outline"
                       className={`text-xs ${
@@ -120,7 +120,7 @@ export function PoliticalSpectrumBar() {
                     </Badge>
                     <div className="flex-1">
                       <p className="text-sm font-medium">{like.title}</p>
-                      <p className="text-xs text-gray-600 line-clamp-2">{like.content}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{like.content}</p>
                     </div>
                   </div>
                 ))}

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+﻿import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -110,7 +110,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
       case "Libertarian":
         return "bg-yellow-100 text-yellow-800 border-yellow-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-paper-100 text-foreground border-rule"
     }
   }
 
@@ -127,7 +127,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
       case "Libertarian":
         return "bg-yellow-600"
       default:
-        return "bg-gray-600"
+        return "bg-foreground/50"
     }
   }
 
@@ -166,7 +166,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
             </div>
           </div>
           {candidate.website && (
-            <Button variant="outline" size="sm" className="bg-white" asChild>
+            <Button variant="outline" size="sm" className="bg-card" asChild>
               <a href={candidate.website} target="_blank" rel="noopener noreferrer">
                 <Globe className="w-4 h-4 mr-1" />
                 Campaign Website
@@ -192,24 +192,24 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
             <Card className="col-span-2">
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-2">About {candidate.name}</h3>
-                <p className="text-gray-700 mb-4">{candidate.bio || "No detailed biography available."}</p>
+                <p className="text-foreground mb-4">{candidate.bio || "No detailed biography available."}</p>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {candidate.age && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Age</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Age</h4>
                       <p>{candidate.age}</p>
                     </div>
                   )}
                   {candidate.hometown && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Hometown</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Hometown</h4>
                       <p>{candidate.hometown}</p>
                     </div>
                   )}
                   {candidate.family && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Family</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Family</h4>
                       <p>{candidate.family}</p>
                     </div>
                   )}
@@ -229,7 +229,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                     <h3 className="text-lg font-semibold mb-2">Education</h3>
                     <ul className="list-disc pl-5 mb-4">
                       {candidate.education.map((edu, i) => (
-                        <li key={i} className="text-gray-700">
+                        <li key={i} className="text-foreground">
                           {edu}
                         </li>
                       ))}
@@ -248,11 +248,11 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                   </h3>
                   <div className="space-y-2">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Election Date</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Election Date</h4>
                       <p>{electionDate}</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Office</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Office</h4>
                       <p>{office}</p>
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                     <div className="space-y-2">
                       {candidate.contactInfo.email && (
                         <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-gray-500" />
+                          <Mail className="w-4 h-4 text-muted-foreground" />
                           <a href={`mailto:${candidate.contactInfo.email}`} className="text-blue-600 hover:underline">
                             {candidate.contactInfo.email}
                           </a>
@@ -277,13 +277,13 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                       )}
                       {candidate.contactInfo.phone && (
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-700">{candidate.contactInfo.phone}</span>
+                          <span className="text-foreground">{candidate.contactInfo.phone}</span>
                         </div>
                       )}
                       {candidate.contactInfo.campaignOffice && (
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-gray-500" />
-                          <span className="text-gray-700">{candidate.contactInfo.campaignOffice}</span>
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-foreground">{candidate.contactInfo.campaignOffice}</span>
                         </div>
                       )}
                     </div>
@@ -347,11 +347,11 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-medium">{event.name}</h4>
-                          <p className="text-sm text-gray-600">{event.description}</p>
+                          <p className="text-sm text-muted-foreground">{event.description}</p>
                         </div>
                         <Badge variant="outline">{event.date}</Badge>
                       </div>
-                      <div className="mt-2 text-sm text-gray-500 flex items-center gap-1">
+                      <div className="mt-2 text-sm text-muted-foreground flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {event.location}
                       </div>
@@ -374,7 +374,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                       <h3 className="text-lg font-semibold">{position.issue}</h3>
                       <Badge>{position.stance}</Badge>
                     </div>
-                    <p className="text-gray-700">{position.description}</p>
+                    <p className="text-foreground">{position.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -382,9 +382,9 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
           ) : (
             <Card>
               <CardContent className="py-8 text-center">
-                <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">No detailed positions available</h3>
-                <p className="text-gray-500">
+                <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No detailed positions available</h3>
+                <p className="text-muted-foreground">
                   We don't have detailed position information for this candidate yet. Check their campaign website for
                   more information.
                 </p>
@@ -410,7 +410,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
               </h3>
               <ul className="list-disc pl-5 mb-4">
                 {candidate.experience.map((exp, i) => (
-                  <li key={i} className="text-gray-700 mb-2">
+                  <li key={i} className="text-foreground mb-2">
                     {exp}
                   </li>
                 ))}
@@ -433,7 +433,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                           <h4 className="font-medium">
                             {election.year} - {election.office}
                           </h4>
-                          <p className="text-sm text-gray-600">{election.result}</p>
+                          <p className="text-sm text-muted-foreground">{election.result}</p>
                         </div>
                         <Badge
                           variant={election.result.includes("Won") ? "default" : "secondary"}
@@ -462,8 +462,8 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-medium">{record.bill}</h4>
-                          <p className="text-sm text-gray-600">{record.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">{record.date}</p>
+                          <p className="text-sm text-muted-foreground">{record.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{record.date}</p>
                         </div>
                         <Badge
                           variant={
@@ -493,7 +493,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                         <Award className="w-5 h-5 text-yellow-500 mt-1" />
                         <div>
                           <h3 className="font-semibold">{endorsement.organization}</h3>
-                          <p className="text-sm text-gray-500">{endorsement.type}</p>
+                          <p className="text-sm text-muted-foreground">{endorsement.type}</p>
                           {endorsement.quote && <p className="text-sm italic mt-2">"{endorsement.quote}"</p>}
                         </div>
                       </div>
@@ -530,24 +530,24 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Total Raised</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Total Raised</h4>
                       <p className="text-lg font-bold text-green-600">{candidate.campaignFinance.totalRaised}</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Total Spent</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Total Spent</h4>
                       <p className="text-lg font-bold text-red-600">{candidate.campaignFinance.totalSpent}</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Cash on Hand</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Cash on Hand</h4>
                       <p className="text-lg font-bold">{candidate.campaignFinance.cashOnHand}</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Average Donation</h4>
+                      <h4 className="text-sm font-medium text-muted-foreground">Average Donation</h4>
                       <p>{candidate.campaignFinance.averageDonation}</p>
                     </div>
                   </div>
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-500 mb-1">Small Donor Percentage</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Small Donor Percentage</h4>
                     <div className="flex items-center gap-2">
                       <Progress
                         value={Number.parseInt(candidate.campaignFinance.smallDonorPercentage)}
@@ -582,15 +582,15 @@ export function CandidateProfileDetail({ candidate, office, electionDate, ...pro
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Total Raised</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground">Total Raised</h4>
                     <p className="text-lg font-bold text-green-600">{candidate.fundraising.totalRaised}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Last Quarter</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground">Last Quarter</h4>
                     <p className="text-lg font-bold">{candidate.fundraising.lastQuarter}</p>
                   </div>
                 </div>
-                <div className="mt-4 text-center text-gray-500 text-sm">
+                <div className="mt-4 text-center text-muted-foreground text-sm">
                   <p>Detailed campaign finance information is not available.</p>
                   <p>
                     Visit the{" "}

@@ -59,7 +59,7 @@ export function PostComposer({ onPost }: PostComposerProps) {
   const remaining = 500 - content.length
 
   return (
-    <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
+    <div className="bg-paper-50 rounded-2xl border border-border p-4 space-y-3">
       <div className="flex items-start gap-3">
         <UserAvatar avatarUrl={profile.avatar_url} displayName={profile.display_name} size="md" />
         <textarea

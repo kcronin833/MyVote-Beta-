@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
@@ -40,7 +40,7 @@ interface IssueScore {
 function issueColor(pct: number) {
   if (pct >= 75) return { bar: "bg-teal-500", text: "text-teal-700" }
   if (pct >= 50) return { bar: "bg-amber-400", text: "text-amber-700" }
-  return { bar: "bg-coral-500 bg-[#E07060]", text: "text-[#C0504A]" }
+  return { bar: "bg-civic-red/70", text: "text-civic-red" }
 }
 
 function getCivicStreak(): number {
@@ -130,7 +130,7 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
         />
       )}
       {/* Card 1 — Profile */}
-      <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
+      <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowAvatarModal(true)}
@@ -158,22 +158,22 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
         </div>
         <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border">
           <div className="text-center">
-            <p className="text-lg font-bold text-[#1F3A93]">{racesDecided}</p>
+            <p className="text-lg font-bold text-ink-900">{racesDecided}</p>
             <p className="text-[10px] text-muted-foreground leading-tight">Races decided</p>
           </div>
           <div className="text-center border-x border-border">
-            <p className="text-lg font-bold text-[#1F3A93]">0</p>
+            <p className="text-lg font-bold text-ink-900">0</p>
             <p className="text-[10px] text-muted-foreground leading-tight">Discussions</p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-bold text-[#1F3A93]">{viewpoints}</p>
+            <p className="text-lg font-bold text-ink-900">{viewpoints}</p>
             <p className="text-[10px] text-muted-foreground leading-tight">Viewpoints liked</p>
           </div>
         </div>
       </div>
 
       {/* Card 2 — Common Ground */}
-      <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
+      <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div>
           <p className="font-semibold text-foreground text-sm">Your common ground</p>
           <p className="text-[10px] text-muted-foreground">Your views across key civic issues</p>
@@ -233,12 +233,12 @@ export function HomeSidebar({ racesDecided, totalRaces }: HomeSidebarProps) {
       <PoliticianMatch />
 
       {/* Card 4 — Suggested Neighbors */}
-      <div className="bg-white rounded-2xl border border-border p-4">
+      <div className="bg-card rounded-2xl border border-border p-4">
         <SuggestedNeighbors limit={3} showHeader showSeeAll />
       </div>
 
       {/* Card 4 — Ballot Progress */}
-      <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
+      <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-foreground text-sm">Your ballot</p>
           <Vote className="w-4 h-4 text-muted-foreground" />

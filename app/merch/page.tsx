@@ -121,7 +121,7 @@ export default function MerchPage() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -133,11 +133,11 @@ export default function MerchPage() {
             </Link>
             <Logo size="md" />
             <div>
-              <h1 className="text-2xl font-bold text-[#4A4A4A]">MyVote Merch Shop</h1>
-              <p className="text-sm text-[#4A4A4A]/60">Show your civic pride</p>
+              <h1 className="text-2xl font-bold text-ink-700">MyVote Merch Shop</h1>
+              <p className="text-sm text-ink-700/60">Show your civic pride</p>
             </div>
           </div>
-          <Button variant="outline" className="relative border-[#1F3A93] text-[#1F3A93]">
+          <Button variant="outline" className="relative border-teal-600 text-teal-600">
             <ShoppingCart className="w-4 h-4 mr-2" />
             Cart ({cartCount}) - ${cartTotal.toFixed(2)}
           </Button>
@@ -147,23 +147,23 @@ export default function MerchPage() {
           {products
             .filter((p) => p.approved)
             .map((product) => (
-              <Card key={product.id} className="border-[#E5E5E5] overflow-hidden hover:shadow-md transition-shadow">
-                <div className="aspect-square bg-[#E5E5E5]/50 flex items-center justify-center">
-                  <Package className="w-16 h-16 text-[#4A4A4A]/30" />
+              <Card key={product.id} className="border-rule overflow-hidden hover:shadow-md transition-shadow">
+                <div className="aspect-square bg-rule/50 flex items-center justify-center">
+                  <Package className="w-16 h-16 text-ink-700/30" />
                 </div>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-lg text-[#4A4A4A]">{product.name}</CardTitle>
+                      <CardTitle className="text-lg text-ink-700">{product.name}</CardTitle>
                       <CardDescription>{product.description}</CardDescription>
                     </div>
-                    <Badge className="bg-[#1F3A93] text-white">${product.price}</Badge>
+                    <Badge className="bg-teal-600 text-white">${product.price}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {product.sizes && (
                     <div>
-                      <label className="text-xs font-medium text-[#4A4A4A]">Size</label>
+                      <label className="text-xs font-medium text-ink-700">Size</label>
                       <Select
                         value={selectedSize[product.id] || product.sizes[0]}
                         onValueChange={(v) => setSelectedSize({ ...selectedSize, [product.id]: v })}
@@ -183,7 +183,7 @@ export default function MerchPage() {
                   )}
                   {product.colors && (
                     <div>
-                      <label className="text-xs font-medium text-[#4A4A4A]">Color</label>
+                      <label className="text-xs font-medium text-ink-700">Color</label>
                       <Select
                         value={selectedColor[product.id] || product.colors[0]}
                         onValueChange={(v) => setSelectedColor({ ...selectedColor, [product.id]: v })}
@@ -202,7 +202,7 @@ export default function MerchPage() {
                     </div>
                   )}
                   <Button
-                    className="w-full bg-[#F39C12] hover:bg-[#E67E22] text-white"
+                    className="w-full bg-civic-red hover:bg-civic-red/90 text-white"
                     onClick={() => addToCart(product)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -214,16 +214,16 @@ export default function MerchPage() {
         </div>
 
         {/* Submit Product Idea */}
-        <Card className="mt-12 border-[#E5E5E5]">
+        <Card className="mt-12 border-rule">
           <CardHeader className="text-center">
-            <CardTitle className="text-[#4A4A4A]">Have a Product Idea?</CardTitle>
+            <CardTitle className="text-ink-700">Have a Product Idea?</CardTitle>
             <CardDescription>
               Submit your merch idea for review. All products require admin approval before being listed.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Link href="/contact">
-              <Button className="bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white">
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white">
                 Submit Product Idea
               </Button>
             </Link>

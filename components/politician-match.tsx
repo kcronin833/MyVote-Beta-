@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { ExternalLink, Vote, Sparkles, RefreshCw } from "lucide-react"
@@ -142,8 +142,8 @@ export function PoliticianMatch() {
 
   if (!authed && !loading) {
     return (
-      <div className="bg-white rounded-2xl border border-border p-5 text-center space-y-2">
-        <Vote className="w-8 h-8 text-[#1F3A93] mx-auto opacity-60" />
+      <div className="bg-card rounded-2xl border border-border p-5 text-center space-y-2">
+        <Vote className="w-8 h-8 text-ink-900 mx-auto opacity-60" />
         <p className="text-sm font-semibold text-foreground">Politician Match</p>
         <p className="text-xs text-muted-foreground">
           Sign in and rate stories to discover which Georgia candidates align with your interests.
@@ -154,7 +154,7 @@ export function PoliticianMatch() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-border p-5 space-y-3 animate-pulse">
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-3 animate-pulse">
         <div className="h-4 bg-muted rounded w-1/2" />
         <div className="h-3 bg-muted rounded w-full" />
         <div className="h-3 bg-muted rounded w-4/5" />
@@ -164,9 +164,9 @@ export function PoliticianMatch() {
 
   if (leanScore === null || totalRatings < 3) {
     return (
-      <div className="bg-white rounded-2xl border border-[#1F3A93]/20 p-5 space-y-3">
+      <div className="bg-card rounded-2xl border border-[#1A2138]/20 p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#1F3A93]" />
+          <Sparkles className="w-4 h-4 text-ink-900" />
           <p className="text-sm font-bold text-foreground">Politician Match</p>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
@@ -176,7 +176,7 @@ export function PoliticianMatch() {
           {[1,2,3].map((i) => (
             <div
               key={i}
-              className={`flex-1 h-1.5 rounded-full ${i <= totalRatings ? "bg-[#1F3A93]" : "bg-muted"}`}
+              className={`flex-1 h-1.5 rounded-full ${i <= totalRatings ? "bg-ink-900" : "bg-muted"}`}
             />
           ))}
         </div>
@@ -188,8 +188,8 @@ export function PoliticianMatch() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[#1F3A93]/20 overflow-hidden shadow-sm">
-      <div className="bg-[#1F3A93] px-4 py-3">
+    <div className="bg-card rounded-2xl border border-[#1A2138]/20 overflow-hidden shadow-sm">
+      <div className="bg-ink-900 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Vote className="w-4 h-4 text-white" />
@@ -219,7 +219,7 @@ export function PoliticianMatch() {
                     href={p.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-bold text-foreground hover:text-[#1F3A93] hover:underline transition-colors flex items-center gap-1"
+                    className="text-sm font-bold text-foreground hover:text-ink-900 hover:underline transition-colors flex items-center gap-1"
                   >
                     {p.name}
                     <ExternalLink className="w-3 h-3 opacity-50" />

@@ -39,7 +39,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1F3A93] flex flex-col p-4">
+    <div className="min-h-screen bg-ink-900 flex flex-col p-4">
       <div className="w-full max-w-md mx-auto pt-4 pb-6">
         <Link
           href="/"
@@ -50,12 +50,12 @@ export default function SignInPage() {
         </Link>
       </div>
       <div className="flex-1 flex items-center justify-center">
-      <Card className="w-full max-w-md border-[#E5E5E5]">
+      <Card className="w-full max-w-md border-rule">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Logo size="lg" />
           </div>
-          <CardTitle className="text-[#4A4A4A]">Welcome Back</CardTitle>
+          <CardTitle className="text-ink-700">Welcome Back</CardTitle>
           <CardDescription>Sign in to your MyVote account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -66,7 +66,7 @@ export default function SignInPage() {
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-[#4A4A4A]">Email</label>
+              <label className="text-sm font-medium text-ink-700">Email</label>
               <Input
                 type="email"
                 placeholder="your@email.com"
@@ -76,7 +76,7 @@ export default function SignInPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[#4A4A4A]">Password</label>
+              <label className="text-sm font-medium text-ink-700">Password</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -88,7 +88,7 @@ export default function SignInPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A4A4A]/50"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -97,14 +97,14 @@ export default function SignInPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white"
+              className="w-full bg-teal-600 hover:bg-teal-700 text-white"
             >
               {loading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
-          <p className="text-center text-sm text-[#4A4A4A]/60 mt-4">
+          <p className="text-center text-sm text-ink-700/60 mt-4">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-[#1F3A93] font-medium hover:underline">
+            <Link href="/auth/signup" className="text-teal-600 font-medium hover:underline">
               Sign Up
             </Link>
           </p>

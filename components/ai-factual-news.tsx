@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, ThumbsUp, Flame, Zap, CheckCircle, Loader2 } from "lucide-react"
@@ -47,7 +47,7 @@ function getSourceLean(name: string, side: "left" | "right"): { label: string; d
   if (n.includes("cnn") || n.includes("washington post") || n.includes("new york times") || n.includes("nytimes") || n.includes("npr") || n.includes("pbs") || n.includes("huffpost") || n.includes("vox"))
     return { label: "Center-left",  dot: "bg-blue-500",   badge: "bg-blue-50 text-blue-700" }
   if (n.includes("associated press") || n.includes("reuters") || n.includes("axios") || n.includes("politico") || n.includes("the hill") || n.includes("abc") || n.includes("nbc"))
-    return { label: "Center",       dot: "bg-gray-500",   badge: "bg-gray-100 text-gray-700" }
+    return { label: "Center",       dot: "bg-paper-500",   badge: "bg-paper-100 text-foreground" }
   if (n.includes("wall street") || n.includes("wsj") || n.includes("examiner") || n.includes("national review"))
     return { label: "Center-right", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-700" }
   if (n.includes("fox") || n.includes("daily wire") || n.includes("new york post") || n.includes("breitbart") || n.includes("daily caller"))
@@ -119,12 +119,12 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   }
 
   return (
-    <article className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+    <article className="bg-card rounded-2xl border border-rule p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow">
 
       {/* AI synopsis badge */}
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg border border-gray-200 font-medium">
-          <span className="w-2.5 h-2.5 border border-gray-400 rounded-sm flex-shrink-0" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-paper-100 text-muted-foreground text-xs rounded-lg border border-rule font-medium">
+          <span className="w-2.5 h-2.5 border border-rule rounded-sm flex-shrink-0" />
           AI synopsis
         </span>
         {article.controversyScore >= 70 && (
@@ -139,14 +139,14 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
         href={article.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block text-[1.15rem] font-bold leading-snug text-gray-900 hover:text-[#1B2B5E] transition-colors"
+        className="block text-[1.15rem] font-bold font-serif leading-snug text-foreground hover:text-ink-900 transition-colors"
       >
         {article.title}
       </a>
 
       {/* Summary */}
       {(article.aiOverview || article.description) && (
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           {article.aiOverview || article.description}
         </p>
       )}
@@ -185,16 +185,16 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
                 href={src.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-44 border border-gray-200 rounded-xl p-3 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                className="flex-shrink-0 w-44 border border-rule rounded-xl p-3 hover:bg-paper-50 hover:border-rule transition-colors"
               >
                 <div className="flex items-center justify-between gap-1 mb-2">
-                  <span className="text-xs font-bold text-gray-800 truncate">{src.source}</span>
+                  <span className="text-xs font-bold text-foreground truncate">{src.source}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${lean.badge}`}>
                     {lean.label}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">{src.title}</p>
-                <p className="text-[10px] text-gray-400 mt-2">{formatNewsTime(src.publishedAt)}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{src.title}</p>
+                <p className="text-[10px] text-ink-400 mt-2">{formatNewsTime(src.publishedAt)}</p>
               </a>
             )
           })}
@@ -202,7 +202,7 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
       )}
 
       {/* Reactions + actions */}
-      <div className="flex items-center gap-1.5 pt-3 border-t border-gray-100 flex-wrap">
+      <div className="flex items-center gap-1.5 pt-3 border-t border-rule flex-wrap">
         {REACTIONS.map(({ key, emoji, label }) => (
           <button
             key={key}
@@ -212,7 +212,7 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
               myReaction === key
                 ? "bg-gray-900 text-white border-gray-900"
-                : "border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800"
+                : "border-rule text-muted-foreground hover:border-rule hover:text-foreground"
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             <span>{emoji}</span>
@@ -225,14 +225,14 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-rule text-muted-foreground hover:border-rule hover:text-foreground transition-all"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Read
           </a>
           <button
             onClick={() => setShowComments(v => !v)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-rule text-muted-foreground hover:border-rule hover:text-foreground transition-all"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             Discuss
@@ -242,7 +242,7 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
       </div>
 
       {showComments && (
-        <div className="pt-2 border-t border-gray-100">
+        <div className="pt-2 border-t border-rule">
           <CommentSystem articleUrl={articleId} articleTitle={article.title} />
         </div>
       )}
@@ -290,18 +290,18 @@ export function AIFactualNews() {
       <div className="space-y-4">
         <div className="flex gap-2 mb-6">
           {CATEGORIES.map(c => (
-            <div key={c} className="h-8 w-24 rounded-full bg-gray-200 animate-pulse" />
+            <div key={c} className="h-8 w-24 rounded-full bg-paper-200 animate-pulse" />
           ))}
         </div>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3 animate-pulse">
-            <div className="h-3 w-20 bg-gray-200 rounded" />
-            <div className="h-6 w-5/6 bg-gray-200 rounded" />
-            <div className="h-4 w-full bg-gray-100 rounded" />
-            <div className="h-4 w-4/5 bg-gray-100 rounded" />
-            <div className="h-2 w-full bg-gray-200 rounded-full" />
+          <div key={i} className="bg-card rounded-2xl border border-rule p-5 space-y-3 animate-pulse">
+            <div className="h-3 w-20 bg-paper-200 rounded" />
+            <div className="h-6 w-5/6 bg-paper-200 rounded" />
+            <div className="h-4 w-full bg-paper-100 rounded" />
+            <div className="h-4 w-4/5 bg-paper-100 rounded" />
+            <div className="h-2 w-full bg-paper-200 rounded-full" />
             <div className="flex gap-2">
-              {[...Array(3)].map((_, j) => <div key={j} className="h-24 w-44 bg-gray-100 rounded-xl flex-shrink-0" />)}
+              {[...Array(3)].map((_, j) => <div key={j} className="h-24 w-44 bg-paper-100 rounded-xl flex-shrink-0" />)}
             </div>
           </div>
         ))}
@@ -321,7 +321,7 @@ export function AIFactualNews() {
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
                 category === c
                   ? "bg-gray-900 text-white border-gray-900"
-                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  : "border-rule text-muted-foreground hover:bg-paper-50"
               }`}
             >
               {c}
@@ -330,14 +330,14 @@ export function AIFactualNews() {
         </div>
         <div className="flex items-center gap-2">
           {lastUpdated && (
-            <span className="text-xs text-gray-400 hidden sm:block">
+            <span className="text-xs text-ink-400 hidden sm:block">
               Updated {lastUpdated.toLocaleTimeString()}
             </span>
           )}
           <button
             onClick={() => loadNews(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-600 hover:border-gray-400 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-rule text-muted-foreground hover:border-rule transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
             {refreshing ? "Loading…" : "Refresh"}
@@ -346,16 +346,16 @@ export function AIFactualNews() {
       </div>
 
       {error && (
-        <div className="py-16 text-center text-gray-400 space-y-2">
+        <div className="py-16 text-center text-ink-400 space-y-2">
           <p className="text-sm">{error}</p>
-          <button onClick={() => loadNews(true)} className="text-xs text-[#1B2B5E] underline">
+          <button onClick={() => loadNews(true)} className="text-xs text-ink-900 underline">
             Try again
           </button>
         </div>
       )}
 
       {filtered.length === 0 && !error && !loading && (
-        <div className="py-16 text-center text-gray-400 text-sm">
+        <div className="py-16 text-center text-ink-400 text-sm">
           No {category.toLowerCase()} stories right now — try another category.
         </div>
       )}
@@ -365,7 +365,7 @@ export function AIFactualNews() {
       ))}
 
       {filtered.length > 0 && (
-        <p className="text-center text-xs text-gray-400 pt-2 pb-4">
+        <p className="text-center text-xs text-ink-400 pt-2 pb-4">
           Coverage sourced from real outlets across the political spectrum. Always verify with official sources.
         </p>
       )}

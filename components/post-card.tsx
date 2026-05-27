@@ -13,7 +13,7 @@ const TOPIC_COLORS: Record<string, string> = {
   "Local Issue": "bg-blue-100 text-blue-800",
   Candidate: "bg-purple-100 text-purple-800",
   Question: "bg-amber-100 text-amber-800",
-  General: "bg-gray-100 text-gray-700",
+  General: "bg-paper-100 text-muted-foreground",
 }
 
 export interface PostData {
@@ -57,7 +57,7 @@ export function PostCard({ post }: { post: PostData }) {
   const name = post.profile?.display_name || "Community member"
 
   return (
-    <div className="bg-white rounded-2xl border border-border p-4 space-y-3">
+    <div className="bg-paper-50 rounded-2xl border border-border p-4 space-y-3">
       <div className="flex items-start gap-3">
         <UserAvatar avatarUrl={post.profile?.avatar_url} displayName={name} size="sm" />
         <div className="flex-1 min-w-0">

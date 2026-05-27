@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useRef, useState } from "react"
 import { Camera, Upload, Trash2, X, Check, Loader2 } from "lucide-react"
@@ -74,7 +74,7 @@ export function AvatarUploadModal({ onClose, onSuccess }: AvatarUploadModalProps
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 space-y-4"
+        className="bg-card rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm p-6 space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

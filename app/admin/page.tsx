@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -183,7 +183,7 @@ export default function AdminPage() {
   const unreadCount = messages.filter((m) => !m.read).length
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA]">
+    <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
 
@@ -202,12 +202,12 @@ export default function AdminPage() {
           {/* Stats row */}
           <div className="grid grid-cols-4 gap-3 mb-6">
             {[
-              { label: "Total Users", value: totalUsers, icon: Users, color: "text-[#1F3A93]" },
+              { label: "Total Users", value: totalUsers, icon: Users, color: "text-teal-600" },
               { label: "Total Posts", value: totalPosts, icon: FileText, color: "text-teal-600" },
               { label: "Admins", value: adminCount, icon: ShieldCheck, color: "text-amber-600" },
-              { label: "Unread Msgs", value: tab === "messages" ? unreadCount : "—", icon: Mail, color: "text-[#CC2020]" },
+              { label: "Unread Msgs", value: tab === "messages" ? unreadCount : "—", icon: Mail, color: "text-civic-red" },
             ].map(({ label, value, icon: Icon, color }) => (
-              <div key={label} className="bg-white rounded-2xl border border-border p-4 text-center">
+              <div key={label} className="bg-card rounded-2xl border border-border p-4 text-center">
                 <Icon className={`w-5 h-5 ${color} mx-auto mb-1`} />
                 <p className="text-2xl font-bold text-foreground">{value}</p>
                 <p className="text-xs text-muted-foreground">{label}</p>
@@ -216,20 +216,20 @@ export default function AdminPage() {
           </div>
 
           {/* Tab bar */}
-          <div className="flex gap-1 mb-4 bg-white border border-border rounded-xl p-1 w-fit">
+          <div className="flex gap-1 mb-4 bg-card border border-border rounded-xl p-1 w-fit">
             {(["users", "posts", "messages", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className={`relative px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
                   tab === t
-                    ? "bg-[#1F3A93] text-white"
+                    ? "bg-teal-600 text-white"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t}
                 {t === "messages" && unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#CC2020] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-civic-red text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
@@ -246,14 +246,14 @@ export default function AdminPage() {
 
           {/* Users tab */}
           {tab === "users" && (
-            <div className="bg-white rounded-2xl border border-border overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
               {loadingData ? (
                 <div className="p-8 text-center text-muted-foreground text-sm animate-pulse">
                   Loading users…
                 </div>
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="bg-[#F5F6FA] border-b border-border">
+                  <thead className="bg-paper-100 border-b border-border">
                     <tr>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">User</th>
                       <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden sm:table-cell">Location</th>
@@ -263,7 +263,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-[#FAFAFA] transition-colors">
+                      <tr key={u.id} className="hover:bg-paper-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <UserAvatar avatarUrl={u.avatar_url} displayName={u.display_name} size="xs" />
@@ -313,7 +313,7 @@ export default function AdminPage() {
           {/* Pipeline tab */}
           {tab === "pipeline" && (
             <div className="space-y-4">
-              <div className="bg-white rounded-2xl border border-border p-5">
+              <div className="bg-card rounded-2xl border border-border p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-bold text-foreground flex items-center gap-2">
@@ -355,7 +355,7 @@ export default function AdminPage() {
                 )}
               </div>
 
-              <div className="bg-white rounded-2xl border border-border p-4 text-xs text-muted-foreground space-y-1">
+              <div className="bg-card rounded-2xl border border-border p-4 text-xs text-muted-foreground space-y-1">
                 <p className="font-semibold text-foreground text-sm mb-2">Required environment variables</p>
                 {[
                   { name: "GNEWS_API_KEY", desc: "gnews.io — free tier sufficient for dev (100 req/day)" },
@@ -376,18 +376,18 @@ export default function AdminPage() {
           {tab === "messages" && (
             <div className="space-y-3">
               {loadingData ? (
-                <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
                   Loading messages…
                 </div>
               ) : messages.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-border p-10 text-center">
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
                   <Mail className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
                   <p className="text-sm text-muted-foreground">No contact messages yet.</p>
                 </div>
               ) : (
                 messages.map((msg) => {
                   const catMeta = {
-                    business:   { icon: Briefcase,      label: "Business Inquiry", color: "bg-blue-100 text-[#1B2B5E]" },
+                    business:   { icon: Briefcase,      label: "Business Inquiry", color: "bg-blue-100 text-ink-900" },
                     suggestion: { icon: Lightbulb,      label: "Suggestion",       color: "bg-amber-100 text-amber-700" },
                     general:    { icon: MessageCircle,  label: "General",          color: "bg-teal-100 text-teal-700" },
                   }[msg.category]
@@ -395,7 +395,7 @@ export default function AdminPage() {
                   return (
                     <div
                       key={msg.id}
-                      className={`bg-white rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-[#CC2020]/30 shadow-sm"}`}
+                      className={`bg-card rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-civic-red/30 shadow-sm"}`}
                     >
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -404,7 +404,7 @@ export default function AdminPage() {
                             {catMeta.label}
                           </span>
                           {!msg.read && (
-                            <span className="inline-block w-2 h-2 rounded-full bg-[#CC2020]" title="Unread" />
+                            <span className="inline-block w-2 h-2 rounded-full bg-civic-red" title="Unread" />
                           )}
                           <span className="text-xs text-muted-foreground">
                             {new Date(msg.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
@@ -420,7 +420,7 @@ export default function AdminPage() {
 
                       <div className="mt-2">
                         <p className="text-sm font-semibold text-foreground">{msg.name}</p>
-                        <a href={`mailto:${msg.email}`} className="text-xs text-[#1B2B5E] hover:underline">{msg.email}</a>
+                        <a href={`mailto:${msg.email}`} className="text-xs text-teal-600 hover:underline">{msg.email}</a>
                       </div>
 
                       <p className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
@@ -435,17 +435,17 @@ export default function AdminPage() {
           {tab === "posts" && (
             <div className="space-y-3">
               {loadingData ? (
-                <div className="bg-white rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
                   Loading posts…
                 </div>
               ) : posts.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-border p-8 text-center">
+                <div className="bg-card rounded-2xl border border-border p-8 text-center">
                   <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
                   <p className="text-sm text-muted-foreground">No posts yet.</p>
                 </div>
               ) : (
                 posts.map((post) => (
-                  <div key={post.id} className="bg-white rounded-2xl border border-border p-4">
+                  <div key={post.id} className="bg-card rounded-2xl border border-border p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <UserAvatar

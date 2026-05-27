@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -109,7 +109,7 @@ export function OnboardingQuiz({ onDismiss }: OnboardingQuizProps) {
           <button
             onClick={onDismiss}
             disabled={saving}
-            className="w-full py-3 bg-white text-teal-700 font-bold text-base rounded-2xl hover:bg-teal-50 transition-colors"
+            className="w-full py-3 bg-card text-teal-700 font-bold text-base rounded-2xl hover:bg-teal-50 transition-colors"
           >
             {saving ? "Saving…" : "Continue to MyVote →"}
           </button>
@@ -119,11 +119,11 @@ export function OnboardingQuiz({ onDismiss }: OnboardingQuizProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#FAFAFA]">
+    <div className="fixed inset-0 z-50 flex flex-col bg-paper-50">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
         <div className="flex-1">
-          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-paper-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-teal-500 rounded-full transition-all duration-300"
               style={{ width: `${((step) / QUESTIONS.length) * 100}%` }}
@@ -153,7 +153,7 @@ export function OnboardingQuiz({ onDismiss }: OnboardingQuizProps) {
             <button
               key={response}
               onClick={() => handleAnswer(response)}
-              className="w-full py-3.5 px-5 rounded-2xl border-2 border-border bg-white text-foreground font-semibold text-sm hover:border-teal-400 hover:bg-teal-50 hover:text-teal-800 active:scale-[0.98] transition-all"
+              className="w-full py-3.5 px-5 rounded-2xl border-2 border-border bg-card text-foreground font-semibold text-sm hover:border-teal-400 hover:bg-teal-50 hover:text-teal-800 active:scale-[0.98] transition-all"
             >
               {response}
             </button>

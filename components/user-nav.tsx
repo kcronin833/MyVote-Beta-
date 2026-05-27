@@ -21,7 +21,7 @@ export function UserNav() {
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
 
   if (loading) {
-    return <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />;
+    return <div className="w-8 h-8 rounded-full bg-paper-100 animate-pulse" />;
   }
 
   if (!user || !profile) {
@@ -37,7 +37,7 @@ export function UserNav() {
           </Button>
           <Button
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-ink-900 hover:bg-ink-900/90"
             onClick={() => { setAuthTab("signup"); setAuthOpen(true); }}
           >
             Sign Up
@@ -60,7 +60,7 @@ export function UserNav() {
             {profile.avatar_url ? (
               <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
             ) : null}
-            <AvatarFallback className="bg-[#1F3A93] text-white text-xs font-bold">
+            <AvatarFallback className="bg-ink-900 text-white text-xs font-bold">
               {profile.display_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
             </AvatarFallback>
           </Avatar>

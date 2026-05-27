@@ -2,53 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
 @layer base {
   :root {
-    /* MyVote Civic Color Scheme */
-    /* Primary: Deep Blue #1F3A93 | Red: #D64541 | Gold: #F39C12 */
-    /* Sky Blue: #3498DB | Green: #27AE60 | Slate: #4A4A4A | Light Gray: #E5E5E5 */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 29%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 29%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 29%;
-    --primary: 224 66% 35%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 204 70% 53%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 37 90% 51%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 3 66% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 224 66% 35%;
-    --radius: 0.5rem;
+    /* ── Desktop Redesign Tokens (exact from design spec) ─────────────── */
+    /* Paper / page surfaces */
+    --bg:        38 27% 92%;   /* #F3F1EB  page background */
+    --card-raw:  0 0% 100%;    /* #FFFFFF  card */
+    --shade:     43 26% 95%;   /* #F7F5EF  inset/embedded bg, search field */
+    --rule-raw:  41 25% 86%;   /* #E4E0D3  card border / divider */
+    --rule-soft: 41 27% 91%;   /* #EFEBE0  internal divider */
+
+    /* Ink (text) */
+    --ink-900-raw: 226 37% 16%; /* #1A2138 */
+    --ink-700-raw: 228 20% 29%; /* #3D435A */
+    --ink-500-raw: 232 12% 47%; /* #6B7088 */
+    --ink-400-raw: 232 11% 59%; /* #8B8FA3 */
+    --ink-200-raw: 226 13% 82%; /* #C9CCD7 */
+
+    /* Accents */
+    --teal-raw:      168 36% 37%;  /* #3D8073 */
+    --teal-dk:       169 36% 28%;  /* #2F6358 */
+    --teal-soft:     162 29% 92%;  /* #E6F0ED */
+    --red-raw:       6   60% 44%;  /* #B33A2C */
+    --red-soft:      11  51% 91%;  /* #F5E3DF */
+    --amber-raw:     39  58% 45%;  /* #B8862F */
+    --amber-soft:    44  56% 90%;  /* #F4ECD8 */
+
+    /* Avatar tones */
+    --plum:    300 30% 32%; /* #6B3A6B */
+    --navy:    216 50% 25%; /* #1F3A5F */
+    --olive:   76  39% 30%; /* #5A6A2E */
+
+    /* Political lens */
+    --lean-left:   213 47% 44%; /* #3A6AA5 */
+    --lean-right:  0   48% 44%; /* #A53A3A */
+    --lean-center: 0   0%  48%; /* #7A7A7A */
+
+    /* ── shadcn/ui semantic mappings ─────────────────────────────────── */
+    --background:           var(--bg);
+    --foreground:           var(--ink-900-raw);
+    --card:                 var(--card-raw);
+    --card-foreground:      var(--ink-900-raw);
+    --popover:              var(--card-raw);
+    --popover-foreground:   var(--ink-900-raw);
+    --primary:              var(--teal-raw);
+    --primary-foreground:   var(--card-raw);
+    --secondary:            var(--shade);
+    --secondary-foreground: var(--ink-700-raw);
+    --muted:                var(--shade);
+    --muted-foreground:     var(--ink-500-raw);
+    --accent:               var(--shade);
+    --accent-foreground:    var(--ink-900-raw);
+    --destructive:          var(--red-raw);
+    --destructive-foreground: var(--card-raw);
+    --border:               var(--rule-raw);
+    --input:                var(--rule-raw);
+    --ring:                 var(--teal-raw);
+    --radius:               0.625rem; /* 10px — card radius */
+
+    /* Sidebar (legacy shadcn) */
+    --sidebar-background:          var(--card-raw);
+    --sidebar-foreground:          var(--ink-900-raw);
+    --sidebar-primary:             var(--ink-900-raw);
+    --sidebar-primary-foreground:  var(--card-raw);
+    --sidebar-accent:              var(--shade);
+    --sidebar-accent-foreground:   var(--ink-900-raw);
+    --sidebar-border:              var(--rule-raw);
+    --sidebar-ring:                var(--teal-raw);
+
+    /* Charts */
+    --chart-1: var(--teal-raw);
+    --chart-2: var(--lean-left);
+    --chart-3: var(--lean-right);
+    --chart-4: var(--amber-raw);
+    --chart-5: var(--red-raw);
   }
 
   .dark {
-    --background: 224 40% 8%;
-    --foreground: 0 0% 95%;
-    --card: 224 40% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 224 40% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 224 66% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 204 70% 53%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 224 30% 18%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 37 90% 51%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 3 66% 45%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 224 30% 18%;
-    --input: 224 30% 18%;
-    --ring: 224 66% 45%;
+    --background:           var(--ink-900-raw);
+    --foreground:           var(--bg);
+    --card:                 226 28% 20%;
+    --card-foreground:      var(--bg);
+    --popover:              226 28% 20%;
+    --popover-foreground:   var(--bg);
+    --primary:              var(--teal-raw);
+    --primary-foreground:   var(--card-raw);
+    --secondary:            226 22% 24%;
+    --secondary-foreground: var(--bg);
+    --muted:                226 22% 24%;
+    --muted-foreground:     var(--ink-400-raw);
+    --accent:               226 22% 24%;
+    --accent-foreground:    var(--bg);
+    --destructive:          var(--red-raw);
+    --destructive-foreground: var(--card-raw);
+    --border:               226 22% 24%;
+    --input:                226 22% 24%;
+    --ring:                 var(--teal-raw);
+    --sidebar-background:   226 28% 13%;
+    --sidebar-foreground:   var(--bg);
+    --sidebar-primary:      var(--teal-raw);
+    --sidebar-primary-foreground: var(--card-raw);
+    --sidebar-accent:       226 22% 24%;
+    --sidebar-accent-foreground: var(--bg);
+    --sidebar-border:       226 22% 24%;
+    --sidebar-ring:         var(--teal-raw);
   }
 }
 
@@ -58,5 +121,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans), "Inter", system-ui, -apple-system, sans-serif;
   }
 }

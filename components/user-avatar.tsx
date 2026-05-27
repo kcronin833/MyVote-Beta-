@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 interface UserAvatarProps {
   avatarUrl?: string | null
@@ -39,7 +39,7 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className = ""
 
   return (
     <div
-      className={`${sizeClass} rounded-full bg-[#1F3A93] flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
+      className={`${sizeClass} rounded-full bg-ink-900 flex items-center justify-center text-white font-bold flex-shrink-0 ${className}`}
     >
       {getInitials(displayName)}
     </div>

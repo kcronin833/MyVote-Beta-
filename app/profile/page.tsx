@@ -39,7 +39,7 @@ const ProfilePage = () => {
 
       {/* Profile header with tappable avatar */}
       {profile && (
-        <div className="flex items-center gap-4 mb-8 p-4 bg-white rounded-2xl border border-border">
+        <div className="flex items-center gap-4 mb-8 p-4 bg-paper-50 rounded-2xl border border-border">
           <button
             onClick={() => setShowAvatarModal(true)}
             className="relative group flex-shrink-0"

@@ -5,7 +5,7 @@ import { SpectrumWheel } from "@/components/spectrum-wheel"
 
 export default function SpectrumPage() {
   return (
-    <div className="min-h-screen bg-[#F5F6FA]">
+    <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
         <div className="max-w-4xl mx-auto">

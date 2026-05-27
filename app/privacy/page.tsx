@@ -10,8 +10,8 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <div className="bg-[#1F3A93] text-white">
+    <div className="min-h-screen bg-paper-100">
+      <div className="bg-ink-900 text-white">
         <div className="container mx-auto px-4 py-10">
           <Link href="/">
             <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 mb-4 -ml-3">
@@ -21,15 +21,15 @@ export default function PrivacyPage() {
           </Link>
           <Logo size="md" />
           <h1 className="text-3xl font-bold mt-3 mb-1">Privacy Policy</h1>
-          <p className="text-blue-100">Last updated: May 2026</p>
+          <p className="text-teal-100">Last updated: May 2026</p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-12 max-w-3xl">
-        <div className="prose prose-gray max-w-none space-y-8 text-[#4A4A4A]/80">
+        <div className="prose prose-gray max-w-none space-y-8 text-ink-700/80">
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">1. Overview</h2>
+            <h2 className="text-xl font-bold text-ink-700">1. Overview</h2>
             <p>
               MyVote ("we," "us," or "our") operates the MyVote website and platform (the "Service"). This Privacy
               Policy explains what information we collect when you use our Service, how we use it, and the choices
@@ -42,8 +42,8 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">2. Information We Collect</h2>
-            <h3 className="text-base font-semibold text-[#4A4A4A] mt-4">Information you provide directly:</h3>
+            <h2 className="text-xl font-bold text-ink-700">2. Information We Collect</h2>
+            <h3 className="text-base font-semibold text-ink-700 mt-4">Information you provide directly:</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Account information:</strong> When you create an account, we collect your email address, a username, and a display name.</li>
               <li><strong>Profile information:</strong> You may optionally add a bio, location (e.g., city, state), and political lean indicator.</li>
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
               <li><strong>Contact form submissions:</strong> If you contact us through the Contact page, we collect your name, email address, and message.</li>
             </ul>
 
-            <h3 className="text-base font-semibold text-[#4A4A4A] mt-4">Information collected automatically:</h3>
+            <h3 className="text-base font-semibold text-ink-700 mt-4">Information collected automatically:</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Usage data:</strong> Pages visited, features used, and general interaction patterns.</li>
               <li><strong>Location data:</strong> With your browser's permission, we may detect your approximate city and state to show relevant local news. This is not stored permanently.</li>
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">3. How We Use Your Information</h2>
+            <h2 className="text-xl font-bold text-ink-700">3. How We Use Your Information</h2>
             <p>We use the information we collect to:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Create and manage your account</li>
@@ -78,9 +78,9 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">4. Data Storage and Security</h2>
+            <h2 className="text-xl font-bold text-ink-700">4. Data Storage and Security</h2>
             <p>
-              Your account data is stored securely using <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#1F3A93] underline">Supabase</a>,
+              Your account data is stored securely using <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-teal-600 underline">Supabase</a>,
               a secure cloud database provider. Passwords are hashed and never stored in plain text. We use
               industry-standard security practices including HTTPS encryption for all data in transit.
             </p>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">5. Cookies</h2>
+            <h2 className="text-xl font-bold text-ink-700">5. Cookies</h2>
             <p>
               We use cookies and similar technologies to keep you logged into your account and to maintain your
               session preferences. We do not use tracking cookies for advertising purposes. You can disable
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">6. Third-Party Services</h2>
+            <h2 className="text-xl font-bold text-ink-700">6. Third-Party Services</h2>
             <p>MyVote uses the following third-party services:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Supabase</strong> — database and user authentication</li>
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">7. Your Rights</h2>
+            <h2 className="text-xl font-bold text-ink-700">7. Your Rights</h2>
             <p>You have the right to:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Access the personal data we hold about you</li>
@@ -123,13 +123,13 @@ export default function PrivacyPage() {
               <li>Opt out of any non-essential communications</li>
             </ul>
             <p className="mt-3">
-              To exercise any of these rights, contact us at <a href="mailto:kcronin833@gmail.com" className="text-[#1F3A93] underline">kcronin833@gmail.com</a>.
+              To exercise any of these rights, contact us at <a href="mailto:kcronin833@gmail.com" className="text-teal-600 underline">kcronin833@gmail.com</a>.
               We will respond within 30 days.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">8. Children's Privacy</h2>
+            <h2 className="text-xl font-bold text-ink-700">8. Children's Privacy</h2>
             <p>
               MyVote is not intended for users under the age of 13. We do not knowingly collect personal
               information from children under 13. If you believe we have inadvertently collected such information,
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">9. Changes to This Policy</h2>
+            <h2 className="text-xl font-bold text-ink-700">9. Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. When we do, we will update the "Last updated"
               date at the top of this page. Continued use of MyVote after any changes constitutes your acceptance
@@ -147,26 +147,26 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-[#4A4A4A]">10. Contact Us</h2>
+            <h2 className="text-xl font-bold text-ink-700">10. Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy or how we handle your data, please contact us:
             </p>
             <ul className="list-none space-y-1 mt-2">
-              <li><strong>Email:</strong> <a href="mailto:kcronin833@gmail.com" className="text-[#1F3A93] underline">kcronin833@gmail.com</a></li>
-              <li><strong>Contact form:</strong> <Link href="/contact" className="text-[#1F3A93] underline">MyVote Contact Page</Link></li>
+              <li><strong>Email:</strong> <a href="mailto:kcronin833@gmail.com" className="text-teal-600 underline">kcronin833@gmail.com</a></li>
+              <li><strong>Contact form:</strong> <Link href="/contact" className="text-teal-600 underline">MyVote Contact Page</Link></li>
             </ul>
           </section>
         </div>
       </div>
 
-      <footer className="border-t border-[#E5E5E5] py-8 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-[#4A4A4A]/60">
+      <footer className="border-t border-rule py-8 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-ink-700/60">
           <Logo size="sm" />
           <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
           <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="hover:text-[#1F3A93]">About</Link>
-            <Link href="/terms" className="hover:text-[#1F3A93]">Terms</Link>
-            <Link href="/contact" className="hover:text-[#1F3A93]">Contact</Link>
+            <Link href="/about" className="hover:text-teal-600">About</Link>
+            <Link href="/terms" className="hover:text-teal-600">Terms</Link>
+            <Link href="/contact" className="hover:text-teal-600">Contact</Link>
           </div>
         </div>
       </footer>

@@ -76,12 +76,12 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
         </DialogHeader>
 
         {/* Tab switcher */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-200 mb-4">
+        <div className="flex rounded-lg overflow-hidden border border-rule mb-4">
           <button
             className={`flex-1 py-2 text-sm font-medium transition-colors ${
               tab === "login"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
+                ? "bg-ink-900 text-white"
+                : "bg-background text-muted-foreground hover:bg-paper-50"
             }`}
             onClick={() => { setTab("login"); setError(null); }}
           >
@@ -90,8 +90,8 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
           <button
             className={`flex-1 py-2 text-sm font-medium transition-colors ${
               tab === "signup"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
+                ? "bg-ink-900 text-white"
+                : "bg-background text-muted-foreground hover:bg-paper-50"
             }`}
             onClick={() => { setTab("signup"); setError(null); }}
           >
@@ -122,7 +122,7 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-ink-900 hover:bg-ink-900/90"
               onClick={handleLogin}
               disabled={loading}
             >
@@ -157,13 +157,13 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
               onKeyDown={(e) => e.key === "Enter" && handleSignup()}
             />
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-ink-900 hover:bg-ink-900/90"
               onClick={handleSignup}
               disabled={loading}
             >
               {loading ? "Creating account..." : "Create Account"}
             </Button>
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-muted-foreground text-center">
               By signing up, you agree to discuss politics civilly 🇺🇸
             </p>
           </div>

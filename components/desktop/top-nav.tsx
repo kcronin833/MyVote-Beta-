@@ -1,0 +1,146 @@
+"use client";
+
+import Link from "next/link";
+import { Avatar, PALETTE as C } from "./atoms";
+import { Icons } from "./icons";
+
+type NavId = "home" | "national" | "local" | "ballot" | "alerts" | "msg";
+
+export function TopNav({ active = "home" }: { active?: NavId }) {
+  const items: { id: NavId; label: string; icon: React.ReactNode; href: string; badge?: number }[] = [
+    { id: "home",     label: "Home",          icon: Icons.home(),    href: "/" },
+    { id: "national", label: "National news", icon: Icons.earth(),   href: "/news" },
+    { id: "local",    label: "Local news",    icon: Icons.pin(),     href: "/news/local" },
+    { id: "ballot",   label: "My Ballot",     icon: Icons.vote(),    href: "/elections" },
+    { id: "alerts",   label: "Alerts",        icon: Icons.bell(),    href: "/profile", badge: 3 },
+    { id: "msg",      label: "Messages",      icon: Icons.msg(),     href: "/profile" },
+  ];
+
+  return (
+    <div
+      style={{
+        background: C.card,
+        borderBottom: `1px solid ${C.rule}`,
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1240,
+          margin: "0 auto",
+          height: 56,
+          padding: "0 24px",
+          display: "flex",
+          alignItems: "center",
+          gap: 18,
+        }}
+      >
+        {/* Logo */}
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 8,
+              background: C.ink900,
+              color: "#fff",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 700,
+              fontSize: 16,
+              letterSpacing: -0.4,
+            }}
+          >
+            m<span style={{ color: C.teal }}>v</span>
+          </div>
+        </Link>
+
+        {/* Search */}
+        <div
+          style={{
+            flex: "0 1 320px",
+            height: 36,
+            background: C.shade,
+            border: `1px solid ${C.ruleSoft}`,
+            borderRadius: 6,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 12px",
+            gap: 8,
+          }}
+        >
+          <span style={{ color: C.ink500, display: "flex" }}>{Icons.search(16)}</span>
+          <span style={{ color: C.ink500, fontSize: 13 }}>
+            Search candidates, issues, neighbors…
+          </span>
+        </div>
+
+        {/* Right cluster: nav + avatar */}
+        <div style={{ display: "flex", marginLeft: "auto", alignItems: "center" }}>
+          {items.map((it) => {
+            const isActive = active === it.id;
+            return (
+              <Link
+                key={it.id}
+                href={it.href}
+                style={{
+                  padding: "8px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 2,
+                  color: isActive ? C.ink900 : C.ink500,
+                  borderBottom: isActive ? `2px solid ${C.ink900}` : "2px solid transparent",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  position: "relative",
+                }}
+              >
+                <span style={{ position: "relative" }}>
+                  {it.icon}
+                  {it.badge ? (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: -3,
+                        right: -7,
+                        background: C.red,
+                        color: "#fff",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        borderRadius: 999,
+                        padding: "1px 5px",
+                      }}
+                    >
+                      {it.badge}
+                    </span>
+                  ) : null}
+                </span>
+                <span>{it.label}</span>
+              </Link>
+            );
+          })}
+
+          <div style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
+
+          <Link
+            href="/profile"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              textDecoration: "none",
+            }}
+          >
+            <Avatar initials="MC" size={32} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: C.ink900 }}>Me ▾</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

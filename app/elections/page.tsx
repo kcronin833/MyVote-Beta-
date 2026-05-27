@@ -151,7 +151,7 @@ const VOTER_RESOURCES = [
 const PARTY_BADGE_COLORS: Record<string, string> = {
   Democrat: "bg-blue-100 text-blue-800 border-blue-300",
   Republican: "bg-red-100 text-red-800 border-red-300",
-  Independent: "bg-gray-100 text-gray-700 border-gray-300",
+  Independent: "bg-paper-200 text-ink-700 border-rule",
 }
 
 const COMPETITIVENESS_COLORS: Record<string, string> = {
@@ -164,9 +164,9 @@ const COMPETITIVENESS_COLORS: Record<string, string> = {
 
 export default function ElectionsPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-paper-100">
       {/* Header */}
-      <div className="bg-[#1F3A93] text-white">
+      <div className="bg-ink-900 text-white">
         <div className="container mx-auto px-4 py-10">
           <Link href="/">
             <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 mb-4 -ml-3">
@@ -177,8 +177,8 @@ export default function ElectionsPage() {
           <div className="flex items-center gap-3 mb-3">
             <Logo size="md" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Georgia 2026 Elections</h1>
-          <p className="text-blue-100 text-lg max-w-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2">Georgia 2026 Elections</h1>
+          <p className="text-teal-100 text-lg max-w-2xl">
             Your complete guide to the 2026 Georgia election cycle — key races, important dates, voter resources,
             and how to make your voice count.
           </p>
@@ -203,33 +203,33 @@ export default function ElectionsPage() {
         {/* Key Dates Timeline */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <CalendarDays className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Key Dates</h2>
+            <CalendarDays className="w-6 h-6 text-ink-900" />
+            <h2 className="text-2xl font-bold text-ink-700">Key Dates</h2>
           </div>
           <div className="grid gap-3">
             {KEY_DATES.map((item) => (
               <div
                 key={item.date}
-                className="flex items-start gap-4 bg-white border border-[#E5E5E5] rounded-lg p-4 hover:border-[#1F3A93]/30 transition-colors"
+                className="flex items-start gap-4 bg-paper-50 border border-rule rounded-lg p-4 hover:border-ink-900/30 transition-colors"
               >
                 <div className="flex-shrink-0 mt-0.5">
                   {item.status === "critical" ? (
-                    <div className="w-3 h-3 rounded-full bg-[#D64541] mt-1" />
+                    <div className="w-3 h-3 rounded-full bg-civic-red mt-1" />
                   ) : (
-                    <div className="w-3 h-3 rounded-full bg-[#1F3A93]/40 mt-1" />
+                    <div className="w-3 h-3 rounded-full bg-ink-900/40 mt-1" />
                   )}
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="font-semibold text-[#1F3A93] text-sm">{item.date}</span>
+                    <span className="font-semibold text-ink-900 text-sm">{item.date}</span>
                     {item.status === "critical" && (
                       <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
                         Important
                       </Badge>
                     )}
                   </div>
-                  <p className="font-medium text-[#4A4A4A]">{item.label}</p>
-                  <p className="text-sm text-[#4A4A4A]/70 mt-0.5">{item.description}</p>
+                  <p className="font-medium text-ink-700">{item.label}</p>
+                  <p className="text-sm text-ink-700/70 mt-0.5">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -241,17 +241,17 @@ export default function ElectionsPage() {
         {/* U.S. Senate Race */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <Users className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">U.S. Senate Race</h2>
-            <Badge className="bg-[#F39C12] text-white">Top Race</Badge>
+            <Users className="w-6 h-6 text-ink-900" />
+            <h2 className="text-2xl font-bold text-ink-700">U.S. Senate Race</h2>
+            <Badge className="bg-amber-500 text-white">Top Race</Badge>
           </div>
 
-          <Card className="border-[#E5E5E5] overflow-hidden">
-            <div className="h-1.5 bg-gradient-to-r from-blue-600 via-[#1F3A93] to-red-600" />
+          <Card className="border-rule overflow-hidden">
+            <div className="h-1.5 bg-gradient-to-r from-blue-600 via-ink-900 to-red-600" />
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <CardTitle className="text-xl text-[#4A4A4A]">{SENATE_RACE.seat}</CardTitle>
+                  <CardTitle className="text-xl text-ink-700">{SENATE_RACE.seat}</CardTitle>
                   <CardDescription className="mt-1">
                     Full 6-year term · {SENATE_RACE.cycle} seat · Up for election November 3, 2026
                   </CardDescription>
@@ -262,34 +262,34 @@ export default function ElectionsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E5E5E5]">
+              <div className="bg-paper-100 rounded-lg p-4 border border-rule">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="outline" className={PARTY_BADGE_COLORS["Democrat"]}>
                     Democrat
                   </Badge>
-                  <span className="text-sm text-[#4A4A4A]/60">Incumbent · Senator since {SENATE_RACE.incumbent.since}</span>
+                  <span className="text-sm text-ink-700/60">Incumbent · Senator since {SENATE_RACE.incumbent.since}</span>
                 </div>
-                <h3 className="text-lg font-bold text-[#4A4A4A]">{SENATE_RACE.incumbent.name}</h3>
-                <p className="text-sm text-[#4A4A4A]/80 mt-2">{SENATE_RACE.incumbent.bio}</p>
+                <h3 className="text-lg font-bold text-ink-700">{SENATE_RACE.incumbent.name}</h3>
+                <p className="text-sm text-ink-700/80 mt-2">{SENATE_RACE.incumbent.bio}</p>
                 <a
                   href={SENATE_RACE.incumbent.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-3 text-sm text-[#1F3A93] hover:underline"
+                  className="inline-flex items-center gap-1 mt-3 text-sm text-teal-600 hover:underline"
                 >
                   Official Senate Website <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
-              <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-4">
-                <AlertCircle className="w-5 h-5 text-[#1F3A93] flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 bg-teal-100 rounded-lg p-4">
+                <AlertCircle className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-sm text-[#1F3A93] mb-1">Why This Race Matters</p>
-                  <p className="text-sm text-[#4A4A4A]/80">{SENATE_RACE.why_it_matters}</p>
+                  <p className="font-semibold text-sm text-teal-700 mb-1">Why This Race Matters</p>
+                  <p className="text-sm text-ink-700/80">{SENATE_RACE.why_it_matters}</p>
                 </div>
               </div>
 
-              <p className="text-sm text-[#4A4A4A]/60 italic">
+              <p className="text-sm text-ink-700/60 italic">
                 Republican and Independent challengers will be listed here as candidates announce. Check back for updates.
               </p>
             </CardContent>
@@ -301,17 +301,17 @@ export default function ElectionsPage() {
         {/* U.S. House Races */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Users className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">U.S. House Races</h2>
+            <Users className="w-6 h-6 text-ink-900" />
+            <h2 className="text-2xl font-bold text-ink-700">U.S. House Races</h2>
           </div>
-          <p className="text-[#4A4A4A]/70 mb-6">
+          <p className="text-ink-700/70 mb-6">
             All 14 of Georgia's congressional seats are up for election every two years. Below are key races in
             the Atlanta metro area.
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
             {HOUSE_RACES.map((race) => (
-              <Card key={race.district} className="border-[#E5E5E5] hover:shadow-md transition-shadow">
+              <Card key={race.district} className="border-rule hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <Badge
@@ -324,20 +324,20 @@ export default function ElectionsPage() {
                       {race.party}
                     </Badge>
                   </div>
-                  <CardTitle className="text-base text-[#4A4A4A] mt-2">{race.district}</CardTitle>
+                  <CardTitle className="text-base text-ink-700 mt-2">{race.district}</CardTitle>
                   <CardDescription className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> {race.area}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <p className="text-sm text-[#4A4A4A]">
+                  <p className="text-sm text-ink-700">
                     <span className="font-medium">Incumbent:</span> {race.incumbent}
                   </p>
                   <a
                     href={race.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-sm text-[#1F3A93] hover:underline"
+                    className="inline-flex items-center gap-1 mt-3 text-sm text-teal-600 hover:underline"
                   >
                     Official Website <ExternalLink className="w-3 h-3" />
                   </a>
@@ -345,7 +345,7 @@ export default function ElectionsPage() {
               </Card>
             ))}
           </div>
-          <p className="text-sm text-[#4A4A4A]/60 mt-4 italic">
+          <p className="text-sm text-ink-700/60 mt-4 italic">
             All 14 Georgia House seats are contested. Additional districts will be added as race information becomes available.
           </p>
         </section>
@@ -355,10 +355,10 @@ export default function ElectionsPage() {
         {/* Voter Resources */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Vote className="w-6 h-6 text-[#27AE60]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Voter Resources</h2>
+            <Vote className="w-6 h-6 text-teal-600" />
+            <h2 className="text-2xl font-bold text-ink-700">Voter Resources</h2>
           </div>
-          <p className="text-[#4A4A4A]/70 mb-6">
+          <p className="text-ink-700/70 mb-6">
             Everything you need to participate in Georgia elections — all official links direct to Georgia
             Secretary of State resources.
           </p>
@@ -367,21 +367,21 @@ export default function ElectionsPage() {
             {VOTER_RESOURCES.map((resource) => {
               const Icon = resource.icon
               return (
-                <Card key={resource.title} className="border-[#E5E5E5] hover:shadow-md transition-shadow">
+                <Card key={resource.title} className="border-rule hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#1F3A93]/10 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-[#1F3A93]" />
+                      <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-teal-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base text-[#4A4A4A]">{resource.title}</CardTitle>
+                        <CardTitle className="text-base text-ink-700">{resource.title}</CardTitle>
                         <CardDescription className="mt-1">{resource.description}</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-[#1F3A93] hover:bg-[#1F3A93]/90 text-white" size="sm">
+                      <Button className="bg-teal-600 hover:bg-teal-700 text-white" size="sm">
                         {resource.cta} <ExternalLink className="w-3 h-3 ml-1.5" />
                       </Button>
                     </a>
@@ -397,8 +397,8 @@ export default function ElectionsPage() {
         {/* Georgia Voting Rules */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <Info className="w-6 h-6 text-[#1F3A93]" />
-            <h2 className="text-2xl font-bold text-[#4A4A4A]">Georgia Voting Rules</h2>
+            <Info className="w-6 h-6 text-ink-900" />
+            <h2 className="text-2xl font-bold text-ink-700">Georgia Voting Rules</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
@@ -427,12 +427,12 @@ export default function ElectionsPage() {
                 body: "Georgia does NOT have same-day voter registration. You must be registered before the deadline to vote in any election.",
               },
             ].map((rule) => (
-              <Card key={rule.title} className="border-[#E5E5E5]">
+              <Card key={rule.title} className="border-rule">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base text-[#4A4A4A]">{rule.title}</CardTitle>
+                  <CardTitle className="text-base text-ink-700">{rule.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-[#4A4A4A]/80">{rule.body}</p>
+                  <p className="text-sm text-ink-700/80">{rule.body}</p>
                 </CardContent>
               </Card>
             ))}
@@ -440,15 +440,15 @@ export default function ElectionsPage() {
         </section>
 
         {/* CTA */}
-        <div className="bg-[#1F3A93] rounded-xl p-8 text-center text-white">
-          <h2 className="text-2xl font-bold mb-2">Stay Informed on Georgia Politics</h2>
-          <p className="text-blue-100 mb-6 max-w-xl mx-auto">
+        <div className="bg-ink-900 rounded-xl p-8 text-center text-white">
+          <h2 className="text-2xl font-bold font-serif mb-2">Stay Informed on Georgia Politics</h2>
+          <p className="text-teal-100 mb-6 max-w-xl mx-auto">
             Read balanced news from left, right, and fact-based sources. Create a free account to comment,
             track your ballot, and follow local discussions.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/auth/signup">
-              <Button className="bg-[#F39C12] hover:bg-[#E67E22] text-white font-semibold">
+              <Button className="bg-civic-red hover:bg-civic-red/90 text-white font-semibold">
                 Create Free Account
               </Button>
             </Link>
@@ -462,15 +462,15 @@ export default function ElectionsPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[#E5E5E5] py-8 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-[#4A4A4A]/60">
+      <footer className="border-t border-rule py-8 mt-8">
+        <div className="container mx-auto px-4 text-center text-sm text-ink-700/60">
           <Logo size="sm" />
           <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
           <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="hover:text-[#1F3A93]">About</Link>
-            <Link href="/privacy" className="hover:text-[#1F3A93]">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#1F3A93]">Terms</Link>
-            <Link href="/contact" className="hover:text-[#1F3A93]">Contact</Link>
+            <Link href="/about" className="hover:text-ink-900">About</Link>
+            <Link href="/privacy" className="hover:text-ink-900">Privacy</Link>
+            <Link href="/terms" className="hover:text-ink-900">Terms</Link>
+            <Link href="/contact" className="hover:text-ink-900">Contact</Link>
           </div>
         </div>
       </footer>

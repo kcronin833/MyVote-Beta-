@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { Bell } from "lucide-react"
@@ -86,10 +86,10 @@ export function NotificationBell() {
           setOpen(opening)
           if (opening && unreadCount > 0) markAllRead()
         }}
-        className="relative p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+        className="relative p-1.5 rounded-lg hover:bg-paper-100 transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="w-4 h-4 text-gray-500" />
+        <Bell className="w-4 h-4 text-muted-foreground" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -98,7 +98,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl border border-border shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-card rounded-2xl border border-border shadow-xl z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">Notifications</p>
             {notifications.length > 0 && (

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,9 +39,9 @@ export function CompatibilityScore({ compatibility, mode = "compact" }: Compatib
         <Badge variant="outline" className={level.color}>
           {compatibility.overall}% Match
         </Badge>
-        <span className="text-sm text-gray-600">{level.level}</span>
+        <span className="text-sm text-muted-foreground">{level.level}</span>
       </div>
-      <p className="text-xs text-gray-500">{level.description}</p>
+      <p className="text-xs text-muted-foreground">{level.description}</p>
     </div>
   )
 }
@@ -56,7 +56,7 @@ export function CompatibilityScoreComponent({ politicianName, score, compact = f
         <Badge variant="outline" className={compatibility.color}>
           {score.overall}% Match
         </Badge>
-        <span className="text-sm text-gray-600">{compatibility.level}</span>
+        <span className="text-sm text-muted-foreground">{compatibility.level}</span>
       </div>
     )
   }
@@ -83,10 +83,10 @@ export function CompatibilityScoreComponent({ politicianName, score, compact = f
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="font-medium">Overall Compatibility</span>
-            <span className="text-sm text-gray-600">{compatibility.level}</span>
+            <span className="text-sm text-muted-foreground">{compatibility.level}</span>
           </div>
           <Progress value={score.overall} className="h-3" />
-          <p className="text-sm text-gray-600">{compatibility.description}</p>
+          <p className="text-sm text-muted-foreground">{compatibility.description}</p>
         </div>
 
         <Separator />
@@ -99,7 +99,7 @@ export function CompatibilityScoreComponent({ politicianName, score, compact = f
               <span className="text-sm font-medium">Political Alignment</span>
             </div>
             <Progress value={score.politicalAlignment} className="h-2" />
-            <span className="text-xs text-gray-600">{score.politicalAlignment}%</span>
+            <span className="text-xs text-muted-foreground">{score.politicalAlignment}%</span>
           </div>
 
           <div className="space-y-2">
@@ -108,7 +108,7 @@ export function CompatibilityScoreComponent({ politicianName, score, compact = f
               <span className="text-sm font-medium">Issue Alignment</span>
             </div>
             <Progress value={score.issueAlignment} className="h-2" />
-            <span className="text-xs text-gray-600">{score.issueAlignment}%</span>
+            <span className="text-xs text-muted-foreground">{score.issueAlignment}%</span>
           </div>
 
           <div className="space-y-2">
@@ -117,12 +117,12 @@ export function CompatibilityScoreComponent({ politicianName, score, compact = f
               <span className="text-sm font-medium">Engagement Similarity</span>
             </div>
             <Progress value={score.engagementSimilarity} className="h-2" />
-            <span className="text-xs text-gray-600">{score.engagementSimilarity}%</span>
+            <span className="text-xs text-muted-foreground">{score.engagementSimilarity}%</span>
           </div>
         </div>
 
         {/* Quick Summary */}
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-paper-50 p-4 rounded-lg">
           <h4 className="font-medium mb-2">Key Insights</h4>
           <div className="space-y-1 text-sm">
             {score.breakdown.sharedIssues.length > 0 && (
