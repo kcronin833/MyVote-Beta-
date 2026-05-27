@@ -37,6 +37,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -51,8 +52,17 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
   }
 
   async function handleSubmit(parentId?: string) {
-    if (!user || !profile) {
+    setErrorMsg(null);
+    if (!user) {
       setAuthOpen(true);
+      return;
+    }
+    if (!profile) {
+      // Signed in but the profiles row never got created — the DB FK on
+      // comments.user_id -> profiles.id will reject the insert.
+      setErrorMsg(
+        "Your profile isn't set up yet. Go to /profile and add a display name + username, then try again."
+      );
       return;
     }
     const content = parentId ? replyContent : newComment;
@@ -82,6 +92,12 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
         setComments((prev) => [comment, ...prev]);
         setNewComment("");
       }
+    } else if (error) {
+      // Surface the real DB error so the user (and we) can see what's wrong.
+      console.error("[comment insert failed]", error);
+      setErrorMsg(`Couldn't save comment: ${error}`);
+    } else {
+      setErrorMsg("Couldn't save comment — unknown error. Check the browser console.");
     }
     setSubmitting(false);
   }
@@ -369,6 +385,11 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                   @{s.username}
                 </button>
               ))}
+            </div>
+          )}
+          {errorMsg && (
+            <div className="mt-2 text-xs bg-red-soft border border-civic-red/30 text-civic-red rounded-md px-3 py-2">
+              {errorMsg}
             </div>
           )}
           <div className="flex justify-between items-center mt-2">

@@ -95,6 +95,9 @@ export async function postComment(params: {
     .from("comments")
     .insert({
       user_id: params.userId,
+      // `article_id` is NOT NULL in the schema (scripts/003_full_schema.sql).
+      // Use the URL as the stable identifier — it's how getComments() filters too.
+      article_id: params.articleUrl,
       article_url: params.articleUrl,
       article_title: params.articleTitle,
       content: params.content,
