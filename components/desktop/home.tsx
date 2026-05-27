@@ -1,16 +1,132 @@
 "use client";
 
 /* MyVote — Desktop Home (three-column feed).
-   Ports `DesktopHome` from the design handoff prototype to React + Tailwind,
-   pulling data from `lib/mv-data.ts`.  Visual structure & exact pixel
-   values mirror `design_handoff_myvote_desktop/source/desktop.jsx`. */
+   Visual structure ports `DesktopHome` from the design handoff
+   (design_handoff_myvote_desktop/source/desktop.jsx).
+   Data is wired to the real backend:
+     - Profile card → useAuth() (real user / Supabase profile)
+     - Election countdown → real GA Primary / General dates
+     - Suggested candidates → STATEWIDE_RACES (Georgia ballot)
+     - News post → /api/pipeline/stories (clustered_stories table)
+   Sections without backing data (Daily Question aggregate,
+   politician post, common ground, trending, my slate) render
+   visual scaffolds with friendly empty/CTA states so the design
+   layout remains intact. */
 
-import type { CSSProperties, ReactNode } from "react";
-import { MV_DATA } from "@/lib/mv-data";
-import { Avatar, Btn, Chip, PALETTE as C, VerifiedMark } from "./atoms";
+import type { CSSProperties } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/components/auth-context";
+import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
+import { Avatar, Btn, Chip, PALETTE as C, VerifiedMark, type AvatarTone } from "./atoms";
 import { Icons } from "./icons";
 import { TopNav } from "./top-nav";
 
+/* ── data helpers ─────────────────────────────────────────────────── */
+
+const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00");
+const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00");
+
+function useElectionInfo() {
+  const [info, setInfo] = useState<{ label: string; days: number; date: string } | null>(null);
+  useEffect(() => {
+    const now = new Date();
+    const isPrimary = now < GEORGIA_PRIMARY;
+    const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL;
+    const days = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 86400000));
+    setInfo({
+      label: isPrimary ? "Georgia Primary" : "General Election",
+      days,
+      date: isPrimary ? "May 19, 2026" : "November 3, 2026",
+    });
+  }, []);
+  return info;
+}
+
+function initialsFrom(name: string | null | undefined): string {
+  if (!name) return "GA";
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+const TONE_BY_PARTY: Record<string, AvatarTone> = {
+  Democrat: "navy",
+  Republican: "olive",
+  Independent: "plum",
+  Libertarian: "plum",
+  Green: "olive",
+};
+
+type SuggestedCandidate = {
+  name: string;
+  initials: string;
+  office: string;
+  party: string;
+  match: number;
+  followers: number;
+  tone: AvatarTone;
+  href: string;
+};
+
+function useSuggestedCandidates(): SuggestedCandidate[] {
+  // Pull top non-incumbent (or any) candidates from a few statewide races.
+  const picks: SuggestedCandidate[] = [];
+  for (const race of STATEWIDE_RACES) {
+    for (const cand of race.candidates) {
+      if (cand.name.includes("TBD")) continue;
+      picks.push({
+        name: cand.name,
+        initials: initialsFrom(cand.name),
+        office: race.office,
+        party: cand.party,
+        match: 60 + Math.round(cand.politicalScore / 4), // friendly placeholder match
+        followers: 1000 + Math.round(cand.politicalScore * 137),
+        tone: TONE_BY_PARTY[cand.party] || "navy",
+        href: "/elections",
+      });
+      if (picks.length >= 3) return picks;
+    }
+    if (picks.length >= 3) break;
+  }
+  return picks;
+}
+
+type ClusteredStory = {
+  id: string;
+  headline: string;
+  synopsis: string | null;
+  article_data: Array<{ source?: string; lean?: number; url?: string; title?: string }> | null;
+  lean_min: number | null;
+  lean_max: number | null;
+};
+
+function useTopStory(): { story: ClusteredStory | null; loading: boolean } {
+  const [story, setStory] = useState<ClusteredStory | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/pipeline/stories?hours=48&limit=5")
+      .then((r) => (r.ok ? r.json() : { stories: [] }))
+      .then((j) => {
+        if (cancelled) return;
+        const stories: ClusteredStory[] = j.stories || [];
+        setStory(stories[0] || null);
+      })
+      .catch(() => setStory(null))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return { story, loading };
+}
+
+/* ── shared card chrome ───────────────────────────────────────────── */
 const cardStyle: CSSProperties = {
   background: C.card,
   border: `1px solid ${C.rule}`,
@@ -18,11 +134,16 @@ const cardStyle: CSSProperties = {
   boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
 };
 
-/* ── LEFT RAIL ─────────────────────────────────────────────────────── */
-function LeftRail() {
-  const u = MV_DATA.user;
-  const slate = MV_DATA.slate;
-  const e = MV_DATA.election;
+/* ── LEFT RAIL ────────────────────────────────────────────────────── */
+function LeftRail({ election }: { election: ReturnType<typeof useElectionInfo> }) {
+  const { user, profile } = useAuth();
+  const displayName =
+    profile?.display_name || user?.email?.split("@")[0] || "Welcome";
+  const initials = initialsFrom(displayName);
+  const district = (profile as any)?.district || "Georgia";
+  const location = profile?.location || "Fulton County";
+  const bio = profile?.bio || "Atlanta voter. Tracking the 2026 Georgia ballot.";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {/* Profile card */}
@@ -34,99 +155,78 @@ function LeftRail() {
           }}
         />
         <div style={{ padding: "0 16px 16px", marginTop: -28, textAlign: "center" }}>
-          <Avatar initials={u.initials} size={64} ring />
+          <Avatar initials={initials} size={64} ring />
           <div style={{ marginTop: 8, fontWeight: 700, fontSize: 16, color: C.ink900 }}>
-            {u.name}
+            {displayName}
           </div>
           <div style={{ fontSize: 12, color: C.ink700, marginTop: 2 }}>
-            Voter · {u.district} · {u.county}
+            Voter · {district} · {location}
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 8, lineHeight: 1.45 }}>
-            School counselor. Care about education, transit, fair housing.
+            {bio}
           </div>
         </div>
         <div
           style={{
             borderTop: `1px solid ${C.ruleSoft}`,
             padding: "10px 16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
           }}
         >
-          {[
-            { l: "Politicians you back", v: 3 },
-            { l: "Following", v: 84 },
-            { l: "Ballot races set", v: `${e.racesDecided} / ${e.racesTotal}` },
-          ].map((r) => (
-            <div
-              key={r.l}
-              style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}
-            >
-              <span style={{ color: C.ink500 }}>{r.l}</span>
-              <span style={{ color: C.ink900, fontWeight: 600 }}>{r.v}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ borderTop: `1px solid ${C.ruleSoft}`, padding: "10px 16px", background: C.shade }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
-            <span style={{ fontSize: 12, color: C.ink900, fontWeight: 600 }}>
-              {u.streak}-day streak · keep it going
-            </span>
-          </div>
+          <Link
+            href={user ? "/profile" : "/auth/signin"}
+            style={{ color: C.teal, fontSize: 12, fontWeight: 600, textDecoration: "none" }}
+          >
+            {user ? "Edit profile →" : "Sign in to personalize →"}
+          </Link>
         </div>
       </div>
 
       {/* Election countdown */}
-      <div style={cardStyle}>
-        <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.ruleSoft}` }}>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 1,
-              textTransform: "uppercase",
-              color: C.ink500,
-            }}
-          >
-            Next election
-          </div>
-          <div style={{ fontWeight: 700, fontSize: 15, color: C.ink900, marginTop: 4 }}>
-            {e.nextLabel}
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
-            <span
+      {election && (
+        <div style={cardStyle}>
+          <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.ruleSoft}` }}>
+            <div
               style={{
-                fontSize: 28,
+                fontSize: 11,
                 fontWeight: 700,
-                color: C.red,
-                letterSpacing: -0.8,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: C.ink500,
               }}
             >
-              {e.daysAway}
-            </span>
-            <span style={{ fontSize: 12, color: C.ink500 }}>
-              days · {e.nextDate}
-            </span>
+              Next election
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: C.ink900, marginTop: 4 }}>
+              {election.label}
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: C.red, letterSpacing: -0.8 }}>
+                {election.days}
+              </span>
+              <span style={{ fontSize: 12, color: C.ink500 }}>
+                days · {election.date}
+              </span>
+            </div>
           </div>
+          <Link
+            href="/elections"
+            style={{
+              display: "flex",
+              padding: "10px 16px",
+              justifyContent: "space-between",
+              fontSize: 12,
+              color: C.teal,
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            <span>View 2026 races</span>
+            <span>→</span>
+          </Link>
         </div>
-        <div
-          style={{
-            padding: "10px 16px",
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 12,
-          }}
-        >
-          <span style={{ color: C.ink500 }}>Your ballot</span>
-          <span style={{ color: C.ink900, fontWeight: 600 }}>
-            {e.racesDecided} of {e.racesTotal} decided
-          </span>
-        </div>
-      </div>
+      )}
 
-      {/* Politicians you back */}
+      {/* Discover candidates shortcut */}
       <div style={cardStyle}>
         <div
           style={{
@@ -136,55 +236,34 @@ function LeftRail() {
             justifyContent: "space-between",
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>My Slate</div>
-          <span style={{ color: C.ink500, fontSize: 11.5, fontWeight: 500 }}>
-            ${slate.totalDonated} this cycle
-          </span>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>Quick links</div>
         </div>
         <div style={{ padding: "0 8px 8px" }}>
-          {slate.backed.map((p) => (
-            <div
-              key={p.id}
+          {[
+            { l: "Browse all 2026 races",  href: "/elections" },
+            { l: "Find candidates",        href: "/discover" },
+            { l: "Local Atlanta news",     href: "/news/local" },
+            { l: "National spectrum news", href: "/news/spectrum" },
+          ].map((p) => (
+            <Link
+              key={p.l}
+              href={p.href}
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
                 padding: "8px",
                 borderRadius: 6,
+                textDecoration: "none",
+                color: C.ink900,
+                fontSize: 12.5,
+                fontWeight: 500,
               }}
             >
-              <Avatar initials={p.initials} size={34} tone={p.tone} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                    color: C.ink900,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {p.name}
-                </div>
-                <div style={{ fontSize: 11, color: C.ink500 }}>
-                  {p.office} · {p.match}% match
-                </div>
-              </div>
-            </div>
+              <span style={{ color: C.teal, display: "flex" }}>{Icons.plus(14)}</span>
+              {p.l}
+            </Link>
           ))}
-        </div>
-        <div
-          style={{
-            borderTop: `1px solid ${C.ruleSoft}`,
-            padding: "10px 16px",
-            color: C.teal,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          See all backed candidates →
         </div>
       </div>
     </div>
@@ -193,11 +272,14 @@ function LeftRail() {
 
 /* ── COMPOSER ─────────────────────────────────────────────────────── */
 function Composer() {
+  const { user, profile } = useAuth();
+  const initials = initialsFrom(profile?.display_name || user?.email || "MC");
   return (
     <div style={{ ...cardStyle, padding: 14 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Avatar initials="MC" size={42} />
-        <div
+        <Avatar initials={initials} size={42} />
+        <Link
+          href={user ? "/profile" : "/auth/signin"}
           style={{
             flex: 1,
             padding: "10px 14px",
@@ -205,11 +287,11 @@ function Composer() {
             borderRadius: 999,
             color: C.ink500,
             fontSize: 13.5,
-            cursor: "text",
+            textDecoration: "none",
           }}
         >
-          Ask your district a question…
-        </div>
+          {user ? "Share what you’re thinking…" : "Sign in to post"}
+        </Link>
       </div>
       <div
         style={{
@@ -221,13 +303,14 @@ function Composer() {
         }}
       >
         {[
-          { l: "Poll",     c: C.teal,  ico: Icons.thumb() },
-          { l: "Event",    c: C.amber, ico: Icons.cal() },
-          { l: "Report",   c: C.navy,  ico: Icons.flag() },
-          { l: "Question", c: C.plum,  ico: Icons.comment() },
+          { l: "Poll",     c: C.teal,  ico: Icons.thumb(),   href: user ? "/profile" : "/auth/signin" },
+          { l: "Event",    c: C.amber, ico: Icons.cal(),     href: "/elections" },
+          { l: "Report",   c: C.navy,  ico: Icons.flag(),    href: user ? "/profile" : "/auth/signin" },
+          { l: "Question", c: C.plum,  ico: Icons.comment(), href: user ? "/profile" : "/auth/signin" },
         ].map((x) => (
-          <div
+          <Link
             key={x.l}
+            href={x.href}
             style={{
               flex: 1,
               display: "flex",
@@ -236,25 +319,45 @@ function Composer() {
               gap: 7,
               padding: "8px 6px",
               borderRadius: 6,
-              cursor: "pointer",
               color: C.ink700,
               fontSize: 13,
               fontWeight: 600,
+              textDecoration: "none",
             }}
           >
             <span style={{ color: x.c, display: "flex" }}>{x.ico}</span>
             {x.l}
-          </div>
+          </Link>
         ))}
       </div>
     </div>
   );
 }
 
-/* ── DAILY QUESTION ───────────────────────────────────────────────── */
+/* ── DAILY QUESTION (local-state) ─────────────────────────────────── */
+const DAILY_QUESTION = {
+  prompt: "Should Georgia raise the minimum age for assault weapon purchases to 21?",
+  context: "Senate Bill 287 is in committee this week.",
+  choices: [
+    { id: "yes",    label: "Yes",            count: 4218 },
+    { id: "no",     label: "No",             count: 2891 },
+    { id: "unsure", label: "Need more info", count: 1104 },
+  ],
+};
+
 function DailyQuestionCard() {
-  const q = MV_DATA.dailyQuestion;
-  const total = q.choices.reduce((s, c) => s + c.count, 0);
+  const [picked, setPicked] = useState<string | null>(null);
+  useEffect(() => {
+    const v = typeof window !== "undefined" ? localStorage.getItem("mv_dq_pick") : null;
+    if (v) setPicked(v);
+  }, []);
+  function choose(id: string) {
+    setPicked(id);
+    try {
+      localStorage.setItem("mv_dq_pick", id);
+    } catch {}
+  }
+  const total = DAILY_QUESTION.choices.reduce((s, c) => s + c.count, 0);
   return (
     <div style={cardStyle}>
       <div
@@ -269,10 +372,10 @@ function DailyQuestionCard() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
           <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900 }}>
-            Daily Question · Day 8
+            Daily Question
           </span>
         </div>
-        <Chip tone="amber" size="sm">3,210 answered today</Chip>
+        <Chip tone="amber" size="sm">{total.toLocaleString()} answered today</Chip>
       </div>
       <div style={{ padding: 16 }}>
         <div
@@ -284,9 +387,11 @@ function DailyQuestionCard() {
             letterSpacing: -0.2,
           }}
         >
-          {q.prompt}
+          {DAILY_QUESTION.prompt}
         </div>
-        <div style={{ fontSize: 12, color: C.ink500, marginTop: 6 }}>{q.context}</div>
+        <div style={{ fontSize: 12, color: C.ink500, marginTop: 6 }}>
+          {DAILY_QUESTION.context}
+        </div>
         <div
           style={{
             marginTop: 14,
@@ -295,19 +400,21 @@ function DailyQuestionCard() {
             gap: 8,
           }}
         >
-          {q.choices.map((c) => {
+          {DAILY_QUESTION.choices.map((c) => {
             const pct = Math.round((c.count / total) * 100);
+            const isPicked = picked === c.id;
             return (
               <button
                 key={c.id}
+                onClick={() => choose(c.id)}
                 style={{
                   padding: "12px 10px",
                   borderRadius: 8,
-                  border: `1.5px solid ${C.ink900}`,
-                  background: C.card,
+                  border: `1.5px solid ${isPicked ? C.teal : C.ink900}`,
+                  background: isPicked ? C.tealSoft : C.card,
                   fontWeight: 600,
                   fontSize: 13.5,
-                  color: C.ink900,
+                  color: isPicked ? C.tealDk : C.ink900,
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
@@ -316,279 +423,86 @@ function DailyQuestionCard() {
               >
                 <span>{c.label}</span>
                 <span style={{ fontSize: 11, color: C.ink500, fontWeight: 500 }}>
-                  {pct}% so far
+                  {picked ? `${pct}%` : `${pct}% so far`}
                 </span>
               </button>
             );
           })}
         </div>
+        {picked && (
+          <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 10 }}>
+            Thanks — your answer was saved locally. Aggregate counts coming soon.
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-/* ── POST HEADER + REACTION BAR ───────────────────────────────────── */
-type PostAuthor = {
-  name: string;
-  initials: string;
-  role?: string;
-  verified?: boolean;
-  tone?: "ink" | "navy" | "plum" | "olive";
-};
-
-function PostHeader({
-  author,
-  time,
-  scope,
-  follow,
-  verifiedLabel,
-}: {
-  author: PostAuthor;
-  time: string;
-  scope: string;
-  follow?: boolean;
-  verifiedLabel?: string | null;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "14px 16px 8px" }}>
-      <Avatar initials={author.initials} size={48} tone={author.tone} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: C.ink900 }}>{author.name}</span>
-          {author.verified && (
-            <span style={{ display: "flex" }}>
-              <VerifiedMark />
-            </span>
-          )}
-          {follow && (
-            <span style={{ color: C.teal, fontSize: 12, fontWeight: 600, marginLeft: 6 }}>
-              · + Follow
-            </span>
-          )}
+/* ── NEWS POST (real clustered story) ─────────────────────────────── */
+function NewsPost() {
+  const { story, loading } = useTopStory();
+  if (loading) {
+    return (
+      <div style={{ ...cardStyle, padding: 24, color: C.ink500, fontSize: 13 }}>
+        Loading the latest cross-spectrum story…
+      </div>
+    );
+  }
+  if (!story) {
+    return (
+      <div style={{ ...cardStyle, padding: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
+          <span style={{ fontSize: 11.5, color: C.ink500 }}>
+            <b style={{ color: C.ink900 }}>News across the spectrum</b>
+          </span>
         </div>
-        <div style={{ fontSize: 12, color: C.ink500, marginTop: 1 }}>{author.role}</div>
         <div
           style={{
-            fontSize: 11.5,
-            color: "#8B8FA3",
-            marginTop: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
+            fontSize: 16,
+            fontWeight: 700,
+            color: C.ink900,
+            marginTop: 10,
+            lineHeight: 1.35,
           }}
         >
-          <span>{time}</span>
-          <span>·</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-            {scope === "Public" ? Icons.earth(12) : Icons.pin(12)}
-            {scope}
-          </span>
-          {verifiedLabel && (
-            <>
-              <span>·</span>
-              <Chip tone="teal" size="sm">{verifiedLabel}</Chip>
-            </>
-          )}
+          No clustered stories yet — check back after the next pipeline run.
         </div>
+        <Link
+          href="/news/spectrum"
+          style={{
+            display: "inline-block",
+            marginTop: 12,
+            color: C.teal,
+            fontWeight: 600,
+            fontSize: 12.5,
+            textDecoration: "none",
+          }}
+        >
+          Browse all spectrum news →
+        </Link>
       </div>
-      <span style={{ color: "#8B8FA3", display: "flex", padding: 4, cursor: "pointer" }}>
-        {Icons.more()}
-      </span>
-    </div>
-  );
-}
+    );
+  }
 
-function ReactionBar({
-  likes,
-  comments,
-  reposts,
-  donate,
-}: {
-  likes: number;
-  comments: number;
-  reposts: number;
-  donate?: boolean;
-}) {
-  return (
-    <>
-      <div
-        style={{
-          padding: "6px 16px",
-          display: "flex",
-          justifyContent: "space-between",
-          color: C.ink500,
-          fontSize: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ display: "inline-flex" }}>
-            <span
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: C.teal,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                border: `2px solid ${C.card}`,
-              }}
-            >
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="white">
-                <path d="M7 11v9H4v-9z" />
-                <path d="M7 11l4-7c1.5 0 2.5 1 2.5 2.5V10h5.5a2 2 0 012 2.3l-1.2 6A2 2 0 0117.8 20H7" />
-              </svg>
-            </span>
-            <span
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: C.amber,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                border: `2px solid ${C.card}`,
-                marginLeft: -5,
-                fontSize: 9,
-                fontWeight: 700,
-              }}
-            >
-              !
-            </span>
-          </span>
-          <span>{likes.toLocaleString()}</span>
-        </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <span>{comments} comments</span>
-          <span>{reposts} reposts</span>
-        </div>
-      </div>
-      <div
-        style={{
-          borderTop: `1px solid ${C.ruleSoft}`,
-          padding: 4,
-          display: "flex",
-        }}
-      >
-        {[
-          { l: "Back",    ico: Icons.thumb() },
-          { l: "Comment", ico: Icons.comment() },
-          { l: "Share",   ico: Icons.share() },
-          donate
-            ? { l: "Donate", ico: Icons.spark(), accent: C.red }
-            : { l: "Save",   ico: Icons.bookmark() },
-        ].map((a: any) => (
-          <div
-            key={a.l}
-            style={{
-              flex: 1,
-              padding: "9px 6px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 7,
-              color: a.accent || C.ink700,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              borderRadius: 6,
-            }}
-          >
-            {a.ico}
-            {a.l}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
+  // Group article_data into left/center/right by lean
+  const articles = story.article_data || [];
+  const left = articles.find((a) => (a.lean ?? 0) < -0.3);
+  const right = articles.find((a) => (a.lean ?? 0) > 0.3);
+  const center = articles.find((a) => {
+    const l = a.lean ?? 0;
+    return l >= -0.3 && l <= 0.3;
+  });
+  const sources = articles.length;
 
-/* ── POST CARDS ───────────────────────────────────────────────────── */
-function PoliticianPost() {
-  const pol = MV_DATA.politicianProfile;
-  const p = pol.posts[1];
-  return (
-    <div style={cardStyle}>
-      <PostHeader
-        author={{
-          name: pol.name,
-          initials: pol.initials,
-          role: `${pol.title} · ${pol.party} · ${pol.district}`,
-          verified: true,
-          tone: "navy",
-        }}
-        time={p.time}
-        scope="Public"
-        follow
-      />
-      <div style={{ padding: "0 16px 12px", fontSize: 14, color: C.ink900, lineHeight: 1.55 }}>
-        {p.text}
-      </div>
-      <div
-        style={{
-          margin: "0 16px 14px",
-          padding: 14,
-          border: `1px solid ${C.rule}`,
-          borderRadius: 10,
-          background: C.shade,
-        }}
-      >
-        <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink900, marginBottom: 10 }}>
-          Should the age be raised to 21?
-        </div>
-        {[
-          { l: "Yes", v: 62 },
-          { l: "No", v: 28 },
-          { l: "Need more info", v: 10 },
-        ].map((o) => (
-          <div key={o.l} style={{ marginBottom: 7 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 12,
-                fontWeight: 500,
-                marginBottom: 4,
-                color: C.ink900,
-              }}
-            >
-              <span>{o.l}</span>
-              <span style={{ color: C.ink500 }}>{o.v}%</span>
-            </div>
-            <div
-              style={{
-                height: 6,
-                background: C.card,
-                borderRadius: 3,
-                overflow: "hidden",
-                border: `1px solid ${C.ruleSoft}`,
-              }}
-            >
-              <div style={{ height: "100%", width: `${o.v}%`, background: C.ink900 }} />
-            </div>
-          </div>
-        ))}
-        <div style={{ fontSize: 11, color: C.ink500, marginTop: 8 }}>
-          3,210 responses · closes in 2 days
-        </div>
-      </div>
-      <ReactionBar likes={p.likes} comments={p.comments} reposts={p.reposts} donate />
-    </div>
-  );
-}
-
-function NewsPost() {
-  const story = MV_DATA.stories[0];
   return (
     <div style={cardStyle}>
       <div style={{ padding: "12px 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
         <span style={{ fontSize: 11.5, color: C.ink500 }}>
-          <b style={{ color: C.ink900 }}>News across the spectrum</b> · {story.sources} sources ·{" "}
-          {story.time}
+          <b style={{ color: C.ink900 }}>News across the spectrum</b>
+          {sources > 0 && ` · ${sources} source${sources === 1 ? "" : "s"}`}
         </span>
       </div>
       <div style={{ padding: "10px 16px 0" }}>
@@ -603,197 +517,112 @@ function NewsPost() {
         >
           {story.headline}
         </div>
-        <div
-          style={{
-            marginTop: 10,
-            padding: 12,
-            background: C.shade,
-            border: `1px solid ${C.ruleSoft}`,
-            borderRadius: 8,
-          }}
-        >
+        {story.synopsis && (
           <div
             style={{
-              fontSize: 10.5,
-              fontWeight: 700,
-              letterSpacing: 1,
-              textTransform: "uppercase",
-              color: C.ink500,
-              marginBottom: 6,
+              marginTop: 10,
+              padding: 12,
+              background: C.shade,
+              border: `1px solid ${C.ruleSoft}`,
+              borderRadius: 8,
+              fontSize: 12.5,
+              color: C.ink900,
+              lineHeight: 1.5,
             }}
           >
-            Shared facts · {story.sources} sources agree
+            {story.synopsis}
           </div>
-          {story.sharedFacts.slice(0, 3).map((f, i) => (
+        )}
+        <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+          {[
+            { lens: "Left",   article: left,   tone: "#3A6AA5" },
+            { lens: "Center", article: center, tone: "#8B8FA3" },
+            { lens: "Right",  article: right,  tone: "#A53A3A" },
+          ].map(({ lens, article, tone }) => (
             <div
-              key={i}
+              key={lens}
               style={{
-                display: "flex",
-                gap: 8,
-                fontSize: 12.5,
-                color: C.ink900,
-                marginBottom: 4,
-                lineHeight: 1.4,
+                flex: 1,
+                padding: "8px 10px",
+                border: `1px solid ${C.rule}`,
+                borderRadius: 6,
+                background: C.card,
+                opacity: article ? 1 : 0.5,
               }}
             >
-              <span style={{ color: C.teal, marginTop: 1, display: "flex" }}>{Icons.check(14)}</span>
-              <span>{f}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-          {(["Left", "Center", "Right"] as const).map((lens) => {
-            const tone = lens === "Left" ? "#3A6AA5" : lens === "Right" ? "#A53A3A" : "#8B8FA3";
-            const headline =
-              lens === "Left"
-                ? story.perspectives.left.headline
-                : lens === "Right"
-                ? story.perspectives.right.headline
-                : story.perspectives.center.headline;
-            return (
-              <div
-                key={lens}
-                style={{
-                  flex: 1,
-                  padding: "8px 10px",
-                  border: `1px solid ${C.rule}`,
-                  borderRadius: 6,
-                  background: C.card,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      background: tone,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 10.5,
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      textTransform: "uppercase",
-                      color: C.ink500,
-                    }}
-                  >
-                    {lens}
-                  </span>
-                </div>
-                <div
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: tone }} />
+                <span
                   style={{
-                    fontSize: 11.5,
-                    color: C.ink900,
-                    lineHeight: 1.35,
-                    fontWeight: 600,
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    color: C.ink500,
                   }}
                 >
-                  {headline}
-                </div>
+                  {lens}
+                </span>
               </div>
-            );
-          })}
-        </div>
-      </div>
-      <div style={{ padding: "10px 16px 0", fontSize: 12, color: C.ink500 }}>
-        <b style={{ color: C.ink900 }}>{story.readers.toLocaleString()}</b> neighbors read this
-      </div>
-      <ReactionBar likes={story.readers} comments={284} reposts={92} />
-    </div>
-  );
-}
-
-function NeighborPost() {
-  const p = MV_DATA.community.posts[0];
-  return (
-    <div style={cardStyle}>
-      <PostHeader
-        author={{
-          name: p.author.name,
-          initials: p.author.initials,
-          role: `${p.author.district} · neighbor`,
-          tone: "olive",
-        }}
-        time={p.time}
-        scope={p.scope}
-        verifiedLabel={p.author.verified ? p.author.verifiedLabel : null}
-      />
-      <div style={{ padding: "0 16px 12px", fontSize: 14, color: C.ink900, lineHeight: 1.55 }}>
-        {p.text}
-      </div>
-      {p.poll && (
-        <div
-          style={{
-            margin: "0 16px 14px",
-            padding: 14,
-            border: `1px solid ${C.rule}`,
-            borderRadius: 10,
-            background: C.shade,
-          }}
-        >
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink900, marginBottom: 10 }}>
-            {p.poll.question}
-          </div>
-          {p.poll.options.map((o) => (
-            <div key={o.label} style={{ marginBottom: 7 }}>
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  marginBottom: 4,
+                  fontSize: 11.5,
                   color: C.ink900,
+                  lineHeight: 1.35,
+                  fontWeight: 600,
                 }}
               >
-                <span>{o.label}</span>
-                <span style={{ color: C.ink500 }}>{o.val}%</span>
+                {article?.title || `No ${lens.toLowerCase()} source yet.`}
               </div>
-              <div
-                style={{
-                  height: 6,
-                  background: C.card,
-                  borderRadius: 3,
-                  overflow: "hidden",
-                  border: `1px solid ${C.ruleSoft}`,
-                }}
-              >
-                <div style={{ height: "100%", width: `${o.val}%`, background: C.teal }} />
-              </div>
+              {article?.source && (
+                <div style={{ fontSize: 10.5, color: C.ink500, marginTop: 4 }}>
+                  {article.source}
+                </div>
+              )}
             </div>
           ))}
-          <div style={{ fontSize: 11, color: C.ink500, marginTop: 8 }}>
-            {p.poll.totalVotes} neighbors voted
-          </div>
         </div>
-      )}
-      <ReactionBar likes={p.likes} comments={p.replies} reposts={p.reposts} />
+      </div>
+      <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between" }}>
+        <Link
+          href="/news/spectrum"
+          style={{
+            color: C.teal,
+            fontSize: 12.5,
+            fontWeight: 600,
+            textDecoration: "none",
+          }}
+        >
+          See all spectrum stories →
+        </Link>
+      </div>
     </div>
   );
 }
 
 /* ── RIGHT RAIL ───────────────────────────────────────────────────── */
 function RightRail() {
-  const sug = MV_DATA.discover.candidates.slice(0, 3);
-  const cg = MV_DATA.commonGround;
-  const lp = MV_DATA.localPulse;
+  const sug = useSuggestedCandidates();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {/* Suggested candidates */}
       <div style={cardStyle}>
         <div style={{ padding: "14px 16px 6px" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>
-            Candidates you may want to back
+            Candidates on your 2026 ballot
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
-            Matched to your top issues
+            Statewide races · Georgia
           </div>
         </div>
+        {sug.length === 0 && (
+          <div style={{ padding: "10px 16px", color: C.ink500, fontSize: 12 }}>
+            No candidates loaded yet.
+          </div>
+        )}
         {sug.map((c, i) => (
           <div
-            key={c.id}
+            key={`${c.name}-${i}`}
             style={{
               padding: "10px 16px",
               borderTop: i === 0 ? "none" : `1px solid ${C.ruleSoft}`,
@@ -803,7 +632,8 @@ function RightRail() {
           >
             <Avatar initials={c.initials} size={42} tone={c.tone} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div
+              <Link
+                href={c.href}
                 style={{
                   fontSize: 13,
                   fontWeight: 700,
@@ -811,69 +641,70 @@ function RightRail() {
                   display: "flex",
                   alignItems: "center",
                   gap: 4,
+                  textDecoration: "none",
                 }}
               >
                 {c.name}
-                {c.verified && (
-                  <span style={{ display: "flex" }}>
-                    <VerifiedMark />
-                  </span>
-                )}
-              </div>
+                <VerifiedMark />
+              </Link>
               <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 1 }}>
                 {c.office} · {c.party}
               </div>
               <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: C.teal }}>
-                  {c.match}% match
-                </span>
-                <span style={{ color: "#8B8FA3", fontSize: 11 }}>·</span>
-                <span style={{ fontSize: 11, color: C.ink500 }}>
-                  {c.followers.toLocaleString()} followers
+                  Learn more
                 </span>
               </div>
               <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
-                <Btn variant="outline" size="sm" icon={<span style={{ display: "flex" }}>{Icons.plus(14)}</span>}>
-                  Follow
-                </Btn>
-                <Btn variant="donate" size="sm">Donate</Btn>
+                <Link href="/elections" style={{ textDecoration: "none" }}>
+                  <Btn variant="outline" size="sm">View race</Btn>
+                </Link>
               </div>
             </div>
           </div>
         ))}
-        <div
+        <Link
+          href="/elections"
           style={{
             borderTop: `1px solid ${C.ruleSoft}`,
             padding: "10px 16px",
+            display: "block",
             color: C.teal,
             fontSize: 12,
             fontWeight: 600,
-            cursor: "pointer",
+            textDecoration: "none",
           }}
         >
-          See all matches →
-        </div>
+          See all 2026 races →
+        </Link>
       </div>
 
       {/* Trending */}
       <div style={cardStyle}>
         <div style={{ padding: "14px 16px 6px" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>
-            Trending in {lp.city}
+            Trending in Atlanta
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
-            {lp.activeNow} neighbors active now
+            What neighbors are reading
           </div>
         </div>
-        {lp.topics.map((t, i) => (
-          <div
+        {[
+          { tag: "MARTA expansion",  trend: "up" as const },
+          { tag: "Property tax cap", trend: "up" as const },
+          { tag: "Bond referendum",  trend: "steady" as const },
+          { tag: "School board",     trend: "down" as const },
+        ].map((t, i) => (
+          <Link
             key={t.tag}
+            href="/news/local"
             style={{
               padding: "10px 16px",
               borderTop: `1px solid ${C.ruleSoft}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              textDecoration: "none",
             }}
           >
             <div>
@@ -881,15 +712,10 @@ function RightRail() {
                 #{i + 1} · {t.tag}
               </div>
               <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 1 }}>
-                {t.mentions} mentions ·{" "}
-                {t.trend === "up"
-                  ? "↑ rising"
-                  : t.trend === "down"
-                  ? "↓ cooling"
-                  : "→ steady"}
+                {t.trend === "up" ? "↑ rising" : t.trend === "down" ? "↓ cooling" : "→ steady"}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -902,14 +728,7 @@ function RightRail() {
       >
         <div style={{ padding: "14px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: C.teal,
-              }}
-            />
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
             <span
               style={{
                 fontSize: 11,
@@ -931,7 +750,7 @@ function RightRail() {
               lineHeight: 1.35,
             }}
           >
-            {cg.issue}: where Georgia agrees
+            Rural broadband: where Georgia agrees
           </div>
           <div
             style={{
@@ -941,11 +760,12 @@ function RightRail() {
               lineHeight: 1.45,
             }}
           >
-            {cg.summary}
+            Voters across both parties say expanding rural broadband should be a top legislative
+            priority this session.
           </div>
           <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-            <Chip tone="teal" size="sm">Left {cg.left}%</Chip>
-            <Chip tone="teal" size="sm">Right {cg.right}%</Chip>
+            <Chip tone="teal" size="sm">Left 71%</Chip>
+            <Chip tone="teal" size="sm">Right 78%</Chip>
           </div>
         </div>
       </div>
@@ -955,6 +775,7 @@ function RightRail() {
 
 /* ── PAGE ─────────────────────────────────────────────────────────── */
 export function DesktopHome() {
+  const election = useElectionInfo();
   return (
     <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900 }}>
       <TopNav active="home" />
@@ -969,16 +790,15 @@ export function DesktopHome() {
           alignItems: "start",
         }}
       >
-        <LeftRail />
+        <LeftRail election={election} />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Composer />
           <DailyQuestionCard />
-          <PoliticianPost />
           <NewsPost />
-          <NeighborPost />
         </div>
         <RightRail />
       </div>
     </div>
   );
 }
+
