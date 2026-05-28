@@ -24,6 +24,7 @@ import { TopNav } from "./top-nav";
 import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostData } from "@/components/post-card";
 import { createClient } from "@/lib/supabase/client";
+import { useDailyQuestion } from "@/lib/use-daily-question";
 
 /* ── data helpers ─────────────────────────────────────────────────── */
 
@@ -138,7 +139,17 @@ const cardStyle: CSSProperties = {
 };
 
 /* ── LEFT RAIL ────────────────────────────────────────────────────── */
-function LeftRail({ election }: { election: ReturnType<typeof useElectionInfo> }) {
+function LeftRail({
+  election,
+  streak,
+  streakLoading,
+  signedIn,
+}: {
+  election: ReturnType<typeof useElectionInfo>;
+  streak: number;
+  streakLoading: boolean;
+  signedIn: boolean;
+}) {
   const { user, profile } = useAuth();
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || "Welcome";
@@ -169,6 +180,37 @@ function LeftRail({ election }: { election: ReturnType<typeof useElectionInfo> }
             {bio}
           </div>
         </div>
+        {/* Streak chip — real data from useDailyQuestion */}
+        {signedIn && !streakLoading && streak > 0 && (
+          <div
+            style={{
+              borderTop: `1px solid ${C.ruleSoft}`,
+              padding: "10px 16px",
+              background: C.shade,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
+            <span style={{ fontSize: 12, color: C.ink900, fontWeight: 600 }}>
+              {streak}-day streak · keep it going
+            </span>
+          </div>
+        )}
+        {signedIn && !streakLoading && streak === 0 && (
+          <div
+            style={{
+              borderTop: `1px solid ${C.ruleSoft}`,
+              padding: "10px 16px",
+              background: C.shade,
+              fontSize: 12,
+              color: C.ink700,
+            }}
+          >
+            Answer today&apos;s question to start a streak ↓
+          </div>
+        )}
         <div
           style={{
             borderTop: `1px solid ${C.ruleSoft}`,
@@ -380,30 +422,52 @@ function ComposerAndFeed() {
   );
 }
 
-/* ── DAILY QUESTION (local-state) ─────────────────────────────────── */
-const DAILY_QUESTION = {
-  prompt: "Should Georgia raise the minimum age for assault weapon purchases to 21?",
-  context: "Senate Bill 287 is in committee this week.",
-  choices: [
-    { id: "yes",    label: "Yes",            count: 4218 },
-    { id: "no",     label: "No",             count: 2891 },
-    { id: "unsure", label: "Need more info", count: 1104 },
-  ],
-};
+/* ── DAILY QUESTION (real — uses useDailyQuestion hook) ──────────── */
+function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
 
-function DailyQuestionCard() {
-  const [picked, setPicked] = useState<string | null>(null);
-  useEffect(() => {
-    const v = typeof window !== "undefined" ? localStorage.getItem("mv_dq_pick") : null;
-    if (v) setPicked(v);
-  }, []);
-  function choose(id: string) {
-    setPicked(id);
-    try {
-      localStorage.setItem("mv_dq_pick", id);
-    } catch {}
+  if (dq.loading) {
+    return (
+      <div style={{ ...cardStyle, padding: 20, color: C.ink500, fontSize: 13 }}>
+        Loading today&apos;s question…
+      </div>
+    );
   }
-  const total = DAILY_QUESTION.choices.reduce((s, c) => s + c.count, 0);
+
+  if (dq.error || !dq.questionId) {
+    return (
+      <div style={{ ...cardStyle, padding: 20 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, marginBottom: 6 }}>
+          Daily Question
+        </div>
+        <div style={{ fontSize: 12.5, color: C.ink500, lineHeight: 1.5 }}>
+          {dq.error
+            ? "Couldn't load today's question. Please refresh in a moment."
+            : "No question is active right now — check back tomorrow."}
+        </div>
+      </div>
+    );
+  }
+
+  const total = dq.totalAnswers;
+  const userAnswer = dq.userAnswer;
+
+  async function choose(choiceId: string) {
+    setSubmitError(null);
+    if (!user) {
+      setSubmitError("Sign in to record your answer.");
+      return;
+    }
+    setSubmitting(true);
+    const res = await dq.submit(choiceId);
+    setSubmitting(false);
+    if (!res.ok) {
+      setSubmitError(res.error || "Couldn't save your answer.");
+    }
+  }
+
   return (
     <div style={cardStyle}>
       <div
@@ -413,6 +477,8 @@ function DailyQuestionCard() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 8,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -421,7 +487,9 @@ function DailyQuestionCard() {
             Daily Question
           </span>
         </div>
-        <Chip tone="amber" size="sm">{total.toLocaleString()} answered today</Chip>
+        <Chip tone="amber" size="sm">
+          {total.toLocaleString()} answered{total === 1 ? "" : ""}
+        </Chip>
       </div>
       <div style={{ padding: 16 }}>
         <div
@@ -433,26 +501,28 @@ function DailyQuestionCard() {
             letterSpacing: -0.2,
           }}
         >
-          {DAILY_QUESTION.prompt}
+          {dq.prompt}
         </div>
-        <div style={{ fontSize: 12, color: C.ink500, marginTop: 6 }}>
-          {DAILY_QUESTION.context}
-        </div>
+        {dq.context && (
+          <div style={{ fontSize: 12, color: C.ink500, marginTop: 6 }}>{dq.context}</div>
+        )}
         <div
           style={{
             marginTop: 14,
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: `repeat(${Math.max(dq.choices.length, 1)}, 1fr)`,
             gap: 8,
           }}
         >
-          {DAILY_QUESTION.choices.map((c) => {
-            const pct = Math.round((c.count / total) * 100);
-            const isPicked = picked === c.id;
+          {dq.choices.map((c) => {
+            const count = dq.counts[c.id] || 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const isPicked = userAnswer === c.id;
             return (
               <button
                 key={c.id}
                 onClick={() => choose(c.id)}
+                disabled={submitting}
                 style={{
                   padding: "12px 10px",
                   borderRadius: 8,
@@ -461,23 +531,54 @@ function DailyQuestionCard() {
                   fontWeight: 600,
                   fontSize: 13.5,
                   color: isPicked ? C.tealDk : C.ink900,
-                  cursor: "pointer",
+                  cursor: submitting ? "wait" : "pointer",
                   display: "flex",
                   flexDirection: "column",
                   gap: 2,
+                  textAlign: "left",
                 }}
               >
                 <span>{c.label}</span>
                 <span style={{ fontSize: 11, color: C.ink500, fontWeight: 500 }}>
-                  {picked ? `${pct}%` : `${pct}% so far`}
+                  {userAnswer
+                    ? `${pct}% (${count.toLocaleString()})`
+                    : total > 0
+                    ? `${pct}% so far`
+                    : "Be the first"}
                 </span>
               </button>
             );
           })}
         </div>
-        {picked && (
+        {submitError && (
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              color: C.red,
+              background: C.redSoft,
+              border: `1px solid #E8CDC7`,
+              borderRadius: 6,
+              padding: "6px 10px",
+            }}
+          >
+            {submitError}
+            {!user && (
+              <>
+                {" "}
+                <Link
+                  href="/auth/signin"
+                  style={{ color: C.red, textDecoration: "underline", fontWeight: 600 }}
+                >
+                  Sign in →
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+        {userAnswer && !submitError && (
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 10 }}>
-            Thanks — your answer was saved locally. Aggregate counts coming soon.
+            Thanks — your answer is recorded. {dq.streak > 1 ? `You're on a ${dq.streak}-day streak.` : ""}
           </div>
         )}
       </div>
@@ -824,14 +925,23 @@ function RightRail() {
 /* ── PAGE ─────────────────────────────────────────────────────────── */
 export function DesktopHome() {
   const election = useElectionInfo();
+  // Single source of truth for the Daily Question — shared between the
+  // streak chip in LeftRail and the DailyQuestionCard in the center
+  // column so they stay in sync after a vote.
+  const dq = useDailyQuestion();
   return (
     <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900, overflowX: "hidden" }}>
       <TopNav active="home" />
       <div className="max-w-[1240px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
-        <LeftRail election={election} />
+        <LeftRail
+          election={election}
+          streak={dq.streak}
+          streakLoading={dq.loading}
+          signedIn={dq.signedIn}
+        />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <ComposerAndFeed />
-          <DailyQuestionCard />
+          <DailyQuestionCard dq={dq} />
           <NewsPost />
         </div>
         <RightRail />
