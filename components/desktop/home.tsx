@@ -132,6 +132,45 @@ function useTopStory(): { story: ClusteredStory | null; loading: boolean } {
   return { story, loading };
 }
 
+type TrendingTopic = { topic: string; count: number };
+
+/* Real trending topics, derived from recent community posts.
+   No fabricated data — if nobody's posted with topics, the card hides. */
+function useTrendingTopics(): { topics: TrendingTopic[]; loading: boolean } {
+  const [topics, setTopics] = useState<TrendingTopic[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    const supabase = createClient();
+    const since = new Date(Date.now() - 14 * 86400000).toISOString();
+    supabase
+      .from("posts")
+      .select("topic")
+      .gte("created_at", since)
+      .not("topic", "is", null)
+      .limit(500)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const counts = new Map<string, number>();
+        for (const row of (data as { topic: string | null }[]) || []) {
+          const t = (row.topic || "").trim();
+          if (!t) continue;
+          counts.set(t, (counts.get(t) || 0) + 1);
+        }
+        const sorted = Array.from(counts.entries())
+          .map(([topic, count]) => ({ topic, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+        setTopics(sorted);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return { topics, loading };
+}
+
 /* ── shared card chrome ───────────────────────────────────────────── */
 const cardStyle: CSSProperties = {
   background: C.card,
@@ -752,6 +791,7 @@ function NewsPost() {
 /* ── RIGHT RAIL ───────────────────────────────────────────────────── */
 function RightRail() {
   const sug = useSuggestedCandidates();
+  const { topics: trending } = useTrendingTopics();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {/* Suggested candidates */}
@@ -824,50 +864,42 @@ function RightRail() {
         </Link>
       </div>
 
-      {/* Trending */}
-      <div style={cardStyle}>
-        <div style={{ padding: "14px 16px 6px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+      {/* Trending — real topics from community posts (hides if none) */}
+      {trending.length > 0 && (
+        <div style={cardStyle}>
+          <div style={{ padding: "14px 16px 6px" }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900 }}>
-              Trending in Atlanta
+              Trending topics
             </div>
-            <Chip tone="neutral" size="sm">Preview</Chip>
+            <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
+              What the community is posting about
+            </div>
           </div>
-          <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
-            What neighbors are reading
-          </div>
-        </div>
-        {[
-          { tag: "MARTA expansion",  trend: "up" as const },
-          { tag: "Property tax cap", trend: "up" as const },
-          { tag: "Bond referendum",  trend: "steady" as const },
-          { tag: "School board",     trend: "down" as const },
-        ].map((t, i) => (
-          <Link
-            key={t.tag}
-            href="/news/local"
-            style={{
-              padding: "10px 16px",
-              borderTop: `1px solid ${C.ruleSoft}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              textDecoration: "none",
-            }}
-          >
-            <div>
+          {trending.map((t, i) => (
+            <Link
+              key={t.topic}
+              href={`/search?q=${encodeURIComponent(t.topic)}`}
+              style={{
+                padding: "10px 16px",
+                borderTop: `1px solid ${C.ruleSoft}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                textDecoration: "none",
+              }}
+            >
               <div style={{ fontSize: 13, fontWeight: 600, color: C.ink900 }}>
-                #{i + 1} · {t.tag}
+                #{i + 1} · {t.topic}
               </div>
-              <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 1 }}>
-                {t.trend === "up" ? "↑ rising" : t.trend === "down" ? "↓ cooling" : "→ steady"}
+              <div style={{ fontSize: 11.5, color: C.ink500 }}>
+                {t.count} {t.count === 1 ? "post" : "posts"}
               </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
-      {/* Common ground */}
+      {/* Be ballot-ready — real voter actions */}
       <div
         style={{
           ...cardStyle,
@@ -875,22 +907,19 @@ function RightRail() {
         }}
       >
         <div style={{ padding: "14px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
-                  color: C.tealDk,
-                }}
-              >
-                Common ground
-              </span>
-            </div>
-            <Chip tone="neutral" size="sm">Preview</Chip>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: C.tealDk,
+              }}
+            >
+              Be ballot-ready
+            </span>
           </div>
           <div
             style={{
@@ -901,22 +930,28 @@ function RightRail() {
               lineHeight: 1.35,
             }}
           >
-            Rural broadband: where Georgia agrees
+            See your 2026 ballot and make a plan to vote
           </div>
-          <div
-            style={{
-              fontSize: 12,
-              color: C.ink700,
-              marginTop: 6,
-              lineHeight: 1.45,
-            }}
-          >
-            Voters across both parties say expanding rural broadband should be a top legislative
-            priority this session.
-          </div>
-          <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-            <Chip tone="teal" size="sm">Left 71%</Chip>
-            <Chip tone="teal" size="sm">Right 78%</Chip>
+          <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+            <Link href="/elections" style={{ textDecoration: "none" }}>
+              <Btn variant="primary" size="sm">Find my ballot by ZIP</Btn>
+            </Link>
+            <a
+              href="https://registertovote.sos.ga.gov/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              <Btn variant="outline" size="sm">Register / update registration ↗</Btn>
+            </a>
+            <a
+              href="https://mvp.sos.ga.gov/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              <Btn variant="ghost" size="sm">Check my registration ↗</Btn>
+            </a>
           </div>
         </div>
       </div>
