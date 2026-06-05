@@ -25,6 +25,7 @@ import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostData } from "@/components/post-card";
 import { createClient } from "@/lib/supabase/client";
 import { useDailyQuestion } from "@/lib/use-daily-question";
+import { candidateSlug } from "@/lib/candidate-utils";
 
 /* ── data helpers ─────────────────────────────────────────────────── */
 
@@ -79,7 +80,8 @@ type SuggestedCandidate = {
 function useSuggestedCandidates(): SuggestedCandidate[] {
   // Pull a few real candidates from statewide races. We deliberately do
   // NOT show a "match %" because we don't compute issue-alignment yet —
-  // showing a fake number would be a credibility hit.
+  // showing a fake number would be a credibility hit. Each card links
+  // to the real candidate detail page now.
   const picks: SuggestedCandidate[] = [];
   for (const race of STATEWIDE_RACES) {
     for (const cand of race.candidates) {
@@ -91,7 +93,7 @@ function useSuggestedCandidates(): SuggestedCandidate[] {
         party: cand.party,
         incumbent: cand.isIncumbent,
         tone: TONE_BY_PARTY[cand.party] || "navy",
-        href: "/elections",
+        href: `/elections/candidate/${candidateSlug(cand.name, race.office)}`,
       });
       if (picks.length >= 3) return picks;
     }
@@ -799,8 +801,8 @@ function RightRail() {
                 {c.office} · {c.party}
               </div>
               <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
-                <Link href="/elections" style={{ textDecoration: "none" }}>
-                  <Btn variant="outline" size="sm">View race</Btn>
+                <Link href={c.href} style={{ textDecoration: "none" }}>
+                  <Btn variant="outline" size="sm">View profile</Btn>
                 </Link>
               </div>
             </div>
