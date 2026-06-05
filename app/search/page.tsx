@@ -6,23 +6,18 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   ArrowLeft,
   Search,
   Loader2,
-  ExternalLink,
   MessageCircle,
-  Heart,
-  Newspaper,
   Users,
-  CheckCircle,
-  Sparkles,
+  MapPin,
+  ArrowRight,
 } from "lucide-react"
 import { SearchService, type SearchResult } from "@/lib/search-service"
-import { mockUsers } from "@/lib/mock-data"
 import { formatDistanceToNow } from "date-fns"
 import { Logo } from "@/components/logo"
 
@@ -34,7 +29,6 @@ function SearchResults() {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
   const [sortBy, setSortBy] = useState("relevance")
-  const [categoryFilter, setCategoryFilter] = useState("all")
 
   useEffect(() => {
     if (query) {
@@ -47,7 +41,6 @@ function SearchResults() {
     try {
       const searchResults = await SearchService.searchAll(query, {
         type: activeTab === "all" ? undefined : [activeTab],
-        category: categoryFilter === "all" ? undefined : [categoryFilter],
       })
       setResults(searchResults)
     } catch (error) {
@@ -62,7 +55,7 @@ function SearchResults() {
     if (query) {
       performSearch()
     }
-  }, [activeTab, categoryFilter])
+  }, [activeTab])
 
   const filteredResults = results.filter((result) => {
     if (activeTab === "all") return true
@@ -84,77 +77,17 @@ function SearchResults() {
   })
 
   const getResultCounts = () => {
-    const counts = {
+    return {
       all: results.length,
-      news: results.filter((r) => r.type === "news").length,
-      representative: results.filter((r) => r.type === "representative").length,
-      user: results.filter((r) => r.type === "user").length,
-      comment: results.filter((r) => r.type === "comment").length,
-      factual: results.filter((r) => r.type === "factual").length,
+      candidate: results.filter((r) => r.type === "candidate").length,
+      county: results.filter((r) => r.type === "county").length,
+      post: results.filter((r) => r.type === "post").length,
     }
-    return counts
   }
 
   const renderResult = (result: SearchResult) => {
     switch (result.type) {
-      case "news":
-        return (
-          <Card key={result.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Newspaper className="w-4 h-4 text-teal-600" />
-                    <Badge variant="outline" className="text-xs">
-                      News Article
-                    </Badge>
-                    {result.source && (
-                      <Badge variant="outline" className="text-xs">
-                        {result.source}
-                      </Badge>
-                    )}
-                    {result.category && (
-                      <Badge variant="secondary" className="text-xs">
-                        {result.category}
-                      </Badge>
-                    )}
-                    {result.timestamp && (
-                      <span className="text-xs text-ink-500">
-                        {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
-                      </span>
-                    )}
-                  </div>
-                  <CardTitle className="text-lg mb-2">
-                    {result.url ? (
-                      <a
-                        href={result.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-teal-600 hover:underline"
-                      >
-                        {result.title}
-                      </a>
-                    ) : (
-                      result.title
-                    )}
-                  </CardTitle>
-                  <CardDescription>{result.description}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            {result.url && (
-              <CardContent>
-                <Button variant="outline" size="sm" asChild>
-                  <a href={result.url} target="_blank" rel="noopener noreferrer">
-                    Read Article <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-                </Button>
-              </CardContent>
-            )}
-          </Card>
-        )
-
-      case "representative":
+      case "candidate":
         return (
           <Card key={result.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
@@ -165,96 +98,73 @@ function SearchResults() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
-                      Representative
+                      Candidate
                     </Badge>
-                    {result.metadata?.party && (
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${
-                          result.metadata.party === "Democrat"
-                            ? "bg-blue-100 text-blue-800"
-                            : result.metadata.party === "Republican"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-paper-200 text-ink-700"
-                        }`}
-                      >
-                        {result.metadata.party}
+                    {result.badge && (
+                      <Badge variant="secondary" className="text-xs">
+                        {result.badge}
+                      </Badge>
+                    )}
+                    {result.meta && (
+                      <Badge variant="outline" className="text-xs">
+                        {result.meta}
                       </Badge>
                     )}
                   </div>
                   <CardTitle className="text-lg mb-1">{result.title}</CardTitle>
-                  <CardDescription className="mb-2">{result.description}</CardDescription>
-                  {result.metadata?.location && <p className="text-sm text-ink-700">{result.metadata.location}</p>}
+                  <CardDescription>{result.description}</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <Link href="/profile">
-                <Button variant="outline" size="sm">
-                  View Political Profile
-                </Button>
-              </Link>
-            </CardContent>
+            {result.url && (
+              <CardContent>
+                <Link href={result.url}>
+                  <Button variant="outline" size="sm">
+                    View candidate <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
+              </CardContent>
+            )}
           </Card>
         )
 
-      case "user":
-        const user = mockUsers.find((u) => u.id === result.id)
+      case "county":
         return (
           <Card key={result.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start gap-3">
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={user?.avatar || "/placeholder.svg"} />
-                  <AvatarFallback>
-                    {result.title
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="bg-teal-100 p-2 rounded-full">
+                  <MapPin className="w-5 h-5 text-teal-600" />
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
-                      User
+                      County ballot
                     </Badge>
-                    {user?.verified && <CheckCircle className="w-4 h-4 text-teal-500" />}
-                    {result.category && (
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${
-                          result.category === "left"
-                            ? "bg-blue-100 text-blue-800"
-                            : result.category === "right"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-paper-200 text-ink-700"
-                        }`}
-                      >
-                        {result.category === "center" ? "Moderate" : result.category}
+                    {result.badge && (
+                      <Badge variant="secondary" className="text-xs">
+                        {result.badge}
                       </Badge>
                     )}
                   </div>
                   <CardTitle className="text-lg mb-1">{result.title}</CardTitle>
-                  <p className="text-sm text-ink-700 mb-1">{result.metadata?.author}</p>
                   <CardDescription>{result.description}</CardDescription>
-                  {result.metadata?.location && (
-                    <p className="text-sm text-ink-500 mt-1">{result.metadata.location}</p>
-                  )}
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <Link href={`/profile/${user?.username}`}>
-                <Button variant="outline" size="sm">
-                  View Profile
-                </Button>
-              </Link>
-            </CardContent>
+            {result.url && (
+              <CardContent>
+                <Link href={result.url}>
+                  <Button variant="outline" size="sm">
+                    View ballot <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
+              </CardContent>
+            )}
           </Card>
         )
 
-      case "comment":
-        const commentUser = mockUsers.find((u) => u.displayName === result.metadata?.author)
+      case "post":
         return (
           <Card key={result.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
@@ -263,78 +173,33 @@ function SearchResults() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
-                      Comment
+                      Community post
                     </Badge>
+                    {result.badge && (
+                      <Badge variant="secondary" className="text-xs">
+                        {result.badge}
+                      </Badge>
+                    )}
                     {result.timestamp && (
                       <span className="text-xs text-ink-500">
                         {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
                       </span>
                     )}
                   </div>
-                  <CardTitle className="text-lg mb-2">{result.title}</CardTitle>
-                  <CardDescription className="mb-2">{result.description}</CardDescription>
-                  <div className="flex items-center gap-4 text-sm text-ink-700">
-                    <span>By {result.metadata?.author}</span>
-                    {result.metadata?.likes && (
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-3 h-3" />
-                        {result.metadata.likes}
-                      </div>
-                    )}
-                    {result.metadata?.replies && (
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-3 h-3" />
-                        {result.metadata.replies}
-                      </div>
-                    )}
-                  </div>
+                  <CardTitle className="text-base mb-1">{result.title}</CardTitle>
+                  {result.meta && <p className="text-sm text-ink-700">{result.meta}</p>}
                 </div>
               </div>
             </CardHeader>
             {result.url && (
               <CardContent>
-                <Button variant="outline" size="sm" asChild>
-                  <a href={result.url} target="_blank" rel="noopener noreferrer">
-                    View Article <ExternalLink className="w-3 h-3 ml-1" />
-                  </a>
-                </Button>
+                <Link href={result.url}>
+                  <Button variant="outline" size="sm">
+                    View author <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </Link>
               </CardContent>
             )}
-          </Card>
-        )
-
-      case "factual":
-        return (
-          <Card key={result.id} className="hover:shadow-md transition-shadow border-l-4 border-l-teal-400">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-teal-600" />
-                    <Badge variant="outline" className="text-xs bg-teal-100 text-teal-700">
-                      AI Generated
-                    </Badge>
-                    {result.source && (
-                      <Badge variant="outline" className="text-xs">
-                        {result.source}
-                      </Badge>
-                    )}
-                    {result.category && (
-                      <Badge variant="secondary" className="text-xs">
-                        {result.category}
-                      </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-lg mb-2">{result.title}</CardTitle>
-                  <CardDescription>{result.description}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Badge variant="outline" className="text-xs bg-paper-100">
-                Factual Summary
-              </Badge>
-            </CardContent>
           </Card>
         )
 
@@ -350,7 +215,7 @@ function SearchResults() {
       <div className="text-center py-12">
         <Search className="w-12 h-12 text-ink-400 mx-auto mb-4" />
         <h2 className="text-xl font-semibold text-foreground mb-2">Search MyVote</h2>
-        <p className="text-ink-700">Enter a search term to find news, representatives, users, and more.</p>
+        <p className="text-ink-700">Find Georgia 2026 candidates, your county ballot, and community posts.</p>
       </div>
     )
   }
@@ -379,13 +244,11 @@ function SearchResults() {
 
       {/* Filters and Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-          <TabsTrigger value="news">News ({counts.news})</TabsTrigger>
-          <TabsTrigger value="factual">Facts ({counts.factual})</TabsTrigger>
-          <TabsTrigger value="representative">Reps ({counts.representative})</TabsTrigger>
-          <TabsTrigger value="user">Users ({counts.user})</TabsTrigger>
-          <TabsTrigger value="comment">Comments ({counts.comment})</TabsTrigger>
+          <TabsTrigger value="candidate">Candidates ({counts.candidate})</TabsTrigger>
+          <TabsTrigger value="county">Counties ({counts.county})</TabsTrigger>
+          <TabsTrigger value="post">Posts ({counts.post})</TabsTrigger>
         </TabsList>
 
         {/* Results */}
