@@ -26,6 +26,7 @@ import { PostCard, type PostData } from "@/components/post-card";
 import { createClient } from "@/lib/supabase/client";
 import { useDailyQuestion } from "@/lib/use-daily-question";
 import { candidateSlug } from "@/lib/candidate-utils";
+import { resolveCountySlug } from "@/lib/county-utils";
 
 /* ── data helpers ─────────────────────────────────────────────────── */
 
@@ -197,6 +198,7 @@ function LeftRail({
   const initials = initialsFrom(displayName);
   const district = (profile as any)?.district || "Georgia";
   const location = profile?.location || "Fulton County";
+  const countyBallotSlug = resolveCountySlug(location);
   const bio = profile?.bio || "Atlanta voter. Tracking the 2026 Georgia ballot.";
 
   return (
@@ -217,6 +219,23 @@ function LeftRail({
           <div style={{ fontSize: 12, color: C.ink700, marginTop: 2 }}>
             Voter · {district} · {location}
           </div>
+          {countyBallotSlug && (
+            <Link
+              href={`/g/${countyBallotSlug}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                color: C.teal,
+                textDecoration: "none",
+              }}
+            >
+              View your county ballot <span aria-hidden>→</span>
+            </Link>
+          )}
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 8, lineHeight: 1.45 }}>
             {bio}
           </div>

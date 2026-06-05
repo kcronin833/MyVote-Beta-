@@ -95,6 +95,23 @@ const DETAIL_SLUGS: Set<string> = (() => {
   return set;
 })();
 
+/** Resolve a free-text location (e.g. "Fulton County", "Fulton",
+    "DeKalb County, GA") to a known county slug, or null. Lets the home
+    feed deep-link a signed-in voter straight to their county ballot. */
+const SLUG_SET: Set<string> = new Set(getAllCountySlugs());
+
+export function resolveCountySlug(location: string | null | undefined): string | null {
+  if (!location) return null;
+  // Drop trailing state / qualifiers and a "County" suffix, then slugify.
+  const cleaned = location
+    .split(",")[0]
+    .replace(/\bcounty\b/i, "")
+    .trim();
+  if (!cleaned) return null;
+  const slug = countySlug(cleaned);
+  return SLUG_SET.has(slug) ? slug : null;
+}
+
 /** Detail-page href for a candidate, or null when none exists. */
 export function candidateDetailHref(
   name: string,
