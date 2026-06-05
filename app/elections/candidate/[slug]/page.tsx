@@ -7,6 +7,7 @@ import {
   candidateSlug,
 } from "@/lib/candidate-utils";
 import { TopNav } from "@/components/desktop/top-nav";
+import { ClaimProfile } from "@/components/elections/claim-profile";
 
 /* Static generation for every candidate slug we know about.
    159 counties × handful of races = ~50 pages prebuilt at build time. */
@@ -292,6 +293,13 @@ export default async function CandidatePage({
               </div>
             </div>
           </div>
+
+          {/* AI-generated disclosure + claim */}
+          <ClaimProfile
+            candidateName={candidate.name}
+            raceOffice={race.office}
+            slug={slug}
+          />
 
           {/* About */}
           <div

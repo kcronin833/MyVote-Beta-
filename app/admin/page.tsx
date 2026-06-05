@@ -36,7 +36,7 @@ interface ContactMessage {
   id: string
   name: string
   email: string
-  category: "business" | "suggestion" | "general"
+  category: "business" | "suggestion" | "general" | "claim"
   message: string
   read: boolean
   created_at: string
@@ -386,11 +386,12 @@ export default function AdminPage() {
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const catMeta = {
+                  const catMeta = ({
                     business:   { icon: Briefcase,      label: "Business Inquiry", color: "bg-blue-100 text-ink-900" },
                     suggestion: { icon: Lightbulb,      label: "Suggestion",       color: "bg-amber-100 text-amber-700" },
                     general:    { icon: MessageCircle,  label: "General",          color: "bg-teal-100 text-teal-700" },
-                  }[msg.category]
+                    claim:      { icon: ShieldCheck,    label: "Profile Claim",    color: "bg-purple-100 text-purple-700" },
+                  } as const)[msg.category] ?? { icon: MessageCircle, label: "Message", color: "bg-teal-100 text-teal-700" }
                   const Icon = catMeta.icon
                   return (
                     <div
