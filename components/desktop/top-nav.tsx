@@ -1,20 +1,30 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PALETTE as C } from "./atoms";
 import { Icons } from "./icons";
 import { UserNav } from "@/components/user-nav";
 
-type NavId = "home" | "national" | "local" | "ballot" | "alerts" | "msg";
+type NavId = "home" | "national" | "local" | "ballot";
 
 export function TopNav({ active = "home" }: { active?: NavId }) {
-  const items: { id: NavId; label: string; icon: React.ReactNode; href: string; badge?: number }[] = [
+  const router = useRouter();
+  const [q, setQ] = useState("");
+
+  function onSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const term = q.trim();
+    if (!term) return;
+    router.push(`/search?q=${encodeURIComponent(term)}`);
+  }
+
+  const items: { id: NavId; label: string; icon: React.ReactNode; href: string }[] = [
     { id: "home",     label: "Home",          icon: Icons.home(),    href: "/" },
     { id: "national", label: "National news", icon: Icons.earth(),   href: "/news" },
     { id: "local",    label: "Local news",    icon: Icons.pin(),     href: "/news/local" },
     { id: "ballot",   label: "My Ballot",     icon: Icons.vote(),    href: "/elections" },
-    { id: "alerts",   label: "Alerts",        icon: Icons.bell(),    href: "/profile", badge: 3 },
-    { id: "msg",      label: "Messages",      icon: Icons.msg(),     href: "/profile" },
   ];
 
   return (
@@ -52,7 +62,8 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
         </Link>
 
         {/* Search — hidden on small screens */}
-        <div
+        <form
+          onSubmit={onSearch}
           className="hidden md:flex"
           style={{
             flex: "0 1 320px",
@@ -65,11 +76,37 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
             gap: 8,
           }}
         >
-          <span style={{ color: C.ink500, display: "flex" }}>{Icons.search(16)}</span>
-          <span style={{ color: C.ink500, fontSize: 13 }}>
-            Search candidates, issues, neighbors…
-          </span>
-        </div>
+          <button
+            type="submit"
+            aria-label="Search"
+            style={{
+              color: C.ink500,
+              display: "flex",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            {Icons.search(16)}
+          </button>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search candidates, issues, neighbors…"
+            aria-label="Search candidates, issues, neighbors"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              height: "100%",
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: C.ink900,
+              fontSize: 13,
+            }}
+          />
+        </form>
 
         {/* Right cluster: nav + avatar */}
         <div style={{ display: "flex", marginLeft: "auto", alignItems: "center" }}>
