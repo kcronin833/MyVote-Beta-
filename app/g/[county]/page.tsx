@@ -542,6 +542,20 @@ export default async function CountyPage({
             >
               Find my ballot by ZIP
             </Link>
+            <Link
+              href="/g"
+              style={{
+                display: "block",
+                textAlign: "center",
+                fontSize: 12,
+                fontWeight: 600,
+                color: C.ink500,
+                marginTop: 8,
+                textDecoration: "none",
+              }}
+            >
+              Browse all counties →
+            </Link>
           </div>
 
           <Link
