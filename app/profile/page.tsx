@@ -7,6 +7,7 @@ import { ArrowLeft, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
 import { PoliticalProfile } from "@/components/political-profile"
+import { CountyPicker } from "@/components/profile/county-picker"
 import { useAuth } from "@/components/auth-context"
 import { UserAvatar } from "@/components/user-avatar"
 import { AvatarUploadModal } from "@/components/avatar-upload-modal"
@@ -70,6 +71,7 @@ const ProfilePage = () => {
           <PoliticalProfile />
         </div>
         <div className="space-y-6">
+          <CountyPicker />
           <PoliticalSpectrumBar />
         </div>
       </div>
