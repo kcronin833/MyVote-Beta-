@@ -417,6 +417,85 @@ function buildSearchQuery(title: string): string {
 }
 
 /**
+ * Extract weighted keywords from a headline title for perspective matching.
+ *
+ * Weights:
+ *   3 — proper nouns (capitalized, likely named entities: people, orgs, places)
+ *   2 — long domain-specific words (7+ chars, e.g. "mortgage", "immigration")
+ *   1 — shorter meaningful words (4-6 chars)
+ *
+ * Higher weights make topic-specific signals dominate over coincidental matches
+ * on common political words like "federal", "order", or "calls".
+ */
+function extractWeightedKeywords(title: string): Array<{ term: string; weight: number }> {
+  const stripped = title.replace(/\s*[-|]\s*[A-Z][\w\s.]*$/, "").trim()
+  const result: Array<{ term: string; weight: number }> = []
+  const seen = new Set<string>()
+
+  // Proper nouns: capitalized mid-sentence words, 3+ chars
+  const properNouns = stripped.match(/(?<![.?!]\s)\b[A-Z][a-z]{2,}\b/g) ?? []
+  for (const w of properNouns) {
+    const t = w.toLowerCase()
+    if (!seen.has(t) && !STOP_WORDS.has(t)) {
+      result.push({ term: t, weight: 3 })
+      seen.add(t)
+    }
+  }
+
+  const allWords = stripped.toLowerCase().split(/[^a-z]+/).filter(Boolean)
+
+  // Long domain words (7+ chars)
+  for (const w of allWords) {
+    if (w.length >= 7 && !seen.has(w) && !STOP_WORDS.has(w)) {
+      result.push({ term: w, weight: 2 })
+      seen.add(w)
+    }
+  }
+
+  // Shorter but still meaningful words (4-6 chars)
+  for (const w of allWords) {
+    if (w.length >= 4 && w.length <= 6 && !seen.has(w) && !STOP_WORDS.has(w)) {
+      result.push({ term: w, weight: 1 })
+      seen.add(w)
+    }
+  }
+
+  return result
+}
+
+/** Score how well an article matches a set of weighted keywords. */
+function scoreArticleMatch(
+  article: NewsArticle,
+  keywords: Array<{ term: string; weight: number }>
+): number {
+  const text = `${article.title} ${article.description}`.toLowerCase()
+  let score = 0
+  for (const { term, weight } of keywords) {
+    if (text.includes(term)) score += weight
+  }
+  return score
+}
+
+/**
+ * Limit how many articles come from any single source in a pool.
+ * Prevents one prolific outlet (Fox News, Breitbart) from flooding
+ * the pool and crowding out others.
+ */
+function capBySource(articles: NewsArticle[], maxPerSource: number): NewsArticle[] {
+  const counts: Record<string, number> = {}
+  const out: NewsArticle[] = []
+  for (const a of articles) {
+    const key = a.source.toLowerCase()
+    const n = counts[key] ?? 0
+    if (n < maxPerSource) {
+      out.push(a)
+      counts[key] = n + 1
+    }
+  }
+  return out
+}
+
+/**
  * Calculate a controversy score (0-100) based on:
  * - Coverage breadth: how many left AND right outlets are covering it
  * - Topic heat: whether the headline contains hot-button keywords
@@ -560,19 +639,44 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
 
   if (topHeadlines.length === 0) return []
 
-  // For each center story, find related left/right articles by keyword overlap
-  return topHeadlines.map((headline) => {
-    const keywords = buildSearchQuery(headline.title)
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(w => w.length > 3)
+  // ── Fix 1: cap each source to 5 articles so no single outlet floods the pool ──
+  // This prevents Fox News / Breitbart from dominating the right perspective column.
+  const leftPool  = capBySource(leftRaw.filter(a => !isBlocklisted(a)),  5)
+  const rightPool = capBySource(rightRaw.filter(a => !isBlocklisted(a)), 5)
 
-    const matchLeft = leftRaw
-      .filter(a => !isBlocklisted(a) && keywords.some(kw => `${a.title} ${a.description}`.toLowerCase().includes(kw)))
-      .slice(0, 3)
-    const matchRight = rightRaw
-      .filter(a => !isBlocklisted(a) && keywords.some(kw => `${a.title} ${a.description}`.toLowerCase().includes(kw)))
-      .slice(0, 3)
+  // ── Fix 2: track used URLs so the same article never appears under two headlines ──
+  const usedLeft  = new Set<string>()
+  const usedRight = new Set<string>()
+
+  // ── Fix 3: weighted keyword matching with minimum score threshold ──
+  // Proper nouns score 3 pts, long domain words 2 pts, short words 1 pt.
+  // An article must score ≥ 3 to be considered "on topic" for a headline.
+  // This eliminates single-word coincidences (e.g. "federal", "order", "said")
+  // that previously caused completely unrelated articles to be paired together.
+  const MIN_MATCH_SCORE = 3
+
+  return topHeadlines.map((headline) => {
+    const keywords = extractWeightedKeywords(headline.title)
+
+    const pickMatches = (
+      pool: NewsArticle[],
+      used: Set<string>,
+      limit: number
+    ): NewsArticle[] => {
+      const scored = pool
+        .filter(a => !used.has(a.url))
+        .map(a => ({ a, score: scoreArticleMatch(a, keywords) }))
+        .filter(({ score }) => score >= MIN_MATCH_SCORE)
+        .sort((x, y) => y.score - x.score)    // best matches first
+        .slice(0, limit)
+
+      // Mark these articles as used so they won't repeat under another headline
+      for (const { a } of scored) used.add(a.url)
+      return scored.map(({ a }) => a)
+    }
+
+    const matchLeft  = pickMatches(leftPool,  usedLeft,  3)
+    const matchRight = pickMatches(rightPool, usedRight, 3)
 
     return {
       title: headline.title,
