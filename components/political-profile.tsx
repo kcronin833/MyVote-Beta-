@@ -1547,14 +1547,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
   const handleAddressUpdate = () => {
     const z = tempAddress.zip.trim()
-    const result = getBallotForZip(z)
-    if (result.found) {
-      setZipCode(z)
-      setAddress(tempAddress)
-      setEditingAddress(false)
-    } else {
-      alert(`We don't have data for zip code ${z} yet. Visit mvp.sos.ga.gov to find your Georgia ballot information.`)
+    // Accept any valid Georgia ZIP (300xx–319xx, 398xx–399xx). Even when we
+    // don't have county-specific races for it yet, getBallotForZip() still
+    // returns the statewide ballot — so every Georgian sees a real ballot
+    // instead of a dead end.
+    const isGeorgiaZip = /^3(0|1)\d{3}$/.test(z) || /^39[89]\d{2}$/.test(z)
+    if (!isGeorgiaZip) {
+      alert(
+        `"${z}" doesn't look like a Georgia ZIP code. MyVote currently covers Georgia's 2026 ballot — enter a Georgia ZIP (e.g. 30309).`
+      )
+      return
     }
+    setZipCode(z)
+    setAddress(tempAddress)
+    setEditingAddress(false)
   }
 
   const cancelEdit = () => {
@@ -1741,28 +1747,34 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     )
   }
 
-  if (!ballotData.found) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center space-y-3">
-          <MapPin className="w-8 h-8 text-ink-900 mx-auto" />
-          <p className="text-[#3D435A]">We don&apos;t have ballot data for zip code <strong>{zipCode}</strong> yet.</p>
-          <a
-            href={ballotData.sosLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-ink-900 underline text-sm"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Find your ballot on the Georgia Secretary of State website
-          </a>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <div className="space-y-8">
+      {/* When we don't yet have county-specific races for this ZIP, we still
+          show the full statewide ballot — never a dead end. */}
+      {!ballotData.found && (
+        <Card className="border-amber-300 bg-amber-50">
+          <CardContent className="p-4 flex items-start gap-3">
+            <MapPin className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+            <div className="text-sm text-[#3D435A]">
+              <p className="font-medium">Showing your statewide Georgia ballot.</p>
+              <p className="text-[#3D435A]/70">
+                We don&apos;t have county-specific local races mapped for ZIP{" "}
+                <strong>{zipCode}</strong> yet, but every statewide race below is on your ballot.{" "}
+                <a
+                  href={ballotData.sosLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-ink-900 underline"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Confirm your full local ballot at the GA Secretary of State
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Address / Location Header */}
       <Card className="border-[#E5E5E5]">
         <CardHeader>
@@ -1844,11 +1856,17 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
               <div className="bg-ink-900/5 rounded-lg px-3 py-2">
                 <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">Congressional</p>
-                <p className="font-medium text-[#3D435A]">{ballotData.congressionalDistrict}</p>
+                <p className="font-medium text-[#3D435A]">
+                  {ballotData.congressionalDistrict === "Unknown"
+                    ? "Enter ZIP for district"
+                    : ballotData.congressionalDistrict}
+                </p>
               </div>
               <div className="bg-[#27AE60]/5 rounded-lg px-3 py-2">
                 <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">County</p>
-                <p className="font-medium text-[#3D435A]">{ballotData.county} County</p>
+                <p className="font-medium text-[#3D435A]">
+                  {ballotData.county === "Unknown" ? "Statewide" : `${ballotData.county} County`}
+                </p>
               </div>
               <div className="bg-civic-red/5 rounded-lg px-3 py-2">
                 <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">State</p>
