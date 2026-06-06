@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Globe, MapPin, User, Home, Vote, Users } from "lucide-react"
+import { Globe, MapPin, User, Home, Vote, Users, ClipboardCheck } from "lucide-react"
 import { SearchInput } from "@/components/search-input"
 import { Logo } from "@/components/logo"
 import { UserNav } from "@/components/user-nav"
@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/news", icon: Globe, label: "News" },
   { href: "/news/local", icon: MapPin, label: "Local" },
   { href: "/discover", icon: Users, label: "Discover" },
+  { href: "/register", icon: ClipboardCheck, label: "Register", accent: "text-teal-600" },
   { href: "/profile", icon: User, label: "Profile" },
 ]
 

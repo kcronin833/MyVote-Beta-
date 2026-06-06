@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Globe, MapPin, Vote, Users } from "lucide-react"
+import { Home, Globe, MapPin, Vote, ClipboardCheck } from "lucide-react"
 
 /* ── Mobile bottom tab bar ──────────────────────────────────────────────
    Visible only on screens < 1024px (lg breakpoint).
@@ -11,11 +11,11 @@ import { Home, Globe, MapPin, Vote, Users } from "lucide-react"
    The parent layout adds pb-14 on mobile so page content scrolls clear. */
 
 const TABS = [
-  { href: "/",           icon: Home,   label: "Home"    },
-  { href: "/news",       icon: Globe,  label: "News"    },
-  { href: "/news/local", icon: MapPin, label: "Local"   },
-  { href: "/elections",  icon: Vote,   label: "Ballot"  },
-  { href: "/discover",   icon: Users,  label: "People"  },
+  { href: "/",           icon: Home,           label: "Home"     },
+  { href: "/news",       icon: Globe,          label: "News"     },
+  { href: "/news/local", icon: MapPin,         label: "Local"    },
+  { href: "/elections",  icon: Vote,           label: "Ballot"   },
+  { href: "/register",   icon: ClipboardCheck, label: "Register" },
 ] as const
 
 function isTabActive(tabHref: string, pathname: string): boolean {
