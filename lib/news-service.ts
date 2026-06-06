@@ -151,7 +151,11 @@ const ATLANTA_RSS_SOURCES: { name: string; urls: string[] }[] = [
   },
   {
     name: "11Alive",
-    urls: ["https://www.11alive.com/feeds/rss/news/home"],
+    urls: [
+      "https://www.11alive.com/feeds/rss/news/home",
+      "https://www.11alive.com/feeds/syndication/rss/",
+      "https://www.11alive.com/feeds/syndication/rss/?topicID=66262",
+    ],
   },
   {
     name: "The Atlanta Voice",
@@ -498,11 +502,13 @@ const NATIONAL_CENTER_RSS: { name: string; urls: string[] }[] = [
 ]
 
 // Left-leaning outlets — used for perspective matching
+// Note: CNN and MSNBC have retired/blocked their public RSS feeds; replaced with
+//       ABC News (politics) and Vox which publish reliable Atom/RSS.
 const NATIONAL_LEFT_RSS: { name: string; urls: string[] }[] = [
-  { name: "CNN", urls: ["https://rss.cnn.com/rss/edition.rss", "https://rss.cnn.com/rss/cnn_allpolitics.rss"] },
+  { name: "ABC News", urls: ["https://feeds.abcnews.com/abcnews/politicsheadlines", "https://feeds.abcnews.com/abcnews/topstories"] },
   { name: "The Guardian", urls: ["https://www.theguardian.com/us/rss", "https://www.theguardian.com/world/rss"] },
-  { name: "HuffPost", urls: ["https://www.huffpost.com/section/front-page/feed"] },
-  { name: "MSNBC", urls: ["https://www.msnbc.com/feeds/latest"] },
+  { name: "HuffPost", urls: ["https://www.huffpost.com/section/front-page/feed", "https://www.huffpost.com/section/politics/feed"] },
+  { name: "Vox", urls: ["https://www.vox.com/rss/index.xml", "https://www.vox.com/politics/rss"] },
 ]
 
 // Right-leaning outlets — used for perspective matching
