@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { UnderConstructionBanner } from "@/components/under-construction-banner";
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "MyVote — Understand More. Decide Better.",
   description:
     "See both sides. Stay informed. Live local. Start with the facts, then get the opinions.",
