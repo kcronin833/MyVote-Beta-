@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
+import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle, Vote, ExternalLink } from "lucide-react"
 import { NewsNavigation } from "@/components/news-nav"
 import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/components/auth-context"
@@ -30,7 +30,22 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "users" | "posts" | "pipeline" | "messages"
+type Tab = "users" | "posts" | "pipeline" | "messages" | "claims"
+
+interface CandidateClaim {
+  slug: string
+  candidate_name: string
+  race_office: string
+  claimed: boolean
+  verified: boolean
+  donorbox_campaign_url: string | null
+  claimant_user_id: string | null
+  claimant_name: string | null
+  claimant_email: string | null
+  claimant_role: string | null
+  claimant_message: string | null
+  created_at: string
+}
 
 interface ContactMessage {
   id: string
@@ -57,9 +72,11 @@ export default function AdminPage() {
   const [posts, setPosts] = useState<AdminPost[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [messages, setMessages] = useState<ContactMessage[]>([])
+  const [claims, setClaims] = useState<CandidateClaim[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pipelineRunning, setPipelineRunning] = useState(false)
   const [pipelineLogs, setPipelineLogs] = useState<PipelineLog[]>([])
+  const [claimAction, setClaimAction] = useState<Record<string, { donorboxDraft: string; saving: boolean; error: string | null }>>( {})
 
   // Redirect non-admins
   useEffect(() => {
@@ -102,6 +119,14 @@ export default function AdminPage() {
         .order("created_at", { ascending: false })
         .limit(200)
       setMessages((data as ContactMessage[]) || [])
+    }
+
+    if (tab === "claims") {
+      const res = await fetch("/api/candidate/admin")
+      if (res.ok) {
+        const json = await res.json()
+        setClaims(json.claims ?? [])
+      }
     }
 
     setLoadingData(false)
@@ -174,6 +199,36 @@ export default function AdminPage() {
     setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, read: !m.read } : m))
   }
 
+  async function claimAdminAction(slug: string, action: string, extra?: Record<string, string>) {
+    setClaimAction((prev) => ({ ...prev, [slug]: { ...prev[slug], saving: true, error: null, donorboxDraft: prev[slug]?.donorboxDraft ?? "" } }))
+    try {
+      const res = await fetch("/api/candidate/admin", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ slug, action, ...extra }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setClaimAction((prev) => ({ ...prev, [slug]: { ...prev[slug], saving: false, error: json.error ?? "Failed" } }))
+        return
+      }
+      // Refresh claims list
+      setClaims((prev) =>
+        prev.map((c) => {
+          if (c.slug !== slug) return c
+          if (action === "approve") return { ...c, verified: true }
+          if (action === "set_donorbox") return { ...c, donorbox_campaign_url: extra?.donorbox_url ?? c.donorbox_campaign_url }
+          if (action === "reject") return { ...c, verified: false, claimed: false }
+          return c
+        })
+      )
+    } catch (e) {
+      setClaimAction((prev) => ({ ...prev, [slug]: { ...prev[slug], saving: false, error: String(e) } }))
+    } finally {
+      setClaimAction((prev) => ({ ...prev, [slug]: { ...prev[slug], saving: false } }))
+    }
+  }
+
   if (authLoading) return null
   if (!profile?.is_admin) return null
 
@@ -216,8 +271,8 @@ export default function AdminPage() {
           </div>
 
           {/* Tab bar */}
-          <div className="flex gap-1 mb-4 bg-card border border-border rounded-xl p-1 w-fit">
-            {(["users", "posts", "messages", "pipeline"] as Tab[]).map((t) => (
+          <div className="flex gap-1 mb-4 bg-card border border-border rounded-xl p-1 w-fit flex-wrap">
+            {(["users", "posts", "messages", "claims", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -487,6 +542,116 @@ export default function AdminPage() {
               )}
             </div>
           )}
+          {/* Claims tab */}
+          {tab === "claims" && (
+            <div className="space-y-4">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
+                  Loading claims…
+                </div>
+              ) : claims.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
+                  <Vote className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No candidate profile claims yet.</p>
+                </div>
+              ) : (
+                claims.map((c) => {
+                  const st = claimAction[c.slug] ?? { donorboxDraft: c.donorbox_campaign_url ?? "", saving: false, error: null }
+                  return (
+                    <div
+                      key={c.slug}
+                      className={`bg-card rounded-2xl border p-5 space-y-3 ${c.verified ? "border-teal-200" : "border-amber-200"}`}
+                    >
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-foreground">{c.candidate_name}</span>
+                            {c.verified ? (
+                              <span className="text-[11px] font-bold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">✓ Verified</span>
+                            ) : (
+                              <span className="text-[11px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Pending</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{c.race_office} · slug: <code className="font-mono text-[11px] bg-muted px-1 rounded">{c.slug}</code></p>
+                        </div>
+                        <a
+                          href={`/elections/candidate/${c.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-teal-600 hover:underline flex items-center gap-1"
+                        >
+                          View profile <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+
+                      {/* Claimant info */}
+                      {c.claimant_name && (
+                        <div className="text-xs text-muted-foreground space-y-0.5 bg-paper-50 rounded-lg p-3">
+                          <p><span className="font-semibold text-foreground">Claimant:</span> {c.claimant_name} · {c.claimant_email} · {c.claimant_role}</p>
+                          {c.claimant_message && <p className="italic">"{c.claimant_message}"</p>}
+                          <p>Submitted: {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                        </div>
+                      )}
+
+                      {/* Donorbox URL */}
+                      <div>
+                        <p className="text-xs font-semibold text-foreground mb-1.5">Donorbox campaign URL</p>
+                        <div className="flex gap-2 flex-wrap">
+                          <input
+                            type="url"
+                            placeholder="https://donorbox.org/campaign-slug"
+                            value={st.donorboxDraft}
+                            onChange={(e) =>
+                              setClaimAction((prev) => ({
+                                ...prev,
+                                [c.slug]: { ...st, donorboxDraft: e.target.value, error: null },
+                              }))
+                            }
+                            className="flex-1 min-w-[200px] h-8 text-xs rounded-lg border border-border bg-paper-50 px-3 outline-none"
+                          />
+                          <button
+                            disabled={st.saving}
+                            onClick={() => claimAdminAction(c.slug, "set_donorbox", { donorbox_url: st.donorboxDraft })}
+                            className="h-8 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                          >
+                            {st.saving ? "Saving…" : "Save URL"}
+                          </button>
+                        </div>
+                        {c.donorbox_campaign_url && (
+                          <a href={c.donorbox_campaign_url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-teal-600 hover:underline flex items-center gap-1 mt-1">
+                            Current: {c.donorbox_campaign_url} <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                        {st.error && <p className="text-[11px] text-red-500 mt-1">{st.error}</p>}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2 flex-wrap pt-1 border-t border-border">
+                        {!c.verified && (
+                          <button
+                            disabled={st.saving}
+                            onClick={() => claimAdminAction(c.slug, "approve")}
+                            className="h-7 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center gap-1"
+                          >
+                            <CheckCircle className="w-3 h-3" /> Approve claim
+                          </button>
+                        )}
+                        <button
+                          disabled={st.saving}
+                          onClick={() => { if (confirm("Reject and reset this claim?")) claimAdminAction(c.slug, "reject") }}
+                          className="h-7 px-3 text-xs font-semibold border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors flex items-center gap-1"
+                        >
+                          <XCircle className="w-3 h-3" /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          )}
+
         </div>
       </div>
     </div>

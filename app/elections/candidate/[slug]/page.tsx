@@ -9,6 +9,7 @@ import {
 import { TopNav } from "@/components/desktop/top-nav";
 import { ClaimProfile } from "@/components/elections/claim-profile";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
+import { CandidateDonateSection } from "@/components/elections/candidate-donate-section";
 
 /* Static generation for every candidate slug we know about.
    159 counties × handful of races = ~50 pages prebuilt at build time. */
@@ -571,6 +572,9 @@ export default async function CandidatePage({
 
         {/* RIGHT RAIL */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Donate via Donorbox — only renders when candidate has a verified profile + URL */}
+          <CandidateDonateSection slug={slug} candidateName={candidate.name} />
+
           {/* Race info */}
           <div
             style={{

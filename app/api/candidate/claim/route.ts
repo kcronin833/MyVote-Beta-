@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 /* POST /api/candidate/claim
    A candidate (or their campaign) requests to claim their AI-generated
@@ -74,8 +75,32 @@ export async function POST(req: NextRequest) {
   });
 
   if (error) {
-    console.error("[candidate/claim] insert error:", error);
+    console.error("[candidate/claim] contact_messages insert error:", error);
     return NextResponse.json({ error: "Failed to submit your request." }, { status: 500 });
+  }
+
+  // Also upsert into candidate_profiles so admins can approve from the dashboard
+  if (slug && candidateName && raceOffice) {
+    try {
+      const svc = createServiceClient();
+      await svc.from("candidate_profiles").upsert(
+        {
+          slug,
+          candidate_name: candidateName,
+          race_office: raceOffice,
+          claimed: true,
+          verified: false,
+          claimant_name: claimantName,
+          claimant_email: email,
+          claimant_role: role,
+          claimant_message: note || null,
+        },
+        { onConflict: "slug", ignoreDuplicates: false }
+      );
+    } catch (e) {
+      // Non-fatal — claim message was already written above
+      console.error("[candidate/claim] candidate_profiles upsert error:", e);
+    }
   }
 
   return NextResponse.json({ success: true });
