@@ -8,8 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info, Lock, ChevronRight } from "lucide-react"
 import { RepresentativeProfile } from "./representative-profile"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
-import { calculateCompatibility } from "@/lib/compatibility-service"
-import { currentUser } from "@/lib/mock-data"
 import { getBallotForZip } from "@/lib/georgia-ballot-data"
 
 interface Candidate {
@@ -1526,10 +1524,22 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
   const [mySelections, setMySelections] = useState<Record<string, string>>({})
   const [showMyBallot, setShowMyBallot] = useState(false)
   const [viewpointCount, setViewpointCount] = useState(0)
+  // The signed-in user's own lean (-100 = left … +100 = right), derived from
+  // the left/right viewpoints they've liked in the news feed. Real signal —
+  // no mock baseline.
+  const [userPoliticalScore, setUserPoliticalScore] = useState(0)
 
   useEffect(() => {
-    const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+    const likes: Array<{ viewpoint?: "left" | "right" }> = JSON.parse(
+      localStorage.getItem("viewpointLikes") || "[]"
+    )
     setViewpointCount(likes.length)
+    const right = likes.filter((l) => l.viewpoint === "right").length
+    const total = likes.filter((l) => l.viewpoint === "left" || l.viewpoint === "right").length
+    if (total > 0) {
+      // rightFraction 0..1 → score -100..+100
+      setUserPoliticalScore(Math.round((right / total) * 200 - 100))
+    }
   }, [])
 
   const ballotData = getBallotForZip(zipCode)
@@ -1587,12 +1597,11 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       )
     }
 
-    const compatibility = calculateCompatibility(currentUser, {
-      politicalScore: candidate.politicalScore || 0,
-      keyIssues: candidate.keyIssues,
-      positions: candidate.positions || [],
-      votingRecord: candidate.votingRecord || [],
-    })
+    // Match = how close the candidate's lean is to the user's own lean, both on
+    // a -100..+100 scale. Max gap is 200, so halving keeps the result in 0..100.
+    const matchScore = Math.round(
+      100 - Math.abs(userPoliticalScore - (candidate.politicalScore || 0)) / 2
+    )
 
     const hasFundraising =
       candidate.fundraising.totalRaised !== "TBD" &&
@@ -1635,11 +1644,11 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   </span>
                 ) : (
                   <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
-                    compatibility.overall >= 70 ? "border-green-300 text-green-700 bg-green-50" :
-                    compatibility.overall >= 50 ? "border-yellow-300 text-yellow-700 bg-yellow-50" :
+                    matchScore >= 70 ? "border-green-300 text-green-700 bg-green-50" :
+                    matchScore >= 50 ? "border-yellow-300 text-yellow-700 bg-yellow-50" :
                     "border-red-300 text-red-700 bg-red-50"
                   }`}>
-                    {compatibility.overall}% Match
+                    {matchScore}% Match
                   </span>
                 )}
               </div>
