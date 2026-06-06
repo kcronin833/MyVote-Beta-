@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/auth-context";
 import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
+import { MobileNav } from "@/components/mobile-nav";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -30,8 +31,13 @@ export default function RootLayout({
       <body className="font-sans flex flex-col min-h-screen bg-page text-ink-900">
         <PostHogProvider>
           <AuthProvider>
-            <div className="flex-1">{children}</div>
-            <SiteFooter />
+            {/* pb-14 on mobile so content scrolls clear of the fixed bottom nav */}
+            <div className="flex-1 pb-14 lg:pb-0">{children}</div>
+            {/* Footer is redundant on mobile — MobileNav covers those links */}
+            <div className="hidden lg:block">
+              <SiteFooter />
+            </div>
+            <MobileNav />
           </AuthProvider>
         </PostHogProvider>
         <Analytics />
