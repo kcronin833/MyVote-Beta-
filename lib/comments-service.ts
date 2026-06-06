@@ -111,6 +111,28 @@ export async function postComment(params: {
     .single();
 
   if (error) return { comment: null, error: error.message };
+
+  // Best-effort: notify the parent comment's author of a reply. Never blocks
+  // the post, never self-notifies.
+  if (params.parentId) {
+    try {
+      const { data: parent } = await supabase
+        .from("comments")
+        .select("user_id")
+        .eq("id", params.parentId)
+        .single();
+      if (parent?.user_id && parent.user_id !== params.userId) {
+        await supabase.from("notifications").insert({
+          user_id: parent.user_id,
+          type: "comment",
+          from_user_id: params.userId,
+        });
+      }
+    } catch {
+      /* notification is non-critical */
+    }
+  }
+
   return { comment: data as Comment, error: null };
 }
 
@@ -138,6 +160,25 @@ export async function toggleLike(commentId: string, userId: string): Promise<boo
     await supabase
       .from("comment_likes")
       .insert({ comment_id: commentId, user_id: userId });
+
+    // Best-effort: notify the comment's author. Never self-notifies.
+    try {
+      const { data: comment } = await supabase
+        .from("comments")
+        .select("user_id")
+        .eq("id", commentId)
+        .single();
+      if (comment?.user_id && comment.user_id !== userId) {
+        await supabase.from("notifications").insert({
+          user_id: comment.user_id,
+          type: "like",
+          from_user_id: userId,
+        });
+      }
+    } catch {
+      /* notification is non-critical */
+    }
+
     return true;
   }
 }
