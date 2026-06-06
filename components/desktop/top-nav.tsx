@@ -20,7 +20,7 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
     router.push(`/search?q=${encodeURIComponent(term)}`);
   }
 
-  const items: { id: NavId; label: string; icon: React.ReactNode; href: string }[] = [
+  const items: { id: NavId; label: string; icon: React.ReactNode; href: string; badge?: string | number }[] = [
     { id: "home",     label: "Home",          icon: Icons.home(),    href: "/" },
     { id: "national", label: "National news", icon: Icons.earth(),   href: "/news" },
     { id: "local",    label: "Local news",    icon: Icons.pin(),     href: "/news/local" },

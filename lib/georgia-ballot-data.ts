@@ -108,51 +108,43 @@ function tbdCandidate(party: "Republican" | "Democrat"): BallotCandidate {
 // ─── Statewide Races (every Georgia voter) ───────────────────────────────────
 
 export const STATEWIDE_RACES: BallotRace[] = [
-  primaryRace(
-    "Georgia Governor – Republican Primary", "State",
-    "Open seat — Gov. Brian Kemp is term-limited. Republican primary to determine the GOP nominee for Governor.",
-    [
-      rCandidate("Brian Jack", false,
-        "U.S. Congressman (GA-4) and former Trump White House Political Director running with President Trump's endorsement. Focuses on border security, school choice, and growing Georgia's economy.",
-        ["Border Security", "School Choice", "Economic Growth", "America First"],
-        ["U.S. Representative GA-4 (2023-present)", "Trump White House Political Director"],
-        82, "https://brianjack.com", "https://twitter.com/RepBrianJack"),
-      rCandidate("John King", false,
-        "Georgia Insurance Commissioner and Army Ranger veteran focused on protecting consumers, fiscal discipline, and supporting Georgia veterans.",
-        ["Consumer Protection", "Fiscal Responsibility", "Veterans", "Insurance Reform"],
-        ["Georgia Insurance Commissioner (2019-present)", "Army Ranger", "West Point Graduate"],
-        65, "https://johnkingforgovernor.com"),
-    ]
-  ),
-  primaryRace(
-    "Georgia Governor – Democratic Primary", "State",
-    "Open seat — Democratic primary to determine the nominee for Georgia Governor.",
+  {
+    office: "Georgia Governor – Republican Primary Runoff",
+    date: "June 16, 2026",
+    type: "Runoff Election",
+    level: "State",
+    description:
+      "Open seat — Gov. Brian Kemp is term-limited. No candidate cleared 50% in the May 19 primary, so the top two Republicans advance to a June 16 runoff for the GOP nomination.",
+    registrationDeadline: "May 19, 2026",
+    earlyVotingStart: "June 9, 2026",
+    earlyVotingEnd: "June 13, 2026",
+    candidates: [
+      rCandidate("Burt Jones", false,
+        "Georgia's Lt. Governor and a Trump-endorsed businessman. Led the May 19 primary field. Focuses on tax cuts, public safety, and an America First agenda.",
+        ["Tax Cuts", "Public Safety", "Election Integrity", "America First"],
+        ["Lt. Governor of Georgia (2023-present)", "Former Georgia State Senator", "Business owner"],
+        82, "https://burtjones.com"),
+      rCandidate("Rick Jackson", false,
+        "Atlanta-area businessman and self-funding political outsider who placed second in the May 19 primary, forcing a runoff. Running on economic growth and government reform.",
+        ["Economic Growth", "Government Reform", "Healthcare Costs", "Education"],
+        ["Founder & CEO, staffing company", "Business leader", "First-time candidate"],
+        68, "https://rickjacksonforgovernor.com"),
+    ],
+  },
+  generalRace(
+    "Georgia Governor – Democratic Nominee", "State",
+    "Former Atlanta Mayor Keisha Lance Bottoms won the Democratic nomination outright in the May 19 primary and advances to the November general election.",
     [
       dCandidate("Keisha Lance Bottoms", false,
-        "Former Mayor of Atlanta (2018-2022) and Biden White House senior adviser. Running to expand Medicaid, improve public education, and support small businesses across all 159 Georgia counties.",
+        "Former Mayor of Atlanta (2018-2022) and Biden White House senior adviser; the 2026 Democratic nominee for Governor. Running to expand Medicaid, improve public education, and support small businesses across all 159 Georgia counties.",
         ["Medicaid Expansion", "Public Education", "Small Business", "Free Community College"],
-        ["Mayor of Atlanta (2018-2022)", "Senior Adviser to President Biden", "Atlanta City Council Member"],
+        ["Democratic Nominee for Governor (2026)", "Mayor of Atlanta (2018-2022)", "Senior Adviser to President Biden"],
         -62, "https://keishaforgovernor.com", "https://twitter.com/KeishaBottoms"),
-      dCandidate("Geoff Duncan", false,
-        "Former Republican Lt. Governor (2019-2023) who switched to the Democratic Party in August 2025. Running as the centrist candidate who can attract Democrats, independents, and disaffected Republicans.",
-        ["Childcare Affordability", "Healthcare Costs", "Housing", "Rejecting Extremism"],
-        ["Lt. Governor of Georgia (2019-2023, R)", "Georgia State Representative", "Georgia Tech graduate"],
-        -15, "https://geoffduncan.com", "https://twitter.com/GeoffDuncanGA"),
-      dCandidate("Jason Esteves", false,
-        "Georgia State Senator, former public school teacher, and lawyer who served on the Atlanta Public Schools board. Focused on education, healthcare, and reproductive rights.",
-        ["Public Education Funding", "Healthcare Access", "Reproductive Rights", "Lowering Cost of Living"],
-        ["Georgia State Senator", "Former APS Board Member", "Public School Teacher & Lawyer"],
-        -70, "https://estevesforgovernor.com"),
-      dCandidate("Michael Thurmond", false,
-        "DeKalb County CEO with decades of public service including as Georgia's Labor Commissioner and State Representative. Focused on working families, healthcare, and education.",
-        ["Working Families", "Healthcare Expansion", "Education Pathways", "Public Safety"],
-        ["DeKalb County CEO", "Georgia State Labor Commissioner (2003-2011)", "Former State Representative"],
-        -55),
     ]
   ),
   generalRace(
     "U.S. Senate – Georgia", "Federal",
-    "Sen. Jon Ossoff (D) is seeking re-election to Georgia's Class III Senate seat. This is one of the most competitive Senate races in the country.",
+    "Sen. Jon Ossoff (D) is seeking re-election to Georgia's Class III Senate seat — one of the most competitive Senate races in the country. The Republican challenger will be decided in a June 16 runoff between Mike Collins and Derek Dooley.",
     [
       dCandidate("Jon Ossoff", true,
         "Georgia's junior U.S. Senator since 2021. Former investigative journalist and documentary filmmaker. Focused on government accountability, criminal justice reform, and healthcare access.",
@@ -160,17 +152,12 @@ export const STATEWIDE_RACES: BallotRace[] = [
         ["U.S. Senator (2021-present)", "Investigative Journalist", "CEO, Insight TWI"],
         -65, "https://ossoff.senate.gov", "https://twitter.com/SenOssoff"),
       rCandidate("Mike Collins", false,
-        "U.S. Representative from Georgia's 10th district and founder of Collins Trucking. Co-authored the Laken Riley Act. Running on an America First platform.",
+        "U.S. Representative from Georgia's 10th district and founder of Collins Trucking. Co-authored the Laken Riley Act. Led the May 19 GOP primary and advances to the June 16 runoff.",
         ["Border Security", "Economic Growth", "America First", "Public Safety"],
-        ["U.S. Representative GA-10 (2023-present)", "Founder, Collins Trucking Co."],
+        ["U.S. Representative GA-10 (2023-present)", "Founder, Collins Trucking Co.", "May 19 primary leader"],
         78, "https://mikecollinsforsenate.com", "https://twitter.com/RepMikeCollins"),
-      rCandidate("Buddy Carter", false,
-        "U.S. Representative from Georgia's 1st district (Savannah area) and pharmacist. Former Mayor of Pooler. Focused on healthcare costs, conservative values, and veterans.",
-        ["Healthcare Costs", "Conservative Values", "Veterans Affairs", "Small Business"],
-        ["U.S. Representative GA-1 (2015-present)", "Former Mayor of Pooler, GA", "Pharmacist & Business Owner"],
-        72, "https://buddycarterforsenate.com", "https://twitter.com/RepBuddyCarter"),
       rCandidate("Derek Dooley", false,
-        "Athens native, UGA law school graduate, attorney, and former college football head coach (Tennessee, Louisiana Tech). Son of legendary UGA coach Vince Dooley.",
+        "Athens native, UGA law school graduate, attorney, and former college football head coach (Tennessee, Louisiana Tech). Backed by Gov. Brian Kemp; advanced to the June 16 GOP runoff.",
         ["Georgia First", "Common Sense Governance", "Supporting Trump Agenda", "Economic Growth"],
         ["Attorney", "Former NCAA Head Football Coach (Tennessee, Louisiana Tech)", "UGA Law School Graduate"],
         65, "https://dooleyforgeorgia.com"),
@@ -183,12 +170,12 @@ export const STATEWIDE_RACES: BallotRace[] = [
 export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   "GA-1": generalRace(
     "U.S. House – GA-1 (Coastal Georgia)", "Federal",
-    "Open seat — Rep. Buddy Carter is running for U.S. Senate. Covers coastal SE Georgia including Savannah's suburbs, Brunswick, and the Golden Isles.",
+    "Open seat — Rep. Buddy Carter vacated GA-1 to run for U.S. Senate. Covers coastal SE Georgia including Savannah's suburbs, Brunswick, and the Golden Isles. Solidly Republican district.",
     [
-      rCandidate("Earl Carter", false,
-        "Former Georgia State Representative seeking to fill the open GA-1 seat vacated by Buddy Carter's Senate run. Focused on coastal economy, military, and border security.",
+      rCandidate("TBD – Republican Nominee", false,
+        "The Republican nominee for the open GA-1 seat was decided in the May 19, 2026 primary. Confirm the certified nominee on the Georgia My Voter Page.",
         ["Coastal Economy", "Military Bases", "Border Security", "Small Business"],
-        ["Former Georgia State Representative", "Business Owner", "Savannah area community leader"],
+        ["Primary winner — to be confirmed"],
         72),
       tbdCandidate("Democrat"),
     ]
@@ -207,26 +194,30 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   ),
   "GA-3": generalRace(
     "U.S. House – GA-3 (West Georgia)", "Federal",
-    "Open seat — Rep. Drew Ferguson retired. Covers west Georgia including LaGrange, Newnan, Fayetteville, and Griffin. Solidly Republican district.",
+    "Rep. Brian Jack (R) is seeking re-election. Covers central-west Georgia including Newnan, LaGrange, Peachtree City, and Griffin. Solidly Republican district.",
     [
-      rCandidate("TBD – Republican Nominee", false,
-        "The Republican nominee will be determined in the May 19, 2026 primary. This is a safe Republican district in west Georgia.",
-        ["Conservative Values", "Economic Growth", "Border Security", "Small Business"],
-        ["Primary winner — to be determined"],
-        75),
+      rCandidate("Brian Jack", true,
+        "Former Trump White House Political Director elected to GA-3 in 2024. Advanced unopposed in the May 19 Republican primary. Focuses on border security, the economy, and the America First agenda.",
+        ["Border Security", "Economic Growth", "America First", "Small Business"],
+        ["U.S. Representative GA-3 (2025-present)", "Former Trump White House Political Director"],
+        80, "https://jack.house.gov", "https://twitter.com/RepBrianJack"),
       tbdCandidate("Democrat"),
     ]
   ),
   "GA-4": generalRace(
     "U.S. House – GA-4 (DeKalb/Rockdale/Newton)", "Federal",
-    "Open seat — Rep. Brian Jack is running for Governor. Covers DeKalb County suburbs, Rockdale, and Newton counties. Majority-minority district.",
+    "Rep. Hank Johnson (D) is seeking re-election. Covers DeKalb County suburbs, Rockdale, and Newton counties. Majority-minority district.",
     [
-      dCandidate("TBD – Democratic Nominee", false,
-        "The Democratic nominee will be determined after the May 2026 primary. This is a majority-minority district in suburban Atlanta.",
-        ["Civil Rights", "Healthcare", "Education", "Economic Justice"],
-        ["Primary winner — to be determined"],
-        -65),
-      tbdCandidate("Republican"),
+      dCandidate("Hank Johnson", true,
+        "Longtime DeKalb-based congressman and member of the House Judiciary and Transportation committees. Focuses on civil rights, voting rights, and infrastructure.",
+        ["Civil Rights", "Voting Rights", "Infrastructure", "Judiciary Reform"],
+        ["U.S. Representative GA-4 (2007-present)", "Former DeKalb County Commissioner", "Attorney"],
+        -68, "https://hankjohnson.house.gov", "https://twitter.com/RepHankJohnson"),
+      rCandidate("James Duffie", false,
+        "Republican nominee who advanced unopposed in the May 19 primary to challenge for the GA-4 seat.",
+        ["Public Safety", "Economic Growth", "Conservative Values", "Small Business"],
+        ["Republican Nominee GA-4 (2026)", "Business owner"],
+        60),
     ]
   ),
   "GA-5": generalRace(
@@ -242,31 +233,27 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
     ]
   ),
   "GA-6": generalRace(
-    "U.S. House – GA-6 (North Fulton/Forsyth/Cherokee)", "Federal",
-    "Rep. Rich McCormick (R) seeking re-election. Covers Sandy Springs, Alpharetta, Roswell, Canton, and Cumming. Suburban Atlanta district.",
-    [
-      rCandidate("Rich McCormick", true,
-        "Emergency room physician and Marine Corps pilot. Focuses on border security, national defense, fiscal responsibility, and veterans.",
-        ["Border Security", "National Defense", "Fiscal Responsibility", "Veterans"],
-        ["U.S. Representative GA-6 (2023-present)", "Emergency Room Physician", "Marine Corps Pilot"],
-        75, "https://mccormick.house.gov", "https://twitter.com/RepMcCormick"),
-      tbdCandidate("Democrat"),
-    ]
-  ),
-  "GA-7": generalRace(
-    "U.S. House – GA-7 (Gwinnett)", "Federal",
-    "Rep. Lucy McBath (D) seeking re-election. Covers Gwinnett County — one of the most diverse counties in the South and a competitive swing district.",
+    "U.S. House – GA-6 (West Metro Atlanta)", "Federal",
+    "Rep. Lucy McBath (D) seeking re-election. Covers west metro Atlanta including parts of Cobb, Douglas, Fayette, and south Fulton. Diverse, Democratic-leaning district.",
     [
       dCandidate("Lucy McBath", true,
         "Gun safety advocate and mother of Jordan Davis, who was killed in 2012. Focuses on gun safety, healthcare, and protecting suburban communities.",
         ["Gun Safety", "Healthcare Access", "Education", "Women's Rights"],
-        ["U.S. Representative GA-7 (2023-present)", "Former Gun Safety Advocate & Activist", "Former Delta flight attendant"],
+        ["U.S. Representative GA-6 (2023-present)", "Former Gun Safety Advocate & Activist", "Former Delta flight attendant"],
         -60, "https://mcbath.house.gov", "https://twitter.com/RepLucyMcBath"),
-      rCandidate("TBD – Republican Nominee", false,
-        "The Republican nominee will be determined after the May 2026 primary. This competitive Gwinnett district is a top target for Republicans.",
-        ["Border Security", "Public Safety", "Economic Growth", "Education Parental Rights"],
-        ["Primary winner — to be determined"],
-        70),
+      tbdCandidate("Republican"),
+    ]
+  ),
+  "GA-7": generalRace(
+    "U.S. House – GA-7 (North Metro: Forsyth/Cherokee/North Fulton)", "Federal",
+    "Rep. Rich McCormick (R) seeking re-election. Covers Forsyth, Cherokee, north Fulton, and parts of Gwinnett — Sandy Springs, Alpharetta, Roswell, Canton, and Cumming. Suburban Atlanta district.",
+    [
+      rCandidate("Rich McCormick", true,
+        "Emergency room physician and Marine Corps pilot. Focuses on border security, national defense, fiscal responsibility, and veterans.",
+        ["Border Security", "National Defense", "Fiscal Responsibility", "Veterans"],
+        ["U.S. Representative GA-7 (2023-present)", "Emergency Room Physician", "Marine Corps Pilot"],
+        75, "https://mccormick.house.gov", "https://twitter.com/RepMcCormick"),
+      tbdCandidate("Democrat"),
     ]
   ),
   "GA-8": generalRace(
@@ -307,13 +294,13 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   ),
   "GA-11": generalRace(
     "U.S. House – GA-11 (NW Atlanta Suburbs)", "Federal",
-    "Rep. Barry Loudermilk (R) seeking re-election. Covers northwest Atlanta suburbs including Kennesaw, Acworth, Cartersville, and Rome.",
+    "Open seat — Rep. Barry Loudermilk announced in February 2026 that he will not seek re-election, setting off a crowded Republican primary. Covers northwest Atlanta suburbs including Kennesaw, Acworth, Cartersville, and Rome. Solidly Republican district.",
     [
-      rCandidate("Barry Loudermilk", true,
-        "Air Force veteran and technology entrepreneur. Focuses on fiscal responsibility, national security, and supporting northwest Georgia communities.",
-        ["Fiscal Responsibility", "National Security", "Technology", "Veterans"],
-        ["U.S. Representative GA-11 (2015-present)", "Air Force veteran", "Technology entrepreneur"],
-        78, "https://loudermilk.house.gov", "https://twitter.com/RepLoudermilk"),
+      rCandidate("TBD – Republican Nominee", false,
+        "Rep. Loudermilk's retirement drew a large GOP field in the May 19, 2026 primary. Confirm the certified nominee — and any runoff — on the Georgia My Voter Page.",
+        ["Fiscal Responsibility", "National Security", "Border Security", "Conservative Values"],
+        ["Primary winner — to be confirmed"],
+        75),
       tbdCandidate("Democrat"),
     ]
   ),
@@ -329,27 +316,38 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
       tbdCandidate("Democrat"),
     ]
   ),
-  "GA-13": generalRace(
-    "U.S. House – GA-13 (South Atlanta Suburbs)", "Federal",
-    "Rep. David Scott (D) seeking re-election. Covers Clayton, Douglas, Henry, and parts of Spalding counties — diverse south Atlanta suburbs.",
-    [
-      dCandidate("David Scott", true,
-        "One of Georgia's senior members of Congress. Focuses on agriculture, financial services, and economic opportunity. Chair of the House Agriculture Committee.",
-        ["Agriculture", "Financial Services", "Economic Opportunity", "Veterans"],
-        ["U.S. Representative GA-13 (2003-present)", "Former Georgia State Senator", "Businessman"],
-        -42, "https://davidscott.house.gov", "https://twitter.com/RepDavidScott"),
-      tbdCandidate("Republican"),
-    ]
-  ),
+  "GA-13": {
+    office: "U.S. House – GA-13 (South Atlanta Suburbs)",
+    date: "July 28, 2026",
+    type: "Special Election",
+    level: "Federal",
+    description:
+      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. A special election to fill the remainder of his term is scheduled for July 28, 2026, alongside the regular November general election. Covers Clayton, Douglas, Henry, and parts of south metro Atlanta — a strongly Democratic district.",
+    registrationDeadline: "June 29, 2026",
+    earlyVotingStart: "July 7, 2026",
+    earlyVotingEnd: "July 25, 2026",
+    candidates: [
+      dCandidate("TBD – Democratic Candidate", false,
+        "Multiple Democrats are running in the July 28 special election to succeed the late Rep. David Scott. Confirm the candidates and any runoff on the Georgia My Voter Page.",
+        ["Agriculture", "Economic Opportunity", "Healthcare", "Voting Rights"],
+        ["Special election candidate — to be confirmed"],
+        -55),
+      rCandidate("TBD – Republican Candidate", false,
+        "Republican candidates are also competing in the July 28 special election for the vacant GA-13 seat.",
+        ["Public Safety", "Economic Growth", "Conservative Values", "Small Business"],
+        ["Special election candidate — to be confirmed"],
+        55),
+    ],
+  },
   "GA-14": generalRace(
     "U.S. House – GA-14 (NW Georgia)", "Federal",
-    "Rep. Marjorie Taylor Greene (R) seeking re-election. Covers northwest Georgia including Rome, Dalton, and the mountainous northwest corner of the state.",
+    "Rep. Clay Fuller (R) is seeking a full term. He won the special election to replace Marjorie Taylor Greene, who resigned from Congress in January 2026. Covers northwest Georgia including Rome, Dalton, and the mountainous northwest corner of the state. Solidly Republican district.",
     [
-      rCandidate("Marjorie Taylor Greene", true,
-        "Outspoken conservative and Trump ally representing northwest Georgia. Focuses on America First policies, border security, and election integrity.",
-        ["America First", "Border Security", "Election Integrity", "Anti-Establishment"],
-        ["U.S. Representative GA-14 (2021-present)", "Businesswoman", "Construction company co-owner"],
-        92, "https://greene.house.gov", "https://twitter.com/RepMTG"),
+      rCandidate("Clay Fuller", true,
+        "Won the special election to fill the GA-14 seat after Marjorie Taylor Greene's January 2026 resignation. A conservative running on an America First platform for northwest Georgia.",
+        ["America First", "Border Security", "Economic Growth", "Conservative Values"],
+        ["U.S. Representative GA-14 (2026-present)", "Business owner"],
+        85, "https://fuller.house.gov"),
       tbdCandidate("Democrat"),
     ]
   ),
@@ -1322,11 +1320,11 @@ export const COUNTY_TO_CONGRESSIONAL: Record<string, string> = {
   // GA-4 DeKalb/suburbs
   "DeKalb":"GA-4","Rockdale":"GA-4","Newton":"GA-4",
   // GA-5 Atlanta core
-  // Fulton is split GA-5/GA-6 — we assign by zip in lookup function
-  // GA-6 North suburbs
-  "Cherokee":"GA-6","Forsyth":"GA-6",
-  // GA-7 Gwinnett
-  "Gwinnett":"GA-7","Walton":"GA-7",
+  // Fulton is split GA-5/GA-7 — we assign by zip in lookup function
+  // GA-6 West metro (McBath) — Douglas plus parts of Cobb/Fulton (by zip)
+  "Douglas":"GA-6",
+  // GA-7 North metro (McCormick) — Forsyth, Cherokee, north Fulton (by zip), parts of Gwinnett
+  "Cherokee":"GA-7","Forsyth":"GA-7","Gwinnett":"GA-7","Walton":"GA-7",
   // GA-8 Central GA
   "Bleckley":"GA-8","Dodge":"GA-8","Dooly":"GA-8","Emanuel":"GA-8","Houston":"GA-8",
   "Johnson":"GA-8","Laurens":"GA-8","Montgomery":"GA-8","Pulaski":"GA-8",
@@ -1348,14 +1346,14 @@ export const COUNTY_TO_CONGRESSIONAL: Record<string, string> = {
   // GA-12 East Central
   "Appling":"GA-12","Bacon":"GA-12","Jeff Davis":"GA-12",
   // GA-13 South Atlanta suburbs
-  "Clayton":"GA-13","Douglas":"GA-13","Henry":"GA-13",
+  "Clayton":"GA-13","Henry":"GA-13",
   // GA-14 NW Georgia
   "Floyd":"GA-14","Dade":"GA-14",
-  // Fulton split handled in lookup function (30309 area = GA-5, 30328 area = GA-6)
+  // Fulton split handled in lookup function (30309 area = GA-5, north Fulton = GA-7)
   "Fulton":"GA-5", // default; zip lookup will refine
 }
 
-// North Fulton zips (Sandy Springs, Alpharetta, Roswell, Johns Creek area) → GA-6
+// North Fulton zips (Sandy Springs, Alpharetta, Roswell, Johns Creek area) → GA-7 (McCormick)
 const NORTH_FULTON_ZIPS = new Set([
   "30004","30005","30009","30022","30076","30077","30097",
   "30326","30327","30328","30338","30339","30342","30346","30350",
@@ -1388,7 +1386,7 @@ export function getBallotForZip(zip: string): {
 
   // Determine congressional district (refine Fulton by zip)
   let cd = COUNTY_TO_CONGRESSIONAL[county] || "Unknown"
-  if (county === "Fulton" && NORTH_FULTON_ZIPS.has(zip)) cd = "GA-6"
+  if (county === "Fulton" && NORTH_FULTON_ZIPS.has(zip)) cd = "GA-7"
   else if (county === "Fulton") cd = "GA-5"
 
   const countyData = COUNTY_DATA[county]
