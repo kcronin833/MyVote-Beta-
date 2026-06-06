@@ -807,6 +807,244 @@ function NewsPost() {
   );
 }
 
+/* ── SOCIAL COMMENT FEED ────────────────────────────────────────────
+   Shows recent article comments posted by the signed-in user and
+   everyone they follow — a "what is my network discussing?" stream.
+   Relies on comments.user_id → profiles FK (applied in migration
+   fix_comments_user_id_fk_to_profiles). */
+
+type FeedComment = {
+  id: string;
+  user_id: string;
+  article_url: string;
+  article_title: string | null;
+  content: string;
+  created_at: string;
+  profile: {
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+    political_lean: string | null;
+  } | null;
+};
+
+function useSocialComments(userId: string | undefined) {
+  const [comments, setComments] = useState<FeedComment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+
+      // Resolve who I follow
+      const { data: follows } = await supabase
+        .from("user_follows")
+        .select("following_id")
+        .eq("follower_id", userId);
+
+      const followingIds = (follows || []).map(
+        (f: { following_id: string }) => f.following_id
+      );
+      const userIds = [userId, ...followingIds];
+
+      // Comments from me + network, newest first
+      const { data } = await supabase
+        .from("comments")
+        .select(
+          "id, user_id, article_url, article_title, content, created_at, " +
+          "profile:profiles(username, display_name, avatar_url, political_lean)"
+        )
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!cancelled) {
+        setComments((data as unknown as FeedComment[]) || []);
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  return { comments, loading };
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  return `${Math.floor(hr / 24)}d ago`;
+}
+
+function SocialCommentFeed() {
+  const { user } = useAuth();
+  const { comments, loading } = useSocialComments(user?.id);
+
+  if (!user) return null;
+
+  return (
+    <div style={cardStyle}>
+      {/* Header */}
+      <div
+        style={{
+          padding: "12px 16px",
+          borderBottom: `1px solid ${C.ruleSoft}`,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <span style={{ color: C.teal, display: "flex" }}>{Icons.comment(16)}</span>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900 }}>
+          Discussion · you &amp; people you follow
+        </span>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 16, color: C.ink500, fontSize: 13 }}>
+          Loading discussions…
+        </div>
+      ) : comments.length === 0 ? (
+        <div style={{ padding: 16 }}>
+          <div style={{ fontSize: 13, color: C.ink500, lineHeight: 1.5 }}>
+            No discussion activity yet. Open any article and leave a comment —
+            or follow neighbors to see what they&apos;re saying.
+          </div>
+          <Link
+            href="/discover"
+            style={{
+              display: "inline-block",
+              marginTop: 10,
+              fontSize: 12.5,
+              fontWeight: 600,
+              color: C.teal,
+              textDecoration: "none",
+            }}
+          >
+            Find neighbors to follow →
+          </Link>
+        </div>
+      ) : (
+        <div>
+          {comments.map((c, i) => {
+            const name =
+              c.profile?.display_name || c.profile?.username || "Neighbor";
+            const initials = initialsFrom(name);
+            const lean = c.profile?.political_lean;
+            const tone: AvatarTone =
+              lean === "left" ? "navy" : lean === "right" ? "olive" : "plum";
+            const leanColor =
+              lean === "left" ? C.navy : lean === "right" ? C.red : C.ink500;
+            const isMine = c.user_id === user.id;
+
+            return (
+              <div
+                key={c.id}
+                style={{
+                  padding: "12px 16px",
+                  borderTop: i === 0 ? "none" : `1px solid ${C.ruleSoft}`,
+                }}
+              >
+                {/* Author row */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
+                  <Avatar initials={initials} size={30} tone={tone} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      style={{
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color: C.ink900,
+                      }}
+                    >
+                      {isMine ? "You" : name}
+                    </span>
+                    {lean && (
+                      <span
+                        style={{
+                          marginLeft: 6,
+                          fontSize: 10.5,
+                          fontWeight: 600,
+                          color: leanColor,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {lean}
+                      </span>
+                    )}
+                    <span
+                      style={{ marginLeft: 8, fontSize: 11, color: C.ink500 }}
+                    >
+                      {timeAgo(c.created_at)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Article reference */}
+                {c.article_title && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: C.ink500,
+                      marginBottom: 5,
+                      display: "flex",
+                      gap: 4,
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <span>on</span>
+                    <a
+                      href={c.article_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: C.teal,
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 260,
+                        display: "inline-block",
+                      }}
+                    >
+                      {c.article_title}
+                    </a>
+                  </div>
+                )}
+
+                {/* Comment body */}
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: C.ink900,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {c.content.length > 220
+                    ? `${c.content.slice(0, 220)}…`
+                    : c.content}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── RIGHT RAIL ───────────────────────────────────────────────────── */
 function RightRail() {
   const sug = useSuggestedCandidates();
@@ -997,6 +1235,7 @@ export function DesktopHome() {
         />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <ComposerAndFeed />
+          <SocialCommentFeed />
           <DailyQuestionCard dq={dq} />
           <NewsPost />
         </div>
