@@ -9,6 +9,7 @@ import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, In
 import { RepresentativeProfile } from "./representative-profile"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
 import { getBallotForZip } from "@/lib/georgia-ballot-data"
+import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer"
 
 interface Candidate {
   name: string
@@ -1774,6 +1775,9 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           </CardContent>
         </Card>
       )}
+
+      {/* Trust guardrail — candidate data is provisional */}
+      <BallotDataDisclaimer />
 
       {/* Address / Location Header */}
       <Card className="border-[#E5E5E5]">

@@ -9,6 +9,7 @@ import {
   cardStyle,
 } from "@/components/elections/ballot-ui";
 import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
+import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 
 export const metadata: Metadata = {
   title: "Georgia 2026 Elections — Find Your Ballot · MyVote",
@@ -126,6 +127,9 @@ export default function ElectionsPage() {
               </div>
             </div>
           </div>
+
+          {/* Trust guardrail — candidate data is provisional */}
+          <BallotDataDisclaimer />
 
           {/* Statewide races — every Georgia voter */}
           <SectionHeading label="Statewide races · every GA voter" count={STATEWIDE_RACES.length} />

@@ -8,6 +8,7 @@ import {
 } from "@/lib/candidate-utils";
 import { TopNav } from "@/components/desktop/top-nav";
 import { ClaimProfile } from "@/components/elections/claim-profile";
+import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 
 /* Static generation for every candidate slug we know about.
    159 counties × handful of races = ~50 pages prebuilt at build time. */
@@ -293,6 +294,9 @@ export default async function CandidatePage({
               </div>
             </div>
           </div>
+
+          {/* Trust guardrail — candidate data is provisional */}
+          <BallotDataDisclaimer />
 
           {/* AI-generated disclosure + claim */}
           <ClaimProfile

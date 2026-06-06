@@ -8,6 +8,7 @@ import {
 } from "@/lib/county-utils";
 import { TopNav } from "@/components/desktop/top-nav";
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
+import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 
 /* Static generation for every Georgia county we have data for
    (~156 of the 159 counties → one prebuilt SEO page each). */
@@ -182,6 +183,9 @@ export default async function CountyPage({
               </p>
             </div>
           </div>
+
+          {/* Trust guardrail — candidate data is provisional */}
+          <BallotDataDisclaimer />
 
           {/* Statewide */}
           <SectionHeading label="Statewide races" count={statewideRaces.length} />

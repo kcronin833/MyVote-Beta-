@@ -348,7 +348,7 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
       rCandidate("Marjorie Taylor Greene", true,
         "Outspoken conservative and Trump ally representing northwest Georgia. Focuses on America First policies, border security, and election integrity.",
         ["America First", "Border Security", "Election Integrity", "Anti-Establishment"],
-        ["U.S. Representative GA-14 (2021-present)", "Businesswoman", "QAnon-affiliated (past)"],
+        ["U.S. Representative GA-14 (2021-present)", "Businesswoman", "Construction company co-owner"],
         92, "https://greene.house.gov", "https://twitter.com/RepMTG"),
       tbdCandidate("Democrat"),
     ]
