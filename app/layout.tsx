@@ -5,7 +5,6 @@ import { AuthProvider } from "@/components/auth-context";
 import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
-import { UnderConstructionBanner } from "@/components/under-construction-banner";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -18,7 +17,7 @@ export const metadata: Metadata = {
   title: "MyVote — Understand More. Decide Better.",
   description:
     "See both sides. Stay informed. Live local. Start with the facts, then get the opinions.",
-  generator: "v0.app",
+
 };
 
 export default function RootLayout({
@@ -31,7 +30,6 @@ export default function RootLayout({
       <body className="font-sans flex flex-col min-h-screen bg-page text-ink-900">
         <PostHogProvider>
           <AuthProvider>
-            <UnderConstructionBanner />
             <div className="flex-1">{children}</div>
             <SiteFooter />
           </AuthProvider>
