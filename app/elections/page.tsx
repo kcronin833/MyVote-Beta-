@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/elections" },
 };
 
-const KEY_DATES: { date: string; label: string; critical?: boolean }[] = [
-  { date: "March 2026", label: "Voter registration deadline (Primary)", critical: true },
-  { date: "May 19, 2026", label: "Georgia Primary Election", critical: true },
-  { date: "June 16, 2026", label: "Primary runoff (if needed)" },
+const KEY_DATES: { date: string; label: string; critical?: boolean; past?: boolean }[] = [
+  { date: "May 19, 2026", label: "Georgia Primary Election — completed", past: true },
+  { date: "June 9 – 13, 2026", label: "Early voting — GOP Governor & U.S. Senate runoff", critical: true },
+  { date: "June 16, 2026", label: "Primary Runoff — Governor & U.S. Senate GOP nominations", critical: true },
   { date: "October 5, 2026", label: "Voter registration deadline (General)", critical: true },
-  { date: "Oct 19 – Oct 30, 2026", label: "Early voting period" },
+  { date: "Oct 12 – Oct 30, 2026", label: "Early voting — General Election" },
   { date: "November 3, 2026", label: "General Election Day — polls 7am–7pm", critical: true },
 ];
 
@@ -53,6 +53,41 @@ const VOTING_RULES: { title: string; body: string }[] = [
   },
 ];
 
+/* Runoff banner — server-rendered, only shows between June 7 and June 16 */
+function RunoffBanner() {
+  const now = new Date();
+  const runoff = new Date("2026-06-16T19:00:00-04:00"); // polls close 7pm ET
+  const earlyStart = new Date("2026-06-09T00:00:00-04:00");
+  if (now >= runoff) return null;
+  const daysLeft = Math.max(0, Math.ceil((runoff.getTime() - now.getTime()) / 86_400_000));
+  const earlyOpen = now >= earlyStart;
+  return (
+    <div style={{
+      background: `linear-gradient(135deg, #7C1A0F 0%, #B33A2C 100%)`,
+      borderRadius: 10,
+      padding: "14px 18px",
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+      color: "#fff",
+    }}>
+      <span style={{ fontSize: 22, flexShrink: 0 }}>🗳️</span>
+      <div>
+        <div style={{ fontWeight: 800, fontSize: 14.5 }}>
+          June 16 Runoff — {daysLeft === 0 ? "Today!" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} away`}
+        </div>
+        <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.88)", marginTop: 2, lineHeight: 1.45 }}>
+          GOP nominations for Georgia Governor &amp; U.S. Senate are decided June 16.
+          {earlyOpen
+            ? " Early voting is open now through June 13."
+            : " Early voting opens June 9."}
+          {" "}Polls open 7am–7pm.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ElectionsPage() {
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
@@ -61,6 +96,8 @@ export default function ElectionsPage() {
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         {/* MAIN COLUMN */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* Runoff urgency banner */}
+          <RunoffBanner />
           {/* Hero + ZIP lookup */}
           <div style={{ ...cardStyle(), overflow: "hidden" }}>
             <div
@@ -158,7 +195,7 @@ export default function ElectionsPage() {
                 textDecoration: "none",
               }}
             >
-              Browse all 156 counties →
+              Browse all 159 counties →
             </Link>
           </div>
 
@@ -193,19 +230,19 @@ export default function ElectionsPage() {
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {KEY_DATES.map((d) => (
-                <div key={d.date} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                <div key={d.date} style={{ display: "flex", gap: 9, alignItems: "flex-start", opacity: d.past ? 0.45 : 1 }}>
                   <span
                     style={{
                       width: 8,
                       height: 8,
                       borderRadius: 999,
-                      background: d.critical ? C.red : C.ink400,
+                      background: d.past ? C.ink400 : d.critical ? C.red : C.ink400,
                       marginTop: 5,
                       flexShrink: 0,
                     }}
                   />
                   <div>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: d.past ? C.ink500 : C.ink900, textDecoration: d.past ? "line-through" : "none" }}>
                       {d.date}
                     </div>
                     <div style={{ fontSize: 12, color: C.ink500, lineHeight: 1.4 }}>

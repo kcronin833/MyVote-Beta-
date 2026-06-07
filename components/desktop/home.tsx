@@ -31,20 +31,23 @@ import { resolveCountySlug } from "@/lib/county-utils";
 /* ── data helpers ─────────────────────────────────────────────────── */
 
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00");
+const GEORGIA_RUNOFF  = new Date("2026-06-16T07:00:00-04:00");
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00");
 
 function useElectionInfo() {
   const [info, setInfo] = useState<{ label: string; days: number; date: string } | null>(null);
   useEffect(() => {
     const now = new Date();
-    const isPrimary = now < GEORGIA_PRIMARY;
-    const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL;
+    let target: Date, label: string, date: string;
+    if (now < GEORGIA_PRIMARY) {
+      target = GEORGIA_PRIMARY; label = "Georgia Primary"; date = "May 19, 2026";
+    } else if (now < GEORGIA_RUNOFF) {
+      target = GEORGIA_RUNOFF;  label = "June 16 Runoff";  date = "June 16, 2026";
+    } else {
+      target = GEORGIA_GENERAL; label = "General Election"; date = "November 3, 2026";
+    }
     const days = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 86400000));
-    setInfo({
-      label: isPrimary ? "Georgia Primary" : "General Election",
-      days,
-      date: isPrimary ? "May 19, 2026" : "November 3, 2026",
-    });
+    setInfo({ label, days, date });
   }, []);
   return info;
 }

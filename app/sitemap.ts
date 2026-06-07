@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllCountySlugs } from "@/lib/county-utils";
+import { getAllCandidateSlugs } from "@/lib/candidate-utils";
 import { getSiteUrl } from "@/lib/site-url";
 
 /* Dynamic sitemap so Google can discover all ~156 statically generated county
@@ -29,5 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...countyRoutes];
+  const candidateRoutes: MetadataRoute.Sitemap = getAllCandidateSlugs().map((slug) => ({
+    url: `${base}/elections/candidate/${slug}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }));
+
+  return [...staticRoutes, ...countyRoutes, ...candidateRoutes];
 }

@@ -221,7 +221,7 @@ export default function LocalNewsPage() {
                   No local articles found
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {"Try a different city or check back later. Make sure your NEWS_API_KEY is set."}
+                  {"Try a different city or check back in a few minutes — local news refreshes throughout the day."}
                 </p>
                 <Button onClick={() => loadLocalNews(location)}>
                   Try Again

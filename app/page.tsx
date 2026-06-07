@@ -20,16 +20,24 @@ import { DesktopHome } from "@/components/desktop/home"
 
 /* ── Election countdown ─────────────────────────────────────────────── */
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
+const GEORGIA_RUNOFF  = new Date("2026-06-16T07:00:00-04:00")
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
 
 function useElectionCountdown() {
   const [info, setInfo] = useState<{ label: string; days: number } | null>(null)
   useEffect(() => {
     const now = new Date()
-    const isPrimary = now < GEORGIA_PRIMARY
-    const target = isPrimary ? GEORGIA_PRIMARY : GEORGIA_GENERAL
+    let target: Date
+    let label: string
+    if (now < GEORGIA_PRIMARY) {
+      target = GEORGIA_PRIMARY; label = "Georgia Primary"
+    } else if (now < GEORGIA_RUNOFF) {
+      target = GEORGIA_RUNOFF; label = "June 16 Runoff"
+    } else {
+      target = GEORGIA_GENERAL; label = "General Election"
+    }
     const days = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 86_400_000))
-    setInfo({ label: isPrimary ? "Georgia Primary" : "General Election", days })
+    setInfo({ label, days })
   }, [])
   return info
 }

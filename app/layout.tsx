@@ -16,10 +16,31 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "MyVote — Understand More. Decide Better.",
+  title: {
+    default: "MyVote — Georgia's 2026 Ballot Guide",
+    template: "%s · MyVote",
+  },
   description:
-    "See both sides. Stay informed. Live local. Start with the facts, then get the opinions.",
-
+    "Georgia's free, non-partisan 2026 voter guide. Enter your ZIP to see your complete ballot — governor, U.S. Senate, and local races — with candidates from left, right, and center.",
+  keywords: ["Georgia election 2026", "Georgia ballot", "Georgia voter guide", "Georgia governor 2026", "Jon Ossoff", "non-partisan news"],
+  openGraph: {
+    type: "website",
+    siteName: "MyVote",
+    title: "MyVote — Georgia's 2026 Ballot Guide",
+    description:
+      "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MyVote — Georgia's 2026 Ballot Guide",
+    description:
+      "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
