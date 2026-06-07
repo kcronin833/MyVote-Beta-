@@ -137,7 +137,7 @@ export default function HomePage() {
             </button>
 
             <div className="mt-12 flex gap-6 sm:gap-10 text-sm text-ink-700/50 flex-wrap justify-center">
-              {["Free to use", "No ads", "Non-partisan"].map((t) => (
+              {["Free to use", "Non-partisan", "Georgia focused"].map((t) => (
                 <span key={t} className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-civic-red" />
                   {t}

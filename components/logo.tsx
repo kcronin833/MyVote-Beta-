@@ -5,14 +5,22 @@ interface LogoProps {
   className?: string
 }
 
-// Logo PNG is 1536×1024 (3:2). All sizes maintain that ratio and show the full image.
-const navSizes = {
-  sm: { w: 66, h: 44 },
-  md: { w: 90, h: 60 },
-  lg: { w: 120, h: 80 },
+// logo.png is 1536×1024 (3:2 ratio).
+// The wordmark ("My" script + "Vote" serif) occupies the top ~44% of the image.
+// Below it: tagline + four brand icons — hidden in nav contexts via overflow:hidden.
+
+const IMG_ASPECT = 1536 / 1024  // 1.5  (width ÷ height)
+const WORDMARK_FRAC = 0.44       // wordmark = top 44% of image height (slight buffer)
+
+// Width of the logo container in each nav size
+const NAV_WIDTHS: Record<"sm" | "md" | "lg", number> = {
+  sm: 110,  // desktop top-nav (h-14 bar)
+  md: 130,  // medium contexts
+  lg: 160,  // news-nav / wider bars
 }
 
 export function Logo({ size = "md", className = "" }: LogoProps) {
+  // Full-size hero: show entire image (wordmark + tagline + icons)
   if (size === "xl") {
     return (
       <div className={`mx-auto ${className}`} style={{ maxWidth: 480 }}>
@@ -28,17 +36,32 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
     )
   }
 
-  const { w, h } = navSizes[size]
+  // Nav sizes: overflow:hidden clips tagline + icons, showing only the wordmark
+  const displayWidth = NAV_WIDTHS[size]
+  const fullImageHeight = displayWidth / IMG_ASPECT              // rendered height of full image
+  const containerHeight = Math.round(fullImageHeight * WORDMARK_FRAC)  // clip to wordmark area
+
   return (
-    <Image
-      src="/logo.png"
-      alt="MyVote"
-      width={w}
-      height={h}
+    <div
       className={className}
-      style={{ flexShrink: 0 }}
-      priority
-    />
+      style={{
+        width: displayWidth,
+        height: containerHeight,
+        overflow: "hidden",
+        flexShrink: 0,
+        position: "relative",
+        lineHeight: 0,   // prevent baseline gap below the img
+      }}
+    >
+      <Image
+        src="/logo.png"
+        alt="MyVote"
+        width={1536}
+        height={1024}
+        style={{ width: displayWidth, height: "auto", display: "block" }}
+        priority
+      />
+    </div>
   )
 }
 

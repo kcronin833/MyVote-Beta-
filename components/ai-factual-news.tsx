@@ -6,6 +6,7 @@ import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
+import { NewsFeedAd } from "@/components/ads/ad-unit"
 
 interface FactualNewsItem {
   title: string
@@ -361,7 +362,13 @@ export function AIFactualNews() {
       )}
 
       {filtered.map((article, i) => (
-        <NewsCard key={i} article={article} />
+        <div key={i}>
+          <NewsCard article={article} />
+          {/* Ad after every 3rd article, but not after the last one */}
+          {(i + 1) % 3 === 0 && i < filtered.length - 1 && (
+            <NewsFeedAd />
+          )}
+        </div>
       ))}
 
       {filtered.length > 0 && (

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PALETTE as C } from "./atoms";
 import { Icons } from "./icons";
 import { UserNav } from "@/components/user-nav";
+import { Logo } from "@/components/logo";
 
 type NavId = "home" | "national" | "local" | "ballot";
 
@@ -41,24 +42,8 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
         className="max-w-[1240px] mx-auto h-14 flex items-center gap-3 sm:gap-4 lg:gap-[18px] px-3 lg:px-6"
       >
         {/* Logo */}
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              background: C.ink900,
-              color: "#fff",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 700,
-              fontSize: 16,
-              letterSpacing: -0.4,
-            }}
-          >
-            m<span style={{ color: C.teal }}>v</span>
-          </div>
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <Logo size="sm" />
         </Link>
 
         {/* Search — hidden on small screens */}
