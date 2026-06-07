@@ -9,6 +9,7 @@ import {
 import { TopNav } from "@/components/desktop/top-nav";
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
+import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 
 /* Static generation for every Georgia county we have data for
    (~156 of the 159 counties → one prebuilt SEO page each). */
@@ -220,6 +221,9 @@ export default async function CountyPage({
 
         {/* RIGHT RAIL */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* Sign-up nudge — only visible to logged-out visitors */}
+          <SaveBallotNudge />
+
           {/* How to vote */}
           <div style={{ ...cardStyle(), padding: 14 }}>
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px", color: C.ink900 }}>
