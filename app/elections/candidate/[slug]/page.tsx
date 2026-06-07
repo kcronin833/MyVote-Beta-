@@ -267,12 +267,8 @@ export default async function CandidatePage({
                   {race.level}
                 </span>
               </div>
-            </div>
-
-            {/* Avatar + identity */}
-            <div style={{ padding: "0 20px 20px" }}>
-              {/* Photo overlapping banner */}
-              <div style={{ marginTop: -65, marginBottom: 12 }}>
+              {/* Photo anchored to bottom of banner — hangs 65 px below */}
+              <div style={{ position: "absolute", bottom: -65, left: 20, zIndex: 10 }}>
                 <CandidatePhoto
                   name={c.name}
                   wikipediaTitle={c.wikipediaTitle}
@@ -280,6 +276,10 @@ export default async function CandidatePage({
                   size={130}
                 />
               </div>
+            </div>
+
+            {/* Avatar + identity — top padding leaves room for the hanging photo */}
+            <div style={{ padding: "0 20px 20px", paddingTop: 77 }}>
 
               {/* Name row */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
