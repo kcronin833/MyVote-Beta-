@@ -41,8 +41,10 @@ const ALLOWED_SOURCE_NAMES = new Set([
 
 // Terms in title OR description that indicate non-political content.
 // Checked server-side before any article reaches the frontend.
+// NOTE: "poll" and "polls" intentionally omitted — election/approval polls are
+// core political content (they also appear in POLITICAL_KEYWORDS in news-constants.ts).
 const CONTENT_BLOCKLIST =
-  /\b(athlete|athletes|baseball|football|basketball|soccer|sports|sport|poll|polls|ranking|rankings|standings|NFL|NBA|MLB|NHL|Marvel|comics|superhero|cricket|Bihar|Modi|Malaysian|Malaysia|Indonesia|Indonesian|Premier League|Champions League|Bollywood|Nollywood|K-pop|anime|manga|Eurovision|LaLiga|Bundesliga|Serie\s+A|Ligue\s+1|IPL|PSL|BBL|T20|Test\s+match|Rugby|Formula\s+1|F1\s+race|UFC|MMA|WWE|boxing|horse\s+racing|tennis|golf|swim|swimmer|gymnastics|Olympics|Olympic\s+trial|track\s+and\s+field|photo\s+gallery|photo\s+of|photos\s+of|image\s+of|gallery)\b/i
+  /\b(athlete|athletes|baseball|football|basketball|soccer|sports|sport|standings|NFL|NBA|MLB|NHL|Marvel|comics|superhero|cricket|Bihar|Modi|Malaysian|Malaysia|Indonesia|Indonesian|Premier League|Champions League|Bollywood|Nollywood|K-pop|anime|manga|Eurovision|LaLiga|Bundesliga|Serie\s+A|Ligue\s+1|IPL|PSL|BBL|T20|Test\s+match|Rugby|Formula\s+1|F1\s+race|UFC|MMA|WWE|horse\s+racing|swim|swimmer|gymnastics|Olympics|Olympic\s+trial|track\s+and\s+field|photo\s+gallery|photo\s+of|photos\s+of|image\s+of|gallery)\b/i
 
 // Source names that are explicitly blocked regardless of topic.
 const BLOCKED_SOURCE_NAMES = new Set([
