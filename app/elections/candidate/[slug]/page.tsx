@@ -243,14 +243,16 @@ export default async function CandidatePage({
         {/* ══ MAIN COLUMN ══════════════════════════════════════════════ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
 
-          {/* Hero card */}
-          <div style={cardStyle({ overflow: "hidden" })}>
-            {/* Banner */}
+          {/* Hero card — no overflow:hidden so the photo can cross the banner/content boundary */}
+          <div style={cardStyle()}>
+            {/* Banner — owns its own overflow:hidden so the dot pattern clips to its rounded top corners */}
             <div
               style={{
                 height: 160,
                 background: `linear-gradient(120deg, ${C.navy} 0%, ${C.ink900} 50%, ${C.teal} 110%)`,
                 position: "relative",
+                overflow: "hidden",
+                borderRadius: "10px 10px 0 0",
               }}
             >
               <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.16 }}>
@@ -267,8 +269,13 @@ export default async function CandidatePage({
                   {race.level}
                 </span>
               </div>
-              {/* Photo anchored to bottom of banner — hangs 65 px below */}
-              <div style={{ position: "absolute", bottom: -65, left: 20, zIndex: 10 }}>
+            </div>
+
+            {/* Identity — photo uses negative margin + z-index to overlap the banner above */}
+            <div style={{ padding: "0 20px 20px" }}>
+
+              {/* Photo — pulled up 65 px into the banner, sits on top via zIndex */}
+              <div style={{ marginTop: -65, marginBottom: 12, position: "relative", zIndex: 10 }}>
                 <CandidatePhoto
                   name={c.name}
                   wikipediaTitle={c.wikipediaTitle}
@@ -276,10 +283,6 @@ export default async function CandidatePage({
                   size={130}
                 />
               </div>
-            </div>
-
-            {/* Avatar + identity — top padding leaves room for the hanging photo */}
-            <div style={{ padding: "0 20px 20px", paddingTop: 77 }}>
 
               {/* Name row */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
