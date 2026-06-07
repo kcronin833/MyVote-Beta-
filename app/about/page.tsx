@@ -153,11 +153,44 @@ export default function AboutPage() {
           </ul>
         </section>
 
+        {/* Who Built This */}
+        <section className="border-t border-rule pt-10">
+          <h2 className="text-2xl font-bold text-ink-700 mb-4">Who Built This</h2>
+          <div className="flex items-start gap-5">
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #1F3A5F 0%, #3D8073 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 22,
+                flexShrink: 0,
+              }}
+            >
+              KC
+            </div>
+            <div>
+              <div className="font-bold text-ink-700 text-lg">Kevin Cronin</div>
+              <div className="text-sm text-teal-600 font-medium mb-2">Founder · Georgia resident</div>
+              <p className="text-ink-700/80 leading-relaxed text-sm">
+                MyVote grew out of frustration with how hard it is to get a straight answer about who's on your
+                ballot and what they actually stand for. I built this for Georgia voters who are tired of partisan
+                noise and just want the facts. If something isn't working or you have ideas, my inbox is always open.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Contact */}
         <section className="text-center border-t border-rule pt-10">
           <h2 className="text-xl font-bold text-ink-700 mb-2">Questions or Feedback?</h2>
           <p className="text-ink-700/70 mb-6">
-            We are a small team and we read every message. Reach out anytime.
+            I read every message. Reach out anytime.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/contact">

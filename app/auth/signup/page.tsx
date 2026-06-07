@@ -104,10 +104,23 @@ export default function SignUpPage() {
           <div className="flex justify-center mb-4">
             <Logo size="lg" />
           </div>
-          <CardTitle className="text-ink-700">Create Your Account</CardTitle>
-          <CardDescription>Join the MyVote community and stay informed</CardDescription>
+          <CardTitle className="text-ink-700">Create Your Free Account</CardTitle>
+          <CardDescription>Your complete 2026 Georgia ballot guide, saved and personalized</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Value props */}
+          <div className="bg-teal-50 border border-teal-100 rounded-lg px-4 py-3 mb-4 space-y-1.5">
+            {[
+              "See every race on your ballot — governor to school board",
+              "Email reminders before the June 16 runoff & November election",
+              "Read Georgia politics from left, right, and center in one place",
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-2 text-sm text-teal-800">
+                <span className="text-teal-600 font-bold mt-0.5 flex-shrink-0">✓</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
@@ -218,7 +231,7 @@ export default function SignUpPage() {
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-ink-700">Political Leaning (optional)</label>
+              <label className="text-sm font-medium text-ink-700">Political Leaning <span className="font-normal text-ink-500">(optional — helps us show relevant stories first)</span></label>
               <Select value={form.politicalLean} onValueChange={(v) => setForm({ ...form, politicalLean: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select or skip" />

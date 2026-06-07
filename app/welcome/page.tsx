@@ -12,8 +12,8 @@ export default function WelcomePage() {
         <div className="container mx-auto px-4 py-16 text-center">
           <Logo size="xl" />
           <p className="mt-4 text-lg max-w-2xl mx-auto text-teal-100 leading-relaxed">
-            Your gateway to politically balanced news, local updates, and civic engagement.
-            Stay informed. Stay balanced. Make your vote count.
+            Georgia&rsquo;s non-partisan voter guide for 2026. See your complete ballot, read every candidate&rsquo;s
+            positions, and follow the news from left, right, and center — all in one place.
           </p>
           <div className="flex gap-4 justify-center mt-8">
             <Link href="/auth/signup">
@@ -82,22 +82,22 @@ export default function WelcomePage() {
         </div>
       </div>
 
-      {/* Atlanta Section */}
+      {/* Georgia Coverage Section */}
       <div className="bg-teal-100/40 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold font-serif text-ink-700 mb-2">Currently Featuring: Atlanta, GA</h2>
+          <h2 className="text-2xl font-bold font-serif text-ink-700 mb-2">All 159 Georgia Counties Covered</h2>
           <p className="text-ink-700/70 mb-8 max-w-xl mx-auto">
-            Explore how MyVote works with real Atlanta representatives, local news, and Georgia political data.
+            Enter your ZIP code and see every race on your 2026 ballot — from Governor down to local school board — with candidates, key issues, and voting deadlines.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
+            <Link href="/elections">
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white">View 2026 Georgia Ballot</Button>
+            </Link>
             <Link href="/news">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white">Browse National News</Button>
+              <Button variant="outline" className="border-teal-600 text-teal-600">News Across the Spectrum</Button>
             </Link>
-            <Link href="/news/local">
-              <Button variant="outline" className="border-teal-600 text-teal-600">Atlanta Local News</Button>
-            </Link>
-            <Link href="/profile">
-              <Button variant="outline" className="border-civic-red text-civic-red">Political Profiles</Button>
+            <Link href="/g">
+              <Button variant="outline" className="border-civic-red text-civic-red">Browse by County</Button>
             </Link>
           </div>
         </div>
