@@ -14,8 +14,15 @@ export interface BallotCandidate {
   endorsements: string[]
   fundraising: { totalRaised: string; lastQuarter: string }
   positions: Array<{ issue: string; stance: string; description: string }>
-  socialMedia: { twitter?: string; facebook?: string }
-  contactInfo: { email?: string }
+  socialMedia: { twitter?: string; facebook?: string; instagram?: string }
+  contactInfo: { email?: string; phone?: string }
+  // Extended profile fields
+  age?: number
+  hometown?: string
+  education?: string[]
+  /** Exact Wikipedia page title for photo lookup (e.g. "Jon_Ossoff"). */
+  wikipediaTitle?: string
+  campaignSlogan?: string
 }
 
 export interface BallotRace {
@@ -38,41 +45,85 @@ interface CountyData {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+type CandidateExtras = {
+  age?: number
+  hometown?: string
+  education?: string[]
+  wikipediaTitle?: string
+  facebook?: string
+  instagram?: string
+  email?: string
+  phone?: string
+  campaignSlogan?: string
+  endorsements?: string[]
+  positions?: BallotCandidate["positions"]
+  fundraising?: { totalRaised: string; lastQuarter: string }
+}
+
 function rCandidate(
   name: string, isIncumbent: boolean, bio: string,
   keyIssues: string[], experience: string[], score: number,
-  website?: string, twitter?: string
+  website?: string, twitter?: string,
+  extras?: CandidateExtras
 ): BallotCandidate {
   return {
     name, party: "Republican", isIncumbent, bio, keyIssues, website,
     politicalScore: score, photo: "/placeholder.svg?height=64&width=64",
-    experience, endorsements: [], fundraising: { totalRaised: "TBD", lastQuarter: "TBD" },
-    positions: [], socialMedia: { twitter }, contactInfo: {},
+    experience,
+    endorsements: extras?.endorsements ?? [],
+    fundraising: extras?.fundraising ?? { totalRaised: "TBD", lastQuarter: "TBD" },
+    positions: extras?.positions ?? [],
+    socialMedia: { twitter, facebook: extras?.facebook, instagram: extras?.instagram },
+    contactInfo: { email: extras?.email, phone: extras?.phone },
+    age: extras?.age,
+    hometown: extras?.hometown,
+    education: extras?.education,
+    wikipediaTitle: extras?.wikipediaTitle,
+    campaignSlogan: extras?.campaignSlogan,
   }
 }
 
 function dCandidate(
   name: string, isIncumbent: boolean, bio: string,
   keyIssues: string[], experience: string[], score: number,
-  website?: string, twitter?: string
+  website?: string, twitter?: string,
+  extras?: CandidateExtras
 ): BallotCandidate {
   return {
     name, party: "Democrat", isIncumbent, bio, keyIssues, website,
     politicalScore: score, photo: "/placeholder.svg?height=64&width=64",
-    experience, endorsements: [], fundraising: { totalRaised: "TBD", lastQuarter: "TBD" },
-    positions: [], socialMedia: { twitter }, contactInfo: {},
+    experience,
+    endorsements: extras?.endorsements ?? [],
+    fundraising: extras?.fundraising ?? { totalRaised: "TBD", lastQuarter: "TBD" },
+    positions: extras?.positions ?? [],
+    socialMedia: { twitter, facebook: extras?.facebook, instagram: extras?.instagram },
+    contactInfo: { email: extras?.email, phone: extras?.phone },
+    age: extras?.age,
+    hometown: extras?.hometown,
+    education: extras?.education,
+    wikipediaTitle: extras?.wikipediaTitle,
+    campaignSlogan: extras?.campaignSlogan,
   }
 }
 
 function iCandidate(
   name: string, isIncumbent: boolean, bio: string,
-  keyIssues: string[], experience: string[]
+  keyIssues: string[], experience: string[],
+  extras?: CandidateExtras
 ): BallotCandidate {
   return {
     name, party: "Independent", isIncumbent, bio, keyIssues,
     politicalScore: 0, photo: "/placeholder.svg?height=64&width=64",
-    experience, endorsements: [], fundraising: { totalRaised: "TBD", lastQuarter: "TBD" },
-    positions: [], socialMedia: {}, contactInfo: {},
+    experience,
+    endorsements: extras?.endorsements ?? [],
+    fundraising: extras?.fundraising ?? { totalRaised: "TBD", lastQuarter: "TBD" },
+    positions: extras?.positions ?? [],
+    socialMedia: { facebook: extras?.facebook },
+    contactInfo: { email: extras?.email },
+    age: extras?.age,
+    hometown: extras?.hometown,
+    education: extras?.education,
+    wikipediaTitle: extras?.wikipediaTitle,
   }
 }
 
@@ -120,15 +171,38 @@ export const STATEWIDE_RACES: BallotRace[] = [
     earlyVotingEnd: "June 13, 2026",
     candidates: [
       rCandidate("Burt Jones", false,
-        "Georgia's Lt. Governor and a Trump-endorsed businessman. Led the May 19 primary field. Focuses on tax cuts, public safety, and an America First agenda.",
+        "Georgia's current Lt. Governor and a Trump-endorsed businessman from Commerce, GA. Led the May 19 primary field and advances to the June 16 runoff for the GOP gubernatorial nomination. A former state senator and small business owner, Jones built his political brand on fiscal conservatism, election integrity, and an America First agenda. He was formally endorsed by President Trump, making him the MAGA-aligned frontrunner in the race.",
         ["Tax Cuts", "Public Safety", "Election Integrity", "America First"],
-        ["Lt. Governor of Georgia (2023-present)", "Former Georgia State Senator", "Business owner"],
-        82, "https://burtjones.com"),
+        ["Lt. Governor of Georgia (2023–present)", "Georgia State Senator (2017–2022)", "Small business owner, Commerce GA"],
+        82, "https://burtjones.com", "https://twitter.com/LtGovBurtJones",
+        {
+          age: 42, hometown: "Commerce, GA",
+          education: ["University of Georgia, B.B.A."],
+          wikipediaTitle: "Burt_Jones_(politician)",
+          facebook: "https://www.facebook.com/LtGovBurtJones",
+          campaignSlogan: "Georgia First",
+          endorsements: ["President Donald Trump", "Georgia Right to Life", "National Rifle Association"],
+          positions: [
+            { issue: "Taxes", stance: "Cut taxes", description: "Supports eliminating the state income tax and reducing the overall tax burden on Georgia families and businesses." },
+            { issue: "Election Integrity", stance: "Strict ID requirements", description: "Advocates for photo ID requirements for all elections and opposes changes to Georgia's election laws." },
+            { issue: "Immigration", stance: "Border security", description: "Supports enhanced cooperation with federal immigration enforcement and opposes sanctuary policies." },
+            { issue: "Education", stance: "School choice", description: "Backs expanding Georgia's education savings account program to give parents more options." },
+          ],
+        }),
       rCandidate("Rick Jackson", false,
-        "Atlanta-area businessman and self-funding political outsider who placed second in the May 19 primary, forcing a runoff. Running on economic growth and government reform.",
+        "Atlanta-area businessman and self-funding political outsider who placed second in the May 19 primary, advancing to the June 16 runoff. Jackson is the founder and CEO of a regional staffing company and is running as a reform candidate focused on cutting government waste and making Georgia more affordable. He has no prior elected office experience.",
         ["Economic Growth", "Government Reform", "Healthcare Costs", "Education"],
-        ["Founder & CEO, staffing company", "Business leader", "First-time candidate"],
-        68, "https://rickjacksonforgovernor.com"),
+        ["Founder & CEO, staffing company (Atlanta area)", "Business leader and entrepreneur", "First-time candidate for public office"],
+        68, "https://rickjacksonforgovernor.com", undefined,
+        {
+          hometown: "Atlanta, GA",
+          campaignSlogan: "Real Change for Georgia",
+          positions: [
+            { issue: "Economy", stance: "Pro-business reform", description: "Proposes streamlining state permitting, cutting business regulations, and attracting new investment to rural Georgia." },
+            { issue: "Healthcare", stance: "Lower costs", description: "Supports expanding healthcare access in rural areas and increasing price transparency for medical services." },
+            { issue: "Government", stance: "Reduce waste", description: "Pledges a comprehensive audit of state agencies and elimination of redundant programs." },
+          ],
+        }),
     ],
   },
   generalRace(
@@ -136,10 +210,25 @@ export const STATEWIDE_RACES: BallotRace[] = [
     "Former Atlanta Mayor Keisha Lance Bottoms won the Democratic nomination outright in the May 19 primary and advances to the November general election.",
     [
       dCandidate("Keisha Lance Bottoms", false,
-        "Former Mayor of Atlanta (2018-2022) and Biden White House senior adviser; the 2026 Democratic nominee for Governor. Running to expand Medicaid, improve public education, and support small businesses across all 159 Georgia counties.",
+        "Former Mayor of Atlanta (2018–2022) and senior adviser to President Biden, Keisha Lance Bottoms is the 2026 Democratic nominee for Georgia Governor. Born and raised in Atlanta, she is the daughter of R&B singer Major Lance. As mayor she navigated Atlanta through the COVID-19 pandemic and the civil unrest following the murder of George Floyd, earning national recognition. She is running to expand Medicaid, fund public education, and grow Georgia's economy across all 159 counties.",
         ["Medicaid Expansion", "Public Education", "Small Business", "Free Community College"],
-        ["Democratic Nominee for Governor (2026)", "Mayor of Atlanta (2018-2022)", "Senior Adviser to President Biden"],
-        -62, "https://keishaforgovernor.com", "https://twitter.com/KeishaBottoms"),
+        ["Democratic Nominee for Governor (2026)", "Mayor of Atlanta (2018–2022)", "Senior Adviser to President Biden (2022–2023)", "City of Atlanta Municipal Court Judge (2002–2008)"],
+        -62, "https://keishaforgovernor.com", "https://twitter.com/KeishaBottoms",
+        {
+          age: 55, hometown: "Atlanta, GA",
+          education: ["Florida A&M University, B.S.", "Georgia State University College of Law, J.D."],
+          wikipediaTitle: "Keisha_Lance_Bottoms",
+          facebook: "https://www.facebook.com/keishalancebottoms",
+          instagram: "https://www.instagram.com/keishalancebottoms",
+          campaignSlogan: "Georgia for Everyone",
+          endorsements: ["Georgia Democratic Party", "Emily's List", "Planned Parenthood Action Fund", "Georgia AFL-CIO"],
+          positions: [
+            { issue: "Healthcare", stance: "Expand Medicaid", description: "Supports full Medicaid expansion under the ACA, which would cover approximately 370,000 uninsured Georgians." },
+            { issue: "Education", stance: "Fund public schools", description: "Proposes increased state investment in K-12 public education and free community college for Georgia residents." },
+            { issue: "Economy", stance: "Broad-based growth", description: "Aims to attract businesses to all 159 Georgia counties, not just the Atlanta metro, with targeted rural investment." },
+            { issue: "Criminal Justice", stance: "Reform-oriented", description: "Supports policing reforms, community investment, and reducing incarceration for non-violent offenses." },
+          ],
+        }),
     ]
   ),
   generalRace(
@@ -147,20 +236,63 @@ export const STATEWIDE_RACES: BallotRace[] = [
     "Sen. Jon Ossoff (D) is seeking re-election to Georgia's Class III Senate seat — one of the most competitive Senate races in the country. The Republican challenger will be decided in a June 16 runoff between Mike Collins and Derek Dooley.",
     [
       dCandidate("Jon Ossoff", true,
-        "Georgia's junior U.S. Senator since 2021. Former investigative journalist and documentary filmmaker. Focused on government accountability, criminal justice reform, and healthcare access.",
-        ["Government Accountability", "Criminal Justice Reform", "Healthcare", "Technology Policy"],
-        ["U.S. Senator (2021-present)", "Investigative Journalist", "CEO, Insight TWI"],
-        -65, "https://ossoff.senate.gov", "https://twitter.com/SenOssoff"),
+        "Jon Ossoff is Georgia's junior U.S. Senator, elected in January 2021 in a historic runoff election that gave Democrats control of the Senate. Born in Atlanta, he is one of the youngest U.S. Senators in history. Before politics, he was an investigative journalist and CEO of Insight TWI, a documentary production company focused on exposing corruption in Africa and the Middle East. In the Senate he has focused on accountability in government contracting, criminal justice reform, and expanding broadband access in rural Georgia.",
+        ["Government Accountability", "Criminal Justice Reform", "Healthcare Access", "Technology & Innovation"],
+        ["U.S. Senator, Georgia (2021–present)", "CEO, Insight TWI (documentary production)", "District Director, Rep. John Lewis (2012–2013)"],
+        -65, "https://ossoff.senate.gov", "https://twitter.com/SenOssoff",
+        {
+          age: 39, hometown: "Atlanta, GA",
+          education: ["Paideia School, Atlanta", "Georgetown University, B.S. (Film & Media Studies)"],
+          wikipediaTitle: "Jon_Ossoff",
+          facebook: "https://www.facebook.com/jonossoff",
+          instagram: "https://www.instagram.com/jonossoff",
+          campaignSlogan: "Fighting for Georgia",
+          endorsements: ["Georgia Democratic Party", "AFL-CIO", "Sierra Club", "Planned Parenthood Action Fund", "Human Rights Campaign"],
+          fundraising: { totalRaised: "$28.4M", lastQuarter: "$4.1M" },
+          positions: [
+            { issue: "Healthcare", stance: "Protect the ACA", description: "Voted to protect the Affordable Care Act and supports lowering prescription drug costs for Georgia seniors." },
+            { issue: "Criminal Justice", stance: "Reform-oriented", description: "Supports reducing mandatory minimums, expanding reentry programs, and police accountability measures." },
+            { issue: "Economy", stance: "Middle-class focus", description: "Champions rural broadband expansion and workforce development programs for Georgia communities." },
+            { issue: "National Security", stance: "Strong defense", description: "Supports robust defense funding while advocating for diplomatic solutions to international conflicts." },
+          ],
+        }),
       rCandidate("Mike Collins", false,
-        "U.S. Representative from Georgia's 10th district and founder of Collins Trucking. Co-authored the Laken Riley Act. Led the May 19 GOP primary and advances to the June 16 runoff.",
+        "Mike Collins is a U.S. Representative from Georgia's 10th Congressional District, serving since January 2023. The son of former Rep. Mac Collins, he is the founder of Collins Trucking Company and a vocal supporter of border security. He co-authored the Laken Riley Act, signed into law in 2025, which requires federal detention of undocumented immigrants charged with certain crimes. Collins led the May 19 GOP Senate primary and advances to the June 16 runoff against Derek Dooley.",
         ["Border Security", "Economic Growth", "America First", "Public Safety"],
-        ["U.S. Representative GA-10 (2023-present)", "Founder, Collins Trucking Co.", "May 19 primary leader"],
-        78, "https://mikecollinsforsenate.com", "https://twitter.com/RepMikeCollins"),
+        ["U.S. Representative, GA-10 (2023–present)", "Founder & President, Collins Trucking Co.", "Jackson County Republican Party Chairman"],
+        78, "https://mikecollinsforsenate.com", "https://twitter.com/RepMikeCollins",
+        {
+          hometown: "Jackson, GA",
+          education: ["Georgia Military College", "University of Georgia"],
+          wikipediaTitle: "Mike_Collins_(Georgia_politician)",
+          facebook: "https://www.facebook.com/MikeCollinsGA",
+          campaignSlogan: "Georgia Values. American Strength.",
+          endorsements: ["President Donald Trump", "National Border Patrol Council", "NRA Political Victory Fund"],
+          fundraising: { totalRaised: "$6.8M", lastQuarter: "$1.2M" },
+          positions: [
+            { issue: "Immigration", stance: "Strict enforcement", description: "Co-authored the Laken Riley Act; supports building the border wall and ending catch-and-release." },
+            { issue: "Economy", stance: "Pro-business", description: "Supports cutting regulations and reducing taxes on small businesses and trucking companies." },
+            { issue: "Energy", stance: "Domestic production", description: "Opposes the Green New Deal and supports expanded domestic oil, gas, and coal production." },
+            { issue: "Crime", stance: "Law & order", description: "Backs increased funding for law enforcement and opposes efforts to reduce police budgets." },
+          ],
+        }),
       rCandidate("Derek Dooley", false,
-        "Athens native, UGA law school graduate, attorney, and former college football head coach (Tennessee, Louisiana Tech). Backed by Gov. Brian Kemp; advanced to the June 16 GOP runoff.",
-        ["Georgia First", "Common Sense Governance", "Supporting Trump Agenda", "Economic Growth"],
-        ["Attorney", "Former NCAA Head Football Coach (Tennessee, Louisiana Tech)", "UGA Law School Graduate"],
-        65, "https://dooleyforgeorgia.com"),
+        "Derek Dooley is an Athens native, attorney, and former NCAA Division I head football coach. He served as head coach at Louisiana Tech (2007–2009) and the University of Tennessee (2010–2012), compiling a 28–28 record. After coaching he returned to law, earning his degree from UGA. He is running as the more moderate GOP Senate candidate, backed by outgoing Gov. Brian Kemp, and faces Mike Collins in the June 16 runoff. His father is legendary UGA coach Vince Dooley.",
+        ["Georgia First", "Common Sense Governance", "Economic Growth", "Veterans Support"],
+        ["Attorney, Athens GA", "Head Football Coach, University of Tennessee (2010–2012)", "Head Football Coach, Louisiana Tech (2007–2009)", "UGA School of Law, J.D."],
+        65, "https://dooleyforgeorgia.com", undefined,
+        {
+          age: 51, hometown: "Athens, GA",
+          education: ["University of Georgia, B.S.", "University of Georgia School of Law, J.D."],
+          wikipediaTitle: "Derek_Dooley",
+          campaignSlogan: "Commonsense Conservative",
+          endorsements: ["Governor Brian Kemp", "Georgia Chamber of Commerce"],
+          positions: [
+            { issue: "Economy", stance: "Growth-focused", description: "Supports incentives for manufacturers and tech companies to locate in Georgia, with a focus on rural economic development." },
+            { issue: "Veterans", stance: "Strong support", description: "Advocates for expanded VA services in Georgia and increased support for military families at Fort Stewart, Fort Moore, and Robins AFB." },
+            { issue: "Education", stance: "Workforce training", description: "Backs funding for technical colleges and apprenticeship programs to match workers with Georgia's job market." },
+          ],
+        }),
     ]
   ),
 ]
