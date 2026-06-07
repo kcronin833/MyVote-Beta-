@@ -1,7 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 const GNEWS_BASE = "https://gnews.io/api/v4"
-const TOPICS = ["nation", "politics", "world"]
+const TOPICS = ["nation", "politics", "world", "business"]
+
+// Reject articles that are clearly sports, entertainment, or lifestyle — not relevant
+// to a political-news platform. Keep this list specific to avoid false positives
+// (e.g. "draft" without a sport context is fine).
+const OFF_TOPIC_BLOCKLIST = /\b(nfl|nba|mlb|nhl|nascar|ufc|mma|espn|ncaa|super\s?bowl|world\s?series|stanley\s?cup|nba\s?finals|play-?off|championship\s+game|tournament\s+bracket|traded?\s+(to|from)|free\s?agent|roster\s+move|starting\s+lineup|head\s+coach|touchdown|quarterback|home\s?run|slam\s?dunk|hat\s?trick|grand\s?prix|formula\s+one|f1\s+race|grammy|oscar\s+winner|academy\s+award|box\s+office|movie\s+review|album\s+release|music\s+video|celebrity\s+couple|reality\s+tv|bachelor|dancing\s+with|survivor\s+cast|nfl\s+draft|nba\s+draft|mlb\s+draft)\b/i
+
+function isOffTopic(article: GNewsArticle): boolean {
+  const text = `${article.title} ${article.description || ""}`.toLowerCase()
+  return OFF_TOPIC_BLOCKLIST.test(text)
+}
 
 const FALLBACK_LEANS: Record<string, { lean: number; lean_label: string; name: string }> = {
   "nytimes.com":        { lean: -1, lean_label: "Center Left",  name: "New York Times" },
@@ -74,12 +84,9 @@ export async function runIngest(supabase: SupabaseClient) {
 
   const sourceMap = new Map((sourceRows || []).map((s: { domain: string; id: string; lean: number; lean_label: string; name: string }) => [s.domain, s]))
 
-  // Fetch GNews feeds
+  // Fetch GNews feeds — topic-specific only (no undirected top-headlines which pulls in sports/entertainment)
   const params = `lang=en&country=us&max=10&apikey=${gnewsKey}`
-  const feeds = [
-    `${GNEWS_BASE}/top-headlines?${params}`,
-    ...TOPICS.map((t) => `${GNEWS_BASE}/top-headlines?topic=${t}&${params}`),
-  ]
+  const feeds = TOPICS.map((t) => `${GNEWS_BASE}/top-headlines?topic=${t}&${params}`)
 
   const allArticles: GNewsArticle[] = []
   for (let i = 0; i < feeds.length; i++) {
@@ -118,9 +125,14 @@ export async function runIngest(supabase: SupabaseClient) {
     for (const s of inserted || []) sourceMap.set(s.domain, s)
   }
 
+  // Strip sports / entertainment articles before they enter the database
+  const relevant = unique.filter((a) => a.title && !isOffTopic(a))
+  const skipped = unique.length - relevant.length
+  if (skipped > 0) console.log(`[ingest] filtered out ${skipped} off-topic articles`)
+
   // Build rows
-  const rows = unique
-    .filter((a) => a.title && a.url)
+  const rows = relevant
+    .filter((a) => a.url)
     .map((a) => {
       const domain = extractDomain(a.url)
       const src = sourceMap.get(domain)
@@ -142,5 +154,5 @@ export async function runIngest(supabase: SupabaseClient) {
     if (!error) inserted += Math.min(100, rows.length - i)
   }
 
-  return { fetched: allArticles.length, deduped: unique.length, articles_inserted: inserted }
+  return { fetched: allArticles.length, deduped: unique.length, off_topic_filtered: skipped, articles_inserted: inserted }
 }

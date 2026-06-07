@@ -24,11 +24,13 @@ async function clusterWithClaude(articles: ArticleRow[]): Promise<ClusterResult[
     .map((a, i) => `[${i}] lean=${a.source.lean} source="${a.source.name}"\n    title: ${a.title}`)
     .join("\n")
 
-  const prompt = `You are a neutral news editor. Group the following headlines into story clusters — articles covering the same real-world event or topic.
+  const prompt = `You are a neutral news editor for a political-news platform. Group the following headlines into story clusters — articles covering the same real-world event or topic.
 
 Rules:
 - Each cluster should contain at least 2 articles about the SAME story
 - Singleton articles (no matching story) should be omitted
+- ONLY include clusters about politics, government, policy, elections, legislation, foreign affairs, national security, or major current events
+- SKIP any sports, entertainment, celebrity, lifestyle, food, travel, or purely business/finance stories — do not cluster them even if 2+ articles cover the same game or show
 - Write a SHORT neutral headline (10 words max) for each cluster
 - Write a neutral factual synopsis (2-3 sentences, no political spin)
 - Return ONLY valid JSON — no markdown, no explanation
