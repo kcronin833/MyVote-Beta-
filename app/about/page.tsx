@@ -1,13 +1,21 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Globe, ShieldCheck, MapPin, BarChart3, Users, Newspaper } from "lucide-react"
 import { Logo } from "@/components/logo"
 
-export const metadata = {
-  title: "About MyVote | Balanced Political News for Georgia",
+export const metadata: Metadata = {
+  title: "About MyVote",
   description:
-    "MyVote helps Georgia citizens stay informed with balanced political news, local representative information, and civic engagement tools for the 2026 election cycle.",
+    "Learn how MyVote helps Georgia citizens stay informed with balanced political news, non-partisan voter guides, and civic engagement tools for the 2026 election cycle.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About MyVote — Georgia's Non-Partisan Voter Guide",
+    description:
+      "Built for Georgia voters who want the facts without the spin. Read about our mission, team, and how we present news from every perspective.",
+    type: "website",
+  },
 }
 
 export default function AboutPage() {

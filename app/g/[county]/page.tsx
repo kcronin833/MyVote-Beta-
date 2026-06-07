@@ -11,8 +11,7 @@ import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/b
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 
-/* Static generation for every Georgia county we have data for
-   (~156 of the 159 counties → one prebuilt SEO page each). */
+/* Static generation for all 159 Georgia counties — one prebuilt SEO page each. */
 export async function generateStaticParams() {
   return getAllCountySlugs().map((county) => ({ county }));
 }

@@ -16,7 +16,7 @@ import {
   Mail,
   Search,
 } from "lucide-react"
-import { NewsNavigation } from "@/components/news-nav"
+import { TopNav } from "@/components/desktop/top-nav"
 import { useAuth } from "@/components/auth-context"
 import { resolveCountySlug, countySlug, getAllCountyNames } from "@/lib/county-utils"
 
@@ -96,7 +96,7 @@ const FAQ = [
   },
   {
     q: "Can I vote early in person?",
-    a: "Yes — Georgia has in-person early voting for every election. For the November 3 General, early voting runs October 12–31, 2026 at your county's designated sites.",
+    a: "Yes — Georgia has in-person early voting for every election. For the November 3 General, early voting runs October 12–30, 2026 at your county's designated sites.",
   },
   {
     q: "I moved within Georgia. Do I need to update my registration?",
@@ -142,8 +142,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-paper-100">
+      <TopNav active="ballot" />
       <div className="container mx-auto px-4 pt-4 pb-10">
-        <NewsNavigation />
 
         {/* ── Hero ── */}
         <div className="max-w-3xl mx-auto">
@@ -268,7 +268,7 @@ export default function RegisterPage() {
               {/* Early voting */}
               <TimelineItem
                 label="Early Voting Period"
-                date="Oct 12 – Oct 31, 2026"
+                date="Oct 12 – Oct 30, 2026"
                 status={earlyVotingOpen ? "current" : now > DATES.general ? "past" : "future"}
                 note="In-person early voting at county sites. Bring a valid photo ID."
                 cta={{ label: "Find locations", href: "https://mvp.sos.ga.gov" }}
@@ -406,7 +406,7 @@ export default function RegisterPage() {
                     </Link>
                   ))}
                   <Link
-                    href="/g/fulton"
+                    href="/g"
                     className="text-xs font-medium px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-teal-300 transition-colors"
                   >
                     All counties →

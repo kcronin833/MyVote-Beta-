@@ -1,4 +1,12 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Welcome to MyVote — Georgia's 2026 Voter Guide",
+  description:
+    "Georgia's free, non-partisan 2026 voter guide. See your complete ballot for every one of the 159 Georgia counties, read news from left, right, and center, and find your polling place.",
+  robots: { index: false, follow: true },
+}
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -55,7 +63,7 @@ export default function WelcomePage() {
             <CardHeader>
               <MapPin className="w-8 h-8 text-civic-red mb-2" />
               <CardTitle className="text-ink-700">Local Focus</CardTitle>
-              <CardDescription>Get news and representative info for your area. Currently featuring Atlanta, GA as our example city.</CardDescription>
+              <CardDescription>Get news and ballot info for your exact area. Enter your ZIP to see races for all 159 Georgia counties.</CardDescription>
             </CardHeader>
           </Card>
           <Card className="border-rule">
