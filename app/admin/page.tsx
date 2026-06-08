@@ -1,14 +1,21 @@
-﻿"use client"
+"use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss, CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle, Vote, ExternalLink } from "lucide-react"
-import { NewsNavigation } from "@/components/news-nav"
+import {
+  ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss,
+  CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle,
+  Vote, ExternalLink, TrendingUp, BarChart2, Activity, Award,
+  ThumbsUp, Flame, Zap, MapPin, UserPlus,
+} from "lucide-react"
+import { TopNav } from "@/components/desktop/top-nav"
 import { UserAvatar } from "@/components/user-avatar"
 import { useAuth } from "@/components/auth-context"
 import { createClient } from "@/lib/supabase/client"
 import { formatNewsTime } from "@/lib/news-service"
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AdminUser {
   id: string
@@ -30,7 +37,7 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "users" | "posts" | "pipeline" | "messages" | "claims"
+type Tab = "analytics" | "users" | "posts" | "messages" | "claims" | "pipeline"
 
 interface CandidateClaim {
   slug: string
@@ -63,11 +70,308 @@ interface PipelineLog {
   message: string
 }
 
+interface AnalyticsData {
+  totalUsers: number
+  newUsers7d: number
+  newUsers30d: number
+  signupsByDay: { label: string; shortLabel: string; value: number }[]
+  totalPosts: number
+  posts7d: number
+  postsByDay: { label: string; shortLabel: string; value: number }[]
+  topPosts: { id: string; content: string; likes_count: number; author: string; topic: string | null }[]
+  totalReactions: number
+  reactionBreakdown: { key: string; emoji: string; label: string; count: number }[]
+  topLocations: { location: string; count: number }[]
+  totalMessages: number
+  messagesByCategory: { category: string; icon: string; count: number; color: string }[]
+  unreadMessages: number
+}
+
+// ── Analytics helpers ─────────────────────────────────────────────────────────
+
+function buildDayRange(days: number): { iso: string; label: string; shortLabel: string }[] {
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (days - 1 - i))
+    d.setHours(0, 0, 0, 0)
+    return {
+      iso: d.toISOString().split("T")[0],
+      label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      shortLabel: String(d.getDate()),
+    }
+  })
+}
+
+function groupByDay(
+  records: { created_at: string }[],
+  range: { iso: string; label: string; shortLabel: string }[]
+) {
+  const counts = new Map<string, number>()
+  for (const r of range) counts.set(r.iso, 0)
+  for (const rec of records) {
+    const day = rec.created_at.split("T")[0]
+    if (counts.has(day)) counts.set(day, (counts.get(day) ?? 0) + 1)
+  }
+  return range.map((r) => ({ label: r.label, shortLabel: r.shortLabel, value: counts.get(r.iso) ?? 0 }))
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function KpiTile({
+  label, value, sub, icon: Icon, colorClass,
+}: {
+  label: string
+  value: number | string
+  sub?: string
+  icon: React.ElementType
+  colorClass: string
+}) {
+  return (
+    <div className="bg-card rounded-2xl border border-border p-4 flex flex-col gap-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground font-medium">{label}</span>
+        <Icon className={`w-4 h-4 ${colorClass} opacity-70`} />
+      </div>
+      <p className="text-2xl font-bold text-foreground leading-none mt-1">{value}</p>
+      {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
+    </div>
+  )
+}
+
+function SparkBars({
+  data, colorClass, title,
+}: {
+  data: { label: string; shortLabel: string; value: number }[]
+  colorClass: string
+  title: string
+}) {
+  const max = Math.max(...data.map((d) => d.value), 1)
+  return (
+    <div className="bg-card rounded-2xl border border-border p-4">
+      <p className="text-sm font-semibold text-foreground mb-3">{title}</p>
+      <div className="flex items-end gap-1 h-20">
+        {data.map((d) => (
+          <div key={d.label} className="flex-1 flex flex-col items-center gap-0.5 group relative">
+            <div
+              className={`w-full rounded-t-sm ${colorClass} opacity-80 transition-all group-hover:opacity-100 min-h-[2px]`}
+              style={{ height: `${Math.max((d.value / max) * 72, d.value > 0 ? 4 : 2)}px` }}
+            />
+            {/* tooltip on hover */}
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-foreground text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-10">
+              {d.label}: {d.value}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* x-axis: show every 3rd label to avoid crowding */}
+      <div className="flex items-center gap-1 mt-1">
+        {data.map((d, i) => (
+          <div key={d.label} className="flex-1 text-center">
+            <span className="text-[9px] text-muted-foreground">
+              {i % 3 === 0 ? d.shortLabel : ""}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function HorizBar({ label, value, max, colorClass, suffix = "" }: {
+  label: string; value: number; max: number; colorClass: string; suffix?: string
+}) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between items-center">
+        <span className="text-xs text-foreground font-medium">{label}</span>
+        <span className="text-xs text-muted-foreground font-semibold">{value}{suffix}</span>
+      </div>
+      <div className="h-2 bg-paper-100 rounded-full overflow-hidden">
+        <div className={`h-full ${colorClass} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  )
+}
+
+function AnalyticsTab({ data, loading }: { data: AnalyticsData | null; loading: boolean }) {
+  if (loading || !data) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 animate-pulse">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-card rounded-2xl border border-border h-24" />
+        ))}
+      </div>
+    )
+  }
+
+  const reactionMax = Math.max(...data.reactionBreakdown.map((r) => r.count), 1)
+  const locationMax = Math.max(...data.topLocations.map((l) => l.count), 1)
+  const msgMax = Math.max(...data.messagesByCategory.map((m) => m.count), 1)
+
+  return (
+    <div className="space-y-4">
+
+      {/* ── KPI row ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <KpiTile label="Total Users"    value={data.totalUsers}      icon={Users}      colorClass="text-teal-600" />
+        <KpiTile label="New (7 days)"   value={data.newUsers7d}      sub={`+${data.newUsers30d} last 30d`} icon={UserPlus}    colorClass="text-teal-600" />
+        <KpiTile label="Total Posts"    value={data.totalPosts}      icon={FileText}   colorClass="text-amber-500" />
+        <KpiTile label="Posts (7 days)" value={data.posts7d}         icon={Activity}   colorClass="text-amber-500" />
+        <KpiTile label="Reactions"      value={data.totalReactions}  icon={ThumbsUp}   colorClass="text-violet-500" />
+        <KpiTile label="Unread Msgs"    value={data.unreadMessages}  sub={`${data.totalMessages} total`} icon={Mail}       colorClass="text-civic-red" />
+      </div>
+
+      {/* ── Sparkline charts ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SparkBars
+          title="Signups — last 14 days"
+          data={data.signupsByDay}
+          colorClass="bg-teal-500"
+        />
+        <SparkBars
+          title="Posts — last 14 days"
+          data={data.postsByDay}
+          colorClass="bg-amber-400"
+        />
+      </div>
+
+      {/* ── Three-column breakdown ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        {/* Reactions */}
+        <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <ThumbsUp className="w-4 h-4 text-violet-500" />
+            <p className="text-sm font-semibold text-foreground">Reactions breakdown</p>
+          </div>
+          {data.reactionBreakdown.map((r) => (
+            <HorizBar
+              key={r.key}
+              label={`${r.emoji} ${r.label}`}
+              value={r.count}
+              max={reactionMax}
+              colorClass="bg-violet-400"
+            />
+          ))}
+          {data.totalReactions === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-4">No reactions yet</p>
+          )}
+        </div>
+
+        {/* Top locations */}
+        <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <MapPin className="w-4 h-4 text-teal-600" />
+            <p className="text-sm font-semibold text-foreground">Top counties</p>
+          </div>
+          {data.topLocations.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-4">No location data yet</p>
+          ) : (
+            data.topLocations.map((l) => (
+              <HorizBar
+                key={l.location}
+                label={l.location}
+                value={l.count}
+                max={locationMax}
+                colorClass="bg-teal-400"
+                suffix=" users"
+              />
+            ))
+          )}
+        </div>
+
+        {/* Messages by category */}
+        <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="w-4 h-4 text-civic-red" />
+            <p className="text-sm font-semibold text-foreground">Contact messages</p>
+          </div>
+          {data.messagesByCategory.map((m) => (
+            <HorizBar
+              key={m.category}
+              label={`${m.icon} ${m.category}`}
+              value={m.count}
+              max={msgMax}
+              colorClass="bg-red-400"
+            />
+          ))}
+          {data.totalMessages === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-4">No messages yet</p>
+          )}
+        </div>
+      </div>
+
+      {/* ── Top posts ── */}
+      {data.topPosts.length > 0 && (
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+            <Award className="w-4 h-4 text-amber-500" />
+            <p className="text-sm font-semibold text-foreground">Top posts by likes</p>
+          </div>
+          <div className="divide-y divide-border">
+            {data.topPosts.map((p, i) => (
+              <div key={p.id} className="flex items-start gap-3 px-4 py-3">
+                <span className="text-2xl font-black text-muted-foreground/20 leading-none w-6 flex-shrink-0 pt-0.5">
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground leading-snug line-clamp-2">{p.content}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-xs text-muted-foreground">{p.author}</span>
+                    {p.topic && (
+                      <span className="px-1.5 py-0.5 bg-teal-50 text-teal-700 text-[10px] font-semibold rounded-full">{p.topic}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0 bg-amber-50 text-amber-700 px-2 py-1 rounded-lg">
+                  <ThumbsUp className="w-3 h-3" />
+                  <span className="text-xs font-bold">{p.likes_count}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Engagement health row ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-card rounded-2xl border border-border p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Posts / active user</p>
+          <p className="text-3xl font-black text-foreground">
+            {data.totalUsers > 0 ? (data.totalPosts / data.totalUsers).toFixed(1) : "—"}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">all-time avg</p>
+        </div>
+        <div className="bg-card rounded-2xl border border-border p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Reactions / post</p>
+          <p className="text-3xl font-black text-foreground">
+            {data.totalPosts > 0 ? (data.totalReactions / data.totalPosts).toFixed(1) : "—"}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">all-time avg</p>
+        </div>
+        <div className="bg-card rounded-2xl border border-border p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">7-day growth rate</p>
+          <p className="text-3xl font-black text-foreground">
+            {data.totalUsers > 0
+              ? `${((data.newUsers7d / data.totalUsers) * 100).toFixed(1)}%`
+              : "—"}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">new users / total</p>
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function AdminPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const router = useRouter()
 
-  const [tab, setTab] = useState<Tab>("users")
+  const [tab, setTab] = useState<Tab>("analytics")
   const [users, setUsers] = useState<AdminUser[]>([])
   const [posts, setPosts] = useState<AdminPost[]>([])
   const [loadingData, setLoadingData] = useState(true)
@@ -76,7 +380,8 @@ export default function AdminPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pipelineRunning, setPipelineRunning] = useState(false)
   const [pipelineLogs, setPipelineLogs] = useState<PipelineLog[]>([])
-  const [claimAction, setClaimAction] = useState<Record<string, { donorboxDraft: string; saving: boolean; error: string | null }>>( {})
+  const [claimAction, setClaimAction] = useState<Record<string, { donorboxDraft: string; saving: boolean; error: string | null }>>({})
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
 
   // Redirect non-admins
   useEffect(() => {
@@ -93,6 +398,121 @@ export default function AdminPage() {
   async function loadData() {
     setLoadingData(true)
     const supabase = createClient()
+
+    if (tab === "analytics") {
+      const now = new Date()
+      const sevenDaysAgo  = new Date(now.getTime() - 7  * 86400000).toISOString()
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString()
+      const fourteenDaysAgo = new Date(now.getTime() - 13 * 86400000)
+      fourteenDaysAgo.setHours(0, 0, 0, 0)
+      const range14 = buildDayRange(14)
+      const range14IsoStart = fourteenDaysAgo.toISOString()
+
+      const [
+        { count: totalUsers },
+        { count: newUsers7d },
+        { count: newUsers30d },
+        { data: signupProfiles },
+        { count: totalPosts },
+        { count: posts7d },
+        { data: postProfiles },
+        { data: topPostsRaw },
+        { data: allReactions },
+        { data: locationProfiles },
+        { data: allMessages },
+      ] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),
+        supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo),
+        supabase.from("profiles").select("created_at").gte("created_at", range14IsoStart),
+        supabase.from("posts").select("*", { count: "exact", head: true }),
+        supabase.from("posts").select("*", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),
+        supabase.from("posts").select("created_at").gte("created_at", range14IsoStart),
+        supabase
+          .from("posts")
+          .select("id, content, topic, likes_count, author:profiles(display_name)")
+          .order("likes_count", { ascending: false })
+          .limit(5),
+        supabase.from("article_reactions").select("reaction"),
+        supabase.from("profiles").select("location").not("location", "is", null),
+        supabase.from("contact_messages").select("category, read"),
+      ])
+
+      // Signups by day
+      const signupsByDay = groupByDay(signupProfiles ?? [], range14)
+      const postsByDay   = groupByDay(postProfiles   ?? [], range14)
+
+      // Reactions breakdown
+      const reactionCounts: Record<string, number> = { important: 0, outraged: 0, surprising: 0, factual: 0 }
+      for (const r of allReactions ?? []) {
+        if (r.reaction in reactionCounts) reactionCounts[r.reaction]++
+      }
+      const reactionBreakdown = [
+        { key: "important",  emoji: "👍", label: "Important",  count: reactionCounts.important  },
+        { key: "outraged",   emoji: "😡", label: "Outraged",   count: reactionCounts.outraged   },
+        { key: "surprising", emoji: "😮", label: "Surprising", count: reactionCounts.surprising },
+        { key: "factual",    emoji: "✅", label: "Factual",    count: reactionCounts.factual    },
+      ]
+      const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + b, 0)
+
+      // Top locations
+      const locCounts: Record<string, number> = {}
+      for (const p of locationProfiles ?? []) {
+        if (p.location) locCounts[p.location] = (locCounts[p.location] ?? 0) + 1
+      }
+      const topLocations = Object.entries(locCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([location, count]) => ({ location, count }))
+
+      // Messages by category
+      const msgCounts: Record<string, number> = {}
+      let unread = 0
+      for (const m of allMessages ?? []) {
+        msgCounts[m.category] = (msgCounts[m.category] ?? 0) + 1
+        if (!m.read) unread++
+      }
+      const catMeta: Record<string, { icon: string; color: string }> = {
+        general:    { icon: "💬", color: "bg-teal-400"   },
+        suggestion: { icon: "💡", color: "bg-amber-400"  },
+        business:   { icon: "💼", color: "bg-blue-400"   },
+        claim:      { icon: "🏷️", color: "bg-purple-400" },
+      }
+      const messagesByCategory = Object.entries(msgCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([category, count]) => ({
+          category,
+          count,
+          icon:  catMeta[category]?.icon  ?? "📩",
+          color: catMeta[category]?.color ?? "bg-gray-400",
+        }))
+
+      // Top posts
+      const topPosts = (topPostsRaw ?? []).map((p: any) => ({
+        id:          p.id,
+        content:     p.content,
+        topic:       p.topic ?? null,
+        likes_count: p.likes_count ?? 0,
+        author:      (p.author as any)?.display_name ?? "Unknown",
+      }))
+
+      setAnalyticsData({
+        totalUsers:         totalUsers   ?? 0,
+        newUsers7d:         newUsers7d   ?? 0,
+        newUsers30d:        newUsers30d  ?? 0,
+        signupsByDay,
+        totalPosts:         totalPosts   ?? 0,
+        posts7d:            posts7d      ?? 0,
+        postsByDay,
+        topPosts,
+        totalReactions,
+        reactionBreakdown,
+        topLocations,
+        totalMessages:      allMessages?.length ?? 0,
+        messagesByCategory,
+        unreadMessages:     unread,
+      })
+    }
 
     if (tab === "users") {
       const { data } = await supabase
@@ -166,7 +586,7 @@ export default function AdminPage() {
         return
       }
 
-      const ingest = data.ingest || {}
+      const ingest  = data.ingest  || {}
       const cluster = data.cluster || {}
       setPipelineLogs((prev) => [
         ...prev,
@@ -188,9 +608,7 @@ export default function AdminPage() {
     const newValue = !targetUser.is_admin
     const supabase = createClient()
     await supabase.from("profiles").update({ is_admin: newValue }).eq("id", targetUser.id)
-    setUsers((prev) =>
-      prev.map((u) => (u.id === targetUser.id ? { ...u, is_admin: newValue } : u))
-    )
+    setUsers((prev) => prev.map((u) => (u.id === targetUser.id ? { ...u, is_admin: newValue } : u)))
   }
 
   async function toggleRead(msg: ContactMessage) {
@@ -212,13 +630,12 @@ export default function AdminPage() {
         setClaimAction((prev) => ({ ...prev, [slug]: { ...prev[slug], saving: false, error: json.error ?? "Failed" } }))
         return
       }
-      // Refresh claims list
       setClaims((prev) =>
         prev.map((c) => {
           if (c.slug !== slug) return c
-          if (action === "approve") return { ...c, verified: true }
+          if (action === "approve")     return { ...c, verified: true }
           if (action === "set_donorbox") return { ...c, donorbox_campaign_url: extra?.donorbox_url ?? c.donorbox_campaign_url }
-          if (action === "reject") return { ...c, verified: false, claimed: false }
+          if (action === "reject")       return { ...c, verified: false, claimed: false }
           return c
         })
       )
@@ -232,18 +649,16 @@ export default function AdminPage() {
   if (authLoading) return null
   if (!profile?.is_admin) return null
 
-  const totalUsers = users.length
-  const totalPosts = posts.length
-  const adminCount = users.filter((u) => u.is_admin).length
   const unreadCount = messages.filter((m) => !m.read).length
 
   return (
     <div className="min-h-screen bg-paper-100">
-      <div className="container mx-auto px-4 pt-4 pb-8">
-        <NewsNavigation />
+      <TopNav active="ballot" />
 
+      <div className="container mx-auto px-4 pt-4 pb-8">
         <div className="max-w-5xl mx-auto">
-          {/* Header */}
+
+          {/* ── Header ── */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-amber-600" />
@@ -254,34 +669,19 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            {[
-              { label: "Total Users", value: totalUsers, icon: Users, color: "text-teal-600" },
-              { label: "Total Posts", value: totalPosts, icon: FileText, color: "text-teal-600" },
-              { label: "Admins", value: adminCount, icon: ShieldCheck, color: "text-amber-600" },
-              { label: "Unread Msgs", value: tab === "messages" ? unreadCount : "—", icon: Mail, color: "text-civic-red" },
-            ].map(({ label, value, icon: Icon, color }) => (
-              <div key={label} className="bg-card rounded-2xl border border-border p-4 text-center">
-                <Icon className={`w-5 h-5 ${color} mx-auto mb-1`} />
-                <p className="text-2xl font-bold text-foreground">{value}</p>
-                <p className="text-xs text-muted-foreground">{label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Tab bar */}
-          <div className="flex gap-1 mb-4 bg-card border border-border rounded-xl p-1 w-fit flex-wrap">
-            {(["users", "posts", "messages", "claims", "pipeline"] as Tab[]).map((t) => (
+          {/* ── Tab bar ── */}
+          <div className="flex gap-1 mb-5 bg-card border border-border rounded-xl p-1 w-fit flex-wrap">
+            {(["analytics", "users", "posts", "messages", "claims", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`relative px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
+                className={`relative px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors capitalize ${
                   tab === t
                     ? "bg-teal-600 text-white"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
+                {t === "analytics" && <BarChart2 className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />}
                 {t}
                 {t === "messages" && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-civic-red text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -299,13 +699,16 @@ export default function AdminPage() {
             </button>
           </div>
 
-          {/* Users tab */}
+          {/* ── Analytics tab ── */}
+          {tab === "analytics" && (
+            <AnalyticsTab data={analyticsData} loading={loadingData} />
+          )}
+
+          {/* ── Users tab ── */}
           {tab === "users" && (
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
               {loadingData ? (
-                <div className="p-8 text-center text-muted-foreground text-sm animate-pulse">
-                  Loading users…
-                </div>
+                <div className="p-8 text-center text-muted-foreground text-sm animate-pulse">Loading users…</div>
               ) : (
                 <table className="w-full text-sm">
                   <thead className="bg-paper-100 border-b border-border">
@@ -323,10 +726,7 @@ export default function AdminPage() {
                           <div className="flex items-center gap-2">
                             <UserAvatar avatarUrl={u.avatar_url} displayName={u.display_name} size="xs" />
                             <div className="min-w-0">
-                              <Link
-                                href={`/profile/${u.username}`}
-                                className="font-semibold text-foreground hover:underline truncate block"
-                              >
+                              <Link href={`/profile/${u.username}`} className="font-semibold text-foreground hover:underline truncate block">
                                 {u.display_name}
                               </Link>
                               <p className="text-xs text-muted-foreground">@{u.username}</p>
@@ -365,7 +765,184 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Pipeline tab */}
+          {/* ── Posts tab ── */}
+          {tab === "posts" && (
+            <div className="space-y-3">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">Loading posts…</div>
+              ) : posts.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center">
+                  <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No posts yet.</p>
+                </div>
+              ) : (
+                posts.map((post) => (
+                  <div key={post.id} className="bg-card rounded-2xl border border-border p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <UserAvatar avatarUrl={post.author?.avatar_url ?? null} displayName={post.author?.display_name ?? ""} size="xs" />
+                        <div>
+                          <Link href={`/profile/${post.author?.username}`} className="text-xs font-semibold text-foreground hover:underline">
+                            {post.author?.display_name || "Unknown"}
+                          </Link>
+                          <p className="text-[10px] text-muted-foreground">{formatNewsTime(post.created_at)}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deletePost(post.id)}
+                        disabled={deletingId === post.id}
+                        className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        {deletingId === post.id ? "Deleting…" : "Delete"}
+                      </button>
+                    </div>
+                    {post.topic && (
+                      <span className="inline-block mt-2 px-2 py-0.5 bg-teal-100 text-teal-700 text-[10px] font-semibold rounded-full">{post.topic}</span>
+                    )}
+                    <p className="text-sm text-foreground mt-2 leading-relaxed">{post.content}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{post.likes_count} likes</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* ── Messages tab ── */}
+          {tab === "messages" && (
+            <div className="space-y-3">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">Loading messages…</div>
+              ) : messages.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
+                  <Mail className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No contact messages yet.</p>
+                </div>
+              ) : (
+                messages.map((msg) => {
+                  const catMeta = ({
+                    business:   { icon: Briefcase,     label: "Business Inquiry", color: "bg-blue-100 text-ink-900"     },
+                    suggestion: { icon: Lightbulb,     label: "Suggestion",       color: "bg-amber-100 text-amber-700"  },
+                    general:    { icon: MessageCircle, label: "General",          color: "bg-teal-100 text-teal-700"    },
+                    claim:      { icon: ShieldCheck,   label: "Profile Claim",    color: "bg-purple-100 text-purple-700"},
+                  } as const)[msg.category] ?? { icon: MessageCircle, label: "Message", color: "bg-teal-100 text-teal-700" }
+                  const Icon = catMeta.icon
+                  return (
+                    <div key={msg.id} className={`bg-card rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-civic-red/30 shadow-sm"}`}>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${catMeta.color}`}>
+                            <Icon className="w-3 h-3" />
+                            {catMeta.label}
+                          </span>
+                          {!msg.read && <span className="inline-block w-2 h-2 rounded-full bg-civic-red" title="Unread" />}
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(msg.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        <button onClick={() => toggleRead(msg)} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 flex-shrink-0">
+                          {msg.read ? "Mark unread" : "Mark read"}
+                        </button>
+                      </div>
+                      <div className="mt-2">
+                        <p className="text-sm font-semibold text-foreground">{msg.name}</p>
+                        <a href={`mailto:${msg.email}`} className="text-xs text-teal-600 hover:underline">{msg.email}</a>
+                      </div>
+                      <p className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          )}
+
+          {/* ── Claims tab ── */}
+          {tab === "claims" && (
+            <div className="space-y-4">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">Loading claims…</div>
+              ) : claims.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
+                  <Vote className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No candidate profile claims yet.</p>
+                </div>
+              ) : (
+                claims.map((c) => {
+                  const st = claimAction[c.slug] ?? { donorboxDraft: c.donorbox_campaign_url ?? "", saving: false, error: null }
+                  return (
+                    <div key={c.slug} className={`bg-card rounded-2xl border p-5 space-y-3 ${c.verified ? "border-teal-200" : "border-amber-200"}`}>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-foreground">{c.candidate_name}</span>
+                            {c.verified
+                              ? <span className="text-[11px] font-bold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">✓ Verified</span>
+                              : <span className="text-[11px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Pending</span>}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{c.race_office} · slug: <code className="font-mono text-[11px] bg-muted px-1 rounded">{c.slug}</code></p>
+                        </div>
+                        <a href={`/elections/candidate/${c.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-600 hover:underline flex items-center gap-1">
+                          View profile <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      {c.claimant_name && (
+                        <div className="text-xs text-muted-foreground space-y-0.5 bg-paper-50 rounded-lg p-3">
+                          <p><span className="font-semibold text-foreground">Claimant:</span> {c.claimant_name} · {c.claimant_email} · {c.claimant_role}</p>
+                          {c.claimant_message && <p className="italic">"{c.claimant_message}"</p>}
+                          <p>Submitted: {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-xs font-semibold text-foreground mb-1.5">Donorbox campaign URL</p>
+                        <div className="flex gap-2 flex-wrap">
+                          <input
+                            type="url"
+                            placeholder="https://donorbox.org/campaign-slug"
+                            value={st.donorboxDraft}
+                            onChange={(e) => setClaimAction((prev) => ({ ...prev, [c.slug]: { ...st, donorboxDraft: e.target.value, error: null } }))}
+                            className="flex-1 min-w-[200px] h-8 text-xs rounded-lg border border-border bg-paper-50 px-3 outline-none"
+                          />
+                          <button
+                            disabled={st.saving}
+                            onClick={() => claimAdminAction(c.slug, "set_donorbox", { donorbox_url: st.donorboxDraft })}
+                            className="h-8 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                          >
+                            {st.saving ? "Saving…" : "Save URL"}
+                          </button>
+                        </div>
+                        {c.donorbox_campaign_url && (
+                          <a href={c.donorbox_campaign_url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-teal-600 hover:underline flex items-center gap-1 mt-1">
+                            Current: {c.donorbox_campaign_url} <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                        {st.error && <p className="text-[11px] text-red-500 mt-1">{st.error}</p>}
+                      </div>
+                      <div className="flex gap-2 flex-wrap pt-1 border-t border-border">
+                        {!c.verified && (
+                          <button
+                            disabled={st.saving}
+                            onClick={() => claimAdminAction(c.slug, "approve")}
+                            className="h-7 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center gap-1"
+                          >
+                            <CheckCircle className="w-3 h-3" /> Approve claim
+                          </button>
+                        )}
+                        <button
+                          disabled={st.saving}
+                          onClick={() => { if (confirm("Reject and reset this claim?")) claimAdminAction(c.slug, "reject") }}
+                          className="h-7 px-3 text-xs font-semibold border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors flex items-center gap-1"
+                        >
+                          <XCircle className="w-3 h-3" /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          )}
+
+          {/* ── Pipeline tab ── */}
           {tab === "pipeline" && (
             <div className="space-y-4">
               <div className="bg-card rounded-2xl border border-border p-5">
@@ -390,33 +967,29 @@ export default function AdminPage() {
                     {pipelineRunning ? "Running…" : "Run Pipeline"}
                   </button>
                 </div>
-
                 {pipelineLogs.length > 0 && (
                   <div className="mt-4 bg-[#0D1117] rounded-xl p-4 font-mono text-xs space-y-1.5">
                     {pipelineLogs.map((log, i) => (
                       <div key={i} className="flex items-start gap-2">
                         <span className="text-slate-500 flex-shrink-0">{log.ts}</span>
-                        {log.type === "ok" && <CheckCircle className="w-3.5 h-3.5 text-green-400 mt-0.5 flex-shrink-0" />}
-                        {log.type === "error" && <XCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />}
-                        {log.type === "info" && <span className="w-3.5 flex-shrink-0 text-slate-500">›</span>}
-                        <span className={
-                          log.type === "ok" ? "text-green-400" :
-                          log.type === "error" ? "text-red-400" :
-                          "text-slate-300"
-                        }>{log.message}</span>
+                        {log.type === "ok"    && <CheckCircle className="w-3.5 h-3.5 text-green-400 mt-0.5 flex-shrink-0" />}
+                        {log.type === "error" && <XCircle    className="w-3.5 h-3.5 text-red-400   mt-0.5 flex-shrink-0" />}
+                        {log.type === "info"  && <span className="w-3.5 flex-shrink-0 text-slate-500">›</span>}
+                        <span className={log.type === "ok" ? "text-green-400" : log.type === "error" ? "text-red-400" : "text-slate-300"}>
+                          {log.message}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
               <div className="bg-card rounded-2xl border border-border p-4 text-xs text-muted-foreground space-y-1">
                 <p className="font-semibold text-foreground text-sm mb-2">Required environment variables</p>
                 {[
-                  { name: "GNEWS_API_KEY", desc: "gnews.io — free tier sufficient for dev (100 req/day)" },
-                  { name: "ANTHROPIC_API_KEY", desc: "console.anthropic.com — used by Claude Haiku for clustering" },
-                  { name: "SUPABASE_SERVICE_ROLE_KEY", desc: "Supabase project settings → API → service_role key" },
-                  { name: "CRON_SECRET", desc: "Any random string — only needed for automated cron jobs" },
+                  { name: "GNEWS_API_KEY",             desc: "gnews.io — free tier sufficient for dev (100 req/day)" },
+                  { name: "ANTHROPIC_API_KEY",          desc: "console.anthropic.com — used by Claude Haiku for clustering" },
+                  { name: "SUPABASE_SERVICE_ROLE_KEY",  desc: "Supabase project settings → API → service_role key" },
+                  { name: "CRON_SECRET",                desc: "Any random string — only needed for automated cron jobs" },
                 ].map(({ name, desc }) => (
                   <div key={name} className="flex items-start gap-2">
                     <code className="bg-muted px-1.5 py-0.5 rounded text-[10px] text-foreground font-mono flex-shrink-0">{name}</code>
@@ -424,231 +997,6 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Messages tab */}
-          {tab === "messages" && (
-            <div className="space-y-3">
-              {loadingData ? (
-                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
-                  Loading messages…
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="bg-card rounded-2xl border border-border p-10 text-center">
-                  <Mail className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
-                  <p className="text-sm text-muted-foreground">No contact messages yet.</p>
-                </div>
-              ) : (
-                messages.map((msg) => {
-                  const catMeta = ({
-                    business:   { icon: Briefcase,      label: "Business Inquiry", color: "bg-blue-100 text-ink-900" },
-                    suggestion: { icon: Lightbulb,      label: "Suggestion",       color: "bg-amber-100 text-amber-700" },
-                    general:    { icon: MessageCircle,  label: "General",          color: "bg-teal-100 text-teal-700" },
-                    claim:      { icon: ShieldCheck,    label: "Profile Claim",    color: "bg-purple-100 text-purple-700" },
-                  } as const)[msg.category] ?? { icon: MessageCircle, label: "Message", color: "bg-teal-100 text-teal-700" }
-                  const Icon = catMeta.icon
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`bg-card rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-civic-red/30 shadow-sm"}`}
-                    >
-                      <div className="flex items-start justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${catMeta.color}`}>
-                            <Icon className="w-3 h-3" />
-                            {catMeta.label}
-                          </span>
-                          {!msg.read && (
-                            <span className="inline-block w-2 h-2 rounded-full bg-civic-red" title="Unread" />
-                          )}
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(msg.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => toggleRead(msg)}
-                          className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 flex-shrink-0"
-                        >
-                          {msg.read ? "Mark unread" : "Mark read"}
-                        </button>
-                      </div>
-
-                      <div className="mt-2">
-                        <p className="text-sm font-semibold text-foreground">{msg.name}</p>
-                        <a href={`mailto:${msg.email}`} className="text-xs text-teal-600 hover:underline">{msg.email}</a>
-                      </div>
-
-                      <p className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-          )}
-
-          {/* Posts tab */}
-          {tab === "posts" && (
-            <div className="space-y-3">
-              {loadingData ? (
-                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
-                  Loading posts…
-                </div>
-              ) : posts.length === 0 ? (
-                <div className="bg-card rounded-2xl border border-border p-8 text-center">
-                  <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
-                  <p className="text-sm text-muted-foreground">No posts yet.</p>
-                </div>
-              ) : (
-                posts.map((post) => (
-                  <div key={post.id} className="bg-card rounded-2xl border border-border p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <UserAvatar
-                          avatarUrl={post.author?.avatar_url ?? null}
-                          displayName={post.author?.display_name ?? ""}
-                          size="xs"
-                        />
-                        <div>
-                          <Link
-                            href={`/profile/${post.author?.username}`}
-                            className="text-xs font-semibold text-foreground hover:underline"
-                          >
-                            {post.author?.display_name || "Unknown"}
-                          </Link>
-                          <p className="text-[10px] text-muted-foreground">
-                            {formatNewsTime(post.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => deletePost(post.id)}
-                        disabled={deletingId === post.id}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        {deletingId === post.id ? "Deleting…" : "Delete"}
-                      </button>
-                    </div>
-                    {post.topic && (
-                      <span className="inline-block mt-2 px-2 py-0.5 bg-teal-100 text-teal-700 text-[10px] font-semibold rounded-full">
-                        {post.topic}
-                      </span>
-                    )}
-                    <p className="text-sm text-foreground mt-2 leading-relaxed">{post.content}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{post.likes_count} likes</p>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-          {/* Claims tab */}
-          {tab === "claims" && (
-            <div className="space-y-4">
-              {loadingData ? (
-                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">
-                  Loading claims…
-                </div>
-              ) : claims.length === 0 ? (
-                <div className="bg-card rounded-2xl border border-border p-10 text-center">
-                  <Vote className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
-                  <p className="text-sm text-muted-foreground">No candidate profile claims yet.</p>
-                </div>
-              ) : (
-                claims.map((c) => {
-                  const st = claimAction[c.slug] ?? { donorboxDraft: c.donorbox_campaign_url ?? "", saving: false, error: null }
-                  return (
-                    <div
-                      key={c.slug}
-                      className={`bg-card rounded-2xl border p-5 space-y-3 ${c.verified ? "border-teal-200" : "border-amber-200"}`}
-                    >
-                      {/* Header */}
-                      <div className="flex items-start justify-between gap-3 flex-wrap">
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-foreground">{c.candidate_name}</span>
-                            {c.verified ? (
-                              <span className="text-[11px] font-bold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">✓ Verified</span>
-                            ) : (
-                              <span className="text-[11px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Pending</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">{c.race_office} · slug: <code className="font-mono text-[11px] bg-muted px-1 rounded">{c.slug}</code></p>
-                        </div>
-                        <a
-                          href={`/elections/candidate/${c.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-teal-600 hover:underline flex items-center gap-1"
-                        >
-                          View profile <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-
-                      {/* Claimant info */}
-                      {c.claimant_name && (
-                        <div className="text-xs text-muted-foreground space-y-0.5 bg-paper-50 rounded-lg p-3">
-                          <p><span className="font-semibold text-foreground">Claimant:</span> {c.claimant_name} · {c.claimant_email} · {c.claimant_role}</p>
-                          {c.claimant_message && <p className="italic">"{c.claimant_message}"</p>}
-                          <p>Submitted: {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
-                        </div>
-                      )}
-
-                      {/* Donorbox URL */}
-                      <div>
-                        <p className="text-xs font-semibold text-foreground mb-1.5">Donorbox campaign URL</p>
-                        <div className="flex gap-2 flex-wrap">
-                          <input
-                            type="url"
-                            placeholder="https://donorbox.org/campaign-slug"
-                            value={st.donorboxDraft}
-                            onChange={(e) =>
-                              setClaimAction((prev) => ({
-                                ...prev,
-                                [c.slug]: { ...st, donorboxDraft: e.target.value, error: null },
-                              }))
-                            }
-                            className="flex-1 min-w-[200px] h-8 text-xs rounded-lg border border-border bg-paper-50 px-3 outline-none"
-                          />
-                          <button
-                            disabled={st.saving}
-                            onClick={() => claimAdminAction(c.slug, "set_donorbox", { donorbox_url: st.donorboxDraft })}
-                            className="h-8 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
-                          >
-                            {st.saving ? "Saving…" : "Save URL"}
-                          </button>
-                        </div>
-                        {c.donorbox_campaign_url && (
-                          <a href={c.donorbox_campaign_url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-teal-600 hover:underline flex items-center gap-1 mt-1">
-                            Current: {c.donorbox_campaign_url} <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        )}
-                        {st.error && <p className="text-[11px] text-red-500 mt-1">{st.error}</p>}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex gap-2 flex-wrap pt-1 border-t border-border">
-                        {!c.verified && (
-                          <button
-                            disabled={st.saving}
-                            onClick={() => claimAdminAction(c.slug, "approve")}
-                            className="h-7 px-3 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center gap-1"
-                          >
-                            <CheckCircle className="w-3 h-3" /> Approve claim
-                          </button>
-                        )}
-                        <button
-                          disabled={st.saving}
-                          onClick={() => { if (confirm("Reject and reset this claim?")) claimAdminAction(c.slug, "reject") }}
-                          className="h-7 px-3 text-xs font-semibold border border-red-200 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors flex items-center gap-1"
-                        >
-                          <XCircle className="w-3 h-3" /> Reject
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
             </div>
           )}
 
