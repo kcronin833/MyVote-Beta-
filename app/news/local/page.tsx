@@ -35,7 +35,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuth } from "@/components/auth-context";
+import { useAuth } from "@/components/auth-context"
+import { NewsFeedAd } from "@/components/ads/ad-unit";
 
 const GEORGIA_CITIES = [
   "Atlanta",
@@ -231,6 +232,9 @@ export default function LocalNewsPage() {
           ) : (
             <div className="grid gap-4">
               {articles.map((article, i) => (
+                <>
+                {/* Ad after every 4th article */}
+                {i > 0 && i % 4 === 0 && <NewsFeedAd key={`ad-${i}`} />}
                 <Card
                   key={i}
                   className="hover:shadow-md transition-shadow border-border"
@@ -316,6 +320,7 @@ export default function LocalNewsPage() {
                     </div>
                   </CardContent>
                 </Card>
+                </>
               ))}
             </div>
           )}

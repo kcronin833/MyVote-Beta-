@@ -399,6 +399,7 @@ export default function AdminPage() {
     setLoadingData(true)
     const supabase = createClient()
 
+    try {
     if (tab === "analytics") {
       const now = new Date()
       const sevenDaysAgo  = new Date(now.getTime() - 7  * 86400000).toISOString()
@@ -549,7 +550,11 @@ export default function AdminPage() {
       }
     }
 
-    setLoadingData(false)
+    } catch (err) {
+      console.error("[admin] loadData error:", err)
+    } finally {
+      setLoadingData(false)
+    }
   }
 
   async function deletePost(postId: string) {
