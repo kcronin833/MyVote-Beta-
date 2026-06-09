@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listCounties } from "@/lib/county-utils";
-import { TopNav } from "@/components/desktop/top-nav";
+import { C } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
-  title: "Georgia 2026 Ballot by County · MyVote",
+  title: "Georgia 2026 Ballot by County",
   description:
     "Browse 2026 election ballots for every Georgia county. Find your governor, U.S. House, statewide, and local races plus voting deadlines — organized by congressional district.",
   alternates: { canonical: "/g" },
@@ -14,21 +14,6 @@ export const metadata: Metadata = {
       "Every Georgia county's 2026 ballot, candidates, and voting deadlines in one place.",
     type: "website",
   },
-};
-
-const C = {
-  page: "#F3F1EB",
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink700: "#3D435A",
-  ink500: "#6B7088",
-  ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealSoft: "#E6F0ED",
-  navy: "#1F3A5F",
 };
 
 /** Sort GA-1 … GA-14 numerically, "Unknown" last. */
@@ -54,8 +39,6 @@ export default function CountyIndexPage() {
 
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
-      <TopNav active="ballot" />
-
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 lg:px-6 lg:pt-4">
         {/* Hero */}
         <div

@@ -15,25 +15,7 @@ import {
 } from "lucide-react"
 import { SearchService, type SearchResult } from "@/lib/search-service"
 import { formatDistanceToNow } from "date-fns"
-import { TopNav } from "@/components/desktop/top-nav"
-
-/* ── Palette (matches the rest of the app) ─────────────────────────── */
-const C = {
-  page:     "#F3F1EB",
-  card:     "#FFFFFF",
-  rule:     "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade:    "#F7F5EF",
-  ink900:   "#1A2138",
-  ink700:   "#3D435A",
-  ink500:   "#6B7088",
-  ink400:   "#8B8FA3",
-  teal:     "#3D8073",
-  tealSoft: "#E6F0ED",
-  red:      "#B33A2C",
-  redSoft:  "#F5E3DF",
-  navy:     "#1F3A5F",
-}
+import { C } from "@/lib/design-tokens"
 
 const cardBase: React.CSSProperties = {
   background: C.card,
@@ -364,8 +346,6 @@ function SearchResults() {
 export default function SearchPage() {
   return (
     <div style={{ background: C.page, minHeight: "100vh" }}>
-      <TopNav />
-
       <div className="max-w-[860px] mx-auto px-3 pt-4 pb-10 lg:px-6">
         {/* Page title row */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>

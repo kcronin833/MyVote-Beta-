@@ -16,6 +16,8 @@ interface Props {
   size?: number
   /** Background colour for the initials fallback (party-matched). */
   partyColor?: string
+  /** "circle" (default, for profile pages) or "square" (rounded square, for race cards) */
+  shape?: "circle" | "square"
 }
 
 function getInitials(name: string) {
@@ -33,6 +35,7 @@ export function CandidatePhoto({
   wikipediaTitle,
   size = 130,
   partyColor = "#1A2138",
+  shape = "circle",
 }: Props) {
   const [src, setSrc]       = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
@@ -58,8 +61,8 @@ export function CandidatePhoto({
   const ring: React.CSSProperties = {
     width: size,
     height: size,
-    borderRadius: "50%",
-    boxShadow: "0 0 0 4px #FFFFFF, 0 0 0 6px #E4E0D3",
+    borderRadius: shape === "square" ? 8 : "50%",
+    boxShadow: shape === "circle" ? "0 0 0 4px #FFFFFF, 0 0 0 6px #E4E0D3" : undefined,
     flexShrink: 0,
     overflow: "hidden",
   }

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, MapPin, Calendar } from "lucide-react"
-import { NewsNavigation } from "@/components/news-nav"
 import { UserAvatar } from "@/components/user-avatar"
 import { FollowButton } from "@/components/follow-button"
 import { createClient } from "@/lib/supabase/client"
@@ -102,7 +101,6 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-paper-100">
         <div className="container mx-auto px-4 pt-4 pb-8">
-          <NewsNavigation />
           <div className="max-w-2xl mx-auto space-y-4 animate-pulse">
             <div className="bg-paper-50 rounded-2xl border border-border p-6">
               <div className="flex gap-4">
@@ -124,7 +122,6 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-paper-100">
         <div className="container mx-auto px-4 pt-4 pb-8">
-          <NewsNavigation />
           <div className="max-w-2xl mx-auto text-center py-20">
             <h1 className="text-2xl font-bold text-foreground mb-2">User not found</h1>
             <p className="text-muted-foreground mb-6">
@@ -144,7 +141,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
-        <NewsNavigation />
         <div className="max-w-2xl mx-auto space-y-4">
 
           <Link
@@ -152,7 +148,7 @@ export default function ProfilePage() {
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            Home
           </Link>
 
           {/* Profile header */}

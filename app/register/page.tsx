@@ -16,7 +16,6 @@ import {
   Mail,
   Search,
 } from "lucide-react"
-import { TopNav } from "@/components/desktop/top-nav"
 import { useAuth } from "@/components/auth-context"
 import { resolveCountySlug, countySlug, getAllCountyNames } from "@/lib/county-utils"
 
@@ -117,6 +116,7 @@ export default function RegisterPage() {
   const { user, profile } = useAuth()
   const [now, setNow] = useState(new Date())
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [countySearch, setCountySearch] = useState("")
 
   // Tick every minute so countdowns stay fresh
   useEffect(() => {
@@ -142,7 +142,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-paper-100">
-      <TopNav active="ballot" />
       <div className="container mx-auto px-4 pt-4 pb-10">
 
         {/* ── Hero ── */}
@@ -395,22 +394,57 @@ export default function RegisterPage() {
                     to see local voting info here.
                   </p>
                 )}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {["Fulton", "DeKalb", "Gwinnett", "Cobb", "Clayton", "Chatham"].map((c) => (
-                    <Link
-                      key={c}
-                      href={`/g/${countySlug(c)}`}
-                      className="text-xs font-medium px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-teal-300 transition-colors"
-                    >
-                      {c} County
-                    </Link>
-                  ))}
-                  <Link
-                    href="/g"
-                    className="text-xs font-medium px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-teal-300 transition-colors"
-                  >
-                    All counties →
-                  </Link>
+                {/* County search */}
+                <div className="mt-3">
+                  <div className="relative mb-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Search your county…"
+                      value={countySearch}
+                      onChange={(e) => setCountySearch(e.target.value)}
+                      className="w-full pl-8 pr-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400"
+                    />
+                  </div>
+                  {countySearch.trim() ? (
+                    <div className="flex flex-wrap gap-2">
+                      {getAllCountyNames()
+                        .filter((c) => c.toLowerCase().includes(countySearch.trim().toLowerCase()))
+                        .slice(0, 10)
+                        .map((c) => (
+                          <Link
+                            key={c}
+                            href={`/g/${countySlug(c)}`}
+                            className="text-xs font-medium px-3 py-1.5 rounded-full border border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+                          >
+                            {c} County
+                          </Link>
+                        ))}
+                      {getAllCountyNames().filter((c) =>
+                        c.toLowerCase().includes(countySearch.trim().toLowerCase())
+                      ).length === 0 && (
+                        <p className="text-xs text-muted-foreground">No counties found. <Link href="/g" className="underline text-teal-600">Browse all 159 →</Link></p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {["Fulton", "DeKalb", "Gwinnett", "Cobb", "Clayton", "Chatham"].map((c) => (
+                        <Link
+                          key={c}
+                          href={`/g/${countySlug(c)}`}
+                          className="text-xs font-medium px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-teal-300 transition-colors"
+                        >
+                          {c} County
+                        </Link>
+                      ))}
+                      <Link
+                        href="/g"
+                        className="text-xs font-medium px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-teal-300 transition-colors"
+                      >
+                        All 159 counties →
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

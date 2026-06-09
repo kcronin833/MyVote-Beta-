@@ -1,11 +1,10 @@
 ﻿"use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Send, CheckCircle, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
+import { Send, CheckCircle, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
 
 const CATEGORIES = [
   {
@@ -75,13 +74,6 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 py-10 max-w-2xl">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="mb-6 text-ink-700/60 hover:text-ink-900">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back
-          </Button>
-        </Link>
-
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-ink-900">Contact Us</h1>
           <p className="text-ink-700/60 mt-1">We read every message and typically respond within 24 hours.</p>

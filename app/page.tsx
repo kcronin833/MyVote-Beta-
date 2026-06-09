@@ -17,6 +17,7 @@ import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 import { OnboardingQuiz } from "@/components/onboarding-quiz"
 import { DesktopHome } from "@/components/desktop/home"
+import { EarlyVotingBanner } from "@/components/early-voting-banner"
 
 /* ── Election countdown ─────────────────────────────────────────────── */
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
@@ -190,8 +191,9 @@ export default function HomePage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-paper-100 flex items-center justify-center">
+      <div className="min-h-screen bg-paper-100 flex flex-col items-center justify-center gap-3">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
+        <p className="text-sm text-ink-400 font-medium">Loading MyVote…</p>
       </div>
     )
   }
@@ -257,6 +259,11 @@ export default function HomePage() {
             district, and local offices — with real candidates and key dates.
           </p>
 
+          {/* Early voting urgency strip */}
+          <div className="w-full max-w-md mb-2">
+            <EarlyVotingBanner compact />
+          </div>
+
           {/* The main CTA */}
           <HeroZipForm />
 
@@ -276,9 +283,9 @@ export default function HomePage() {
               sessionStorage.setItem("myvote_guest", "true")
               setGuestMode(true)
             }}
-            className="mt-7 text-sm text-ink-700/40 hover:text-ink-700/60 transition-colors flex items-center gap-1"
+            className="mt-7 text-sm text-ink-700/60 hover:text-ink-900 transition-colors flex items-center gap-1.5 underline underline-offset-2 decoration-ink-700/30 hover:decoration-ink-900/50"
           >
-            Browse the news feed instead
+            Browse without signing up
             <ArrowRight className="w-3 h-3" />
           </button>
         </div>

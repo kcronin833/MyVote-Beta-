@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Globe, ShieldCheck, MapPin, BarChart3, Users, Newspaper } from "lucide-react"
-import { Logo } from "@/components/logo"
+import { Globe, ShieldCheck, MapPin, BarChart3, Users, Newspaper, Bot, Filter, CheckCircle, AlertTriangle } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "About MyVote",
@@ -21,19 +20,10 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-paper-100">
-      <div className="bg-ink-900 text-white">
-        <div className="container mx-auto px-4 py-10">
-          <Link href="/">
-            <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 mb-4 -ml-3">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          <div className="flex items-center gap-3 mb-3">
-            <Logo size="md" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2">About MyVote</h1>
-          <p className="text-teal-100 text-lg max-w-2xl">
+      <div className="border-b border-rule bg-card">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl md:text-4xl font-bold font-serif text-ink-900 mb-2">About MyVote</h1>
+          <p className="text-ink-500 text-lg max-w-2xl">
             Helping Georgia citizens stay informed, engaged, and empowered — from all political perspectives.
           </p>
         </div>
@@ -142,6 +132,58 @@ export default function AboutPage() {
           </p>
         </section>
 
+        {/* How Our AI Works */}
+        <section className="border-t border-rule pt-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Bot className="w-5 h-5 text-teal-600" />
+            <h2 className="text-2xl font-bold text-ink-700">How Our AI Works</h2>
+          </div>
+          <p className="text-ink-700/70 text-sm mb-6 leading-relaxed">
+            MyVote uses AI to help surface relevant political news — but we believe you deserve to
+            know exactly how it works and what its limits are.
+          </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                icon: Filter,
+                color: "text-teal-600",
+                bg: "bg-teal-50",
+                title: "What we curate",
+                body: "We pull from established national news sources (AP, Reuters, NPR, Fox News, Politico, and others). Our AI reads headlines and summaries to select stories relevant to Georgia voters and national politics.",
+              },
+              {
+                icon: CheckCircle,
+                color: "text-emerald-600",
+                bg: "bg-emerald-50",
+                title: "What the AI does",
+                body: "The AI writes a brief, neutral summary of each story and tags it by topic. It does not add opinion or analysis. Every summary links directly to the original source so you can read the full article.",
+              },
+              {
+                icon: AlertTriangle,
+                color: "text-amber-600",
+                bg: "bg-amber-50",
+                title: "What it can't do",
+                body: "AI can make mistakes. It may occasionally miss context or select a story that doesn't belong. We review the feed regularly. If you see something off, use the Contact page to flag it — we fix issues quickly.",
+              },
+            ].map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.title} className={`rounded-xl p-5 ${item.bg} border border-rule`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon className={`w-4 h-4 ${item.color}`} />
+                    <p className={`font-bold text-sm ${item.color}`}>{item.title}</p>
+                  </div>
+                  <p className="text-sm text-ink-700/80 leading-relaxed">{item.body}</p>
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-xs text-ink-400 mt-4 leading-relaxed">
+            MyVote does not use AI to generate or fabricate news stories. All stories originate from
+            human journalists at named publications. The AI role is curation and summarization only.
+          </p>
+        </section>
+
         {/* What We Are Not */}
         <section>
           <h2 className="text-2xl font-bold text-ink-700 mb-4">What We Are Not</h2>
@@ -213,18 +255,6 @@ export default function AboutPage() {
         </section>
       </div>
 
-      <footer className="border-t border-rule py-8 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-ink-700/60">
-          <Logo size="sm" />
-          <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
-          <div className="flex justify-center gap-4 mt-3">
-            <Link href="/elections" className="hover:text-ink-900">Elections 2026</Link>
-            <Link href="/privacy" className="hover:text-ink-900">Privacy</Link>
-            <Link href="/terms" className="hover:text-ink-900">Terms</Link>
-            <Link href="/contact" className="hover:text-ink-900">Contact</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

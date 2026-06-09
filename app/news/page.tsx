@@ -3,26 +3,24 @@ import { NewsNavigation } from "@/components/news-nav";
 import { AIFactualNews } from "@/components/ai-factual-news";
 
 export const metadata: Metadata = {
-  title: "Georgia Political News — Left, Right & Center · MyVote",
+  title: "National News · MyVote",
   description:
-    "Read Georgia political news from left, right, and center sources side by side. AI-generated factual summaries strip away spin so you can form your own opinion.",
+    "AI-curated national political news — factual, sourced, and free of spin. See what's happening across America.",
   alternates: { canonical: "/news" },
   openGraph: {
-    title: "Georgia Political News — Every Perspective · MyVote",
+    title: "National News · MyVote",
     description:
-      "Read the same Georgia story from left, right, and center. Facts first, then opinions.",
+      "AI-curated national political news — factual, sourced, and free of spin.",
     type: "website",
   },
 };
 
 export default function NewsFeed() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-paper-100">
+      <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
-        <div className="max-w-4xl mx-auto">
-          <AIFactualNews />
-        </div>
+        <AIFactualNews />
       </div>
     </div>
   );

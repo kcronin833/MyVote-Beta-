@@ -1,61 +1,46 @@
-﻿"use client"
+"use client"
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Globe, MapPin, User, Home, Vote, Users, ClipboardCheck } from "lucide-react"
-import { SearchInput } from "@/components/search-input"
-import { Logo } from "@/components/logo"
-import { UserNav } from "@/components/user-nav"
-import { NotificationBell } from "@/components/notification-bell"
+import { Globe, MapPin } from "lucide-react"
 
-const NAV_ITEMS = [
-  { href: "/", icon: Home, label: "Home" },
-  { href: "/elections", icon: Vote, label: "Elections", accent: "text-[#F39C12]" },
-  { href: "/news", icon: Globe, label: "News" },
-  { href: "/news/local", icon: MapPin, label: "Local" },
-  { href: "/discover", icon: Users, label: "Discover" },
-  { href: "/register", icon: ClipboardCheck, label: "Register", accent: "text-teal-600" },
-  { href: "/profile", icon: User, label: "Profile" },
-]
+/* ── News section sub-nav ────────────────────────────────────────────────
+   A slim tab strip that sits just below the GlobalNav on /news and
+   /news/local. The global TopNav already provides Logo, Search, UserNav,
+   and the top-level site links — this component only adds the
+   National / Local section toggle. */
+
+const SECTION_TABS = [
+  { href: "/news",       icon: Globe,  label: "National" },
+  { href: "/news/local", icon: MapPin, label: "Local"    },
+] as const
 
 export function NewsNavigation() {
   const pathname = usePathname()
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <Link href="/">
-            <Logo size="lg" />
-          </Link>
-        </div>
+    <div className="flex gap-0 mb-6 border-b border-rule -mx-4 px-4">
+      {SECTION_TABS.map(({ href, icon: Icon, label }) => {
+        const active =
+          href === "/news"
+            ? pathname === "/news"
+            : pathname.startsWith(href)
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <SearchInput />
-          <NotificationBell />
-          <nav className="flex gap-0.5">
-            {NAV_ITEMS.map(({ href, icon: Icon, label, accent }) => {
-              const active = pathname === href
-              return (
-                <Link key={href} href={href}>
-                  <button
-                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium ${
-                      active
-                        ? "bg-ink-900/10 text-ink-900 border-b-2 border-[#1A2138]"
-                        : `text-muted-foreground hover:text-foreground hover:bg-paper-100 ${accent || ""}`
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="leading-none">{label}</span>
-                  </button>
-                </Link>
-              )
-            })}
-          </nav>
-          <UserNav />
-        </div>
-      </div>
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              active
+                ? "border-ink-900 text-ink-900"
+                : "border-transparent text-ink-500 hover:text-ink-900 hover:border-ink-300"
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {label}
+          </Link>
+        )
+      })}
     </div>
   )
 }

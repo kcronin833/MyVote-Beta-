@@ -3,19 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const C = {
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink500: "#6B7088",
-  ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  red: "#B33A2C",
-};
+import { C } from "@/lib/design-tokens";
 
 /* ZIP → /g/[county] router. Lives on the elections hub so a voter can
    jump straight from "what's my ballot?" to their county's race list. */
@@ -132,7 +120,7 @@ export function ZipBallotLookup({ variant = "light" }: { variant?: "light" | "on
           href="/g"
           style={{ color: onDark ? "#fff" : C.teal, fontWeight: 600 }}
         >
-          Or browse all 156 counties
+          Or browse all 159 counties
         </Link>
       </p>
     </div>

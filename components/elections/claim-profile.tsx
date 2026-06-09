@@ -1,24 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const C = {
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink700: "#3D435A",
-  ink500: "#6B7088",
-  ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
-  red: "#B33A2C",
-  amber: "#B8862F",
-  amberSoft: "#F4ECD8",
-  amberBorder: "#E2D2A8",
-};
+import { C } from "@/lib/design-tokens";
 
 const ROLES = [
   { id: "candidate", label: "I'm the candidate" },

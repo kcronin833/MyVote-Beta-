@@ -320,7 +320,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "One of Georgia's longest-serving members of Congress. Member of the Appropriations Committee. Focuses on agriculture, veterans, and rural economic development.",
         ["Agriculture", "Veterans Affairs", "Rural Economic Development", "Military"],
         ["U.S. Representative GA-2 (1993-present)", "Member, House Appropriations Committee", "Army veteran"],
-        -45, "https://bishop.house.gov", "https://twitter.com/SanfordBishop"),
+        -45, "https://bishop.house.gov", "https://twitter.com/SanfordBishop",
+        { wikipediaTitle: "Sanford_D._Bishop_Jr." }),
       tbdCandidate("Republican"),
     ]
   ),
@@ -344,7 +345,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Longtime DeKalb-based congressman and member of the House Judiciary and Transportation committees. Focuses on civil rights, voting rights, and infrastructure.",
         ["Civil Rights", "Voting Rights", "Infrastructure", "Judiciary Reform"],
         ["U.S. Representative GA-4 (2007-present)", "Former DeKalb County Commissioner", "Attorney"],
-        -68, "https://hankjohnson.house.gov", "https://twitter.com/RepHankJohnson"),
+        -68, "https://hankjohnson.house.gov", "https://twitter.com/RepHankJohnson",
+        { wikipediaTitle: "Hank_Johnson" }),
       rCandidate("James Duffie", false,
         "Republican nominee who advanced unopposed in the May 19 primary to challenge for the GA-4 seat.",
         ["Public Safety", "Economic Growth", "Conservative Values", "Small Business"],
@@ -360,7 +362,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Represents Georgia's 5th Congressional District, the seat formerly held by civil rights icon John Lewis. Focuses on voting rights, transit, and affordable housing.",
         ["Voting Rights", "MARTA Expansion", "Affordable Housing", "Healthcare Access"],
         ["U.S. Representative GA-5 (2021-present)", "Former Georgia State Senator", "Former GA Democratic Party Chair"],
-        -72, "https://williams.house.gov", "https://twitter.com/RepNikema"),
+        -72, "https://williams.house.gov", "https://twitter.com/RepNikema",
+        { wikipediaTitle: "Nikema_Williams" }),
       tbdCandidate("Republican"),
     ]
   ),
@@ -372,7 +375,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Gun safety advocate and mother of Jordan Davis, who was killed in 2012. Focuses on gun safety, healthcare, and protecting suburban communities.",
         ["Gun Safety", "Healthcare Access", "Education", "Women's Rights"],
         ["U.S. Representative GA-6 (2023-present)", "Former Gun Safety Advocate & Activist", "Former Delta flight attendant"],
-        -60, "https://mcbath.house.gov", "https://twitter.com/RepLucyMcBath"),
+        -60, "https://mcbath.house.gov", "https://twitter.com/RepLucyMcBath",
+        { wikipediaTitle: "Lucy_McBath" }),
       tbdCandidate("Republican"),
     ]
   ),
@@ -396,7 +400,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Focuses on agriculture, military (Robins Air Force Base), and rural economic development. Member of the House Armed Services Committee.",
         ["Agriculture", "Military (Robins AFB)", "Rural Economic Development", "Border Security"],
         ["U.S. Representative GA-8 (2011-present)", "Former Georgia State Representative", "Small business owner"],
-        70, "https://austinscott.house.gov", "https://twitter.com/AustinScottGA08"),
+        70, "https://austinscott.house.gov", "https://twitter.com/AustinScottGA08",
+        { wikipediaTitle: "Austin_Scott_(politician)" }),
       tbdCandidate("Democrat"),
     ]
   ),
@@ -408,7 +413,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Gun shop owner and staunch conservative. Focuses on Second Amendment rights, border security, and limited government.",
         ["Second Amendment", "Border Security", "Limited Government", "Tax Cuts"],
         ["U.S. Representative GA-9 (2021-present)", "Navy veteran", "Gun shop owner"],
-        88, "https://clyde.house.gov", "https://twitter.com/Rep_Clyde"),
+        88, "https://clyde.house.gov", "https://twitter.com/Rep_Clyde",
+        { wikipediaTitle: "Andrew_Clyde" }),
       tbdCandidate("Democrat"),
     ]
   ),
@@ -444,7 +450,8 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
         "Construction company owner focused on economic development, agriculture, and conservative values. Serves on the House Agriculture Committee.",
         ["Agriculture", "Economic Development", "Conservative Values", "Small Business"],
         ["U.S. Representative GA-12 (2015-present)", "Construction company owner", "Businessman"],
-        72, "https://allen.house.gov", "https://twitter.com/RepRickAllen"),
+        72, "https://allen.house.gov", "https://twitter.com/RepRickAllen",
+        { wikipediaTitle: "Rick_W._Allen" }),
       tbdCandidate("Democrat"),
     ]
   ),
@@ -940,6 +947,9 @@ export const COUNTY_DATA: Record<string, CountyData> = {
   "McIntosh":  basicCountyRaces("McIntosh",  "Darien",       "(912) 437-6671"),
   "Camden":    basicCountyRaces("Camden",    "Woodbine",     "(912) 576-5601"),
   "Charlton":  basicCountyRaces("Charlton",  "Folkston",     "(912) 496-2246"),
+  "Butts":         basicCountyRaces("Butts",         "Jackson",   "(770) 775-8200"),
+  "Chattahoochee": basicCountyRaces("Chattahoochee", "Cusseta",   "(706) 989-3602"),
+  "Dade":          basicCountyRaces("Dade",          "Trenton",   "(706) 657-4625"),
 }
 
 // ─── Zip → County Mapping ────────────────────────────────────────────────────
@@ -1042,6 +1052,9 @@ export const ZIP_TO_COUNTY: Record<string, string> = {
 
   // Walker County (LaFayette)
   "30728":"Walker","30738":"Walker","30739":"Walker",
+
+  // Dade County (Trenton)
+  "30752":"Dade","30757":"Dade",
 
   // Chatham County (Savannah)
   "31401":"Chatham","31402":"Chatham","31403":"Chatham","31404":"Chatham",
@@ -1193,6 +1206,9 @@ export const ZIP_TO_COUNTY: Record<string, string> = {
 
   // Sumter County (Americus)
   "31709":"Sumter","31719":"Sumter",
+
+  // Butts County (Jackson)
+  "30233":"Butts",
 
   // Spalding County (Griffin)
   "30223":"Spalding","30224":"Spalding",
@@ -1416,6 +1432,9 @@ export const ZIP_TO_COUNTY: Record<string, string> = {
   // Terrell County (Dawson)
   "39842":"Terrell",
 
+  // Chattahoochee County (Cusseta)
+  "31805":"Chattahoochee",
+
   // Stewart County (Lumpkin)
   "31815":"Stewart",
 
@@ -1440,14 +1459,14 @@ export const COUNTY_TO_CONGRESSIONAL: Record<string, string> = {
   "Tattnall":"GA-1","Toombs":"GA-1","Ware":"GA-1","Wayne":"GA-1",
   // GA-2 SW Georgia
   "Baker":"GA-2","Ben Hill":"GA-2","Berrien":"GA-2","Brooks":"GA-2","Calhoun":"GA-2",
-  "Colquitt":"GA-2","Cook":"GA-2","Crisp":"GA-2","Decatur":"GA-2","Dougherty":"GA-2",
+  "Chattahoochee":"GA-2","Colquitt":"GA-2","Cook":"GA-2","Crisp":"GA-2","Decatur":"GA-2","Dougherty":"GA-2",
   "Early":"GA-2","Grady":"GA-2","Irwin":"GA-2","Lee":"GA-2","Lowndes":"GA-2",
   "Miller":"GA-2","Mitchell":"GA-2","Quitman":"GA-2","Randolph":"GA-2",
   "Seminole":"GA-2","Sumter":"GA-2","Terrell":"GA-2","Thomas":"GA-2","Tift":"GA-2",
   "Turner":"GA-2","Wilcox":"GA-2","Worth":"GA-2","Clay":"GA-2","Echols":"GA-2",
   "Lanier":"GA-2","Atkinson":"GA-2",
   // GA-3 West Georgia
-  "Carroll":"GA-3","Coweta":"GA-3","Fayette":"GA-3","Haralson":"GA-3","Heard":"GA-3",
+  "Butts":"GA-3","Carroll":"GA-3","Coweta":"GA-3","Fayette":"GA-3","Haralson":"GA-3","Heard":"GA-3",
   "Lamar":"GA-3","Meriwether":"GA-3","Pike":"GA-3","Spalding":"GA-3","Troup":"GA-3","Upson":"GA-3",
   // GA-4 DeKalb/suburbs
   "DeKalb":"GA-4","Rockdale":"GA-4","Newton":"GA-4",

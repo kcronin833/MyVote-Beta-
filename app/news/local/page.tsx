@@ -1,23 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  ExternalLink,
-  Clock,
-  MapPin,
-  MessageCircle,
-  RefreshCw,
-  Newspaper,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapPin, RefreshCw, ExternalLink, MessageCircle } from "lucide-react";
 import { NewsNavigation } from "@/components/news-nav";
 import { CommentSystem } from "@/components/comment-system";
 import {
@@ -28,15 +12,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { formatNewsTime } from "@/lib/news-service";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useAuth } from "@/components/auth-context"
+import { useAuth } from "@/components/auth-context";
 import { NewsFeedAd } from "@/components/ads/ad-unit";
+import { C } from "@/lib/design-tokens";
 
 const GEORGIA_CITIES = [
   "Atlanta",
@@ -91,34 +69,227 @@ interface Article {
 }
 
 const LOCAL_SOURCES = [
-  { name: "AJC (Atlanta Journal-Constitution)", bias: "center" },
-  { name: "Atlanta News First", bias: "center" },
-  { name: "Axios Atlanta", bias: "center" },
-  { name: "11Alive (WXIA)", bias: "center" },
-  { name: "WSB-TV", bias: "center" },
-  { name: "The Atlanta Voice", bias: "center-left" },
-  { name: "Decaturish", bias: "center" },
-  { name: "Saporta Report", bias: "center" },
+  "AJC",
+  "Atlanta News First",
+  "Axios Atlanta",
+  "11Alive",
+  "WSB-TV",
+  "The Atlanta Voice",
+  "Decaturish",
+  "Saporta Report",
 ];
 
+/* ── Shared card chrome ─────────────────────────────────────────── */
+const card: React.CSSProperties = {
+  background: C.card,
+  border: `1px solid ${C.rule}`,
+  borderRadius: 10,
+  boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+};
+
+/* ── Article card ────────────────────────────────────────────────── */
+function ArticleCard({ article }: { article: Article }) {
+  return (
+    <div style={{ ...card, padding: 14 }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+        {article.urlToImage && (
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ flexShrink: 0, display: "block" }}
+          >
+            <img
+              src={article.urlToImage}
+              alt=""
+              crossOrigin="anonymous"
+              style={{
+                width: 88,
+                height: 60,
+                borderRadius: 6,
+                objectFit: "cover",
+                display: "block",
+              }}
+              onError={(e) => {
+                (e.currentTarget.parentElement as HTMLElement).style.display =
+                  "none";
+              }}
+            />
+          </a>
+        )}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Meta row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              marginBottom: 5,
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.ink700,
+                background: C.shade,
+                border: `1px solid ${C.rule}`,
+                borderRadius: 999,
+                padding: "1px 7px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {article.source}
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.teal,
+                background: C.tealSoft,
+                border: "1px solid #C0DAD4",
+                borderRadius: 999,
+                padding: "1px 7px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Local
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                color: C.ink400,
+                marginLeft: "auto",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {formatNewsTime(article.publishedAt)}
+            </span>
+          </div>
+
+          {/* Headline */}
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "block",
+              fontSize: 14.5,
+              fontWeight: 700,
+              color: C.ink900,
+              lineHeight: 1.35,
+              textDecoration: "none",
+              marginBottom: article.description ? 5 : 10,
+            }}
+          >
+            {article.title}
+          </a>
+
+          {/* Description — 2-line clamp via Tailwind utility */}
+          {article.description && (
+            <p
+              className="line-clamp-2"
+              style={{
+                fontSize: 12.5,
+                color: C.ink700,
+                lineHeight: 1.55,
+                margin: "0 0 10px",
+              }}
+            >
+              {article.description}
+            </p>
+          )}
+
+          {/* Actions */}
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                fontSize: 12,
+                fontWeight: 600,
+                color: C.teal,
+                textDecoration: "none",
+                padding: "4px 10px",
+                borderRadius: 6,
+                background: C.tealSoft,
+                border: "1px solid #C0DAD4",
+              }}
+            >
+              <ExternalLink size={11} />
+              Read Article
+            </a>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: C.ink700,
+                    background: C.shade,
+                    border: `1px solid ${C.rule}`,
+                    borderRadius: 6,
+                    padding: "4px 10px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <MessageCircle size={11} />
+                  Discuss
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-left">
+                    {article.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <CommentSystem
+                  articleUrl={article.url}
+                  articleTitle={article.title}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Page ───────────────────────────────────────────────────────── */
 export default function LocalNewsPage() {
-  const { profile } = useAuth()
+  const { profile } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState("Atlanta");
 
-  // Seed location from the user's saved civic address once profile loads
+  // Seed city from the user's saved profile location
   useEffect(() => {
-    if (profile?.location) {
-      setLocation(profile.location)
-    }
-  }, [profile?.location])
+    if (profile?.location) setLocation(profile.location);
+  }, [profile?.location]);
 
   useEffect(() => {
-    loadLocalNews(location);
+    load(location);
   }, [location]);
 
-  async function loadLocalNews(loc: string) {
+  async function load(loc: string) {
     setLoading(true);
     try {
       const res = await fetch(
@@ -126,205 +297,260 @@ export default function LocalNewsPage() {
       );
       const data = await res.json();
       setArticles(data.articles || []);
-    } catch (err) {
-      console.error("Failed to load local news:", err);
+    } catch {
       setArticles([]);
     }
     setLoading(false);
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-paper-100">
+      <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
 
-        {/* Location header */}
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <MapPin className="w-6 h-6 text-foreground" />
-            <h1 className="text-2xl font-bold text-foreground">
-              Local News: {location}, Georgia
-            </h1>
+        {/* Section label */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 14,
+          }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: C.shade,
+              border: `1px solid ${C.rule}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <MapPin size={14} color={C.ink500} />
           </div>
+          <div>
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: C.ink400,
+                margin: 0,
+                letterSpacing: 0.3,
+                textTransform: "uppercase",
+              }}
+            >
+              Local News · Georgia
+            </p>
+            <p style={{ fontSize: 13, color: C.ink700, margin: 0 }}>
+              {location}, Georgia
+            </p>
+          </div>
+        </div>
 
-          {/* Location select */}
-          <Card className="mb-6 border-border">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <Select
-                  value={location}
-                  onValueChange={(val) => {
-                    setLocation(val);
+        {/* City picker */}
+        <div
+          style={{
+            ...card,
+            padding: "10px 14px",
+            marginBottom: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <MapPin size={13} color={C.ink400} style={{ flexShrink: 0 }} />
+          <select
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            aria-label="Select Georgia city"
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: C.ink900,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            {GEORGIA_CITIES.map((city) => (
+              <option key={city} value={city}>
+                {city}, Georgia
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => load(location)}
+            disabled={loading}
+            aria-label="Refresh news"
+            style={{
+              background: "transparent",
+              border: "none",
+              padding: 4,
+              cursor: loading ? "default" : "pointer",
+              color: C.ink400,
+              display: "flex",
+              opacity: loading ? 0.5 : 1,
+              flexShrink: 0,
+            }}
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
+
+        {/* Sources strip */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 5,
+            marginBottom: 16,
+          }}
+        >
+          <span
+            style={{ fontSize: 11, color: C.ink400, fontWeight: 500 }}
+          >
+            Sources:
+          </span>
+          {LOCAL_SOURCES.map((name) => (
+            <span
+              key={name}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.ink700,
+                background: C.shade,
+                border: `1px solid ${C.rule}`,
+                borderRadius: 999,
+                padding: "2px 8px",
+              }}
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          /* Skeleton */
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                style={{
+                  ...card,
+                  padding: 14,
+                  display: "flex",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    width: 88,
+                    height: 60,
+                    borderRadius: 6,
+                    background: C.shade,
+                    flexShrink: 0,
+                  }}
+                />
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 7,
                   }}
                 >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select a Georgia city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GEORGIA_CITIES.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}, Georgia
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => loadLocalNews(location)}
-                  disabled={loading}
-                >
-                  <RefreshCw
-                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  <div
+                    style={{
+                      height: 13,
+                      background: C.shade,
+                      borderRadius: 4,
+                      width: "80%",
+                    }}
                   />
-                </Button>
+                  <div
+                    style={{
+                      height: 12,
+                      background: C.shade,
+                      borderRadius: 4,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 12,
+                      background: C.shade,
+                      borderRadius: 4,
+                      width: "55%",
+                    }}
+                  />
+                </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Known local sources info */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            <span className="text-sm text-muted-foreground py-1">
-              Local sources:
-            </span>
-            {LOCAL_SOURCES.map((s) => (
-              <Badge key={s.name} variant="outline" className="text-xs">
-                {s.name}
-              </Badge>
             ))}
           </div>
-
-          {/* Articles */}
-          {loading ? (
-            <div className="grid gap-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader>
-                    <div className="flex gap-4">
-                      <div className="w-24 h-16 bg-muted rounded flex-shrink-0" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4" />
-                        <div className="h-3 bg-muted rounded" />
-                        <div className="h-3 bg-muted rounded w-2/3" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          ) : articles.length === 0 ? (
-            <Card className="border-border">
-              <CardContent className="py-12 text-center">
-                <Newspaper className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  No local articles found
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {"Try a different city or check back in a few minutes — local news refreshes throughout the day."}
-                </p>
-                <Button onClick={() => loadLocalNews(location)}>
-                  Try Again
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {articles.map((article, i) => (
-                <>
-                {/* Ad after every 4th article */}
-                {i > 0 && i % 4 === 0 && <NewsFeedAd key={`ad-${i}`} />}
-                <Card
-                  key={i}
-                  className="hover:shadow-md transition-shadow border-border"
-                >
-                  <CardHeader>
-                    <div className="flex items-start gap-4">
-                      {article.urlToImage && (
-                        <img
-                          src={article.urlToImage}
-                          alt=""
-                          crossOrigin="anonymous"
-                          className="w-24 h-16 object-cover rounded flex-shrink-0"
-                          onError={(e) =>
-                            (e.currentTarget.style.display = "none")
-                          }
-                        />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <Clock className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            {formatNewsTime(article.publishedAt)}
-                          </span>
-                          <Badge variant="outline" className="text-xs">
-                            {article.source}
-                          </Badge>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            <MapPin className="w-3 h-3 mr-1" />
-                            Local
-                          </Badge>
-                        </div>
-                        <CardTitle className="text-lg mb-2">
-                          <a
-                            href={article.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-primary hover:underline text-foreground"
-                          >
-                            {article.title}
-                          </a>
-                        </CardTitle>
-                        <CardDescription className="text-sm line-clamp-2">
-                          {article.description}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <a
-                          href={article.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center"
-                        >
-                          Read Full Article
-                          <ExternalLink className="w-3 h-3 ml-1" />
-                        </a>
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <MessageCircle className="w-3 h-3 mr-1" />
-                            Discuss
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle className="text-left">
-                              {article.title}
-                            </DialogTitle>
-                          </DialogHeader>
-                          <CommentSystem
-                            articleUrl={article.url}
-                            articleTitle={article.title}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </CardContent>
-                </Card>
-                </>
-              ))}
-            </div>
-          )}
-        </div>
+        ) : articles.length === 0 ? (
+          /* Empty state */
+          <div style={{ ...card, padding: "40px 20px", textAlign: "center" }}>
+            <p
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: C.ink700,
+                margin: "0 0 4px",
+              }}
+            >
+              No local articles found
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: C.ink500,
+                margin: "0 0 14px",
+                lineHeight: 1.55,
+              }}
+            >
+              Try a different city or check back in a few minutes — local news
+              refreshes throughout the day.
+            </p>
+            <button
+              onClick={() => load(location)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 16px",
+                borderRadius: 8,
+                background: C.shade,
+                border: `1px solid ${C.rule}`,
+                fontSize: 13,
+                fontWeight: 600,
+                color: C.ink700,
+                cursor: "pointer",
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          /* Article list */
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {articles.map((article, i) => (
+              <React.Fragment key={article.url || i}>
+                {i > 0 && i % 4 === 0 && <NewsFeedAd />}
+                <ArticleCard article={article} />
+              </React.Fragment>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

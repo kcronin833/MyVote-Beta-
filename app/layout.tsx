@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { AuthProvider } from "@/components/auth-context";
@@ -7,11 +7,23 @@ import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileNav } from "@/components/mobile-nav";
+import { GlobalNav } from "@/components/global-nav";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+});
+
+// Source Serif 4 — editorial display type (story headlines, hero copy, big
+// quotes). Weight 500 with tight tracking is the canonical display style;
+// italics carry emphasis. Wired to --font-serif / Tailwind's `font-serif`.
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -49,12 +61,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${sourceSerif.variable}`}>
       <body className="font-sans flex flex-col min-h-screen bg-page text-ink-900">
+        {/* Skip-nav — visible only on keyboard focus */}
+        <a href="#main-content" className="skip-nav">Skip to main content</a>
         <PostHogProvider>
           <AuthProvider>
+            {/* Persistent top nav — hidden on landing, auth, quiz (see GlobalNav) */}
+            <GlobalNav />
             {/* pb-14 on mobile so content scrolls clear of the fixed bottom nav */}
-            <div className="flex-1 pb-14 lg:pb-0">{children}</div>
+            <div id="main-content" className="flex-1 pb-14 lg:pb-0">{children}</div>
             {/* Footer is redundant on mobile — MobileNav covers those links */}
             <div className="hidden lg:block">
               <SiteFooter />

@@ -4,31 +4,12 @@
    doesn't depend on Tailwind config; surrounding layout uses Tailwind. */
 
 import type { ReactNode, CSSProperties } from "react";
+import { C } from "@/lib/design-tokens";
 
 export type AvatarTone = "ink" | "navy" | "plum" | "olive";
 type ChipTone = "neutral" | "teal" | "red" | "amber" | "inkSolid";
 type BtnVariant = "primary" | "donate" | "outline" | "ghost" | "soft";
 type Size = "sm" | "md" | "lg";
-
-const C = {
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink700: "#3D435A",
-  ink500: "#6B7088",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
-  red: "#B33A2C",
-  redSoft: "#F5E3DF",
-  amber: "#B8862F",
-  amberSoft: "#F4ECD8",
-  plum: "#6B3A6B",
-  navy: "#1F3A5F",
-  olive: "#5A6A2E",
-};
 
 const toneBg = (t?: AvatarTone) =>
   t === "navy" ? C.navy : t === "plum" ? C.plum : t === "olive" ? C.olive : C.ink900;

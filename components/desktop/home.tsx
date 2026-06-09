@@ -13,8 +13,8 @@
    visual scaffolds with friendly empty/CTA states so the design
    layout remains intact. */
 
+import React, { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-context";
 import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
@@ -27,6 +27,9 @@ import { createClient } from "@/lib/supabase/client";
 import { useDailyQuestion } from "@/lib/use-daily-question";
 import { candidateSlug } from "@/lib/candidate-utils";
 import { resolveCountySlug } from "@/lib/county-utils";
+import { EarlyVotingBanner } from "@/components/early-voting-banner";
+import { updateWithDailyAnswer, notifyProfileUpdated, loadCivicProfile } from "@/lib/civic-profile-store";
+import { ARCHETYPES } from "@/lib/quiz-engine";
 
 /* ── data helpers ─────────────────────────────────────────────────── */
 
@@ -110,7 +113,7 @@ type ClusteredStory = {
   id: string;
   headline: string;
   synopsis: string | null;
-  article_data: Array<{ source?: string; lean?: number; url?: string; title?: string }> | null;
+  article_data: Array<{ source?: string; lean?: number; url?: string; title?: string; image_url?: string | null }> | null;
   lean_min: number | null;
   lean_max: number | null;
 };
@@ -202,7 +205,23 @@ function LeftRail({
   const district = (profile as any)?.district || "Georgia";
   const location = profile?.location || "Fulton County";
   const countyBallotSlug = resolveCountySlug(location);
-  const bio = profile?.bio || "Atlanta voter. Tracking the 2026 Georgia ballot.";
+
+  // Civic archetype chip — loads from localStorage, updates on quiz/daily answers
+  const [civicChip, setCivicChip] = useState<{ emoji: string; label: string } | null>(null);
+  useEffect(() => {
+    function sync() {
+      const p = loadCivicProfile();
+      if (p.quizResult) {
+        const arch = ARCHETYPES[p.quizResult.archetype];
+        setCivicChip({ emoji: arch.emoji, label: arch.label });
+      } else {
+        setCivicChip(null);
+      }
+    }
+    sync();
+    window.addEventListener("civic-profile-updated", sync);
+    return () => window.removeEventListener("civic-profile-updated", sync);
+  }, []);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -239,9 +258,49 @@ function LeftRail({
               View your county ballot <span aria-hidden>→</span>
             </Link>
           )}
-          <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 8, lineHeight: 1.45 }}>
-            {bio}
-          </div>
+          {civicChip ? (
+            <Link
+              href="/profile"
+              style={{ textDecoration: "none", display: "inline-block", marginTop: 10 }}
+            >
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "4px 11px",
+                borderRadius: 20,
+                background: "#E6F0ED",
+                border: "1px solid #C0DAD4",
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#2F6358",
+                cursor: "pointer",
+              }}>
+                {civicChip.emoji} {civicChip.label} →
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/quiz"
+              style={{ textDecoration: "none", display: "inline-block", marginTop: 10 }}
+            >
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "4px 11px",
+                borderRadius: 20,
+                background: "transparent",
+                border: `1px dashed ${C.rule}`,
+                fontSize: 12,
+                fontWeight: 600,
+                color: C.ink500,
+                cursor: "pointer",
+              }}>
+                🗳️ Build your civic profile →
+              </span>
+            </Link>
+          )}
         </div>
         {/* Streak chip — real data from useDailyQuestion */}
         {signedIn && !streakLoading && streak > 0 && (
@@ -351,7 +410,7 @@ function LeftRail({
             { l: "Browse all 2026 races",  href: "/elections" },
             { l: "Find candidates",        href: "/discover" },
             { l: "Local Atlanta news",     href: "/news/local" },
-            { l: "National spectrum news", href: "/news/spectrum" },
+            { l: "National spectrum news", href: "/news" },
           ].map((p) => (
             <Link
               key={p.l}
@@ -528,6 +587,20 @@ function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) 
     setSubmitting(false);
     if (!res.ok) {
       setSubmitError(res.error || "Couldn't save your answer.");
+      return;
+    }
+    // Update the incremental civic profile with this answer
+    if (dq.questionId && dq.prompt) {
+      const choiceIdx = dq.choices.findIndex((c) => c.id === choiceId);
+      const choiceLabel = dq.choices[choiceIdx]?.label ?? choiceId;
+      updateWithDailyAnswer({
+        questionId: dq.questionId,
+        prompt: dq.prompt,
+        choiceLabel,
+        choiceIndex: choiceIdx >= 0 ? choiceIdx : 0,
+        totalChoices: dq.choices.length,
+      });
+      notifyProfileUpdated();
     }
   }
 
@@ -639,11 +712,40 @@ function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) 
             )}
           </div>
         )}
-        {userAnswer && !submitError && (
-          <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 10 }}>
-            Thanks — your answer is recorded. {dq.streak > 1 ? `You're on a ${dq.streak}-day streak.` : ""}
-          </div>
-        )}
+        {userAnswer && !submitError && (() => {
+          const myCount = dq.counts[userAnswer] || 0;
+          const myPct = total > 0 ? Math.round((myCount / total) * 100) : 0;
+          const majority = myPct >= 50;
+          const toss = myPct >= 45 && myPct <= 55;
+          const msg = toss
+            ? `Georgia is split on this — ${myPct}% agree with you.`
+            : majority
+            ? `You voted with the majority — ${myPct}% of Georgia voters agree.`
+            : `You're in the minority — only ${myPct}% of voters agree.`;
+          return (
+            <div
+              style={{
+                marginTop: 12,
+                padding: "9px 12px",
+                borderRadius: 8,
+                background: majority ? C.tealSoft : C.amberSoft,
+                border: `1px solid ${majority ? "#C0DAD4" : "#E8D9B2"}`,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: majority ? C.tealDk : C.amber }}>
+                {msg}
+              </span>
+              {dq.streak > 0 && (
+                <span style={{ fontSize: 11.5, color: C.ink500 }}>
+                  🔥 {dq.streak}-day streak — keep answering daily to maintain it!
+                </span>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -680,7 +782,7 @@ function NewsPost() {
           No clustered stories yet — check back after the next pipeline run.
         </div>
         <Link
-          href="/news/spectrum"
+          href="/news"
           style={{
             display: "inline-block",
             marginTop: 12,
@@ -705,9 +807,24 @@ function NewsPost() {
     return l >= -0.3 && l <= 0.3;
   });
   const sources = articles.length;
+  // First image available across any article in this cluster
+  const heroImage = articles.find((a) => a.image_url)?.image_url ?? null;
 
   return (
-    <div style={cardStyle}>
+    <div style={{ ...cardStyle, overflow: "hidden" }}>
+      {/* Story hero image */}
+      {heroImage && (
+        <Link href="/news" style={{ display: "block" }}>
+          <div style={{ width: "100%", aspectRatio: "16/9", maxHeight: 180, overflow: "hidden" }}>
+            <img
+              src={heroImage}
+              alt=""
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
+            />
+          </div>
+        </Link>
+      )}
       <div style={{ padding: "12px 16px 0", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ color: C.amber, display: "flex" }}>{Icons.spark(16)}</span>
         <span style={{ fontSize: 11.5, color: C.ink500 }}>
@@ -795,7 +912,7 @@ function NewsPost() {
       </div>
       <div style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between" }}>
         <Link
-          href="/news/spectrum"
+          href="/news"
           style={{
             color: C.teal,
             fontSize: 12.5,
@@ -1052,8 +1169,54 @@ function SocialCommentFeed() {
 function RightRail() {
   const sug = useSuggestedCandidates();
   const { topics: trending } = useTrendingTopics();
+  const [quizDone, setQuizDone] = React.useState(() => {
+    if (typeof window === "undefined") return true; // SSR: hide card
+    return !!localStorage.getItem("mv_intake_result");
+  });
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* Civic quiz card — shown until completed */}
+      {!quizDone && (
+        <div style={{
+          ...cardStyle,
+          background: "linear-gradient(135deg, #1A2138 0%, #3D8073 100%)",
+          color: "#fff",
+        }}>
+          <div style={{ padding: "14px 16px" }}>
+            <div style={{ fontSize: 18, marginBottom: 6 }}>🗳️</div>
+            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>
+              Build your civic profile
+            </div>
+            <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.5, margin: "0 0 12px" }}>
+              12 quick questions. No partisan labels. Personalizes everything you see on MyVote.
+            </p>
+            <Link href="/quiz" style={{ textDecoration: "none" }}>
+              <div style={{
+                background: "rgba(255,255,255,0.18)",
+                border: "1px solid rgba(255,255,255,0.35)",
+                borderRadius: 8,
+                padding: "8px 14px",
+                fontSize: 13, fontWeight: 700, color: "#fff",
+                textAlign: "center", cursor: "pointer",
+              }}>
+                Start quiz (~3 min) →
+              </div>
+            </Link>
+            <button
+              onClick={() => { localStorage.setItem("mv_intake_result", "dismissed"); setQuizDone(true); }}
+              style={{
+                background: "none", border: "none",
+                fontSize: 11.5, color: "rgba(255,255,255,0.45)",
+                cursor: "pointer", marginTop: 8, width: "100%",
+                textDecoration: "underline",
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Suggested candidates */}
       <div style={cardStyle}>
         <div style={{ padding: "14px 16px 6px" }}>
@@ -1237,6 +1400,7 @@ export function DesktopHome() {
           signedIn={dq.signedIn}
         />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <EarlyVotingBanner />
           <ComposerAndFeed />
           <SocialCommentFeed />
           <DailyQuestionCard dq={dq} />

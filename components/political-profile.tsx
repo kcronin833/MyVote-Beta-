@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -391,10 +392,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               </div>
             </div>
             {!editingAddress && (
-              <Button size="sm" variant="outline" onClick={() => setEditingAddress(true)}>
-                <Edit3 className="w-4 h-4 mr-1" />
-                {address.street ? "Edit Address" : "Add Address"}
-              </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  href="/elections"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700"
+                >
+                  <Vote className="w-4 h-4" />
+                  All 2026 races
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+                <Button size="sm" variant="outline" onClick={() => setEditingAddress(true)}>
+                  <Edit3 className="w-4 h-4 mr-1" />
+                  {address.street ? "Edit Address" : "Add Address"}
+                </Button>
+              </div>
             )}
           </div>
 

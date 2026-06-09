@@ -12,6 +12,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["var(--font-serif)", "Source Serif 4", "Georgia", "Times New Roman", "serif"],
       },
       colors: {
         /* ── shadcn semantics ─────────────────────────────────────── */
@@ -83,6 +84,7 @@ const config: Config = {
           DEFAULT: "#3D8073",
           dk: "#2F6358",
           soft: "#E6F0ED",
+          border: "#C9DDD7", // tint-surface border (DS canonical)
           50:  "#f0f7f6",
           100: "#d9eeea",
           200: "#b3ddd5",
@@ -97,14 +99,17 @@ const config: Config = {
         "civic-red": {
           DEFAULT: "#B33A2C",
           soft: "#F5E3DF",
+          border: "#E8CDC7",
         },
         red: {
           DEFAULT: "#B33A2C",
           soft: "#F5E3DF",
+          border: "#E8CDC7",
         },
         amber: {
           DEFAULT: "#B8862F",
           soft: "#F4ECD8",
+          border: "#E2D2A8",
         },
         plum: "#6B3A6B",
         navy: "#1F3A5F",
@@ -112,9 +117,14 @@ const config: Config = {
         "paper-50":  "#F7F5EF",
         "paper-100": "#F3F1EB",
         "paper-200": "#E6E0D4",
+        /* Saturated lenses — charts / desktop only */
         "lean-left":   "#3A6AA5",
         "lean-right":  "#A53A3A",
         "lean-center": "#7A7A7A",
+        /* Muted lenses — the non-partisan editorial voice (DS canonical) */
+        "lean-left-muted":   "#7796C2",
+        "lean-right-muted":  "#C29377",
+        "lean-center-muted": "#9CA39C",
       },
       borderRadius: {
         lg:    "var(--radius)",                /* 10px */

@@ -23,7 +23,7 @@ export default function WelcomePage() {
             Georgia&rsquo;s non-partisan voter guide for 2026. See your complete ballot, read every candidate&rsquo;s
             positions, and follow the news from left, right, and center — all in one place.
           </p>
-          <div className="flex gap-4 justify-center mt-8">
+          <div className="flex gap-4 justify-center mt-8 flex-wrap">
             <Link href="/auth/signup">
               <Button size="lg" className="bg-civic-red hover:bg-civic-red/90 text-white font-semibold">
                 Sign Up Free
@@ -32,6 +32,11 @@ export default function WelcomePage() {
             <Link href="/auth/signin">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                 Sign In
+              </Button>
+            </Link>
+            <Link href="/quiz">
+              <Button size="lg" variant="outline" className="border-teal-300 text-teal-100 hover:bg-teal-800/30">
+                Take the civic quiz
               </Button>
             </Link>
           </div>

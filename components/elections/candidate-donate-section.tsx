@@ -5,23 +5,7 @@ import { useAuth } from "@/components/auth-context"
 import { createClient } from "@/lib/supabase/client"
 import { DonorboxWidget } from "@/components/elections/donorbox-widget"
 import { ExternalLink, Pencil, Check, X, AlertTriangle } from "lucide-react"
-
-const C = {
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink700: "#3D435A",
-  ink500: "#6B7088",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
-  amber: "#B8862F",
-  amberSoft: "#F4ECD8",
-  amberBorder: "#E2D2A8",
-  red: "#B33A2C",
-}
+import { C } from "@/lib/design-tokens"
 
 interface CandidateProfile {
   slug: string

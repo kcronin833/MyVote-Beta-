@@ -1,18 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { PALETTE as C } from "./atoms";
 import { Icons } from "./icons";
 import { UserNav } from "@/components/user-nav";
 import { Logo } from "@/components/logo";
 
-type NavId = "home" | "national" | "local" | "ballot";
+type NavId = "home" | "national" | "local" | "ballot" | "register" | "";
 
-export function TopNav({ active = "home" }: { active?: NavId }) {
+/** Auto-detect the active tab from pathname, unless an explicit override is passed. */
+function useActiveTab(override?: NavId): NavId {
+  const pathname = usePathname();
+  if (override !== undefined) return override;
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/news/local")) return "local";
+  if (pathname.startsWith("/news")) return "national";
+  if (
+    pathname.startsWith("/elections") ||
+    pathname.startsWith("/g")
+  ) return "ballot";
+  if (pathname.startsWith("/register")) return "register";
+  return "";
+}
+
+export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
   const router = useRouter();
   const [q, setQ] = useState("");
+  const active = useActiveTab(activeProp);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -22,10 +38,11 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
   }
 
   const items: { id: NavId; label: string; icon: React.ReactNode; href: string; badge?: string | number }[] = [
-    { id: "home",     label: "Home",          icon: Icons.home(),    href: "/" },
-    { id: "national", label: "National news", icon: Icons.earth(),   href: "/news" },
-    { id: "local",    label: "Local news",    icon: Icons.pin(),     href: "/news/local" },
-    { id: "ballot",   label: "My Ballot",     icon: Icons.vote(),    href: "/elections" },
+    { id: "home",     label: "Home",       icon: Icons.home(),   href: "/" },
+    { id: "national", label: "National",   icon: Icons.earth(),  href: "/news" },
+    { id: "local",    label: "Local",      icon: Icons.pin(),    href: "/news/local" },
+    { id: "ballot",   label: "Elections",  icon: Icons.vote(),   href: "/elections" },
+    { id: "register", label: "Register",   icon: Icons.check(),  href: "/register" },
   ];
 
   return (
@@ -94,7 +111,7 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
         </form>
 
         {/* Right cluster: nav + avatar */}
-        <div style={{ display: "flex", marginLeft: "auto", alignItems: "center" }}>
+        <nav aria-label="Main navigation" style={{ display: "flex", marginLeft: "auto", alignItems: "center" }}>
           {items.map((it) => {
             const isActive = active === it.id;
             return (
@@ -102,6 +119,7 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
                 key={it.id}
                 href={it.href}
                 aria-label={it.label}
+                aria-current={isActive ? "page" : undefined}
                 className="px-2 sm:px-3 lg:px-[14px]"
                 style={{
                   paddingTop: 8,
@@ -143,12 +161,12 @@ export function TopNav({ active = "home" }: { active?: NavId }) {
             );
           })}
 
-          <div className="hidden sm:block" style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
+          <div className="hidden sm:block" aria-hidden="true" style={{ width: 1, height: 28, background: C.rule, margin: "0 12px" }} />
 
           {/* Real user dropdown — surfaces "My Profile", "Political Profile",
               "Admin Panel" (for admins), and "Sign Out". */}
           <UserNav />
-        </div>
+        </nav>
       </div>
     </div>
   );

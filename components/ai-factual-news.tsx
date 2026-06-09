@@ -120,7 +120,21 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   }
 
   return (
-    <article className="bg-card rounded-2xl border border-rule p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+    <article className="bg-card rounded-2xl border border-rule overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+
+      {/* Hero image — full bleed at top */}
+      {article.urlToImage && (
+        <a href={article.url} target="_blank" rel="noopener noreferrer" className="block relative w-full overflow-hidden" style={{ aspectRatio: "16/9", maxHeight: 220 }}>
+          <img
+            src={article.urlToImage}
+            alt=""
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
+          />
+        </a>
+      )}
+
+      <div className="p-5 space-y-4">
 
       {/* AI synopsis badge */}
       <div className="flex items-center justify-between">
@@ -186,16 +200,32 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
                 href={src.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-44 border border-rule rounded-xl p-3 hover:bg-paper-50 hover:border-rule transition-colors"
+                className="flex-shrink-0 w-44 border border-rule rounded-xl overflow-hidden hover:shadow-md transition-shadow group"
               >
-                <div className="flex items-center justify-between gap-1 mb-2">
-                  <span className="text-xs font-bold text-foreground truncate">{src.source}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${lean.badge}`}>
-                    {lean.label}
-                  </span>
+                {src.urlToImage ? (
+                  <div className="w-full aspect-video overflow-hidden">
+                    <img
+                      src={src.urlToImage}
+                      alt=""
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
+                    />
+                  </div>
+                ) : (
+                  <div className={`w-full aspect-video flex items-center justify-center text-[10px] font-bold text-center px-2 ${lean.badge}`}>
+                    {src.source}
+                  </div>
+                )}
+                <div className="p-2.5">
+                  <div className="flex items-center justify-between gap-1 mb-1.5">
+                    <span className="text-xs font-bold text-foreground truncate">{src.source}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${lean.badge}`}>
+                      {lean.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{src.title}</p>
+                  <p className="text-[10px] text-ink-400 mt-1.5">{formatNewsTime(src.publishedAt)}</p>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{src.title}</p>
-                <p className="text-[10px] text-ink-400 mt-2">{formatNewsTime(src.publishedAt)}</p>
               </a>
             )
           })}
@@ -247,6 +277,8 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
           <CommentSystem articleUrl={articleId} articleTitle={article.title} />
         </div>
       )}
+
+      </div>{/* end p-5 */}
     </article>
   )
 }

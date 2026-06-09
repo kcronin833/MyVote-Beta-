@@ -1,7 +1,4 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { Logo } from "@/components/logo"
 
 export const metadata = {
   title: "Privacy Policy | MyVote",
@@ -11,17 +8,10 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-paper-100">
-      <div className="bg-ink-900 text-white">
-        <div className="container mx-auto px-4 py-10">
-          <Link href="/">
-            <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 mb-4 -ml-3">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          <Logo size="md" />
-          <h1 className="text-3xl font-bold mt-3 mb-1">Privacy Policy</h1>
-          <p className="text-teal-100">Last updated: May 2026</p>
+      <div className="border-b border-rule bg-card">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-ink-900 mb-1">Privacy Policy</h1>
+          <p className="text-ink-500 text-sm">Last updated: May 2026</p>
         </div>
       </div>
 
@@ -159,17 +149,6 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-      <footer className="border-t border-rule py-8 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-ink-700/60">
-          <Logo size="sm" />
-          <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
-          <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="hover:text-teal-600">About</Link>
-            <Link href="/terms" className="hover:text-teal-600">Terms</Link>
-            <Link href="/contact" className="hover:text-teal-600">Contact</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

@@ -14,13 +14,13 @@ const TABS = [
   { href: "/",           icon: Home,           label: "Home"     },
   { href: "/news",       icon: Globe,          label: "News"     },
   { href: "/news/local", icon: MapPin,         label: "Local"    },
-  { href: "/elections",  icon: Vote,           label: "Ballot"   },
+  { href: "/elections",  icon: Vote,           label: "Elections"},
   { href: "/register",   icon: ClipboardCheck, label: "Register" },
 ] as const
 
 function isTabActive(tabHref: string, pathname: string): boolean {
   if (tabHref === "/") return pathname === "/"
-  // /news tab: matches /news and /news/spectrum but NOT /news/local
+  // /news tab: matches /news (and any future /news/* sub-paths) but NOT /news/local
   if (tabHref === "/news") {
     return (
       pathname === "/news" ||
@@ -51,6 +51,7 @@ export function MobileNav() {
             <Link
               key={href}
               href={href}
+              aria-current={active ? "page" : undefined}
               className="flex-1 flex flex-col items-center justify-center gap-[3px] select-none"
               style={{ textDecoration: "none" }}
             >

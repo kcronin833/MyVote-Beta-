@@ -1,32 +1,15 @@
 /* Shared presentational pieces for ballot surfaces (elections hub +
    /g/[county] pages) so candidates and races render identically and
-   every candidate links to the same detail page. Server-safe — no hooks. */
+   every candidate links to the same detail page. Server-safe — no hooks.
+   PickButton is a client leaf imported here; this file stays a server component. */
 
 import Link from "next/link";
 import { candidateDetailHref } from "@/lib/county-utils";
 import type { BallotRace, BallotCandidate } from "@/lib/georgia-ballot-data";
-
-export const C = {
-  page: "#F3F1EB",
-  card: "#FFFFFF",
-  rule: "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade: "#F7F5EF",
-  ink900: "#1A2138",
-  ink700: "#3D435A",
-  ink500: "#6B7088",
-  ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
-  red: "#B33A2C",
-  redSoft: "#F5E3DF",
-  amber: "#B8862F",
-  amberSoft: "#F4ECD8",
-  plum: "#6B3A6B",
-  navy: "#1F3A5F",
-  olive: "#5A6A2E",
-};
+import { PickButton } from "./pick-button";
+import { CandidatePhoto } from "./candidate-photo";
+import { C } from "@/lib/design-tokens";
+export { C };
 
 export const TONE_BY_PARTY: Record<string, string> = {
   Democrat: C.navy,
@@ -85,23 +68,13 @@ export function CandidateRow({
         background: C.shade,
       }}
     >
-      <div
-        style={{
-          width: 34,
-          height: 34,
-          borderRadius: 8,
-          background: tone,
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          fontWeight: 700,
-          flexShrink: 0,
-        }}
-      >
-        {initialsOf(candidate.name)}
-      </div>
+      <CandidatePhoto
+        name={candidate.name}
+        wikipediaTitle={candidate.wikipediaTitle}
+        size={36}
+        partyColor={tone}
+        shape="square"
+      />
       <div style={{ minWidth: 0, flex: 1 }}>
         <div
           style={{
@@ -169,12 +142,21 @@ export function CandidateRow({
 
   if (href) {
     return (
-      <Link href={href} style={{ textDecoration: "none" }}>
-        {inner}
-      </Link>
+      <div style={{ display: "flex", gap: 6, alignItems: "stretch" }}>
+        <Link href={href} style={{ textDecoration: "none", flex: 1, minWidth: 0 }}>
+          {inner}
+        </Link>
+        <PickButton candidateName={candidate.name} raceOffice={raceOffice} />
+      </div>
     );
   }
-  return inner;
+  // No profile page yet — still allow picking
+  return (
+    <div style={{ display: "flex", gap: 6, alignItems: "stretch" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>{inner}</div>
+      <PickButton candidateName={candidate.name} raceOffice={raceOffice} />
+    </div>
+  );
 }
 
 export function RaceCard({ race }: { race: BallotRace }) {

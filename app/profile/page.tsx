@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { ArrowLeft, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PoliticalSpectrumBar } from "@/components/political-spectrum-bar"
@@ -11,11 +10,20 @@ import { CountyPicker } from "@/components/profile/county-picker"
 import { useAuth } from "@/components/auth-context"
 import { UserAvatar } from "@/components/user-avatar"
 import { AvatarUploadModal } from "@/components/avatar-upload-modal"
+import { ARCHETYPES, type QuizResult } from "@/lib/quiz-engine"
 
 const ProfilePage = () => {
-  const router = useRouter()
   const { profile, updateProfile } = useAuth()
   const [showAvatarModal, setShowAvatarModal] = useState(false)
+
+  // Load civic quiz result from localStorage
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mv_intake_result")
+      if (raw && raw !== "dismissed") setQuizResult(JSON.parse(raw) as QuizResult)
+    } catch { /* ignore malformed */ }
+  }, [])
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -27,15 +35,16 @@ const ProfilePage = () => {
       )}
 
       <div className="mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="gap-1.5 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Button>
+        <Link href="/">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Home
+          </Button>
+        </Link>
       </div>
 
       {/* Profile header with tappable avatar */}
@@ -64,13 +73,47 @@ const ProfilePage = () => {
         </div>
       )}
 
-      <h1 className="text-3xl font-semibold mb-6">Your Ballot</h1>
+      <h1 className="text-3xl font-semibold mb-6">Your Political Profile</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <PoliticalProfile />
         </div>
         <div className="space-y-6">
+          {/* Civic profile quiz card */}
+          {quizResult ? (
+            <div className="p-4 rounded-2xl border border-border bg-paper-50 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{ARCHETYPES[quizResult.archetype]?.emoji}</span>
+                <div>
+                  <p className="text-xs font-bold text-teal-600 uppercase tracking-wide">Civic Profile</p>
+                  <p className="font-bold text-foreground text-sm">{ARCHETYPES[quizResult.archetype]?.label}</p>
+                </div>
+              </div>
+              {quizResult.selectedIssues.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {quizResult.selectedIssues.map((issue) => (
+                    <span key={issue} className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                      {issue}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <Link href="/quiz" className="text-xs text-teal-600 hover:underline">
+                Retake quiz →
+              </Link>
+            </div>
+          ) : (
+            <div className="p-4 rounded-2xl border border-dashed border-border bg-paper-50 text-center space-y-2">
+              <p className="text-sm font-semibold text-foreground">No civic profile yet</p>
+              <p className="text-xs text-muted-foreground">Answer 12 quick questions to personalize your experience.</p>
+              <Link href="/quiz">
+                <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white mt-1">
+                  Take the quiz →
+                </Button>
+              </Link>
+            </div>
+          )}
           <CountyPicker />
           <PoliticalSpectrumBar />
         </div>

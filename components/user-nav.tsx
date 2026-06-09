@@ -13,7 +13,7 @@ import {
 import { useAuth } from "@/components/auth-context";
 import { AuthModal } from "@/components/auth-modal";
 import Link from "next/link";
-import { LogOut, User, Settings, ShieldCheck } from "lucide-react";
+import { LogOut, User, Vote, Compass, ShieldCheck } from "lucide-react";
 
 export function UserNav() {
   const { user, profile, signOut, loading } = useAuth();
@@ -83,15 +83,21 @@ export function UserNav() {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={`/profile/${profile.username}`}>
-            <User className="mr-2 h-4 w-4" />
-            My Profile
+          <Link href="/profile">
+            <Vote className="mr-2 h-4 w-4" />
+            My Ballot &amp; Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profile">
-            <Settings className="mr-2 h-4 w-4" />
-            Political Profile
+          <Link href={`/profile/${profile.username}`}>
+            <User className="mr-2 h-4 w-4" />
+            Public Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/profiles">
+            <Compass className="mr-2 h-4 w-4" />
+            Civic Profile Types
           </Link>
         </DropdownMenuItem>
         {profile.is_admin && (

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
-import { TopNav } from "@/components/desktop/top-nav";
 import { ZipBallotLookup } from "@/components/elections/zip-ballot-lookup";
 import {
   C,
@@ -12,7 +12,7 @@ import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 
 export const metadata: Metadata = {
-  title: "Georgia 2026 Elections — Find Your Ballot · MyVote",
+  title: "Georgia 2026 Elections — Find Your Ballot",
   description:
     "Enter your ZIP to see your complete 2026 Georgia ballot — governor, U.S. Senate, U.S. House, and local races with candidates, key issues, and voting deadlines.",
   alternates: { canonical: "/elections" },
@@ -53,8 +53,10 @@ const VOTING_RULES: { title: string; body: string }[] = [
   },
 ];
 
-/* Runoff banner — server-rendered, only shows between June 7 and June 16 */
+/* Runoff banner — server-rendered, only shows between June 7 and June 16.
+   noStore() prevents stale build-time dates in cached static pages. */
 function RunoffBanner() {
+  noStore();
   const now = new Date();
   const runoff = new Date("2026-06-16T19:00:00-04:00"); // polls close 7pm ET
   const earlyStart = new Date("2026-06-09T00:00:00-04:00");
@@ -91,7 +93,6 @@ function RunoffBanner() {
 export default function ElectionsPage() {
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
-      <TopNav active="ballot" />
 
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         {/* MAIN COLUMN */}
@@ -182,21 +183,39 @@ export default function ElectionsPage() {
               races depend on where you live. Enter your ZIP above, or pick your
               county to see the full local ballot.
             </p>
-            <Link
-              href="/g"
-              style={{
-                display: "inline-block",
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#fff",
-                background: C.teal,
-                borderRadius: 8,
-                padding: "10px 16px",
-                textDecoration: "none",
-              }}
-            >
-              Browse all 159 counties →
-            </Link>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <Link
+                href="/g"
+                style={{
+                  display: "inline-block",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "#fff",
+                  background: C.teal,
+                  borderRadius: 8,
+                  padding: "10px 16px",
+                  textDecoration: "none",
+                }}
+              >
+                Browse all 159 counties →
+              </Link>
+              <Link
+                href="/profile"
+                style={{
+                  display: "inline-block",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: C.teal,
+                  background: C.tealSoft,
+                  border: `1px solid ${C.tealMid}`,
+                  borderRadius: 8,
+                  padding: "10px 16px",
+                  textDecoration: "none",
+                }}
+              >
+                Your saved ballot &amp; profile →
+              </Link>
+            </div>
           </div>
 
           {/* Voting rules */}
@@ -301,12 +320,6 @@ export default function ElectionsPage() {
             </div>
           </div>
 
-          <Link
-            href="/"
-            style={{ fontSize: 12.5, color: C.ink500, textDecoration: "none", padding: "0 2px" }}
-          >
-            ← Back to MyVote home
-          </Link>
         </div>
       </div>
     </div>

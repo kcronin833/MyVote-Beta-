@@ -44,6 +44,16 @@
     --lean-right:  0   48% 44%; /* #A53A3A */
     --lean-center: 0   0%  48%; /* #7A7A7A */
 
+    /* ── Design-system canonical tokens (hex) ─────────────────────────── */
+    --teal-border:        #C9DDD7;
+    --civic-red-border:   #E8CDC7;
+    --amber-border:       #E2D2A8;
+    --paper-200:          #E6E0D4;
+    --lean-left-muted:    #7796C2;
+    --lean-right-muted:   #C29377;
+    --lean-center-muted:  #9CA39C;
+    --font-serif:         "Source Serif 4", Georgia, "Times New Roman", serif;
+
     /* ── shadcn/ui semantic mappings ─────────────────────────────────── */
     --background:           var(--bg);
     --foreground:           var(--ink-900-raw);
@@ -122,5 +132,38 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans), "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  /* ── Global focus ring ──────────────────────────────────────────────── */
+  /* Visible only for keyboard navigation (focus-visible), hidden on click */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--teal-raw));
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  /* Remove the browser default ring that Tailwind resets */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* ── Skip-nav link ──────────────────────────────────────────────────── */
+  .skip-nav {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    z-index: 9999;
+    background: hsl(var(--ink-900-raw));
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 6px 0;
+    transition: top 0.1s;
+  }
+  .skip-nav:focus {
+    top: 0;
+    outline: 2px solid hsl(var(--teal-raw));
+    outline-offset: 2px;
   }
 }

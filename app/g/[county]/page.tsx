@@ -6,10 +6,11 @@ import {
   getCountyBySlug,
   type CountyLookup,
 } from "@/lib/county-utils";
-import { TopNav } from "@/components/desktop/top-nav";
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
+import { BallotPickTracker } from "@/components/elections/ballot-pick-tracker";
+import { EarlyVotingBanner } from "@/components/early-voting-banner";
 
 /* Static generation for all 159 Georgia counties — one prebuilt SEO page each. */
 export async function generateStaticParams() {
@@ -23,14 +24,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { county } = await params;
   const found = getCountyBySlug(county);
-  if (!found) return { title: "County not found · MyVote" };
+  if (!found) return { title: "County not found" };
 
   const raceCount =
     found.statewideRaces.length +
     (found.congressionalRace ? 1 : 0) +
     found.countyRaces.length;
 
-  const title = `${found.name} County, GA 2026 Ballot & Voting Guide · MyVote`;
+  const title = `${found.name} County, GA — 2026 Ballot & Voting Guide`;
   const description = `See every 2026 race on the ballot in ${found.name} County, Georgia (${found.congressionalDistrict}) — governor, U.S. House, statewide and local offices. ${raceCount} races, candidates, key issues, and voting deadlines.`;
 
   return {
@@ -86,13 +87,36 @@ export default async function CountyPage({
   const raceCount =
     statewideRaces.length + (congressionalRace ? 1 : 0) + countyRaces.length;
 
+  // Serialisable race list for the client-side pick tracker
+  const allRacesForTracker = [
+    ...statewideRaces,
+    ...(congressionalRace ? [congressionalRace] : []),
+    ...countyRaces,
+  ].map((r) => ({
+    office: r.office,
+    candidates: r.candidates
+      .filter((c) => !c.name.includes("TBD"))
+      .map((c) => c.name),
+  }));
+
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
-      <TopNav active="ballot" />
-
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         {/* MAIN COLUMN */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+          {/* Breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, paddingBottom: 2 }}>
+            <Link
+              href="/elections"
+              style={{ color: C.teal, fontWeight: 600, textDecoration: "none" }}
+            >
+              ← Elections
+            </Link>
+            <span style={{ color: C.ink300 }}>·</span>
+            <span style={{ color: C.ink700 }}>{name} County</span>
+          </div>
+
           {/* Hero */}
           <div style={{ ...cardStyle(), overflow: "hidden" }}>
             <div
@@ -220,6 +244,16 @@ export default async function CountyPage({
 
         {/* RIGHT RAIL */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* Time-sensitive early voting banner */}
+          <EarlyVotingBanner />
+
+          {/* Candidate pick tracker — client island */}
+          <BallotPickTracker
+            races={allRacesForTracker}
+            countyName={name}
+            countySlug={found.slug}
+          />
+
           {/* Sign-up nudge — only visible to logged-out visitors */}
           <SaveBallotNudge />
 

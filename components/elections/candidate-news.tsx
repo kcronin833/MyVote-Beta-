@@ -9,19 +9,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { formatDistanceToNow } from "date-fns"
 import { Newspaper, ArrowRight } from "lucide-react"
-
-const C = {
-  card:     "#FFFFFF",
-  rule:     "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade:    "#F7F5EF",
-  ink900:   "#1A2138",
-  ink700:   "#3D435A",
-  ink500:   "#6B7088",
-  ink400:   "#8B8FA3",
-  plum:     "#6B3A6B",
-  plumSoft: "#F2E8F2",
-}
+import { C } from "@/lib/design-tokens"
 
 type Story = {
   id: string

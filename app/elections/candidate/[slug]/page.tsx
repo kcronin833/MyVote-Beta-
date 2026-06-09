@@ -6,13 +6,13 @@ import {
   getCandidateBySlug,
   candidateSlug,
 } from "@/lib/candidate-utils";
-import { TopNav } from "@/components/desktop/top-nav";
 import { ClaimProfile } from "@/components/elections/claim-profile";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { CandidateDonateSection } from "@/components/elections/candidate-donate-section";
 import { SidebarAd } from "@/components/ads/ad-unit";
 import { CandidatePhoto } from "@/components/elections/candidate-photo";
 import { CandidateNews } from "@/components/elections/candidate-news";
+import { C } from "@/lib/design-tokens";
 
 export async function generateStaticParams() {
   return getAllCandidateSlugs().map((slug) => ({ slug }));
@@ -25,11 +25,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const found = getCandidateBySlug(slug);
-  if (!found) return { title: "Candidate not found · MyVote" };
+  if (!found) return { title: "Candidate not found" };
   const { candidate, race } = found;
   const desc = candidate.bio.slice(0, 200);
   return {
-    title: `${candidate.name} · ${race.office} · MyVote`,
+    title: `${candidate.name} · ${race.office}`,
     description: desc,
     openGraph: {
       title: `${candidate.name} — ${candidate.party} · ${race.office}`,
@@ -37,31 +37,6 @@ export async function generateMetadata({
     },
   };
 }
-
-/* ── Design tokens ──────────────────────────────────────────────────── */
-const C = {
-  page:     "#F3F1EB",
-  card:     "#FFFFFF",
-  rule:     "#E4E0D3",
-  ruleSoft: "#EFEBE0",
-  shade:    "#F7F5EF",
-  ink900:   "#1A2138",
-  ink700:   "#3D435A",
-  ink500:   "#6B7088",
-  ink400:   "#8B8FA3",
-  teal:     "#3D8073",
-  tealDk:   "#2F6358",
-  tealSoft: "#E6F0ED",
-  red:      "#B33A2C",
-  redSoft:  "#F5E3DF",
-  amber:    "#B8862F",
-  amberSoft:"#F4ECD8",
-  plum:     "#6B3A6B",
-  navy:     "#1F3A5F",
-  olive:    "#5A6A2E",
-  blue:     "#1D4ED8",
-  blueSoft: "#DBEAFE",
-};
 
 const PARTY_BG: Record<string, string> = {
   Democrat:    C.navy,
@@ -166,6 +141,10 @@ function LeanMeter({ score }: { score: number }) {
         </span>
         <span>Conservative</span>
       </div>
+      <div style={{ fontSize: 10, color: C.ink400, marginTop: 6, lineHeight: 1.4 }}>
+        Based on stated positions, voting record, and endorsements. MyVote does not
+        endorse or oppose any candidate.
+      </div>
     </div>
   );
 }
@@ -236,12 +215,24 @@ export default async function CandidatePage({
 
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
-      <TopNav active="ballot" />
-
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-3 items-start lg:grid-cols-[1fr_300px] lg:gap-4 lg:px-6 lg:pt-4">
 
         {/* ══ MAIN COLUMN ══════════════════════════════════════════════ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+          {/* Breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, paddingBottom: 2 }}>
+            <Link
+              href="/elections"
+              style={{ color: C.teal, fontWeight: 600, textDecoration: "none" }}
+            >
+              ← Elections
+            </Link>
+            <span style={{ color: C.ink300 }}>·</span>
+            <span style={{ color: C.ink500 }}>{race.office}</span>
+            <span style={{ color: C.ink300 }}>·</span>
+            <span style={{ color: C.ink700 }}>{c.name}</span>
+          </div>
 
           {/* Hero card — no overflow:hidden so the photo can cross the banner/content boundary */}
           <div style={cardStyle()}>

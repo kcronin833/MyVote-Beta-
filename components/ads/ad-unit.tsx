@@ -38,11 +38,13 @@ export function AdUnit({
   label = true,
   className = "",
 }: AdUnitProps) {
-  const pushed = useRef(false)
+  const insRef = useRef<HTMLModElement>(null)
 
   useEffect(() => {
-    if (!PUB || !slot || pushed.current) return
-    pushed.current = true
+    // Guard: don't push if already filled (handles StrictMode double-fire)
+    const el = insRef.current
+    if (!PUB || !slot || !el) return
+    if (el.getAttribute("data-ad-status") === "filled") return
     try {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
     } catch {
@@ -54,15 +56,16 @@ export function AdUnit({
   if (!PUB || !slot) return null
 
   return (
-    <div className={`ad-unit overflow-hidden ${className}`}>
+    <div className={`ad-unit ${className}`}>
       {label && (
         <p className="text-center text-[10px] font-medium text-ink-400/70 uppercase tracking-widest mb-1 select-none">
           Advertisement
         </p>
       )}
       <ins
+        ref={insRef}
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight: 100 }}
         data-ad-client={PUB}
         data-ad-slot={slot}
         data-ad-format={format}
@@ -82,8 +85,8 @@ export function NewsFeedAd() {
     <AdUnit
       slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_NEWS_FEED ?? ""}
       format="fluid"
-      layout="in-article"
-      className="my-1 rounded-xl border border-rule bg-paper-50 px-4 py-3"
+      layout="in-feed"
+      className="my-2 rounded-xl border border-rule bg-paper-50 px-4 py-2"
     />
   )
 }
@@ -93,7 +96,7 @@ export function SidebarAd() {
   return (
     <AdUnit
       slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR ?? ""}
-      format="rectangle"
+      format="auto"
       className="rounded-xl border border-rule bg-paper-50 p-3"
     />
   )
@@ -104,7 +107,7 @@ export function HorizontalAd() {
   return (
     <AdUnit
       slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HORIZONTAL ?? ""}
-      format="horizontal"
+      format="auto"
       className="rounded-xl border border-rule bg-paper-50 px-4 py-3"
     />
   )
