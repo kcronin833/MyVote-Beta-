@@ -630,10 +630,11 @@ function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) 
       <div style={{ padding: 16 }}>
         <div
           style={{
-            fontSize: 16,
-            fontWeight: 700,
+            fontFamily: "var(--font-serif)",
+            fontSize: 19,
+            fontWeight: 600,
             color: C.ink900,
-            lineHeight: 1.35,
+            lineHeight: 1.3,
             letterSpacing: -0.2,
           }}
         >
@@ -835,10 +836,11 @@ function NewsPost() {
       <div style={{ padding: "10px 16px 0" }}>
         <div
           style={{
-            fontSize: 18,
-            fontWeight: 700,
+            fontFamily: "var(--font-serif)",
+            fontSize: 21,
+            fontWeight: 600,
             color: C.ink900,
-            lineHeight: 1.3,
+            lineHeight: 1.25,
             letterSpacing: -0.3,
           }}
         >
@@ -862,9 +864,9 @@ function NewsPost() {
         )}
         <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
           {[
-            { lens: "Left",   article: left,   tone: "#3A6AA5" },
-            { lens: "Center", article: center, tone: "#8B8FA3" },
-            { lens: "Right",  article: right,  tone: "#A53A3A" },
+            { lens: "Left",   article: left,   tone: "#7796C2" },
+            { lens: "Center", article: center, tone: "#9CA39C" },
+            { lens: "Right",  article: right,  tone: "#C29377" },
           ].map(({ lens, article, tone }) => (
             <div
               key={lens}

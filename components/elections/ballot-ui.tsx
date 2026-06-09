@@ -174,7 +174,7 @@ export function RaceCard({ race }: { race: BallotRace }) {
           marginBottom: 4,
         }}
       >
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: 0 }}>
+        <h3 style={{ fontFamily: "var(--font-serif)", fontSize: 17, fontWeight: 600, color: C.ink900, margin: 0, letterSpacing: -0.2 }}>
           {race.office}
         </h3>
         <span style={{ fontSize: 11, color: C.ink500, whiteSpace: "nowrap" }}>

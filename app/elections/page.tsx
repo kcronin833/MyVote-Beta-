@@ -140,11 +140,13 @@ export default function ElectionsPage() {
                 </div>
                 <h1
                   style={{
-                    fontSize: 26,
-                    fontWeight: 800,
+                    fontFamily: "var(--font-serif)",
+                    fontSize: 30,
+                    fontWeight: 600,
                     color: "#fff",
                     margin: "2px 0 4px",
-                    lineHeight: 1.12,
+                    lineHeight: 1.1,
+                    letterSpacing: -0.4,
                   }}
                 >
                   Find your 2026 ballot

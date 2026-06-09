@@ -277,7 +277,7 @@ export default async function CandidatePage({
 
               {/* Name row */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                <h1 style={{ fontSize: 28, fontWeight: 800, color: C.ink900, margin: 0, letterSpacing: -0.5 }}>
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, color: C.ink900, margin: 0, letterSpacing: -0.5 }}>
                   {c.name}
                 </h1>
                 {c.isIncumbent && (
