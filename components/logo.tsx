@@ -1,70 +1,89 @@
-import Image from "next/image"
+/* MyVote logo — pure SVG / HTML wordmark.
+   Replaces the old PNG-clipping approach with a crisp, scalable mark
+   that works on any background at any size with zero image dependency.
+
+   Mark:      teal rounded-square ballot checkmark
+   Wordmark:  "My" (weight 400) + "Vote" (weight 800) in Inter / system sans
+
+   Usage:
+     <Logo size="sm" />             — nav (default / dark-text variant)
+     <Logo size="lg" variant="white" /> — on dark backgrounds */
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl"
+  variant?: "default" | "white"
   className?: string
 }
 
-// logo.png is 1536×1024 (3:2 ratio).
-// The wordmark ("My" script + "Vote" serif) occupies the top ~44% of the image.
-// Below it: tagline + four brand icons — hidden in nav contexts via overflow:hidden.
-
-const IMG_ASPECT = 1536 / 1024  // 1.5  (width ÷ height)
-const WORDMARK_FRAC = 0.44       // wordmark = top 44% of image height (slight buffer)
-
-// Width of the logo container in each nav size
-const NAV_WIDTHS: Record<"sm" | "md" | "lg", number> = {
-  sm: 110,  // desktop top-nav (h-14 bar)
-  md: 130,  // medium contexts
-  lg: 160,  // news-nav / wider bars
+/** Teal rounded-square with a white ballot checkmark inside. */
+function BallotMark({ px }: { px: number }) {
+  return (
+    <svg
+      width={px}
+      height={px}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      style={{ flexShrink: 0, display: "block" }}
+    >
+      <rect width="24" height="24" rx="6" fill="#3D8073" />
+      <path
+        d="M6 12.5L9.5 16L18 7"
+        stroke="#ffffff"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
 }
 
-export function Logo({ size = "md", className = "" }: LogoProps) {
-  // Full-size hero: show entire image (wordmark + tagline + icons)
-  if (size === "xl") {
-    return (
-      <div className={`mx-auto ${className}`} style={{ maxWidth: 480 }}>
-        <Image
-          src="/logo.png"
-          alt="MyVote"
-          width={480}
-          height={320}
-          style={{ width: "100%", height: "auto" }}
-          priority
-        />
-      </div>
-    )
-  }
+const SIZE_MAP = {
+  sm: { mark: 20, text: 16,  gap: 6,  tracking: "-0.03em"  },
+  md: { mark: 24, text: 19,  gap: 7,  tracking: "-0.035em" },
+  lg: { mark: 30, text: 24,  gap: 9,  tracking: "-0.04em"  },
+  xl: { mark: 42, text: 34,  gap: 12, tracking: "-0.045em" },
+} as const
 
-  // Nav sizes: overflow:hidden clips tagline + icons, showing only the wordmark
-  const displayWidth = NAV_WIDTHS[size]
-  const fullImageHeight = displayWidth / IMG_ASPECT              // rendered height of full image
-  const containerHeight = Math.round(fullImageHeight * WORDMARK_FRAC)  // clip to wordmark area
+export function Logo({
+  size = "md",
+  variant = "default",
+  className = "",
+}: LogoProps) {
+  const cfg = SIZE_MAP[size] ?? SIZE_MAP.md
+  const textColor = variant === "white" ? "#ffffff" : "#1A2138"
 
   return (
     <div
       className={className}
       style={{
-        width: displayWidth,
-        height: containerHeight,
-        overflow: "hidden",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: cfg.gap,
         flexShrink: 0,
-        position: "relative",
-        lineHeight: 0,   // prevent baseline gap below the img
+        userSelect: "none",
       }}
     >
-      <Image
-        src="/logo.png"
-        alt="MyVote"
-        width={1536}
-        height={1024}
-        style={{ width: displayWidth, height: "auto", display: "block" }}
-        priority
-      />
+      <BallotMark px={cfg.mark} />
+      <span
+        style={{
+          fontFamily: "var(--font-sans), Inter, system-ui, sans-serif",
+          fontSize: cfg.text,
+          lineHeight: 1,
+          letterSpacing: cfg.tracking,
+          color: textColor,
+          whiteSpace: "nowrap",
+        }}
+        aria-label="MyVote"
+      >
+        <span style={{ fontWeight: 400 }}>My</span>
+        <span style={{ fontWeight: 800 }}>Vote</span>
+      </span>
     </div>
   )
 }
 
+/* Backward-compat alias */
 export function LogoIcon({ size = "md", className = "" }: LogoProps) {
   return <Logo size={size} className={className} />
 }

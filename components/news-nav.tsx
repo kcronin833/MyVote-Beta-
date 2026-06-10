@@ -19,7 +19,7 @@ export function NewsNavigation() {
   const pathname = usePathname()
 
   return (
-    <div className="flex gap-0 mb-6 border-b border-rule -mx-4 px-4">
+    <div className="flex gap-1 mb-6 -mx-4 px-4 pb-3 border-b border-rule">
       {SECTION_TABS.map(({ href, icon: Icon, label }) => {
         const active =
           href === "/news"
@@ -30,13 +30,21 @@ export function NewsNavigation() {
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
-              active
-                ? "border-ink-900 text-ink-900"
-                : "border-transparent text-ink-500 hover:text-ink-900 hover:border-ink-300"
-            }`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 14px",
+              borderRadius: 8,
+              fontSize: 13.5,
+              fontWeight: active ? 600 : 500,
+              color: active ? "#2F6358" : "#6B7088",
+              background: active ? "#E6F0ED" : "transparent",
+              textDecoration: "none",
+              transition: "color 0.15s ease, background 0.15s ease",
+            }}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon size={14} />
             {label}
           </Link>
         )

@@ -125,6 +125,15 @@
   }
 }
 
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes mv-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes mv-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -144,6 +153,17 @@
   /* Remove the browser default ring that Tailwind resets */
   *:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  /* ── Card hover lift ────────────────────────────────────────────────── */
+  /* Add class mv-lift to any interactive card for a smooth hover effect. */
+  .mv-lift {
+    transition: box-shadow 0.2s ease, transform 0.16s ease;
+    will-change: transform, box-shadow;
+  }
+  .mv-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(20, 24, 40, 0.1), 0 2px 6px rgba(20, 24, 40, 0.06) !important;
   }
 
   /* ── Skip-nav link ──────────────────────────────────────────────────── */

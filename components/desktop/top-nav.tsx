@@ -50,6 +50,7 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
       style={{
         background: C.card,
         borderBottom: `1px solid ${C.rule}`,
+        boxShadow: "0 1px 6px rgba(20,24,40,0.06)",
         position: "sticky",
         top: 0,
         zIndex: 10,
@@ -71,10 +72,10 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
             flex: "0 1 320px",
             height: 36,
             background: C.shade,
-            border: `1px solid ${C.ruleSoft}`,
-            borderRadius: 6,
+            border: `1px solid ${C.rule}`,
+            borderRadius: 999,
             alignItems: "center",
-            padding: "0 12px",
+            padding: "0 14px",
             gap: 8,
           }}
         >
@@ -122,18 +123,20 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
                 aria-current={isActive ? "page" : undefined}
                 className="px-2 sm:px-3 lg:px-[14px]"
                 style={{
-                  paddingTop: 8,
-                  paddingBottom: 8,
+                  paddingTop: 6,
+                  paddingBottom: 6,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 2,
-                  color: isActive ? C.ink900 : C.ink500,
-                  borderBottom: isActive ? `2px solid ${C.ink900}` : "2px solid transparent",
+                  color: isActive ? C.tealDk : C.ink500,
+                  background: isActive ? C.tealSoft : "transparent",
+                  borderRadius: 8,
                   fontSize: 11,
-                  fontWeight: 500,
+                  fontWeight: isActive ? 600 : 500,
                   textDecoration: "none",
                   position: "relative",
+                  transition: "color 0.15s ease, background-color 0.15s ease",
                 }}
               >
                 <span style={{ position: "relative" }}>

@@ -16,28 +16,28 @@ export default function WelcomePage() {
   return (
     <div className="min-h-screen bg-paper-100">
       {/* Hero Section */}
-      <div className="bg-ink-900 text-white">
-        <div className="container mx-auto px-4 py-16 text-center">
-          <Logo size="xl" />
-          <p className="mt-4 text-lg max-w-2xl mx-auto text-teal-100 leading-relaxed">
+      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
+        <div className="container mx-auto px-4 py-20 text-center">
+          <Logo size="xl" variant="white" />
+          <p style={{ marginTop: 18, fontSize: 18, maxWidth: 600, margin: "18px auto 0", color: "rgba(255,255,255,0.65)", lineHeight: 1.65 }}>
             Georgia&rsquo;s non-partisan voter guide for 2026. See your complete ballot, read every candidate&rsquo;s
             positions, and follow the news from left, right, and center — all in one place.
           </p>
-          <div className="flex gap-4 justify-center mt-8 flex-wrap">
-            <Link href="/auth/signup">
-              <Button size="lg" className="bg-civic-red hover:bg-civic-red/90 text-white font-semibold">
+          <div className="flex gap-3 justify-center mt-10 flex-wrap">
+            <Link href="/auth/signup" style={{ textDecoration: "none" }}>
+              <button style={{ background: "#B33A2C", color: "#fff", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
                 Sign Up Free
-              </Button>
+              </button>
             </Link>
-            <Link href="/auth/signin">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Link href="/auth/signin" style={{ textDecoration: "none" }}>
+              <button style={{ background: "transparent", color: "#fff", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 600, border: "1.5px solid rgba(255,255,255,0.3)", cursor: "pointer" }}>
                 Sign In
-              </Button>
+              </button>
             </Link>
-            <Link href="/quiz">
-              <Button size="lg" variant="outline" className="border-teal-300 text-teal-100 hover:bg-teal-800/30">
-                Take the civic quiz
-              </Button>
+            <Link href="/quiz" style={{ textDecoration: "none" }}>
+              <button style={{ background: "transparent", color: "rgba(255,255,255,0.7)", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 600, border: "1.5px solid rgba(255,255,255,0.18)", cursor: "pointer" }}>
+                Take the civic quiz →
+              </button>
             </Link>
           </div>
         </div>

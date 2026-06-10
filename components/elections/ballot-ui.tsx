@@ -40,8 +40,8 @@ export function cardStyle(): React.CSSProperties {
   return {
     background: C.card,
     border: `1px solid ${C.rule}`,
-    borderRadius: 10,
-    boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
   };
 }
 

@@ -40,6 +40,7 @@ export function MobileNav() {
       style={{
         background: "#FFFFFF",
         borderTop: "1px solid #E4E0D3",
+        boxShadow: "0 -2px 10px rgba(20,24,40,0.06)",
         /* Respect iOS home indicator */
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
@@ -56,25 +57,30 @@ export function MobileNav() {
               style={{ textDecoration: "none" }}
             >
               <span
-                className="flex items-center justify-center rounded-xl transition-colors duration-150"
                 style={{
-                  width: 40,
+                  width: 44,
                   height: 28,
+                  borderRadius: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   background: active ? "#E6F0ED" : "transparent",
+                  transition: "background 0.15s ease",
                 }}
               >
                 <Icon
                   size={20}
-                  strokeWidth={active ? 2.2 : 1.7}
-                  color={active ? "#3D8073" : "#6B7088"}
+                  strokeWidth={active ? 2.3 : 1.6}
+                  color={active ? "#2F6358" : "#6B7088"}
                 />
               </span>
               <span
                 style={{
                   fontSize: 10,
-                  fontWeight: active ? 600 : 400,
-                  color: active ? "#3D8073" : "#6B7088",
+                  fontWeight: active ? 700 : 400,
+                  color: active ? "#2F6358" : "#8B8FA3",
                   lineHeight: 1,
+                  transition: "color 0.15s ease",
                 }}
               >
                 {label}

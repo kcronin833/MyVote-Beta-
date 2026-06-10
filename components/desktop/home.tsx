@@ -182,8 +182,8 @@ function useTrendingTopics(): { topics: TrendingTopic[]; loading: boolean } {
 const cardStyle: CSSProperties = {
   background: C.card,
   border: `1px solid ${C.rule}`,
-  borderRadius: 10,
-  boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
 };
 
 /* ── LEFT RAIL ────────────────────────────────────────────────────── */
@@ -229,8 +229,8 @@ function LeftRail({
       <div style={{ ...cardStyle, overflow: "hidden" }}>
         <div
           style={{
-            height: 56,
-            background: `linear-gradient(135deg, ${C.ink900} 0%, ${C.navy} 60%, ${C.teal} 100%)`,
+            height: 62,
+            background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 40%, ${C.tealDk} 100%)`,
           }}
         />
         <div style={{ padding: "0 16px 16px", marginTop: -28, textAlign: "center" }}>
@@ -367,10 +367,10 @@ function LeftRail({
               {election.label}
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
-              <span style={{ fontSize: 28, fontWeight: 700, color: C.red, letterSpacing: -0.8 }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 36, fontWeight: 800, color: C.red, letterSpacing: "-0.04em", lineHeight: 1 }}>
                 {election.days}
               </span>
-              <span style={{ fontSize: 12, color: C.ink500 }}>
+              <span style={{ fontSize: 12.5, color: C.ink500, fontWeight: 500 }}>
                 days · {election.date}
               </span>
             </div>
@@ -1327,18 +1327,21 @@ function RightRail() {
       {/* Be ballot-ready — real voter actions */}
       <div
         style={{
-          ...cardStyle,
-          background: "linear-gradient(180deg, #FFFFFF 0%, #E6F0ED 100%)",
+          borderRadius: 12,
+          overflow: "hidden",
+          boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+          border: `1px solid ${C.tealBorder}`,
+          background: "linear-gradient(160deg, #E6F0ED 0%, #F0F7F5 100%)",
         }}
       >
-        <div style={{ padding: "14px 16px" }}>
+        <div style={{ padding: "16px 16px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal }} />
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.teal }} />
             <span
               style={{
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: 700,
-                letterSpacing: 1,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 color: C.tealDk,
               }}
@@ -1348,11 +1351,13 @@ function RightRail() {
           </div>
           <div
             style={{
-              fontSize: 14,
-              fontWeight: 700,
+              fontFamily: "var(--font-serif)",
+              fontSize: 15,
+              fontWeight: 600,
               color: C.ink900,
-              marginTop: 8,
-              lineHeight: 1.35,
+              marginTop: 7,
+              lineHeight: 1.3,
+              letterSpacing: "-0.01em",
             }}
           >
             See your 2026 ballot and make a plan to vote
@@ -1394,7 +1399,7 @@ export function DesktopHome() {
   return (
     <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900, overflowX: "hidden" }}>
       <TopNav active="home" />
-      <div className="max-w-[1240px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
+      <div className="max-w-[1240px] mx-auto px-3 pt-4 pb-10 grid grid-cols-1 gap-3 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-5 lg:px-6 lg:pt-5">
         <LeftRail
           election={election}
           streak={dq.streak}
