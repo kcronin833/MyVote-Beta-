@@ -1,9 +1,8 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart3 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 interface ViewpointLike {
   viewpoint: "left" | "right"
@@ -11,126 +10,127 @@ interface ViewpointLike {
   content: string
 }
 
+const C = {
+  card:     "#FDFCF9",
+  rule:     "#E4E0D3",
+  ruleSoft: "#EDEAE0",
+  shade:    "#F5F3EE",
+  ink900:   "#1A2138",
+  ink700:   "#2E3148",
+  ink500:   "#5A5D72",
+  ink400:   "#6B7088",
+  teal:     "#3D8073",
+  tealDk:   "#2F6358",
+  tealSoft: "#E6F0ED",
+  tealBorder:"#C9DDD7",
+  red:      "#B33A2C",
+}
+
 export function PoliticalSpectrumBar() {
   const [viewpointLikes, setViewpointLikes] = useState<ViewpointLike[]>([])
-  const [politicalPosition, setPoliticalPosition] = useState<number>(0)
+  const [pct, setPct] = useState<number>(50) // 0=all-left … 100=all-right
 
   useEffect(() => {
-    const likes = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
+    const likes: ViewpointLike[] = JSON.parse(localStorage.getItem("viewpointLikes") || "[]")
     setViewpointLikes(likes)
-
-    // Calculate political position percentage
     if (likes.length > 0) {
-      const leftLikes = likes.filter((like: ViewpointLike) => like.viewpoint === "left").length
-      const rightLikes = likes.filter((like: ViewpointLike) => like.viewpoint === "right").length
-      const totalLikes = leftLikes + rightLikes
-
-      if (totalLikes > 0) {
-        // Calculate percentage: 0% = far left, 50% = center, 100% = far right
-        const percentage = (rightLikes / totalLikes) * 100
-        setPoliticalPosition(percentage)
-      }
+      const right = likes.filter(l => l.viewpoint === "right").length
+      setPct(Math.round((right / likes.length) * 100))
     }
   }, [])
 
-  const getPositionLabel = (percentage: number) => {
-    if (percentage < 20) return "Very Progressive"
-    if (percentage < 40) return "Progressive"
-    if (percentage < 60) return "Moderate"
-    if (percentage < 80) return "Conservative"
-    return "Very Conservative"
-  }
+  const label =
+    pct < 20 ? "Very Liberal" :
+    pct < 40 ? "Liberal" :
+    pct < 60 ? "Moderate" :
+    pct < 80 ? "Conservative" :
+               "Very Conservative"
 
-  const getPositionColor = (percentage: number) => {
-    if (percentage < 20) return "text-red-700"
-    if (percentage < 40) return "text-red-500"
-    if (percentage < 60) return "text-purple-600"
-    if (percentage < 80) return "text-blue-500"
-    return "text-blue-700"
-  }
+  const dotColor = pct < 40 ? "#2563EB" : pct > 60 ? C.red : "#6B7280"
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
-          Your Political Position
-        </CardTitle>
-        <CardDescription>Based on your liked viewpoints</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
+      <div style={{ padding: "14px 16px" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 7, background: C.tealSoft, border: `1px solid ${C.tealBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <BarChart3 style={{ width: 14, height: 14, color: C.teal }} />
+          </div>
+          <div>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, margin: 0 }}>Political Position</p>
+            <p style={{ fontSize: 11.5, color: C.ink400, margin: 0 }}>Based on your liked viewpoints</p>
+          </div>
+        </div>
+
         {viewpointLikes.length === 0 ? (
-          <div className="text-center py-8 space-y-3">
-            <p className="text-sm text-muted-foreground">Like viewpoints in the news feed to see where you stand</p>
-            <a
-              href="/news"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-            >
+          <div style={{ padding: "16px 0", textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: C.ink400, marginBottom: 10, lineHeight: 1.55 }}>Like viewpoints in the news feed to see where you stand</p>
+            <Link href="/news" style={{ fontSize: 13, fontWeight: 700, color: C.teal, textDecoration: "none" }}>
               Go to news feed →
-            </a>
+            </Link>
           </div>
         ) : (
-        <>
-        {/* Political Position Percentage */}
-        <div className="text-center">
-          <div className={`text-3xl font-bold ${getPositionColor(politicalPosition)}`}>
-            {Math.round(politicalPosition)}%
-          </div>
-          <div className={`text-lg font-medium ${getPositionColor(politicalPosition)}`}>
-            {getPositionLabel(politicalPosition)}
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">Based on {viewpointLikes.length} liked viewpoints</div>
-        </div>
+          <>
+            {/* Big stat */}
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: dotColor, letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+                {label}
+              </div>
+              <div style={{ fontSize: 12, color: C.ink400, marginTop: 3 }}>
+                Based on {viewpointLikes.length} liked viewpoint{viewpointLikes.length !== 1 ? "s" : ""}
+              </div>
+            </div>
 
-        {/* Spectrum Bar */}
-        <div className="relative">
-          <div className="h-8 bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 rounded-lg"></div>
-          <div
-            className="absolute top-0 w-1 h-8 bg-card border-2 border-gray-800 rounded transition-all duration-300"
-            style={{ left: `${politicalPosition}%`, transform: "translateX(-50%)" }}
-          ></div>
-        </div>
+            {/* Spectrum bar */}
+            <div style={{ position: "relative", height: 8, borderRadius: 999, background: "linear-gradient(to right, #3B82F6, #9CA3AF, #EF4444)", marginBottom: 6 }}>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: `${pct}%`,
+                  transform: "translate(-50%, -50%)",
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  background: dotColor,
+                  border: "2.5px solid #fff",
+                  boxShadow: "0 1px 5px rgba(0,0,0,0.28)",
+                  transition: "left 0.4s ease",
+                }}
+              />
+            </div>
 
-        {/* Scale Labels */}
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>0% Progressive</span>
-          <span>50% Moderate</span>
-          <span>100% Conservative</span>
-        </div>
+            {/* Scale labels */}
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.ink400, marginBottom: 14 }}>
+              <span>Liberal</span>
+              <span>Moderate</span>
+              <span>Conservative</span>
+            </div>
 
-        {/* Recent Viewpoint Likes */}
-        {viewpointLikes.length > 0 && (
-          <div className="mt-6">
-            <h4 className="font-medium text-foreground mb-3">Recent Viewpoint Likes</h4>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {viewpointLikes
-                .slice(-5)
-                .reverse()
-                .map((like, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 bg-paper-50 rounded">
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${
-                        like.viewpoint === "left"
-                          ? "bg-red-100 text-red-800 border-red-300"
-                          : "bg-blue-100 text-blue-800 border-blue-300"
-                      }`}
-                    >
+            {/* Recent likes */}
+            <div style={{ borderTop: `1px solid ${C.ruleSoft}`, paddingTop: 12 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: C.ink500, textTransform: "uppercase", letterSpacing: 0.4, margin: "0 0 8px" }}>Recent viewpoints</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 192, overflowY: "auto" }}>
+                {viewpointLikes.slice(-5).reverse().map((like, i) => (
+                  <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", padding: "7px 10px", borderRadius: 8, background: C.shade, border: `1px solid ${C.ruleSoft}` }}>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, flexShrink: 0, marginTop: 1,
+                      background: like.viewpoint === "left" ? "#EFF6FF" : "#FFF5F5",
+                      color: like.viewpoint === "left" ? "#2563EB" : C.red,
+                    }}>
                       {like.viewpoint === "left" ? "Left" : "Right"}
-                    </Badge>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{like.title}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{like.content}</p>
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 600, color: C.ink900, margin: 0, lineHeight: 1.3 }}>{like.title}</p>
+                      <p className="line-clamp-2" style={{ fontSize: 11.5, color: C.ink400, margin: "2px 0 0", lineHeight: 1.45 }}>{like.content}</p>
                     </div>
                   </div>
                 ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
-
-        </>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

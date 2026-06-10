@@ -53,7 +53,7 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-ink-900 flex flex-col p-4">
+      <div className="min-h-screen flex flex-col p-4" style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
         <div className="w-full max-w-md mx-auto pt-4 pb-6">
           <Link
             href="/"
@@ -64,7 +64,7 @@ export default function SignUpPage() {
           </Link>
         </div>
         <div className="flex-1 flex items-center justify-center">
-        <Card className="w-full max-w-md border-rule">
+        <Card className="w-full max-w-md border-rule" style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Logo size="lg" />
@@ -88,7 +88,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ink-900 flex flex-col p-4">
+    <div className="min-h-screen flex flex-col p-4" style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
       <div className="w-full max-w-md mx-auto pt-4 pb-6">
         <Link
           href="/"
@@ -99,7 +99,7 @@ export default function SignUpPage() {
         </Link>
       </div>
       <div className="flex-1 flex items-center justify-center">
-      <Card className="w-full max-w-md border-rule">
+      <Card className="w-full max-w-md border-rule" style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}>
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Logo size="lg" />

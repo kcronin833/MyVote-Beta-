@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { MapPin } from "lucide-react";
 import { C } from "@/lib/design-tokens";
 
 /* ZIP → /g/[county] router. Lives on the elections hub so a voter can
@@ -42,54 +43,73 @@ export function ZipBallotLookup({ variant = "light" }: { variant?: "light" | "on
 
   return (
     <div>
-      <form
-        onSubmit={submit}
-        style={{ display: "flex", gap: 8, alignItems: "stretch" }}
-      >
-        <input
-          inputMode="numeric"
-          maxLength={5}
-          placeholder="Enter your ZIP code"
-          value={zip}
-          onChange={(e) => setZip(e.target.value.replace(/[^\d]/g, ""))}
-          aria-label="ZIP code"
+      <form onSubmit={submit}>
+        {/* Unified pill container */}
+        <div
           style={{
-            flex: 1,
-            minWidth: 0,
-            height: 42,
-            borderRadius: 8,
-            border: `1px solid ${onDark ? "rgba(255,255,255,0.35)" : C.rule}`,
-            background: onDark ? "rgba(255,255,255,0.12)" : C.card,
-            color: onDark ? "#fff" : C.ink900,
-            padding: "0 14px",
-            fontSize: 15,
-            outline: "none",
-          }}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            height: 42,
-            padding: "0 18px",
-            borderRadius: 8,
-            border: "none",
-            background: C.teal,
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: loading ? "default" : "pointer",
-            opacity: loading ? 0.75 : 1,
-            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "center",
+            background: onDark ? "rgba(255,255,255,0.13)" : "#fff",
+            backdropFilter: onDark ? "blur(8px)" : undefined,
+            borderRadius: 999,
+            border: onDark
+              ? "1.5px solid rgba(255,255,255,0.28)"
+              : `1.5px solid ${C.rule}`,
+            overflow: "hidden",
+            boxShadow: onDark
+              ? "0 4px 24px rgba(0,0,0,0.22)"
+              : "0 2px 10px rgba(20,24,40,0.07)",
           }}
         >
-          {loading ? "Finding…" : "Find my ballot"}
-        </button>
+          <MapPin
+            size={16}
+            style={{ marginLeft: 16, flexShrink: 0, opacity: 0.65, color: onDark ? "#fff" : C.ink500 }}
+          />
+          <input
+            inputMode="numeric"
+            maxLength={5}
+            placeholder="Enter your ZIP code"
+            value={zip}
+            onChange={(e) => setZip(e.target.value.replace(/[^\d]/g, ""))}
+            aria-label="ZIP code"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              height: 46,
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              color: onDark ? "#fff" : C.ink900,
+              padding: "0 10px",
+              fontSize: 15,
+            }}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              height: 46,
+              padding: "0 22px",
+              border: "none",
+              borderRadius: "0 999px 999px 0",
+              background: C.red,
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: loading ? "default" : "pointer",
+              opacity: loading ? 0.75 : 1,
+              whiteSpace: "nowrap",
+              letterSpacing: 0.1,
+            }}
+          >
+            {loading ? "Finding…" : "Find my ballot"}
+          </button>
+        </div>
       </form>
       {error && (
         <p
           style={{
-            margin: "8px 2px 0",
+            margin: "8px 4px 0",
             fontSize: 12.5,
             color: onDark ? "#FBD9D2" : C.red,
             lineHeight: 1.45,
@@ -110,15 +130,15 @@ export function ZipBallotLookup({ variant = "light" }: { variant?: "light" | "on
       )}
       <p
         style={{
-          margin: "8px 2px 0",
+          margin: "8px 4px 0",
           fontSize: 11.5,
-          color: onDark ? "rgba(255,255,255,0.7)" : C.ink400,
+          color: onDark ? "rgba(255,255,255,0.65)" : C.ink400,
         }}
       >
         Georgia ZIP codes only.{" "}
         <Link
           href="/g"
-          style={{ color: onDark ? "#fff" : C.teal, fontWeight: 600 }}
+          style={{ color: onDark ? "rgba(255,255,255,0.85)" : C.teal, fontWeight: 600 }}
         >
           Or browse all 159 counties
         </Link>

@@ -152,7 +152,7 @@ export default function ProfilePage() {
           </Link>
 
           {/* Profile header */}
-          <div className="bg-paper-50 rounded-2xl border border-border p-6">
+          <div className="bg-paper-50 rounded-2xl border border-border p-6" style={{ boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <div className="flex items-start gap-4">
               <UserAvatar
                 avatarUrl={profile.avatar_url}
@@ -210,14 +210,14 @@ export default function ProfilePage() {
             <h2 className="text-sm font-semibold text-foreground px-1">Posts</h2>
 
             {posts.length === 0 ? (
-              <div className="bg-paper-50 rounded-2xl border border-border p-6 text-center">
+              <div className="bg-paper-50 rounded-xl border border-border p-6 text-center" style={{ boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
                 <p className="text-sm text-muted-foreground">No posts yet.</p>
               </div>
             ) : (
               posts.map((post) => {
                 const topicColor = post.topic ? (TOPIC_COLORS[post.topic] || "bg-paper-200 text-ink-700") : ""
                 return (
-                  <div key={post.id} className="bg-paper-50 rounded-2xl border border-border p-4">
+                  <div key={post.id} className="bg-paper-50 rounded-xl border border-border p-4 mv-lift" style={{ boxShadow: "0 1px 4px rgba(20,24,40,0.05)" }}>
                     {post.topic && (
                       <span className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full mb-2 ${topicColor}`}>
                         {post.topic}

@@ -51,28 +51,38 @@ export default function DiscoverPage() {
           {/* Search + filter bar */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#6B7088" }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name…"
-                className="w-full pl-9 pr-4 py-2 text-sm bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full pl-9 pr-4 focus:outline-none"
+                style={{ height: 40, background: "#FDFCF9", border: "1.5px solid #E4E0D3", borderRadius: 999, fontSize: 13.5, color: "#1A2138", paddingRight: 16 }}
               />
             </div>
             <div className="flex gap-1.5 flex-wrap">
-              {FILTERS.map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    filter === f
-                      ? "bg-teal-600 text-white"
-                      : "bg-card border border-border text-muted-foreground hover:border-teal-300 hover:text-teal-700"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+              {FILTERS.map((f) => {
+                const active = filter === f
+                return (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 999,
+                      fontSize: 12.5,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? "#fff" : "#6B7088",
+                      background: active ? "#2F6358" : "transparent",
+                      border: `1.5px solid ${active ? "#2F6358" : "#E4E0D3"}`,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    {f}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -128,7 +138,8 @@ export default function DiscoverPage() {
               {displayed.map((suggested) => (
                 <div
                   key={suggested.id}
-                  className="bg-card rounded-2xl border border-border p-4 space-y-3 hover:shadow-sm transition-shadow"
+                  className="mv-lift"
+                  style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}
                 >
                   <div className="flex items-start gap-3">
                     <Link href={`/profile/${suggested.username}`} className="flex-shrink-0">

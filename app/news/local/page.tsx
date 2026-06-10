@@ -83,8 +83,8 @@ const LOCAL_SOURCES = [
 const card: React.CSSProperties = {
   background: C.card,
   border: `1px solid ${C.rule}`,
-  borderRadius: 10,
-  boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
 };
 
 /* ── Article card ────────────────────────────────────────────────── */
@@ -223,10 +223,11 @@ function ArticleCard({ article }: { article: Article }) {
                 fontWeight: 600,
                 color: C.teal,
                 textDecoration: "none",
-                padding: "4px 10px",
-                borderRadius: 6,
+                padding: "5px 12px",
+                borderRadius: 999,
                 background: C.tealSoft,
                 border: "1px solid #C0DAD4",
+                transition: "all 0.15s ease",
               }}
             >
               <ExternalLink size={11} />
@@ -242,12 +243,13 @@ function ArticleCard({ article }: { article: Article }) {
                     gap: 4,
                     fontSize: 12,
                     fontWeight: 600,
-                    color: C.ink700,
-                    background: C.shade,
-                    border: `1px solid ${C.rule}`,
-                    borderRadius: 6,
-                    padding: "4px 10px",
+                    color: C.ink500,
+                    background: "transparent",
+                    border: `1.5px solid ${C.rule}`,
+                    borderRadius: 999,
+                    padding: "5px 12px",
                     cursor: "pointer",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   <MessageCircle size={11} />

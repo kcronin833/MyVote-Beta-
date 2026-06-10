@@ -70,8 +70,8 @@ function cardStyle(extra?: React.CSSProperties): React.CSSProperties {
   return {
     background: C.card,
     border: `1px solid ${C.rule}`,
-    borderRadius: 10,
-    boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+    borderRadius: 12,
+    boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
     ...extra,
   };
 }
@@ -239,11 +239,11 @@ export default async function CandidatePage({
             {/* Banner — owns its own overflow:hidden so the dot pattern clips to its rounded top corners */}
             <div
               style={{
-                height: 160,
-                background: `linear-gradient(120deg, ${C.navy} 0%, ${C.ink900} 50%, ${C.teal} 110%)`,
+                height: 168,
+                background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 45%, ${C.tealDk} 100%)`,
                 position: "relative",
                 overflow: "hidden",
-                borderRadius: "10px 10px 0 0",
+                borderRadius: "12px 12px 0 0",
               }}
             >
               <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.16 }}>
