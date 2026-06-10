@@ -8,6 +8,7 @@ import { PostHogProvider } from "@/components/posthog-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileNav } from "@/components/mobile-nav";
 import { GlobalNav } from "@/components/global-nav";
+import { SupportBanner } from "@/components/support-banner";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -67,6 +68,9 @@ export default function RootLayout({
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         <PostHogProvider>
           <AuthProvider>
+            {/* Site-wide support strip — renders above the sticky nav on every
+                page so every visitor sees it on first load (dismissible). */}
+            <SupportBanner />
             {/* Persistent top nav — hidden on landing, auth, quiz (see GlobalNav) */}
             <GlobalNav />
             {/* pb-14 on mobile so content scrolls clear of the fixed bottom nav */}
