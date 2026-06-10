@@ -20,8 +20,8 @@ import { C } from "@/lib/design-tokens"
 const cardBase: React.CSSProperties = {
   background: C.card,
   border: `1px solid ${C.rule}`,
-  borderRadius: 10,
-  boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
 }
 
 /* ── Tab definitions ────────────────────────────────────────────────── */
@@ -291,15 +291,16 @@ function SearchResults() {
               onClick={() => setActiveTab(id)}
               style={{
                 height: 34,
-                padding: "0 14px",
-                borderRadius: 8,
-                border: active ? `1.5px solid ${C.ink900}` : `1px solid ${C.rule}`,
-                background: active ? C.ink900 : C.card,
+                padding: "0 16px",
+                borderRadius: 999,
+                border: `1.5px solid ${active ? C.tealDk : C.rule}`,
+                background: active ? C.tealDk : "transparent",
                 color: active ? "#fff" : C.ink500,
                 fontSize: 12.5,
-                fontWeight: 600,
+                fontWeight: active ? 700 : 500,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
+                transition: "all 0.15s ease",
               }}
             >
               {label}

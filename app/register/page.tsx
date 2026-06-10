@@ -187,8 +187,8 @@ export default function RegisterPage() {
               href="https://registertovote.sos.ga.gov"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-xl px-4 py-2 transition-opacity hover:opacity-90"
-              style={{ background: "#3D8073" }}
+              className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ background: "#3D8073", borderRadius: 999, padding: "8px 16px" }}
             >
               Register Now
               <ExternalLink className="w-3 h-3" />
@@ -203,28 +203,27 @@ export default function RegisterPage() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group bg-card rounded-2xl border border-border p-5 hover:shadow-md transition-shadow flex gap-4 items-start"
-                style={{ textDecoration: "none" }}
+                className="group mv-lift"
+                style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 18, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", textDecoration: "none", display: "flex", gap: 14, alignItems: "flex-start" }}
               >
                 <div
-                  className="rounded-xl flex-shrink-0 flex items-center justify-center"
-                  style={{ width: 44, height: 44, background: bg }}
+                  style={{ width: 44, height: 44, borderRadius: 10, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: bg }}
                 >
-                  <Icon style={{ color }} className="w-5 h-5" />
+                  <Icon style={{ color, width: 20, height: 20 }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm flex items-center gap-1">
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#1A2138", display: "flex", alignItems: "center", gap: 4, margin: "0 0 3px" }}>
                     {label}
-                    <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink style={{ width: 12, height: 12, color: "#6B7088", opacity: 0 }} className="group-hover:opacity-100 transition-opacity" />
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
+                  <p style={{ fontSize: 12.5, color: "#6B7088", lineHeight: 1.55, margin: 0 }}>{desc}</p>
                 </div>
               </a>
             ))}
           </div>
 
           {/* ── 2026 Election Timeline ── */}
-          <section className="bg-card rounded-2xl border border-border p-6 mb-6">
+          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-5 flex items-center gap-2">
               <CalendarDays className="w-4 h-4 text-teal-600" />
               2026 Georgia Election Timeline
@@ -298,7 +297,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── Voter ID ── */}
-          <section className="bg-card rounded-2xl border border-border p-6 mb-6">
+          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-1 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-teal-600" />
               Georgia Voter ID Requirements
@@ -336,7 +335,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── Your County ── */}
-          <section className="bg-card rounded-2xl border border-border p-6 mb-6">
+          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-1 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-teal-600" />
               Your County Election Office
@@ -451,7 +450,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── FAQ ── */}
-          <section className="bg-card rounded-2xl border border-border divide-y divide-border mb-6">
+          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", overflow: "hidden" }}>
             <div className="p-6 pb-4">
               <h2 className="font-bold text-foreground text-base">
                 Frequently Asked Questions

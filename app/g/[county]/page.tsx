@@ -121,8 +121,8 @@ export default async function CountyPage({
           <div style={{ ...cardStyle(), overflow: "hidden" }}>
             <div
               style={{
-                height: 120,
-                background: `linear-gradient(120deg, ${C.navy} 0%, ${C.ink900} 55%, ${C.teal} 115%)`,
+                height: 130,
+                background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
                 position: "relative",
               }}
             >

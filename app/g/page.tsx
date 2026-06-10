@@ -45,16 +45,16 @@ export default function CountyIndexPage() {
           style={{
             background: C.card,
             border: `1px solid ${C.rule}`,
-            borderRadius: 10,
-            boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+            borderRadius: 12,
+            boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
             overflow: "hidden",
             marginBottom: 14,
           }}
         >
           <div
             style={{
-              height: 96,
-              background: `linear-gradient(120deg, ${C.navy} 0%, ${C.ink900} 55%, ${C.teal} 115%)`,
+              height: 110,
+              background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
               position: "relative",
             }}
           >
@@ -131,9 +131,9 @@ export default function CountyIndexPage() {
                 style={{
                   background: C.card,
                   border: `1px solid ${C.rule}`,
-                  borderRadius: 10,
-                  boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
-                  padding: 14,
+                  borderRadius: 12,
+                  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+                  padding: 16,
                 }}
               >
                 <div
@@ -171,22 +171,23 @@ export default function CountyIndexPage() {
                     <Link
                       key={c.slug}
                       href={c.href}
+                      className="mv-lift"
                       style={{
-                        display: "block",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                         fontSize: 13,
                         fontWeight: 600,
                         color: C.ink900,
-                        background: C.shade,
-                        border: `1px solid ${C.ruleSoft}`,
+                        background: C.card,
+                        border: `1px solid ${C.rule}`,
                         borderRadius: 8,
-                        padding: "8px 10px",
+                        padding: "9px 11px",
                         textDecoration: "none",
                       }}
                     >
-                      {c.name}{" "}
-                      <span style={{ color: C.ink400, fontWeight: 400 }}>
-                        County
-                      </span>
+                      <span>{c.name}</span>
+                      <span style={{ color: C.teal, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>→</span>
                     </Link>
                   ))}
                 </div>
