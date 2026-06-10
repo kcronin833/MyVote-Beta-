@@ -448,6 +448,59 @@ export default async function CandidatePage({
           {/* Political lean */}
           <LeanMeter score={c.politicalScore} />
 
+          {/* Stay-informed news bridge — above the fold so search visitors who
+              land on a candidate page discover the news product without
+              scrolling to the very bottom. */}
+          <div style={cardStyle({ padding: 16 })}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900, marginBottom: 3 }}>
+              Stay informed on {race.office.split("(")[0].trim()}
+            </div>
+            <p style={{ fontSize: 12, color: C.ink500, lineHeight: 1.5, margin: "0 0 12px" }}>
+              Read how this race is covered across the political spectrum.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <Link
+                href="/news"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8,
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  background: C.teal,
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                <span>🌐 National news — every side</span>
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/news/local"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8,
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  background: C.tealSoft,
+                  border: `1px solid ${C.tealBorder}`,
+                  color: C.tealDk,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                <span>📍 Local Georgia news</span>
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+          </div>
+
           {/* Race info */}
           <div style={cardStyle({ padding: 16 })}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900, marginBottom: 8 }}>
