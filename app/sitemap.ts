@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllCountySlugs } from "@/lib/county-utils";
 import { getAllCandidateSlugs } from "@/lib/candidate-utils";
+import { ARCHETYPE_SLUGS } from "@/lib/civic-share";
 import { getSiteUrl } from "@/lib/site-url";
 
 /* Dynamic sitemap so Google can discover all ~159 statically generated county
@@ -39,5 +40,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }));
 
-  return [...staticRoutes, ...countyRoutes, ...candidateRoutes];
+  const civicProfileRoutes: MetadataRoute.Sitemap = Object.values(ARCHETYPE_SLUGS).map(
+    (slug) => ({
+      url: `${base}/civic-profile/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    })
+  );
+
+  return [...staticRoutes, ...countyRoutes, ...candidateRoutes, ...civicProfileRoutes];
 }

@@ -67,6 +67,44 @@ function RailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+/* County-specific voter FAQs — rendered visibly AND emitted as FAQPage
+   JSON-LD so Google can show expandable Q&A rich results for queries like
+   "when is early voting in Fulton County". Answers are built from the same
+   ballot data the page already displays. */
+function buildCountyFaqs(found: CountyLookup, generalRace: CountyLookup["statewideRaces"][number]) {
+  const { name, congressionalDistrict, pollingInfo, statewideRaces, congressionalRace, countyRaces } = found;
+  const raceCount =
+    statewideRaces.length + (congressionalRace ? 1 : 0) + countyRaces.length;
+  const offices = [
+    ...statewideRaces.map((r) => r.office),
+    ...(congressionalRace ? [`U.S. House (${congressionalDistrict})`] : []),
+    ...countyRaces.map((r) => r.office),
+  ];
+
+  return [
+    {
+      q: `What's on the ballot in ${name} County, Georgia in 2026?`,
+      a: `${name} County voters will see ${raceCount} races in 2026, including ${offices.slice(0, 4).join(", ")}${offices.length > 4 ? `, and ${offices.length - 4} more` : ""}. This page lists every race with candidates and key issues.`,
+    },
+    {
+      q: `When is the deadline to register to vote in ${name} County?`,
+      a: `The registration deadline for the November 2026 general election is ${generalRace.registrationDeadline}. You can register or check your status at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov).`,
+    },
+    {
+      q: `When is early voting in ${name} County for the 2026 general election?`,
+      a: `Early (advance) voting for the November 2026 general election runs ${generalRace.earlyVotingStart} through ${generalRace.earlyVotingEnd}. Locations are set by the county — contact the ${name} County elections office or check mvp.sos.ga.gov for sites and hours.`,
+    },
+    {
+      q: `Where do I vote in ${name} County?`,
+      a: `${pollingInfo} Find your assigned Election Day precinct and a sample ballot on the Georgia My Voter Page (mvp.sos.ga.gov).`,
+    },
+    {
+      q: `What ID do I need to vote in Georgia?`,
+      a: `Georgia requires photo ID to vote in person: a Georgia driver's license (even if expired), free state voter ID card, U.S. passport, military ID, tribal ID, or government employee photo ID. Absentee-by-mail voters provide their driver's license or state ID number.`,
+    },
+  ];
+}
+
 export default async function CountyPage({
   params,
 }: {
@@ -86,6 +124,17 @@ export default async function CountyPage({
 
   const raceCount =
     statewideRaces.length + (congressionalRace ? 1 : 0) + countyRaces.length;
+
+  const faqs = buildCountyFaqs(found, generalRace);
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
 
   // Serialisable race list for the client-side pick tracker
   const allRacesForTracker = [
@@ -240,6 +289,40 @@ export default async function CountyPage({
               ))}
             </>
           )}
+
+          {/* Voter FAQ — visible content backing the FAQPage JSON-LD */}
+          <SectionHeading label={`${name} County voter FAQ`} count={faqs.length} />
+          <div style={{ ...cardStyle(), padding: "4px 16px" }}>
+            {faqs.map((f, i) => (
+              <details
+                key={f.q}
+                style={{
+                  padding: "12px 0",
+                  borderBottom: i < faqs.length - 1 ? `1px solid ${C.ruleSoft}` : "none",
+                }}
+              >
+                <summary
+                  style={{
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    color: C.ink900,
+                    cursor: "pointer",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {f.q}
+                </summary>
+                <p style={{ fontSize: 13, color: C.ink700, lineHeight: 1.6, margin: "8px 0 0" }}>
+                  {f.a}
+                </p>
+              </details>
+            ))}
+          </div>
+
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          />
         </div>
 
         {/* RIGHT RAIL */}

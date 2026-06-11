@@ -35,6 +35,7 @@ import {
   type QuizResult,
 } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
+import { shareUrl, shareText } from "@/lib/civic-share"
 import { syncQuizResult, notifyProfileUpdated } from "@/lib/civic-profile-store"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
@@ -520,6 +521,9 @@ function ResultsScreen({
           </p>
         </div>
 
+        {/* Share bar — the result is the most shareable moment in the product */}
+        <ShareBar archetypeKey={result.archetype} label={archetype.label} />
+
         {/* Description */}
         <div style={{
           background: C.card, border: `1px solid ${C.rule}`,
@@ -749,6 +753,81 @@ function ResultsScreen({
         </p>
       </div>
     </Screen>
+  )
+}
+
+// ─── Share bar ────────────────────────────────────────────────────────────
+
+function ShareBar({ archetypeKey, label }: { archetypeKey: QuizResult["archetype"]; label: string }) {
+  const [copied, setCopied] = useState(false)
+  const url = shareUrl(archetypeKey)
+  const text = shareText(label)
+
+  async function nativeShare() {
+    try {
+      await navigator.share({ title: "MyVote Civic Profile", text, url })
+    } catch {
+      /* user dismissed the sheet — not an error */
+    }
+  }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {}
+  }
+
+  const pill: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "8px 14px",
+    borderRadius: 999,
+    border: `1px solid ${C.rule}`,
+    background: C.card,
+    color: C.ink700,
+    fontSize: 12.5,
+    fontWeight: 700,
+    cursor: "pointer",
+    textDecoration: "none",
+  }
+
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share
+
+  return (
+    <div style={{ textAlign: "center", marginBottom: 16 }}>
+      <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 0.6, color: C.ink500, margin: "0 0 8px" }}>
+        SHARE YOUR RESULT
+      </p>
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+        {canNativeShare && (
+          <button onClick={nativeShare} style={pill}>
+            Share
+          </button>
+        )}
+        <a
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={pill}
+        >
+          Post on X
+        </a>
+        <a
+          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={pill}
+        >
+          Facebook
+        </a>
+        <button onClick={copyLink} style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#C0DAD4" } : {}) }}>
+          {copied ? "Copied ✓" : "Copy link"}
+        </button>
+      </div>
+    </div>
   )
 }
 
