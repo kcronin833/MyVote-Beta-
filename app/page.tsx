@@ -12,11 +12,21 @@ import {
   CheckCircle2,
   ArrowRight,
 } from "lucide-react"
+import dynamic from "next/dynamic"
 import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
-import { OnboardingQuiz } from "@/components/onboarding-quiz"
-import { DesktopHome } from "@/components/desktop/home"
 import { EarlyVotingBanner } from "@/components/early-voting-banner"
+
+/* The logged-in app shell and onboarding quiz are only needed after auth —
+   loading them lazily keeps the public landing page bundle small. */
+const DesktopHome = dynamic(
+  () => import("@/components/desktop/home").then((m) => m.DesktopHome),
+  { ssr: false }
+)
+const OnboardingQuiz = dynamic(
+  () => import("@/components/onboarding-quiz").then((m) => m.OnboardingQuiz),
+  { ssr: false }
+)
 
 /* ── Election countdown ──────────────────────────────────────────────── */
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")

@@ -32,6 +32,8 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className = ""
       <img
         src={avatarUrl}
         alt={displayName || "Avatar"}
+        loading="lazy"
+        decoding="async"
         className={`${sizeClass} rounded-full object-cover flex-shrink-0 ${className}`}
       />
     )

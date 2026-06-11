@@ -43,12 +43,14 @@ export const metadata: Metadata = {
     description:
       "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
     locale: "en_US",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MyVote — Georgia's Free 2026 Ballot Guide" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "MyVote — Georgia's 2026 Ballot Guide",
     description:
       "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,

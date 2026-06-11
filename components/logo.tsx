@@ -1,5 +1,7 @@
 /* MyVote logo — uses the official brand PNG.
-   Source: /redesign/myvote-logo.png  (1050 × 400 px, ratio 2.625)
+   Master art: /redesign/myvote-logo.png (1050 × 400 px, ratio 2.625).
+   Serves the web-sized derivative myvote-logo-nav.png (336 × 128 — 2× retina
+   at the largest 64px render) so pages don't pay for the full-res master.
    Intentionally uses a plain <img> tag — simpler and works universally.
 
    variant="white" wraps the logo in a frosted-white pill so it reads
@@ -30,7 +32,7 @@ export function Logo({
   const imgEl = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/redesign/myvote-logo.png"
+      src="/redesign/myvote-logo-nav.png"
       alt="MyVote"
       width={w}
       height={h}

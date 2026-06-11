@@ -1,0 +1,115 @@
+
+> my-v0-project@0.1.0 build
+> next build
+
+   ▲ Next.js 15.2.8
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/215) ...
+[local-rss] Vox: all URLs failed
+[local-rss] Reuters: all URLs failed
+   Generating static pages (53/215) 
+[local-rss] Associated Press: all URLs failed
+[news-filter] Keyword drop – source="PBS NewsHour": "NYC imposes stringent security as Trump becomes 1st sitting U.S. president to attend NBA Finals game"
+[news-filter] Keyword drop – source="The Hill": "Live updates: Trump draws boos, some cheers at Madison Square Garden before NBA Finals Game 3 in New York"
+[news-filter] Keyword drop – source="The Hill": "Trump draws boos at Madison Square Garden during National Anthem before Knicks NBA Finals Game 3"
+[news-filter] Keyword drop – source="ABC News": "Donald Trump, Knicks fan, heads back to New York to root on his team"
+[news-filter] Keyword drop – source="ABC News": "Vegas and Carolina put on a show to get the Stanley Cup Final off to a terrific start"
+[news-filter] Keyword drop – source="The Guardian": "NBA finals 2026 Game 3: San Antonio Spurs v New York Knicks – live updates"
+[news-filter] Keyword drop – source="The Guardian": "Trump news at a glance: watchdog group sues to block president’s ‘deeply corrupt’ birthday party"
+[news-filter] Keyword drop – source="The Guardian": "‘They picked the wrong artist’: How a Dallas mural cover-up led to a $25m lawsuit against Fifa"
+[news-filter] Keyword drop – source="The Guardian": "Jalen Brunson heard the doubters. Now he has the Knicks on verge of history | Etan Thomas"
+[news-filter] Keyword drop – source="The Guardian": "A job that changed me: I was teaching in a juvenile detention centre when a repeat offender’s poetry moved me to tears"
+[news-filter] Keyword drop – source="The Guardian": "Top African referee Omar Artan refused access to US and will miss World Cup"
+[news-filter] Keyword drop – source="The Guardian": "Why preparation isn’t everything at a World Cup | Jonathan Wilson"
+[news-filter] Keyword drop – source="The Guardian": "Donald Trump given hostile reception as New York crowd boos and jeers president at NBA finals"
+[news-filter] Keyword drop – source="The Guardian": "Catch me if you can: Kimi Antonelli’s Monaco triumph rattles F1 rivals | Giles Richards"
+[news-filter] Keyword drop – source="The Guardian": "Fifa vice-president Victor Montagliani: ‘MLS can become the second-biggest league in the world. Maybe the biggest’"
+[news-filter] Keyword drop – source="The Guardian": "Simone Biles resting after serious health scare: ‘Almost dying wasn’t on my bingo card’"
+[news-filter] Keyword drop – source="The Guardian": "Two US pilots killed after plane bound to pick up former MLB star crashes"
+[news-filter] Keyword drop – source="The Guardian": "Six people stabbed in attack at Penn Station in New York"
+[news-filter] Keyword drop – source="The Guardian": "Lawsuit aims to block UFC event at White House on Trump’s birthday"
+[news-filter] Keyword drop – source="The Guardian": "A fascinating history of the World Cup: best podcasts of the week"
+[news-filter] Keyword drop – source="The Guardian": "Zohran Mamdani plays the Guardian's Bracketology to predict World Cup winner – video"
+[news-filter] Keyword drop – source="The Guardian": "Sign up for Well Actually: a free weekly newsletter about health and wellness"
+[news-filter] Keyword drop – source="The Guardian": "A humanoid traffic officer and Pride in Brazil: photos of the day – Monday"
+[news-filter] Keyword drop – source="HuffPost": "Lawsuit Aims To Shut Down UFC Fight On White House Lawn For Trump's Birthday"
+[news-filter] Keyword drop – source="HuffPost": "Knicks Fans Fear Trump Is Ruining 'The Vibe' With Plans To Attend The NBA Finals"
+[news-filter] Keyword drop – source="HuffPost": "New Poll Reveals What Americans Really Think Of Trump's Birthday UFC Event"
+[news-filter] Keyword drop – source="HuffPost": "One Of Trump's Biggest Critics Accidentally Invited To UFC Birthday Bash — And You'll Never Guess Why"
+[news-filter] Keyword drop – source="Breitbart": "WATCH: Trump Salutes and Smiles During National Anthem Before NBA Finals Game 3"
+[news-filter] Keyword drop – source="Breitbart": "Stephen A. Smith Blasts Trump for Attending Game 3 of the NBA Finals: 'He Has No Business Showing Up'"
+[news-filter] Keyword drop – source="Breitbart": "Marvel 'She-Hulk' Star Tatiana Maslany Pushes Boycott of 'New York Times' over 'Harm' Done to Trans, Palestinians, Blacks"
+   Generating static pages (107/215) 
+   Generating static pages (161/215) 
+ ✓ Generating static pages (215/215)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                                              Size  First Load JS  Revalidate  Expire
+┌ ○ /                                                                                 5.62 kB         260 kB
+├ ○ /_not-found                                                                         983 B         102 kB
+├ ○ /about                                                                              185 B         104 kB
+├ ○ /admin                                                                            9.74 kB         223 kB
+├ ƒ /api/ballot-lookup                                                                  217 B         101 kB
+├ ƒ /api/candidate/admin                                                                217 B         101 kB
+├ ƒ /api/candidate/claim                                                                217 B         101 kB
+├ ƒ /api/contact                                                                        217 B         101 kB
+├ ƒ /api/daily-question                                                                 217 B         101 kB
+├ ƒ /api/daily-question/answer                                                          217 B         101 kB
+├ ƒ /api/geolocation                                                                    217 B         101 kB
+├ ƒ /api/news                                                                           217 B         101 kB
+├ ○ /api/news/factual                                                                   217 B         101 kB         30m      1y
+├ ƒ /api/pipeline/cluster                                                               217 B         101 kB
+├ ƒ /api/pipeline/ingest                                                                217 B         101 kB
+├ ƒ /api/pipeline/stories                                                               217 B         101 kB
+├ ƒ /api/pipeline/trigger                                                               217 B         101 kB
+├ ƒ /api/stories/rate                                                                   217 B         101 kB
+├ ƒ /auth/callback                                                                      217 B         101 kB
+├ ○ /auth/signin                                                                      4.38 kB         177 kB
+├ ○ /auth/signup                                                                      12.4 kB         204 kB
+├ ○ /contact                                                                          3.65 kB         113 kB
+├ ○ /desktop-preview                                                                    527 B         255 kB
+├ ○ /discover                                                                         5.08 kB         165 kB
+├ ƒ /elections                                                                        2.65 kB         107 kB
+├ ● /elections/candidate/[slug]                                                       9.47 kB         172 kB
+├   ├ /elections/candidate/burt-jones--georgia-governor-republican-primary-runoff
+├   ├ /elections/candidate/rick-jackson--georgia-governor-republican-primary-runoff
+├   ├ /elections/candidate/keisha-lance-bottoms--georgia-governor-democratic-nominee
+├   └ [+14 more paths]
+├ ○ /g                                                                                  185 B         104 kB
+├ ● /g/[county]                                                                       4.99 kB         164 kB
+├   ├ /g/appling
+├   ├ /g/atkinson
+├   ├ /g/bacon
+├   └ [+156 more paths]
+├ ○ /news                                                                             7.44 kB         198 kB
+├ ○ /news/local                                                                       6.35 kB         197 kB
+├ ○ /privacy                                                                            185 B         104 kB
+├ ○ /profile                                                                          19.2 kB         220 kB
+├ ƒ /profile/[username]                                                               3.01 kB         166 kB
+├ ○ /profiles                                                                           995 B         105 kB
+├ ○ /quiz                                                                             16.6 kB         177 kB
+├ ○ /register                                                                            7 kB         184 kB
+├ ○ /robots.txt                                                                         217 B         101 kB
+├ ○ /search                                                                           5.31 kB         186 kB
+├ ○ /sitemap.xml                                                                        217 B         101 kB
+├ ○ /terms                                                                              185 B         104 kB
+└ ○ /welcome                                                                            186 B         110 kB
++ First Load JS shared by all                                                          101 kB
+  ├ chunks/2a2da372-2a4861189df1ed6c.js                                               53.3 kB
+  ├ chunks/9762-6ae769b69b885a99.js                                                   45.9 kB
+  └ other shared chunks (total)                                                       1.99 kB
+
+
+ƒ Middleware                                                                          79.8 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

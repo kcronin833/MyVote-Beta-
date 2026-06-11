@@ -88,6 +88,8 @@ export function CandidatePhoto({
         <img
           src={src}
           alt={name}
+          loading="lazy"
+          decoding="async"
           onError={() => setFailed(true)}
           style={{
             width: "100%",

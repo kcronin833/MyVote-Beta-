@@ -102,6 +102,8 @@ function ArticleCard({ article }: { article: Article }) {
             <img
               src={article.urlToImage}
               alt=""
+              loading="lazy"
+              decoding="async"
               crossOrigin="anonymous"
               style={{
                 width: 88,

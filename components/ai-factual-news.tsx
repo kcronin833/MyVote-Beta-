@@ -138,6 +138,8 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
           <img
             src={article.urlToImage}
             alt=""
+            loading="lazy"
+            decoding="async"
             style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease", display: "block" }}
             className="hover:scale-105"
             onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
@@ -243,6 +245,8 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
                     <img
                       src={src.urlToImage}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="hover:scale-105"
                       style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease", display: "block" }}
                       onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
