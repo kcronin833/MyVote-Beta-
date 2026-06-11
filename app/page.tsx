@@ -224,6 +224,21 @@ export default function HomePage() {
   const [showQuiz, setShowQuiz] = useState(false)
   const countdown = useElectionCountdown()
 
+  // Synchronous hint that a Supabase session exists (token in localStorage).
+  // Lets us show the spinner ONLY to returning logged-in users; new visitors
+  // and crawlers get the full landing page immediately — previously the
+  // prerendered HTML was just the spinner, which gutted SEO and LCP.
+  const [sessionHint] = useState(() => {
+    if (typeof window === "undefined") return false
+    try {
+      return Object.keys(localStorage).some(
+        (k) => k.startsWith("sb-") && k.includes("auth-token")
+      )
+    } catch {
+      return false
+    }
+  })
+
   useEffect(() => {
     if (!user) return
     const alreadyShown = localStorage.getItem("mv_quiz_shown")
@@ -232,7 +247,7 @@ export default function HomePage() {
     if (likes.length === 0) setShowQuiz(true)
   }, [user])
 
-  if (authLoading) {
+  if (authLoading && (sessionHint || guestMode)) {
     return (
       <div
         style={{
