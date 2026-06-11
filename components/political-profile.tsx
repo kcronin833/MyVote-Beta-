@@ -1,11 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Vote, Edit3, Check, X, Crown, Users, ExternalLink, Info, Lock, ChevronRight } from "lucide-react"
 import { CandidateProfileDialog } from "./candidate-profile-detail"
 import { getBallotForZip } from "@/lib/georgia-ballot-data"
@@ -24,7 +21,6 @@ interface Candidate {
     totalRaised: string
     lastQuarter: string
   }
-  // Extended properties for detailed view
   bio?: string
   age?: number
   education?: string[]
@@ -83,14 +79,50 @@ interface Candidate {
   politicalScore?: number
 }
 
+// Design tokens
+const C = {
+  card:    "#FDFCF9",
+  rule:    "#E4E0D3",
+  ink900:  "#1A2138",
+  ink700:  "#3D435A",
+  ink500:  "#6B7088",
+  ink400:  "#8B8FA3",
+  ink300:  "#AEB2C3",
+  teal:    "#3D8073",
+  tealDk:  "#2F6358",
+  tealSoft:"#E6F0ED",
+  red:     "#B33A2C",
+  page:    "#F5F3EE",
+  shade:   "#F0EDE6",
+}
 
-// Race level labels for grouping
-const LEVEL_COLORS: Record<string, { label: string; color: string }> = {
-  "Federal":      { label: "Federal",      color: "bg-ink-900 text-white" },
-  "State":        { label: "State",        color: "bg-[#27AE60] text-white" },
-  "County":       { label: "County",       color: "bg-[#F39C12] text-white" },
-  "School Board": { label: "School Board", color: "bg-[#8E44AD] text-white" },
-  "Local":        { label: "Local",        color: "bg-civic-red text-white" },
+const cardStyle = {
+  background: C.card,
+  border: `1px solid ${C.rule}`,
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+}
+
+// Level styling — hex-based, no Tailwind color classes
+const LEVEL_STYLES: Record<string, { label: string; pill: { bg: string; color: string }; border: string; stripe: string }> = {
+  "Federal":      { label: "Federal",      pill: { bg: "#1A2138", color: "#fff" }, border: "#1A2138", stripe: "rgba(26,33,56,0.05)"  },
+  "State":        { label: "State",        pill: { bg: "#27AE60", color: "#fff" }, border: "#27AE60", stripe: "rgba(39,174,96,0.06)"  },
+  "County":       { label: "County",       pill: { bg: "#D4871A", color: "#fff" }, border: "#D4871A", stripe: "rgba(212,135,26,0.06)" },
+  "School Board": { label: "School Board", pill: { bg: "#8E44AD", color: "#fff" }, border: "#8E44AD", stripe: "rgba(142,68,173,0.06)" },
+  "Local":        { label: "Local",        pill: { bg: "#B33A2C", color: "#fff" }, border: "#B33A2C", stripe: "rgba(179,58,44,0.06)"  },
+}
+
+const LEVEL_ORDER = ["Federal", "State", "County", "School Board", "Local"]
+
+function getPartyStyle(party: string): { bg: string; color: string; border: string } {
+  switch (party) {
+    case "Democrat":    return { bg: "#EEF2FF", color: "#3730A3", border: "#C7D2FE" }
+    case "Republican":  return { bg: "#FEF2F2", color: "#B33A2C", border: "#FECACA" }
+    case "Independent": return { bg: "#FFFBEB", color: "#B45309", border: "#FDE68A" }
+    case "Green":       return { bg: "#ECFDF5", color: "#065F46", border: "#A7F3D0" }
+    case "Libertarian": return { bg: "#FEF9C3", color: "#854D0E", border: "#FEF08A" }
+    default:            return { bg: "#F3F4F6", color: "#374151", border: "#E5E7EB" }
+  }
 }
 
 interface Address {
@@ -123,9 +155,6 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
   const [mySelections, setMySelections] = useState<Record<string, string>>({})
   const [showMyBallot, setShowMyBallot] = useState(false)
   const [viewpointCount, setViewpointCount] = useState(0)
-  // The signed-in user's own lean (-100 = left … +100 = right), derived from
-  // the left/right viewpoints they've liked in the news feed. Real signal —
-  // no mock baseline.
   const [userPoliticalScore, setUserPoliticalScore] = useState(0)
 
   useEffect(() => {
@@ -136,7 +165,6 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     const right = likes.filter((l) => l.viewpoint === "right").length
     const total = likes.filter((l) => l.viewpoint === "left" || l.viewpoint === "right").length
     if (total > 0) {
-      // rightFraction 0..1 → score -100..+100
       setUserPoliticalScore(Math.round((right / total) * 200 - 100))
     }
   }, [])
@@ -145,10 +173,6 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
 
   const handleAddressUpdate = () => {
     const z = tempAddress.zip.trim()
-    // Accept any valid Georgia ZIP (300xx–319xx, 398xx–399xx). Even when we
-    // don't have county-specific races for it yet, getBallotForZip() still
-    // returns the statewide ballot — so every Georgian sees a real ballot
-    // instead of a dead end.
     const isGeorgiaZip = /^3(0|1)\d{3}$/.test(z) || /^39[89]\d{2}$/.test(z)
     if (!isGeorgiaZip) {
       alert(
@@ -166,335 +190,324 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
     setEditingAddress(false)
   }
 
-  const getPartyColor = (party: string) => {
-    switch (party) {
-      case "Democrat":
-        return "bg-ink-900 text-white border-[#1A2138]"
-      case "Republican":
-        return "bg-civic-red text-white border-[#B33A2C]"
-      case "Independent":
-        return "bg-[#F39C12] text-white border-[#F39C12]"
-      case "Green":
-        return "bg-[#27AE60] text-white border-[#27AE60]"
-      case "Libertarian":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
-      default:
-        return "bg-paper-100 text-foreground border-rule"
-    }
-  }
-
   const openCandidateProfile = (candidate: Candidate, office: string, electionDate: string) => {
     setSelectedCandidate({ candidate, office, electionDate })
   }
 
   const renderCandidate = (candidate: Candidate, office: string, electionDate: string) => {
-    // TBD placeholder — primary not yet decided
+    // TBD placeholder
     if (candidate.name.toLowerCase().includes("tbd")) {
       return (
-        <Card key={candidate.name} className="border-dashed border-rule bg-paper-50">
-          <CardContent className="py-8 text-center space-y-2">
-            <Lock className="w-7 h-7 text-ink-400 mx-auto" />
-            <p className="font-semibold text-muted-foreground">Primary pending</p>
-            <p className="text-sm text-ink-400">Check back after the May 19 primary.</p>
-          </CardContent>
-        </Card>
+        <div
+          key={candidate.name}
+          style={{
+            border: `1.5px dashed ${C.rule}`,
+            borderRadius: 10,
+            background: "#FAFAF7",
+            padding: "28px 16px",
+            textAlign: "center",
+          }}
+        >
+          <Lock size={24} color={C.ink400} style={{ margin: "0 auto 8px" }} />
+          <p style={{ fontWeight: 600, color: C.ink500, fontSize: 13.5, margin: "0 0 4px" }}>Primary pending</p>
+          <p style={{ fontSize: 12.5, color: C.ink400, margin: 0 }}>Check back after the May 19 primary.</p>
+        </div>
       )
     }
 
-    // Match = how close the candidate's lean is to the user's own lean, both on
-    // a -100..+100 scale. Max gap is 200, so halving keeps the result in 0..100.
     const matchScore = Math.round(
       100 - Math.abs(userPoliticalScore - (candidate.politicalScore || 0)) / 2
     )
-
+    const partyStyle = getPartyStyle(candidate.party)
     const hasFundraising =
       candidate.fundraising.totalRaised !== "TBD" &&
       candidate.fundraising.lastQuarter !== "TBD" &&
       candidate.fundraising.totalRaised !== "" &&
       candidate.fundraising.lastQuarter !== ""
     const hasEndorsements = candidate.endorsements.length > 0
+    const isSelected = mySelections[office] === candidate.name
 
     return (
-      <Card
+      <div
         key={candidate.name}
-        className={`${candidate.isIncumbent ? "border-2 border-[#1A2138] bg-blue-50" : ""} hover:shadow-lg transition-shadow cursor-pointer`}
+        className="mv-lift"
         onClick={() => openCandidateProfile(candidate, office, electionDate)}
+        style={{
+          ...cardStyle,
+          borderRadius: 10,
+          borderLeft: candidate.isIncumbent ? `3px solid ${C.ink900}` : `1px solid ${C.rule}`,
+          padding: 14,
+          cursor: "pointer",
+          overflow: "hidden",
+        }}
       >
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <img
-              src={candidate.photo || "/placeholder.svg"}
-              alt={candidate.name}
-              className="w-16 h-16 rounded-full object-cover"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <h4 className="font-semibold text-lg">{candidate.name}</h4>
-                {candidate.isIncumbent && (
-                  <Badge variant="default" className="bg-ink-900 text-white">
-                    <Crown className="w-3 h-3 mr-1" />
-                    Incumbent
-                  </Badge>
-                )}
-                <Badge variant="outline" className={getPartyColor(candidate.party)}>
-                  {candidate.party}
-                </Badge>
-                {viewpointCount === 0 ? (
-                  <span
-                    title="Like viewpoints in the news feed to see your match score"
-                    className="text-xs px-2 py-0.5 rounded-full border border-rule text-ink-400 cursor-help"
-                  >
-                    Match unknown
-                  </span>
-                ) : (
-                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
-                    matchScore >= 70 ? "border-green-300 text-green-700 bg-green-50" :
-                    matchScore >= 50 ? "border-yellow-300 text-yellow-700 bg-yellow-50" :
-                    "border-red-300 text-red-700 bg-red-50"
-                  }`}>
-                    {matchScore}% Match
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <h5 className="font-medium text-[#3D435A] mb-1">Experience</h5>
-                  <ul className="text-[#3D435A] space-y-1">
-                    {candidate.experience.slice(0, 3).map((exp, i) => (
-                      <li key={i}>• {exp}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h5 className="font-medium text-[#3D435A] mb-1">Key Issues</h5>
-                  <div className="flex flex-wrap gap-1">
-                    {candidate.keyIssues.slice(0, 4).map((issue, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {issue}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        {/* Candidate header row */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
+          <img
+            src={candidate.photo || "/placeholder.svg"}
+            alt={candidate.name}
+            style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: `2px solid ${C.rule}` }}
+          />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: C.ink900 }}>{candidate.name}</span>
+              {candidate.isIncumbent && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, background: C.ink900, color: "#fff", borderRadius: 999, padding: "2px 8px" }}>
+                  <Crown size={10} />Incumbent
+                </span>
+              )}
+              <span style={{ fontSize: 11, fontWeight: 600, background: partyStyle.bg, color: partyStyle.color, border: `1px solid ${partyStyle.border}`, borderRadius: 999, padding: "2px 8px" }}>
+                {candidate.party}
+              </span>
+              {viewpointCount === 0 ? (
+                <span
+                  title="Like viewpoints in the news feed to see your match score"
+                  style={{ fontSize: 11, color: C.ink400, border: `1px solid ${C.rule}`, borderRadius: 999, padding: "2px 8px", cursor: "help" }}
+                >
+                  Match unknown
+                </span>
+              ) : (
+                <span style={{
+                  fontSize: 11, fontWeight: 600, borderRadius: 999, padding: "2px 8px",
+                  ...(matchScore >= 70
+                    ? { background: "#ECFDF5", color: "#065F46", border: "1px solid #A7F3D0" }
+                    : matchScore >= 50
+                    ? { background: "#FFFBEB", color: "#B45309", border: "1px solid #FDE68A" }
+                    : { background: "#FEF2F2", color: "#B33A2C", border: "1px solid #FECACA" })
+                }}>
+                  {matchScore}% Match
+                </span>
+              )}
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        </div>
+
+        {/* Experience + Key Issues */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12, fontSize: 12.5 }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.ink500, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 4 }}>Experience</p>
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", color: C.ink700, lineHeight: 1.5 }}>
+              {candidate.experience.slice(0, 3).map((exp, i) => (
+                <li key={i} style={{ paddingLeft: 10, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 0 }}>·</span>{exp}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, color: C.ink500, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 4 }}>Key Issues</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              {candidate.keyIssues.slice(0, 4).map((issue, i) => (
+                <span key={i} style={{ fontSize: 11, background: C.tealSoft, color: C.tealDk, borderRadius: 999, padding: "2px 7px", fontWeight: 600 }}>
+                  {issue}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Fundraising + Endorsements + Actions */}
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 8, borderTop: `1px solid ${C.rule}`, paddingTop: 10, fontSize: 12 }}>
+          <div style={{ display: "flex", gap: 14 }}>
             {hasFundraising && (
               <div>
-                <h5 className="font-medium text-[#3D435A] mb-1">Fundraising</h5>
-                <p className="text-[#3D435A]">Total: {candidate.fundraising.totalRaised}</p>
-                <p className="text-[#3D435A]">Last Quarter: {candidate.fundraising.lastQuarter}</p>
+                <p style={{ fontSize: 10.5, fontWeight: 600, color: C.ink400, textTransform: "uppercase", letterSpacing: 0.3, marginBottom: 2 }}>Raised</p>
+                <p style={{ fontWeight: 700, color: C.ink700 }}>{candidate.fundraising.totalRaised}</p>
               </div>
             )}
             {hasEndorsements && (
               <div>
-                <h5 className="font-medium text-[#3D435A] mb-1">Endorsements</h5>
-                <div className="space-y-1">
-                  {candidate.endorsements.slice(0, 2).map((endorsement, i) => (
-                    <p key={i} className="text-[#3D435A] text-xs">• {endorsement}</p>
-                  ))}
-                  {candidate.endorsements.length > 2 && (
-                    <p className="text-muted-foreground text-xs">+{candidate.endorsements.length - 2} more</p>
-                  )}
-                </div>
+                <p style={{ fontSize: 10.5, fontWeight: 600, color: C.ink400, textTransform: "uppercase", letterSpacing: 0.3, marginBottom: 2 }}>Endorsements</p>
+                <p style={{ fontWeight: 600, color: C.ink700 }}>{candidate.endorsements.slice(0, 1).join("") }{candidate.endorsements.length > 1 ? ` +${candidate.endorsements.length - 1}` : ""}</p>
               </div>
             )}
-            <div className="flex items-end justify-between gap-2 flex-wrap">
-              {candidate.website && (
-                <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
-                  <a href={candidate.website} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Website
-                  </a>
-                </Button>
-              )}
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                Details
-              </Button>
-              {(() => {
-                const isSelected = mySelections[office] === candidate.name
-                return (
-                  <Button
-                    size="sm"
-                    variant={isSelected ? "default" : "outline"}
-                    className={isSelected ? "bg-[#27AE60] text-white hover:bg-[#27AE60]/90" : "border-[#27AE60] text-[#27AE60] hover:bg-[#27AE60]/10"}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setMySelections((prev) => {
-                        if (prev[office] === candidate.name) {
-                          const next = { ...prev }
-                          delete next[office]
-                          return next
-                        }
-                        return { ...prev, [office]: candidate.name }
-                      })
-                    }}
-                  >
-                    <Check className="w-3 h-3 mr-1" />
-                    {isSelected ? "My Pick" : "Select"}
-                  </Button>
-                )
-              })()}
-            </div>
           </div>
-        </CardContent>
-      </Card>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {candidate.website && (
+              <a
+                href={candidate.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 30, padding: "0 10px", borderRadius: 999, border: `1.5px solid ${C.rule}`, background: "transparent", fontSize: 12, fontWeight: 600, color: C.ink700, textDecoration: "none", cursor: "pointer" }}
+              >
+                <ExternalLink size={11} />Website
+              </a>
+            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); openCandidateProfile(candidate, office, electionDate) }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 30, padding: "0 10px", borderRadius: 999, border: `1.5px solid ${C.rule}`, background: "transparent", fontSize: 12, fontWeight: 600, color: C.ink700, cursor: "pointer" }}
+            >
+              <Info size={11} />Details
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setMySelections((prev) => {
+                  if (prev[office] === candidate.name) {
+                    const next = { ...prev }
+                    delete next[office]
+                    return next
+                  }
+                  return { ...prev, [office]: candidate.name }
+                })
+              }}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                height: 30, padding: "0 10px", borderRadius: 999, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                transition: "all 0.15s",
+                ...(isSelected
+                  ? { background: "#27AE60", color: "#fff", border: "1.5px solid #27AE60" }
+                  : { background: "transparent", color: "#27AE60", border: "1.5px solid #27AE60" })
+              }}
+            >
+              <Check size={11} />
+              {isSelected ? "My Pick" : "Select"}
+            </button>
+          </div>
+        </div>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* When we don't yet have county-specific races for this ZIP, we still
-          show the full statewide ballot — never a dead end. */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* Not-found banner */}
       {!ballotData.found && (
-        <Card className="border-amber-300 bg-amber-50">
-          <CardContent className="p-4 flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-            <div className="text-sm text-[#3D435A]">
-              <p className="font-medium">Showing your statewide Georgia ballot.</p>
-              <p className="text-[#3D435A]/70">
-                We don&apos;t have county-specific local races mapped for ZIP{" "}
-                <strong>{zipCode}</strong> yet, but every statewide race below is on your ballot.{" "}
-                <a
-                  href={ballotData.sosLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-ink-900 underline"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Confirm your full local ballot at the GA Secretary of State
-                </a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div style={{ ...cardStyle, border: `1px solid #FDE68A`, background: "#FFFBEB", padding: "12px 16px", display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <MapPin size={18} color="#B45309" style={{ flexShrink: 0, marginTop: 1 }} />
+          <div style={{ fontSize: 13, color: C.ink700 }}>
+            <p style={{ fontWeight: 600, marginBottom: 2 }}>Showing your statewide Georgia ballot.</p>
+            <p style={{ color: C.ink500, lineHeight: 1.5, margin: 0 }}>
+              We don&apos;t have county-specific local races mapped for ZIP{" "}
+              <strong>{zipCode}</strong> yet, but every statewide race below is on your ballot.{" "}
+              <a
+                href={ballotData.sosLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: C.ink900, textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 3 }}
+              >
+                <ExternalLink size={11} />
+                Confirm your full local ballot at GA SOS
+              </a>
+            </p>
+          </div>
+        </div>
       )}
 
-      {/* Trust guardrail — candidate data is provisional */}
+      {/* Trust guardrail */}
       <BallotDataDisclaimer />
 
       {/* Address / Location Header */}
-      <Card className="border-[#E5E5E5]">
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-ink-900" />
+      <div style={{ ...cardStyle, overflow: "hidden" }}>
+        {/* Top gradient bar */}
+        <div style={{ height: 6, background: `linear-gradient(90deg, ${C.tealDk}, ${C.teal})` }} />
+        <div style={{ padding: "14px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: C.tealSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <MapPin size={17} color={C.teal} />
+              </div>
               <div>
-                <CardTitle className="text-xl">Your Ballot</CardTitle>
-                <CardDescription>
+                <p style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: 0 }}>Your Ballot</p>
+                <p style={{ fontSize: 12.5, color: C.ink500, margin: 0 }}>
                   {address.street
                     ? `${address.street}, ${address.city}, ${address.state} ${address.zip}`
                     : ballotData.location}
-                </CardDescription>
+                </p>
               </div>
             </div>
             {!editingAddress && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <Link
                   href="/elections"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-teal-600 hover:text-teal-700"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 600, color: C.teal, textDecoration: "none" }}
                 >
-                  <Vote className="w-4 h-4" />
-                  All 2026 races
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <Vote size={14} />All 2026 races<ChevronRight size={13} />
                 </Link>
-                <Button size="sm" variant="outline" onClick={() => setEditingAddress(true)}>
-                  <Edit3 className="w-4 h-4 mr-1" />
+                <button
+                  onClick={() => setEditingAddress(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 30, padding: "0 12px", borderRadius: 999, border: `1.5px solid ${C.rule}`, background: "transparent", fontSize: 12, fontWeight: 600, color: C.ink700, cursor: "pointer" }}
+                >
+                  <Edit3 size={12} />
                   {address.street ? "Edit Address" : "Add Address"}
-                </Button>
+                </button>
               </div>
             )}
           </div>
 
+          {/* Edit address form */}
           {editingAddress && (
-            <div className="mt-4 space-y-3">
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 10 }}>
               <div>
-                <label className="text-xs font-medium text-[#3D435A] mb-1 block">Street Address</label>
+                <label style={{ fontSize: 11.5, fontWeight: 600, color: C.ink500, display: "block", marginBottom: 4 }}>Street Address</label>
                 <Input
                   value={tempAddress.street}
                   onChange={(e) => setTempAddress({ ...tempAddress, street: e.target.value })}
                   placeholder="123 Peachtree St NW"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">City</label>
-                  <Input
-                    value={tempAddress.city}
-                    onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
-                    placeholder="Atlanta"
-                  />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 100px", gap: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: C.ink500, display: "block", marginBottom: 4 }}>City</label>
+                  <Input value={tempAddress.city} onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })} placeholder="Atlanta" />
                 </div>
-                <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">State</label>
-                  <Input
-                    value={tempAddress.state}
-                    onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })}
-                    placeholder="GA"
-                    maxLength={2}
-                  />
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: C.ink500, display: "block", marginBottom: 4 }}>State</label>
+                  <Input value={tempAddress.state} onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })} placeholder="GA" maxLength={2} />
                 </div>
-                <div className="col-span-1">
-                  <label className="text-xs font-medium text-[#3D435A] mb-1 block">ZIP Code</label>
-                  <Input
-                    value={tempAddress.zip}
-                    onChange={(e) => setTempAddress({ ...tempAddress, zip: e.target.value })}
-                    placeholder="30309"
-                    maxLength={5}
-                  />
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: C.ink500, display: "block", marginBottom: 4 }}>ZIP Code</label>
+                  <Input value={tempAddress.zip} onChange={(e) => setTempAddress({ ...tempAddress, zip: e.target.value })} placeholder="30309" maxLength={5} />
                 </div>
               </div>
-              <p className="text-xs text-[#3D435A]/60">
+              <p style={{ fontSize: 11.5, color: C.ink400, margin: 0, lineHeight: 1.5 }}>
                 Your zip code is used to show your specific ballot races across all 159 Georgia counties.
               </p>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleAddressUpdate} className="bg-ink-900 text-white hover:bg-ink-900/90">
-                  <Check className="w-4 h-4 mr-1" />
-                  Save Address
-                </Button>
-                <Button size="sm" variant="outline" onClick={cancelEdit}>
-                  <X className="w-4 h-4 mr-1" />
-                  Cancel
-                </Button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={handleAddressUpdate}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 34, padding: "0 16px", borderRadius: 999, background: C.teal, color: "#fff", border: "none", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+                >
+                  <Check size={13} />Save Address
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 34, padding: "0 14px", borderRadius: 999, border: `1.5px solid ${C.rule}`, background: "transparent", color: C.ink700, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}
+                >
+                  <X size={13} />Cancel
+                </button>
               </div>
             </div>
           )}
 
+          {/* District info pills */}
           {!editingAddress && (
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-              <div className="bg-ink-900/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">Congressional</p>
-                <p className="font-medium text-[#3D435A]">
-                  {ballotData.congressionalDistrict === "Unknown"
-                    ? "Enter ZIP for district"
-                    : ballotData.congressionalDistrict}
-                </p>
-              </div>
-              <div className="bg-[#27AE60]/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">County</p>
-                <p className="font-medium text-[#3D435A]">
-                  {ballotData.county === "Unknown" ? "Statewide" : `${ballotData.county} County`}
-                </p>
-              </div>
-              <div className="bg-civic-red/5 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#3D435A]/60 font-medium uppercase tracking-wide">State</p>
-                <p className="font-medium text-[#3D435A]">Georgia</p>
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 8 }}>
+              {[
+                { label: "Congressional", value: ballotData.congressionalDistrict === "Unknown" ? "Enter ZIP" : ballotData.congressionalDistrict },
+                { label: "County", value: ballotData.county === "Unknown" ? "Statewide" : `${ballotData.county} County` },
+                { label: "State", value: "Georgia" },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: C.shade, borderRadius: 8, padding: "8px 10px" }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: C.ink400, textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 2px" }}>{label}</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 600, color: C.ink700, margin: 0 }}>{value}</p>
+                </div>
+              ))}
             </div>
           )}
-        </CardHeader>
-      </Card>
+        </div>
+      </div>
 
-      {/* ── Sticky jump-nav ─────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-paper-100 py-2 -mx-4 px-4 border-b border-border">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">Jump to:</span>
-          {Object.entries(LEVEL_COLORS).map(([level, { color }]) => {
+      {/* Sticky jump-nav */}
+      <div style={{ position: "sticky", top: 0, zIndex: 20, background: C.page, padding: "8px 0", borderBottom: `1px solid ${C.rule}`, margin: "0 -4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto", paddingBottom: 2, padding: "0 4px" }}>
+          <span style={{ fontSize: 11.5, fontWeight: 600, color: C.ink500, whiteSpace: "nowrap", flexShrink: 0 }}>Jump to:</span>
+          {LEVEL_ORDER.map((level) => {
             const hasRaces = ballotData.races.some((r) => r.level === level)
             if (!hasRaces) return null
+            const ls = LEVEL_STYLES[level] ?? LEVEL_STYLES["Local"]
             return (
               <button
                 key={level}
@@ -502,7 +515,19 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   setActiveFilter(null)
                   document.getElementById(`level-${level}`)?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }}
-                className={`shrink-0 text-xs font-bold px-3 py-1 rounded-full ${color} hover:opacity-80 transition-opacity`}
+                style={{
+                  flexShrink: 0,
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  padding: "4px 12px",
+                  borderRadius: 999,
+                  border: "none",
+                  background: ls.pill.bg,
+                  color: ls.pill.color,
+                  cursor: "pointer",
+                  opacity: 1,
+                  transition: "opacity 0.15s",
+                }}
               >
                 {level}
               </button>
@@ -511,7 +536,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
           {activeFilter && (
             <button
               onClick={() => setActiveFilter(null)}
-              className="shrink-0 text-xs text-muted-foreground underline hover:text-foreground"
+              style={{ flexShrink: 0, fontSize: 11.5, color: C.ink500, textDecoration: "underline", background: "none", border: "none", cursor: "pointer" }}
             >
               Clear filter
             </button>
@@ -519,22 +544,20 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         </div>
       </div>
 
-      {/* ── Races grouped by level ────────────────────────────────────────── */}
+      {/* Races grouped by level */}
       {(() => {
-        const LEVEL_ORDER = ["Federal", "State", "County", "School Board", "Local"]
         const filteredRaces = activeFilter
           ? ballotData.races.filter((r) => r.level === activeFilter)
           : ballotData.races
 
         if (filteredRaces.length === 0) {
           return (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p style={{ fontSize: 13.5, color: C.ink500, textAlign: "center", padding: "32px 0" }}>
               No races found for level &ldquo;{activeFilter}&rdquo;.
             </p>
           )
         }
 
-        // Group races by level
         const grouped: Record<string, typeof filteredRaces> = {}
         for (const race of filteredRaces) {
           if (!grouped[race.level]) grouped[race.level] = []
@@ -542,29 +565,16 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
         }
 
         return LEVEL_ORDER.filter((lvl) => grouped[lvl]?.length).map((level) => {
-          const levelInfo = LEVEL_COLORS[level] ?? { label: level, color: "bg-paper-500 text-white" }
-          // Extract the hex/color class for the left border accent
-          const borderColor =
-            level === "Federal"      ? "border-[#1A2138]" :
-            level === "State"        ? "border-[#27AE60]" :
-            level === "County"       ? "border-[#F39C12]" :
-            level === "School Board" ? "border-[#8E44AD]" :
-                                       "border-[#B33A2C]"
-          const bgStripe =
-            level === "Federal"      ? "bg-ink-900/5" :
-            level === "State"        ? "bg-[#27AE60]/5" :
-            level === "County"       ? "bg-[#F39C12]/5" :
-            level === "School Board" ? "bg-[#8E44AD]/5" :
-                                       "bg-civic-red/5"
+          const ls = LEVEL_STYLES[level] ?? LEVEL_STYLES["Local"]
 
           return (
-            <div key={level} id={`level-${level}`} className="scroll-mt-24 space-y-3">
+            <div key={level} id={`level-${level}`} style={{ scrollMarginTop: 80, display: "flex", flexDirection: "column", gap: 10 }}>
               {/* Level group header */}
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${bgStripe}`}>
-                <span className={`text-sm font-bold px-3 py-1 rounded-full ${levelInfo.color}`}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, background: ls.stripe }}>
+                <span style={{ fontSize: 11.5, fontWeight: 700, padding: "3px 10px", borderRadius: 999, background: ls.pill.bg, color: ls.pill.color, flexShrink: 0 }}>
                   {level}
                 </span>
-                <span className="text-sm font-semibold text-foreground">
+                <span style={{ fontSize: 13, fontWeight: 600, color: C.ink900 }}>
                   {grouped[level].length} race{grouped[level].length !== 1 ? "s" : ""} on your ballot
                 </span>
               </div>
@@ -573,23 +583,29 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
               {grouped[level].map((election, idx) => (
                 <div
                   key={idx}
-                  className={`bg-card rounded-2xl border border-border border-l-4 ${borderColor} overflow-hidden`}
+                  style={{
+                    ...cardStyle,
+                    borderLeft: `4px solid ${ls.border}`,
+                    borderRadius: 12,
+                    overflow: "hidden",
+                  }}
                 >
                   {/* Race header */}
-                  <div className="px-5 py-4 border-b border-border">
-                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.rule}` }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                       <div>
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h3 className="font-bold text-base text-foreground">{election.office}</h3>
-                          <Badge variant="outline" className="text-xs">{election.type}</Badge>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 3 }}>
+                          <h3 style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: 0 }}>{election.office}</h3>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: C.ink500, background: C.shade, borderRadius: 999, padding: "2px 8px", border: `1px solid ${C.rule}` }}>
+                            {election.type}
+                          </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">{election.description}</p>
+                        <p style={{ fontSize: 12.5, color: C.ink500, margin: 0, lineHeight: 1.5 }}>{election.description}</p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {election.date}
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 14px", marginTop: 8, fontSize: 11.5, color: C.ink400 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <Calendar size={11} />{election.date}
                       </span>
                       <span>Reg. deadline: {election.registrationDeadline}</span>
                       {election.earlyVotingStart && (
@@ -599,12 +615,12 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                   </div>
 
                   {/* Candidates */}
-                  <div className="p-5 space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5" />
+                  <div style={{ padding: "14px 16px" }}>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: C.ink400, marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}>
+                      <Users size={12} />
                       {election.candidates.length === 1 ? "Candidate" : `${election.candidates.length} Candidates`}
                     </p>
-                    <div className="space-y-3">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {election.candidates.map((candidate) =>
                         renderCandidate(candidate as unknown as Candidate, election.office, election.date)
                       )}
@@ -618,31 +634,27 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       })()}
 
       {/* Polling Location */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Vote className="w-5 h-5" />
-            Your Polling Location
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="p-3 bg-blue-50 rounded-lg space-y-1">
-            {ballotData.pollingInfo && (
-              <p className="font-medium text-[#3D435A]">{ballotData.pollingInfo}</p>
-            )}
-            <p className="text-sm text-[#3D435A]/70">Confirm your exact polling location before election day.</p>
-            <a
-              href={ballotData.sosLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-ink-900 underline text-sm"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              Look up your polling place on mvp.sos.ga.gov
-            </a>
-          </div>
-        </CardContent>
-      </Card>
+      <div style={{ ...cardStyle, padding: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <Vote size={17} color={C.teal} />
+          <h3 style={{ fontSize: 14, fontWeight: 700, color: C.ink900, margin: 0 }}>Your Polling Location</h3>
+        </div>
+        <div style={{ background: "#EEF7FF", borderRadius: 8, padding: "10px 12px", border: "1px solid #BFDBFE" }}>
+          {ballotData.pollingInfo && (
+            <p style={{ fontWeight: 600, color: C.ink900, fontSize: 13, marginBottom: 4 }}>{ballotData.pollingInfo}</p>
+          )}
+          <p style={{ fontSize: 12.5, color: C.ink700, marginBottom: 6 }}>Confirm your exact polling location before election day.</p>
+          <a
+            href={ballotData.sosLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 600, color: "#1D4ED8", textDecoration: "none" }}
+          >
+            <ExternalLink size={12} />
+            Look up your polling place on mvp.sos.ga.gov
+          </a>
+        </div>
+      </div>
 
       {/* Candidate Profile Dialog */}
       {selectedCandidate && (
@@ -661,13 +673,31 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       {Object.keys(mySelections).length > 0 && (
         <button
           onClick={() => setShowMyBallot(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-ink-900 text-white px-4 py-3 rounded-full shadow-lg hover:bg-ink-900/90 transition-colors"
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            zIndex: 40,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: C.tealDk,
+            color: "#fff",
+            padding: "10px 18px",
+            borderRadius: 999,
+            border: "none",
+            boxShadow: "0 4px 20px rgba(47,99,88,0.35)",
+            fontSize: 13.5,
+            fontWeight: 700,
+            cursor: "pointer",
+            transition: "background 0.15s",
+          }}
         >
-          <Vote className="w-4 h-4" />
-          <span className="text-sm font-semibold">My Ballot</span>
+          <Vote size={15} />
+          <span>My Ballot</span>
           <span
             title={`${Object.keys(mySelections).length} race${Object.keys(mySelections).length === 1 ? "" : "s"} picked`}
-            className="bg-card text-ink-900 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.25)", fontSize: 11, fontWeight: 800, borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             {Object.keys(mySelections).length}
           </span>
@@ -677,49 +707,42 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
       {/* My Ballot slide-in panel */}
       {showMyBallot && (
         <>
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/40"
+            style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.45)" }}
             onClick={() => setShowMyBallot(false)}
           />
-          {/* Panel */}
-          <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-background shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Vote className="w-5 h-5 text-ink-900" />
-                <h2 className="text-lg font-bold text-foreground">My Ballot</h2>
+          <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 50, width: "100%", maxWidth: 360, background: "#fff", boxShadow: "-4px 0 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column" }}>
+            {/* Panel header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderBottom: `1px solid ${C.rule}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Vote size={18} color={C.teal} />
+                <h2 style={{ fontSize: 16, fontWeight: 700, color: C.ink900, margin: 0 }}>My Ballot</h2>
               </div>
-              <button
-                onClick={() => setShowMyBallot(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={() => setShowMyBallot(false)} style={{ background: "none", border: "none", cursor: "pointer", color: C.ink400, padding: 2 }}>
+                <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              <p className="text-sm text-muted-foreground mb-4">
-                Your planned votes for the 2026 election. These are saved locally and not submitted anywhere.
+            {/* Panel body */}
+            <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              <p style={{ fontSize: 12.5, color: C.ink500, marginBottom: 8, lineHeight: 1.5 }}>
+                Your planned votes for the 2026 election. Saved locally — not submitted anywhere.
               </p>
               {ballotData.races
                 .filter((r) => mySelections[r.office])
                 .map((race) => {
                   const picked = mySelections[race.office]
                   const candidate = race.candidates.find((c) => c.name === picked)
-                  const levelInfo = LEVEL_COLORS[race.level] ?? { label: race.level, color: "bg-paper-500 text-white" }
+                  const ls = LEVEL_STYLES[race.level] ?? LEVEL_STYLES["Local"]
                   return (
-                    <div key={race.office} className="rounded-lg border border-border p-3 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${levelInfo.color}`}>
-                          {levelInfo.label}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{race.office}</span>
+                    <div key={race.office} style={{ border: `1px solid ${C.rule}`, borderRadius: 10, padding: "10px 12px", background: C.card }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: ls.pill.bg, color: ls.pill.color }}>{ls.label}</span>
+                        <span style={{ fontSize: 11.5, color: C.ink500 }}>{race.office}</span>
                       </div>
-                      <div className="flex items-center justify-between gap-2">
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                         <div>
-                          <p className="font-semibold text-sm text-foreground">{picked}</p>
-                          {candidate && (
-                            <p className="text-xs text-muted-foreground">{candidate.party}</p>
-                          )}
+                          <p style={{ fontWeight: 700, fontSize: 13, color: C.ink900, margin: "0 0 1px" }}>{picked}</p>
+                          {candidate && <p style={{ fontSize: 11.5, color: C.ink500, margin: 0 }}>{candidate.party}</p>}
                         </div>
                         <button
                           onClick={() =>
@@ -729,22 +752,22 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                               return next
                             })
                           }
-                          className="text-muted-foreground hover:text-destructive"
+                          style={{ background: "none", border: "none", cursor: "pointer", color: C.ink400, padding: 2 }}
                         >
-                          <X className="w-4 h-4" />
+                          <X size={15} />
                         </button>
                       </div>
                     </div>
                   )
                 })}
               {Object.keys(mySelections).length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-8">
+                <p style={{ fontSize: 13.5, color: C.ink400, textAlign: "center", padding: "32px 0" }}>
                   No selections yet. Go back and tap &ldquo;Select&rdquo; on a candidate.
                 </p>
               )}
             </div>
-            <div className="p-4 border-t border-border">
-              <p className="text-xs text-muted-foreground text-center">
+            <div style={{ padding: "12px 16px", borderTop: `1px solid ${C.rule}`, textAlign: "center" }}>
+              <p style={{ fontSize: 12, color: C.ink400, margin: 0 }}>
                 {Object.keys(mySelections).length} of {ballotData.races.length} races selected
               </p>
             </div>

@@ -35,10 +35,10 @@ export function SaveBallotNudge() {
       style={{
         background: "#FFFFFF",
         border: "1.5px solid #3D8073",
-        borderRadius: 10,
+        borderRadius: 12,
         padding: 14,
         position: "relative",
-        boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+        boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
       }}
     >
       {/* Dismiss */}
@@ -95,7 +95,7 @@ export function SaveBallotNudge() {
           fontWeight: 700,
           color: "#fff",
           background: "#B33A2C",
-          borderRadius: 8,
+          borderRadius: 999,
           padding: "9px 12px",
           textDecoration: "none",
           marginBottom: 8,

@@ -33,7 +33,6 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
       if (error) {
         setFollowing(wasFollowing)
       } else {
-        // Notify the followed user
         const supabase = createClient()
         await supabase.from("notifications").insert({
           user_id: targetUserId,
@@ -45,7 +44,9 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
     setLoading(false)
   }
 
-  const pad = size === "sm" ? "px-3 py-1 text-xs" : "px-4 py-2 text-sm"
+  const h = size === "sm" ? 26 : 32
+  const px = size === "sm" ? "0 10px" : "0 14px"
+  const fs = size === "sm" ? 11.5 : 13.5
 
   if (following) {
     return (
@@ -54,11 +55,14 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         disabled={loading}
-        className={`${pad} rounded-full font-semibold border transition-colors flex-shrink-0 ${
-          hovered
-            ? "border-red-300 text-red-600 bg-red-50"
-            : "border-teal-300 text-teal-700 bg-teal-50"
-        }`}
+        style={{
+          height: h, padding: px, borderRadius: 999,
+          border: `1.5px solid ${hovered ? "#FCA5A5" : "#B2D8D0"}`,
+          background: hovered ? "#FFF1F2" : "#E6F0ED",
+          color: hovered ? "#B33A2C" : "#2F6358",
+          fontSize: fs, fontWeight: 700, cursor: "pointer",
+          flexShrink: 0, transition: "all 0.15s",
+        }}
       >
         {hovered ? "Unfollow" : "Following"}
       </button>
@@ -69,7 +73,15 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
     <button
       onClick={handleToggle}
       disabled={loading}
-      className={`${pad} rounded-full font-semibold bg-teal-600 hover:bg-teal-700 text-white transition-colors flex-shrink-0`}
+      style={{
+        height: h, padding: px, borderRadius: 999,
+        border: "none",
+        background: "#3D8073",
+        color: "#fff",
+        fontSize: fs, fontWeight: 700, cursor: "pointer",
+        flexShrink: 0, transition: "background 0.15s",
+        boxShadow: "0 1px 6px rgba(61,128,115,0.25)",
+      }}
     >
       Follow
     </button>

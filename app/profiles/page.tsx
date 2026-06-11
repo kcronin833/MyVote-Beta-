@@ -4,25 +4,30 @@ import { ArrowLeft } from "lucide-react"
 import { CandidatePhoto } from "@/components/elections/candidate-photo"
 import { ARCHETYPES, type ArchetypeKey } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
-import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Civic Profile Types",
+  title: "Civic Profile Types · MyVote",
   description:
     "Explore all 8 MyVote civic profile types — from Institutional Skeptic to Civic Pragmatist — and discover which historical figures shared your values.",
+  alternates: { canonical: "/profiles" },
   robots: { index: true, follow: true },
+  openGraph: {
+    title: "Civic Profile Types · MyVote",
+    description: "8 civic profiles grounded in peer-reviewed political psychology. Which one are you?",
+    type: "website",
+  },
 }
 
-// Gradient per archetype
-const GRADIENTS: Record<ArchetypeKey, string> = {
-  institutional_skeptic:    "from-slate-800 to-slate-600",
-  freedom_first:            "from-amber-700 to-amber-500",
-  public_safety:            "from-blue-800 to-blue-600",
-  local_impact:             "from-emerald-800 to-emerald-600",
-  independent_localist:     "from-violet-800 to-violet-600",
-  community_builder:        "from-teal-800 to-teal-600",
-  national_policy_watcher:  "from-indigo-800 to-indigo-600",
-  civic_pragmatist:         "from-stone-700 to-stone-500",
+// Hex gradient per archetype (converted from Tailwind palette)
+const GRADIENTS: Record<ArchetypeKey, [string, string]> = {
+  institutional_skeptic:    ["#1E293B", "#475569"],
+  freedom_first:            ["#92400E", "#D97706"],
+  public_safety:            ["#1E3A5F", "#2563EB"],
+  local_impact:             ["#064E3B", "#059669"],
+  independent_localist:     ["#4C1D95", "#7C3AED"],
+  community_builder:        ["#134E4A", "#0D9488"],
+  national_policy_watcher:  ["#1E1B4B", "#4F46E5"],
+  civic_pragmatist:         ["#44403C", "#78716C"],
 }
 
 const ARCHETYPE_ORDER: ArchetypeKey[] = [
@@ -36,92 +41,149 @@ const ARCHETYPE_ORDER: ArchetypeKey[] = [
   "independent_localist",
 ]
 
+const C = {
+  card:    "#FDFCF9",
+  rule:    "#E4E0D3",
+  ink900:  "#1A2138",
+  ink700:  "#3D435A",
+  ink500:  "#6B7088",
+  ink400:  "#8B8FA3",
+  teal:    "#3D8073",
+  tealDk:  "#2F6358",
+  tealSoft:"#E6F0ED",
+  page:    "#F5F3EE",
+  shade:   "#F0EDE6",
+}
+
+const cardStyle = {
+  background: C.card,
+  border: `1px solid ${C.rule}`,
+  borderRadius: 16,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+  overflow: "hidden",
+}
+
+const researchFrameworks = [
+  {
+    title: "Moral Foundations Theory",
+    authors: "Jonathan Haidt & Jesse Graham",
+    desc: "Six universal moral foundations — Care, Fairness, Loyalty, Authority, Sanctity, and Liberty — that people weight differently, producing distinct moral \"taste profiles\" that map onto civic orientations.",
+  },
+  {
+    title: "Big Five Personality Research",
+    authors: "Costa & McCrae / Goldberg",
+    desc: "Decades of replicated research showing that Openness, Conscientiousness, Agreeableness, Extraversion, and Neuroticism predict political values and civic behavior with surprising consistency.",
+  },
+  {
+    title: "Pew Research Political Typology",
+    authors: "Pew Research Center",
+    desc: "Large-sample cluster analysis of American political attitudes that consistently identifies 9–12 coherent value groups that don't map neatly onto the two-party spectrum.",
+  },
+  {
+    title: "Post-Materialist Values",
+    authors: "Ronald Inglehart",
+    desc: "Research showing that as economic security rises, a segment of citizens prioritizes self-expression, autonomy, and quality of life over security and conformity — reshaping political coalitions in democracies worldwide.",
+  },
+]
+
 export default function CivicProfilesPage() {
   return (
-    <div className="min-h-screen bg-paper-100">
+    <div style={{ minHeight: "100vh", background: C.page }}>
 
-      {/* ── Back to Home ── */}
-      <div className="border-b border-rule bg-card">
-        <div className="container mx-auto px-4">
+      {/* ── Breadcrumb ── */}
+      <div style={{ borderBottom: `1px solid ${C.rule}`, background: C.card }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 16px" }}>
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900 transition-colors py-2.5"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: C.ink500, textDecoration: "none", padding: "10px 0" }}
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft size={14} />
             Home
           </Link>
         </div>
       </div>
 
       {/* ── Hero ── */}
-      <div className="bg-ink-900 text-white">
-        <div className="container mx-auto px-4 py-14 text-center max-w-3xl">
-          <p className="text-teal-400 text-sm font-bold uppercase tracking-widest mb-3">
-            MyVote Civic Profiles
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold font-serif leading-tight mb-5">
-            What kind of civic voice are you?
-          </h1>
-          <p className="text-white/70 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-            MyVote uses 12 questions to map you to one of 8 civic profiles — each
-            reflecting a distinct set of values about government, freedom, and
-            community. Below you'll find every profile, the research behind it, and
-            the historical figures who embodied it.
-          </p>
-          <div className="flex gap-3 justify-center flex-wrap">
-            <Link href="/quiz">
-              <Button className="bg-teal-600 hover:bg-teal-500 text-white font-semibold h-11 px-7 text-base">
+      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
+        {/* Dot pattern */}
+        <div style={{ position: "relative", overflow: "hidden" }}>
+          <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.1, pointerEvents: "none" }}>
+            <defs>
+              <pattern id="pdots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.2" fill="#fff" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#pdots)" />
+          </svg>
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "64px 16px 72px", textAlign: "center", position: "relative" }}>
+            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6FBFB0", marginBottom: 14 }}>
+              MyVote Civic Profiles
+            </p>
+            <h1 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(2rem, 5vw, 3rem)",
+              fontWeight: 700,
+              color: "#ffffff",
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              marginBottom: 18,
+            }}>
+              What kind of civic voice are you?
+            </h1>
+            <p style={{ fontSize: "clamp(1rem, 2.5vw, 1.1rem)", color: "rgba(255,255,255,0.65)", lineHeight: 1.7, maxWidth: 580, margin: "0 auto 32px" }}>
+              MyVote uses 12 questions to map you to one of 8 civic profiles — each
+              reflecting a distinct set of values about government, freedom, and community.
+              Below you&rsquo;ll find every profile, the research behind it, and the
+              historical figures who embodied it.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <Link
+                href="/quiz"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "12px 28px", borderRadius: 999,
+                  background: C.teal, color: "#fff",
+                  fontWeight: 700, fontSize: 14.5, textDecoration: "none",
+                  boxShadow: "0 2px 14px rgba(61,128,115,0.4)",
+                }}
+              >
                 Take the quiz — find your profile
-              </Button>
-            </Link>
-            <Link href="/profile">
-              <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 h-11 px-7 text-base">
+              </Link>
+              <Link
+                href="/profile"
+                style={{
+                  display: "inline-flex", alignItems: "center",
+                  padding: "12px 28px", borderRadius: 999,
+                  border: "1.5px solid rgba(255,255,255,0.28)", color: "#fff",
+                  fontWeight: 600, fontSize: 14.5, textDecoration: "none",
+                  background: "rgba(255,255,255,0.07)",
+                }}
+              >
                 View my profile
-              </Button>
-            </Link>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Science intro ── */}
-      <div className="bg-white border-b border-rule">
-        <div className="container mx-auto px-4 py-10 max-w-3xl">
-          <p className="text-[10.5px] font-bold uppercase tracking-widest text-ink-400 mb-3 text-center">
+      {/* ── Research basis strip ── */}
+      <div style={{ background: "#fff", borderBottom: `1px solid ${C.rule}` }}>
+        <div style={{ maxWidth: 860, margin: "0 auto", padding: "48px 16px" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: C.ink400, textAlign: "center", marginBottom: 10 }}>
             The Research Behind the Profiles
           </p>
-          <h2 className="text-xl font-bold text-ink-900 text-center mb-4">
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: C.ink900, textAlign: "center", marginBottom: 24 }}>
             Grounded in peer-reviewed political psychology
           </h2>
-          <p className="text-sm text-ink-700/80 leading-relaxed mb-4">
-            MyVote's 8 civic profiles are derived from four evidence-based frameworks used by political scientists and psychologists to explain how people actually form their civic values — not the partisan labels news media assigns.
+          <p style={{ fontSize: 13.5, color: C.ink700, lineHeight: 1.7, marginBottom: 20, maxWidth: 600, margin: "0 auto 24px" }}>
+            MyVote&rsquo;s 8 civic profiles are derived from four evidence-based frameworks used by political scientists and psychologists to explain how people actually form their civic values — not the partisan labels news media assigns.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                title: "Moral Foundations Theory",
-                authors: "Jonathan Haidt & Jesse Graham",
-                desc: "Six universal moral foundations — Care, Fairness, Loyalty, Authority, Sanctity, and Liberty — that people weight differently, producing distinct moral \"taste profiles\" that map onto civic orientations.",
-              },
-              {
-                title: "Big Five Personality Research",
-                authors: "Costa & McCrae / Goldberg",
-                desc: "Decades of replicated research showing that Openness, Conscientiousness, Agreeableness, Extraversion, and Neuroticism predict political values and civic behavior with surprising consistency.",
-              },
-              {
-                title: "Pew Research Political Typology",
-                authors: "Pew Research Center",
-                desc: "Large-sample cluster analysis of American political attitudes that consistently identifies 9–12 coherent value groups that don't map neatly onto the two-party spectrum.",
-              },
-              {
-                title: "Post-Materialist Values",
-                authors: "Ronald Inglehart",
-                desc: "Research showing that as economic security rises, a segment of citizens prioritizes self-expression, autonomy, and quality of life over security and conformity — reshaping political coalitions in democracies worldwide.",
-              },
-            ].map((f) => (
-              <div key={f.title} className="bg-paper-50 rounded-xl border border-rule p-4">
-                <p className="font-bold text-ink-900 text-sm leading-snug">{f.title}</p>
-                <p className="text-ink-400 text-xs mt-0.5 mb-2">{f.authors}</p>
-                <p className="text-ink-700/75 text-xs leading-relaxed">{f.desc}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+            {researchFrameworks.map((f) => (
+              <div key={f.title} style={{ background: C.page, borderRadius: 12, border: `1px solid ${C.rule}`, padding: "14px 16px" }}>
+                <p style={{ fontWeight: 700, color: C.ink900, fontSize: 13.5, marginBottom: 2 }}>{f.title}</p>
+                <p style={{ fontSize: 11.5, color: C.ink400, marginBottom: 8 }}>{f.authors}</p>
+                <p style={{ fontSize: 12.5, color: C.ink700, lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -129,91 +191,105 @@ export default function CivicProfilesPage() {
       </div>
 
       {/* ── Profile cards ── */}
-      <div className="container mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "56px 16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))", gap: 20 }}>
           {ARCHETYPE_ORDER.map((key) => {
             const arch = ARCHETYPES[key]
-            const grad = GRADIENTS[key]
+            const [gradFrom, gradTo] = GRADIENTS[key]
             const data = ARCHETYPE_PROFILE_DATA[key]
             const { primaryFigure, moreFigures, science } = data
             const allFigures = [primaryFigure, ...moreFigures]
 
             return (
-              <div
-                key={key}
-                id={key}
-                className="bg-white rounded-2xl border border-rule shadow-sm overflow-hidden flex flex-col scroll-mt-20"
-              >
-                {/* Card header — gradient banner */}
-                <div className={`bg-gradient-to-r ${grad} p-6 text-white`}>
-                  <div className="flex items-start justify-between gap-4">
+              <div key={key} id={key} style={{ ...cardStyle, scrollMarginTop: 80 }}>
+                {/* Gradient banner */}
+                <div style={{
+                  background: `linear-gradient(135deg, ${gradFrom} 0%, ${gradTo} 100%)`,
+                  padding: "24px 22px",
+                  position: "relative",
+                  overflow: "hidden",
+                }}>
+                  {/* Subtle dot pattern */}
+                  <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.12, pointerEvents: "none" }}>
+                    <defs>
+                      <pattern id={`dp-${key}`} x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                        <circle cx="1.5" cy="1.5" r="1" fill="#fff" />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill={`url(#dp-${key})`} />
+                  </svg>
+                  <div style={{ position: "relative", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                     <div>
-                      <span className="text-4xl leading-none">{arch.emoji}</span>
-                      <h2 className="text-xl font-bold mt-2 leading-snug">{arch.label}</h2>
-                      <p className="text-white/75 text-sm mt-1 leading-relaxed">
-                        {arch.headline}
-                      </p>
+                      <span style={{ fontSize: 40, lineHeight: 1, display: "block", marginBottom: 8 }}>{arch.emoji}</span>
+                      <h2 style={{ fontSize: 19, fontWeight: 700, color: "#fff", marginBottom: 4, lineHeight: 1.2 }}>{arch.label}</h2>
+                      <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.55 }}>{arch.headline}</p>
                     </div>
-                    <span className="flex-shrink-0 text-[11px] font-bold uppercase tracking-wider bg-white/20 border border-white/30 rounded-full px-3 py-1 mt-1">
+                    <span style={{
+                      flexShrink: 0,
+                      fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                      background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.28)",
+                      borderRadius: 999, padding: "4px 10px", color: "#fff", whiteSpace: "nowrap", marginTop: 4,
+                    }}>
                       {arch.tag}
                     </span>
                   </div>
                 </div>
 
                 {/* Description */}
-                <div className="px-6 pt-5 pb-4">
-                  <p className="text-sm text-ink-700/80 leading-relaxed">
-                    {arch.description}
-                  </p>
+                <div style={{ padding: "18px 20px 0" }}>
+                  <p style={{ fontSize: 13.5, color: C.ink700, lineHeight: 1.65 }}>{arch.description}</p>
                 </div>
 
-                {/* Science */}
-                <div className="mx-6 mb-4 bg-indigo-50 rounded-xl border border-indigo-100 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">
+                {/* Research basis */}
+                <div style={{ margin: "14px 20px", background: "#EEF2FF", borderRadius: 10, border: "1px solid #C7D2FE", padding: "12px 14px" }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6366F1", marginBottom: 6 }}>
                     Research Basis
                   </p>
-                  <p className="text-xs text-ink-700/80 leading-relaxed">
+                  <p style={{ fontSize: 12.5, color: "#3730A3", lineHeight: 1.6 }}>
                     {science.replace(/\*\*[^*]+\*\*\s*/g, "")}
                   </p>
                 </div>
 
                 {/* Historical figures */}
-                <div className="mx-6 mb-6">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400 mb-3">
+                <div style={{ padding: "0 20px 20px" }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: C.ink400, marginBottom: 12 }}>
                     Historical Parallels
                   </p>
-                  <div className="flex flex-col gap-3">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {allFigures.map((fig, idx) => (
                       <div
                         key={fig.name}
-                        className={`rounded-xl border p-4 flex gap-3 items-start ${
-                          idx === 0 ? "bg-paper-50 border-rule" : "bg-white border-rule/60"
-                        }`}
+                        style={{
+                          display: "flex", gap: 12, alignItems: "flex-start",
+                          borderRadius: 10, border: `1px solid ${idx === 0 ? C.rule : C.rule + "80"}`,
+                          background: idx === 0 ? C.page : C.card,
+                          padding: "12px 14px",
+                        }}
                       >
-                        <div className="flex-shrink-0">
+                        <div style={{ flexShrink: 0 }}>
                           <CandidatePhoto
                             name={fig.name}
                             wikipediaTitle={fig.wikiTitle}
-                            size={idx === 0 ? 64 : 48}
+                            size={idx === 0 ? 60 : 44}
                             shape="circle"
                             partyColor="#6B7088"
                           />
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-bold text-ink-900 text-sm leading-snug">{fig.name}</p>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
+                            <p style={{ fontWeight: 700, color: C.ink900, fontSize: 13.5 }}>{fig.name}</p>
                             {idx === 0 && (
-                              <span className="text-[10px] font-bold uppercase tracking-wider bg-ink-900/8 text-ink-500 rounded-full px-2 py-0.5">
+                              <span style={{ fontSize: 10.5, fontWeight: 700, background: C.shade, color: C.ink500, borderRadius: 999, padding: "2px 8px" }}>
                                 Primary
                               </span>
                             )}
                           </div>
-                          <p className="text-ink-500 text-xs mt-0.5">{fig.years} · {fig.role}</p>
-                          <blockquote className="mt-2 text-xs italic text-ink-600 border-l-2 border-rule pl-2.5 leading-relaxed">
-                            "{fig.quote}"
+                          <p style={{ fontSize: 12, color: C.ink400, marginBottom: 6 }}>{fig.years} · {fig.role}</p>
+                          <blockquote style={{ fontSize: 12.5, fontStyle: "italic", color: C.ink700, borderLeft: `2px solid ${C.rule}`, paddingLeft: 10, lineHeight: 1.6, margin: 0 }}>
+                            &ldquo;{fig.quote}&rdquo;
                           </blockquote>
                           {idx === 0 && (
-                            <p className="text-xs text-ink-700/70 leading-relaxed mt-2">
+                            <p style={{ fontSize: 12.5, color: C.ink700, lineHeight: 1.6, marginTop: 8 }}>
                               {fig.why}
                             </p>
                           )}
@@ -228,15 +304,22 @@ export default function CivicProfilesPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-14 max-w-lg mx-auto">
-          <p className="text-ink-700/60 text-sm mb-4">
-            Not sure which profile fits you? The quiz takes 2–3 minutes and never
-            assigns a partisan label.
+        <div style={{ textAlign: "center", marginTop: 56, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+          <p style={{ fontSize: 14, color: C.ink500, marginBottom: 18, lineHeight: 1.65 }}>
+            Not sure which profile fits you? The quiz takes 2–3 minutes and
+            never assigns a partisan label.
           </p>
-          <Link href="/quiz">
-            <Button className="bg-teal-600 hover:bg-teal-500 text-white font-semibold h-11 px-8 text-base">
-              Discover your civic profile →
-            </Button>
+          <Link
+            href="/quiz"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "13px 32px", borderRadius: 999,
+              background: C.teal, color: "#fff",
+              fontWeight: 700, fontSize: 15, textDecoration: "none",
+              boxShadow: "0 2px 16px rgba(61,128,115,0.32)",
+            }}
+          >
+            Discover your civic profile →
           </Link>
         </div>
       </div>

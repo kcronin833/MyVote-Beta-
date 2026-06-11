@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Logo } from "@/components/logo"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
@@ -31,85 +29,75 @@ export default function SignInPage() {
     setLoading(true)
     const { error } = await signIn(form.email, form.password)
     setLoading(false)
-    if (error) {
-      setError(error)
-    } else {
-      router.push("/")
-    }
+    if (error) setError(error)
+    else router.push("/")
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-4" style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
-      <div className="w-full max-w-md mx-auto pt-4 pb-6">
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 16, background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
+
+      {/* Back link */}
+      <div style={{ width: "100%", maxWidth: 420, margin: "0 auto", paddingTop: 16, paddingBottom: 24 }}>
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 500, color: "rgba(255,255,255,0.75)", textDecoration: "none" }}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft size={15} />
           Back to Home
         </Link>
       </div>
-      <div className="flex-1 flex items-center justify-center">
-      <Card className="w-full max-w-md border-rule" style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}>
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+
+      {/* Centered card */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: 420, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "32px 28px 28px" }}>
+
+          {/* Logo */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
             <Logo size="lg" />
           </div>
-          <CardTitle className="text-ink-700">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your MyVote account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Welcome Back</h1>
+          <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 22 }}>Sign in to your MyVote account</p>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+              <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
                 {error}
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-ink-700">Email</label>
-              <Input
-                type="email"
-                placeholder="your@email.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#3D435A", marginBottom: 5 }}>Email</label>
+              <Input type="email" placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
             </div>
             <div>
-              <label className="text-sm font-medium text-ink-700">Password</label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Your password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  required
-                />
+              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#3D435A", marginBottom: 5 }}>Password</label>
+              <div style={{ position: "relative" }}>
+                <Input type={showPassword ? "text" : "password"} placeholder="Your password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500"
+                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#8B8FA3", padding: 0, lineHeight: 0 }}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-            <Button
+            <button
               type="submit"
               disabled={loading}
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+              style={{ height: 44, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14.5, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s", boxShadow: loading ? "none" : "0 2px 12px rgba(61,128,115,0.28)" }}
             >
-              {loading ? "Signing In..." : "Sign In"}
-            </Button>
+              {loading ? "Signing in…" : "Sign In"}
+            </button>
           </form>
-          <p className="text-center text-sm text-ink-700/60 mt-4">
-            Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-teal-600 font-medium hover:underline">
+
+          <p style={{ textAlign: "center", fontSize: 13, color: "#8B8FA3", marginTop: 16 }}>
+            Don&rsquo;t have an account?{" "}
+            <Link href="/auth/signup" style={{ color: "#3D8073", fontWeight: 600, textDecoration: "none" }}>
               Sign Up
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
       </div>
     </div>
   )

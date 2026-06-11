@@ -92,42 +92,42 @@ export default function DiscoverPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-card rounded-2xl border border-border p-4 animate-pulse space-y-3"
+                  style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 16, animation: "mv-pulse 1.6s ease-in-out infinite" }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-muted flex-shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 bg-muted rounded w-28" />
-                      <div className="h-2.5 bg-muted rounded w-20" />
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#E4E0D3", flexShrink: 0 }} />
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{ height: 12, background: "#E4E0D3", borderRadius: 6, width: 110 }} />
+                      <div style={{ height: 10, background: "#E4E0D3", borderRadius: 6, width: 80 }} />
                     </div>
                   </div>
-                  <div className="flex gap-1.5">
-                    <div className="h-5 w-16 bg-muted rounded-full" />
-                    <div className="h-5 w-20 bg-muted rounded-full" />
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ height: 22, width: 64, background: "#E4E0D3", borderRadius: 999 }} />
+                    <div style={{ height: 22, width: 80, background: "#E4E0D3", borderRadius: 999 }} />
                   </div>
                 </div>
               ))}
             </div>
           ) : !user ? (
-            <div className="text-center py-16">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+            <div style={{ textAlign: "center", padding: "64px 16px" }}>
+              <Users size={44} color="#AEB2C3" style={{ margin: "0 auto 16px", opacity: 0.6 }} />
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#1A2138", marginBottom: 6 }}>
                 Sign in to discover neighbors
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p style={{ fontSize: 13.5, color: "#6B7088", marginBottom: 18, lineHeight: 1.6 }}>
                 Create an account to connect with Georgia voters near you.
               </p>
               <Link href="/auth/signup">
-                <button className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 py-2 rounded-xl transition-colors">
+                <button style={{ background: "#3D8073", color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 24px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 2px 12px rgba(61,128,115,0.3)" }}>
                   Sign Up Free
                 </button>
               </Link>
             </div>
           ) : displayed.length === 0 ? (
-            <div className="text-center py-16">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No matches found</h3>
-              <p className="text-sm text-muted-foreground">
+            <div style={{ textAlign: "center", padding: "64px 16px" }}>
+              <Users size={44} color="#AEB2C3" style={{ margin: "0 auto 16px", opacity: 0.6 }} />
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#1A2138", marginBottom: 6 }}>No matches found</h3>
+              <p style={{ fontSize: 13.5, color: "#6B7088" }}>
                 {filter !== "All"
                   ? "Try 'All' to see everyone, or clear your search."
                   : "More neighbors will appear as MyVote grows."}

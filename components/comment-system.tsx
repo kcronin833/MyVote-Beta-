@@ -1,10 +1,7 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, MessageCircle, Trash2, Edit2, Check, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -195,10 +192,10 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
     setSuggestions([]);
   }
 
-  function getPoliticalColor(lean?: string) {
-    if (lean === "left") return "bg-blue-100 text-blue-800";
-    if (lean === "right") return "bg-red-100 text-red-800";
-    return "bg-paper-100 text-foreground";
+  function getPoliticalStyle(lean?: string): React.CSSProperties {
+    if (lean === "left")  return { background: "#EEF2FF", color: "#3730A3", border: "1px solid #C7D2FE" };
+    if (lean === "right") return { background: "#FEF2F2", color: "#B33A2C", border: "1px solid #FECACA" };
+    return { background: "#F0EDE6", color: "#6B7088", border: "1px solid #E4E0D3" };
   }
 
   function renderContent(content: string) {
@@ -226,16 +223,9 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
           <div className="flex items-center gap-2 mb-1">
             <span className="font-medium text-sm">{comment.profile?.display_name}</span>
             <span className="text-muted-foreground text-xs">@{comment.profile?.username}</span>
-            <Badge
-              variant="outline"
-              className={`text-xs ${getPoliticalColor(comment.profile?.political_lean)}`}
-            >
-              {comment.profile?.political_lean === "left"
-                ? "Liberal"
-                : comment.profile?.political_lean === "right"
-                ? "Conservative"
-                : "Moderate"}
-            </Badge>
+            <span style={{ fontSize: 10.5, fontWeight: 600, borderRadius: 999, padding: "2px 7px", ...getPoliticalStyle(comment.profile?.political_lean) }}>
+              {comment.profile?.political_lean === "left" ? "Liberal" : comment.profile?.political_lean === "right" ? "Conservative" : "Moderate"}
+            </span>
             <span className="text-xs text-ink-400">
               {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
             </span>
@@ -253,12 +243,12 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 rows={2}
               />
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleEdit(comment.id)}>
-                  <Check className="w-3 h-3 mr-1" /> Save
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-                  <X className="w-3 h-3 mr-1" /> Cancel
-                </Button>
+                <button onClick={() => handleEdit(comment.id)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "#3D8073", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                  <Check size={11} /> Save
+                </button>
+                <button onClick={() => setEditingId(null)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E4E0D3", color: "#6B7088", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+                  <X size={11} /> Cancel
+                </button>
               </div>
             </div>
           ) : (
@@ -337,12 +327,12 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 </div>
               )}
               <div className="flex gap-2 mt-2">
-                <Button size="sm" onClick={() => handleSubmit(comment.id)} disabled={submitting}>
-                  {submitting ? "Posting..." : "Reply"}
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setReplyingTo(null)}>
+                <button onClick={() => handleSubmit(comment.id)} disabled={submitting} style={{ height: 28, padding: "0 12px", borderRadius: 999, background: submitting ? "#E4E0D3" : "#3D8073", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: submitting ? "default" : "pointer" }}>
+                  {submitting ? "Posting…" : "Reply"}
+                </button>
+                <button onClick={() => setReplyingTo(null)} style={{ height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E4E0D3", color: "#6B7088", fontSize: 12, cursor: "pointer" }}>
                   Cancel
-                </Button>
+                </button>
               </div>
             </div>
           )}
@@ -394,14 +384,13 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
           )}
           <div className="flex justify-between items-center mt-2">
             <span className="text-xs text-ink-400">{newComment.length}/500</span>
-            <Button
-              size="sm"
+            <button
               onClick={() => handleSubmit()}
               disabled={!newComment.trim() || submitting}
-              className="bg-blue-600 hover:bg-blue-700"
+              style={{ height: 32, padding: "0 14px", borderRadius: 999, background: !newComment.trim() || submitting ? "#E4E0D3" : "#3D8073", color: !newComment.trim() || submitting ? "#8B8FA3" : "#fff", border: "none", fontSize: 12.5, fontWeight: 700, cursor: !newComment.trim() || submitting ? "default" : "pointer", transition: "background 0.15s" }}
             >
-              {submitting ? "Posting..." : user ? "Post Comment" : "Sign In to Comment"}
-            </Button>
+              {submitting ? "Posting…" : user ? "Post Comment" : "Sign In to Comment"}
+            </button>
           </div>
         </div>
 

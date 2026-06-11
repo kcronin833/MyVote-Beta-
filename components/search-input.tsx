@@ -1,27 +1,31 @@
-﻿"use client"
+"use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Search, X } from "lucide-react"
 import { SearchService } from "@/lib/search-service"
+
+const C = {
+  card:   "#FDFCF9",
+  rule:   "#E4E0D3",
+  ink900: "#1A2138",
+  ink500: "#6B7088",
+  ink400: "#8B8FA3",
+  shade:  "#F0EDE6",
+  page:   "#F5F3EE",
+}
 
 export function SearchInput() {
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   useEffect(() => {
     if (query.trim()) {
-      const newSuggestions = SearchService.getSearchSuggestions(query)
-      setSuggestions(newSuggestions)
+      setSuggestions(SearchService.getSearchSuggestions(query))
       setShowSuggestions(true)
     } else {
       setSuggestions([])
@@ -38,17 +42,8 @@ export function SearchInput() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch()
-    } else if (e.key === "Escape") {
-      setShowSuggestions(false)
-      inputRef.current?.blur()
-    }
-  }
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setQuery(suggestion)
-    handleSearch(suggestion)
+    if (e.key === "Enter") handleSearch()
+    else if (e.key === "Escape") { setShowSuggestions(false); inputRef.current?.blur() }
   }
 
   const clearSearch = () => {
@@ -59,49 +54,66 @@ export function SearchInput() {
   }
 
   return (
-    <div className="relative w-full max-w-md">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-ink-400 w-4 h-4" />
-        <Input
+    <div style={{ position: "relative", width: "100%", maxWidth: 420 }}>
+      {/* Input pill */}
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <Search size={15} color={C.ink400} style={{ position: "absolute", left: 12, pointerEvents: "none" }} />
+        <input
           ref={inputRef}
           type="text"
-          placeholder="Search Atlanta representatives, Georgia issues..."
+          placeholder="Search candidates, issues, neighbors…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => query.trim() && setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-          className="pl-10 pr-10"
+          style={{
+            width: "100%",
+            height: 38,
+            paddingLeft: 34,
+            paddingRight: query ? 30 : 12,
+            borderRadius: 999,
+            border: `1.5px solid ${C.rule}`,
+            background: C.card,
+            color: C.ink900,
+            fontSize: 13.5,
+            outline: "none",
+          }}
         />
         {query && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={clearSearch}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            style={{ position: "absolute", right: 10, background: "none", border: "none", cursor: "pointer", color: C.ink400, padding: 2, lineHeight: 0 }}
           >
-            <X className="w-3 h-3" />
-          </Button>
+            <X size={13} />
+          </button>
         )}
       </div>
 
+      {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto">
-          <CardContent className="p-2">
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={index}
-                className="px-3 py-2 hover:bg-paper-100 cursor-pointer rounded text-sm"
-                onClick={() => handleSuggestionClick(suggestion)}
-              >
-                <div className="flex items-center gap-2">
-                  <Search className="w-3 h-3 text-ink-400" />
-                  {suggestion}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <div style={{
+          position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, zIndex: 50,
+          background: C.card, border: `1px solid ${C.rule}`, borderRadius: 12,
+          boxShadow: "0 8px 32px rgba(20,24,40,0.14)", overflow: "hidden", maxHeight: 240, overflowY: "auto",
+        }}>
+          {suggestions.map((s, i) => (
+            <div
+              key={i}
+              onClick={() => { setQuery(s); handleSearch(s) }}
+              style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "9px 14px", cursor: "pointer", fontSize: 13.5, color: C.ink900,
+                borderBottom: i < suggestions.length - 1 ? `1px solid ${C.rule}` : "none",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = C.shade)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              <Search size={12} color={C.ink400} style={{ flexShrink: 0 }} />
+              {s}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )

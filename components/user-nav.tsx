@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,21 +26,19 @@ export function UserNav() {
   if (!user || !profile) {
     return (
       <>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button
             onClick={() => { setAuthTab("login"); setAuthOpen(true); }}
+            style={{ height: 32, padding: "0 12px", borderRadius: 999, background: "transparent", border: "none", color: "#2F6358", fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}
           >
             Sign In
-          </Button>
-          <Button
-            size="sm"
-            className="bg-ink-900 hover:bg-ink-900/90"
+          </button>
+          <button
             onClick={() => { setAuthTab("signup"); setAuthOpen(true); }}
+            style={{ height: 32, padding: "0 14px", borderRadius: 999, background: "#3D8073", color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer", border: "none", boxShadow: "0 1px 8px rgba(61,128,115,0.28)" }}
           >
             Sign Up
-          </Button>
+          </button>
         </div>
         <AuthModal
           open={authOpen}
@@ -55,16 +52,16 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+        <button style={{ width: 32, height: 32, borderRadius: "50%", background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Avatar className="h-8 w-8">
             {profile.avatar_url ? (
               <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
             ) : null}
-            <AvatarFallback className="bg-ink-900 text-white text-xs font-bold">
+            <AvatarFallback style={{ background: "#2F6358", color: "#fff", fontSize: 11, fontWeight: 700 }}>
               {profile.display_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
             </AvatarFallback>
           </Avatar>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex flex-col space-y-1 p-2">

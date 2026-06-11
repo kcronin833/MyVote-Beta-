@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Globe, ShieldCheck, MapPin, BarChart3, Users, Newspaper, Bot, Filter, CheckCircle, AlertTriangle } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -17,35 +15,149 @@ export const metadata: Metadata = {
   },
 }
 
+const C = {
+  card:    "#FDFCF9",
+  rule:    "#E4E0D3",
+  ink900:  "#1A2138",
+  ink700:  "#3D435A",
+  ink500:  "#6B7088",
+  ink400:  "#8B8FA3",
+  teal:    "#3D8073",
+  tealDk:  "#2F6358",
+  tealSoft:"#E6F0ED",
+  page:    "#F5F3EE",
+  shade:   "#F0EDE6",
+}
+
+const cardStyle = {
+  background: C.card,
+  border: `1px solid ${C.rule}`,
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+}
+
+const FEATURES = [
+  {
+    Icon: Newspaper,
+    iconColor: "#3D8073",
+    iconBg: "#E6F0ED",
+    title: "Balanced News",
+    body: "Read the same story from left-leaning, right-leaning, and centrist sources side by side. No more living in a news bubble.",
+  },
+  {
+    Icon: ShieldCheck,
+    iconColor: "#059669",
+    iconBg: "#ECFDF5",
+    title: "Just the Facts",
+    body: "Our AI summary cuts through opinion and shows you verified factual reporting, with links to original sources.",
+  },
+  {
+    Icon: MapPin,
+    iconColor: "#B33A2C",
+    iconBg: "#FEF2F2",
+    title: "Local Georgia Focus",
+    body: "News specific to your area of Georgia, plus profiles of your local and state representatives.",
+  },
+  {
+    Icon: Users,
+    iconColor: "#1D4ED8",
+    iconBg: "#EEF2FF",
+    title: "Know Your Representatives",
+    body: "Detailed profiles of Georgia's U.S. Senators, House members, and local officials — including key issues.",
+  },
+  {
+    Icon: BarChart3,
+    iconColor: "#B45309",
+    iconBg: "#FFFBEB",
+    title: "Your Political Spectrum",
+    body: "Interact with stories to discover where your views actually land on the spectrum — based on your choices, not a quiz.",
+  },
+  {
+    Icon: Globe,
+    iconColor: "#3D8073",
+    iconBg: "#E6F0ED",
+    title: "Community Discussion",
+    body: "Comment on articles and engage with other Georgia citizens in real, civil political discourse.",
+  },
+]
+
+const AI_CARDS = [
+  {
+    Icon: Filter,
+    color: "#3D8073",
+    bg: "#E6F0ED",
+    border: "#B2D8D0",
+    title: "What we curate",
+    body: "We pull from established national news sources (AP, Reuters, NPR, Fox News, Politico, and others). Our AI reads headlines and summaries to select stories relevant to Georgia voters and national politics.",
+  },
+  {
+    Icon: CheckCircle,
+    color: "#059669",
+    bg: "#ECFDF5",
+    border: "#A7F3D0",
+    title: "What the AI does",
+    body: "The AI writes a brief, neutral summary of each story and tags it by topic. It does not add opinion or analysis. Every summary links directly to the original source so you can read the full article.",
+  },
+  {
+    Icon: AlertTriangle,
+    color: "#B45309",
+    bg: "#FFFBEB",
+    border: "#FDE68A",
+    title: "What it can't do",
+    body: "AI can make mistakes. It may occasionally miss context or select a story that doesn't belong. We review the feed regularly. If you see something off, use the Contact page to flag it.",
+  },
+]
+
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-paper-100">
-      <div className="border-b border-rule bg-card">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl md:text-4xl font-bold font-serif text-ink-900 mb-2">About MyVote</h1>
-          <p className="text-ink-500 text-lg max-w-2xl">
+    <div style={{ minHeight: "100vh", background: C.page }}>
+
+      {/* ── Hero ── */}
+      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
+        <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.08, pointerEvents: "none" }}>
+          <defs>
+            <pattern id="adots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.2" fill="#fff" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#adots)" />
+        </svg>
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "56px 20px 64px", position: "relative" }}>
+          <h1 style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: "clamp(2rem, 5vw, 2.8rem)",
+            fontWeight: 700,
+            color: "#ffffff",
+            lineHeight: 1.1,
+            letterSpacing: "-0.02em",
+            marginBottom: 14,
+          }}>
+            About MyVote
+          </h1>
+          <p style={{ fontSize: "clamp(1rem, 2.5vw, 1.1rem)", color: "rgba(255,255,255,0.65)", lineHeight: 1.7, maxWidth: 560 }}>
             Helping Georgia citizens stay informed, engaged, and empowered — from all political perspectives.
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 max-w-4xl space-y-12">
+      <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 20px 80px", display: "flex", flexDirection: "column", gap: 48 }}>
+
         {/* Mission */}
         <section>
-          <h2 className="text-2xl font-bold text-ink-700 mb-4">Our Mission</h2>
-          <div className="prose prose-gray max-w-none">
-            <p className="text-ink-700/80 text-lg leading-relaxed mb-4">
-              MyVote was built on a simple belief: <strong>an informed voter is a better voter</strong>. In a
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 16 }}>Our Mission</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <p style={{ fontSize: 16, color: C.ink700, lineHeight: 1.75 }}>
+              MyVote was built on a simple belief: <strong style={{ color: C.ink900 }}>an informed voter is a better voter.</strong> In a
               time when political media is deeply fragmented and trust is low, we created a platform where
               Georgians can read news from across the political spectrum — left, right, and down-the-middle — all
               in one place.
             </p>
-            <p className="text-ink-700/80 leading-relaxed mb-4">
+            <p style={{ fontSize: 15, color: C.ink700, lineHeight: 1.75 }}>
               We are not here to tell you what to think. We are here to make sure you have access to what
               everyone is saying, so you can form your own opinions. Whether you lean left, lean right, or call
               yourself an independent, MyVote is for you.
             </p>
-            <p className="text-ink-700/80 leading-relaxed">
+            <p style={{ fontSize: 15, color: C.ink700, lineHeight: 1.75 }}>
               We launched our pilot in Georgia ahead of the 2026 election cycle because Georgia has become one of
               the most politically consequential states in the country. From Atlanta's city council to the U.S.
               Senate, the decisions made in Georgia affect the whole nation.
@@ -55,130 +167,62 @@ export default function AboutPage() {
 
         {/* What We Do */}
         <section>
-          <h2 className="text-2xl font-bold text-ink-700 mb-6">What MyVote Does</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {[
-              {
-                icon: Newspaper,
-                title: "Balanced News",
-                color: "text-teal-600",
-                body: "Read the same story from left-leaning, right-leaning, and centrist news sources side by side. No more living in a news bubble.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Just the Facts",
-                color: "text-emerald-600",
-                body: "Our \"Just the Facts\" section cuts through opinion and shows you verified factual reporting, complete with links to original sources.",
-              },
-              {
-                icon: MapPin,
-                title: "Local Georgia Focus",
-                color: "text-civic-red",
-                body: "Get news specific to your area of Georgia, plus profiles of your local and state representatives.",
-              },
-              {
-                icon: Users,
-                title: "Know Your Representatives",
-                color: "text-left-lean",
-                body: "Detailed profiles of Georgia's U.S. Senators, House members, and local officials — including contact info and key issues.",
-              },
-              {
-                icon: BarChart3,
-                title: "Your Political Spectrum",
-                color: "text-amber-500",
-                body: "Interact with stories to discover where your views actually land on the political spectrum — based on your choices, not a quiz.",
-              },
-              {
-                icon: Globe,
-                title: "Community Discussion",
-                color: "text-teal-600",
-                body: "Comment on articles and engage with other Georgia citizens in real, civil political discourse.",
-              },
-            ].map((item) => {
-              const Icon = item.icon
-              return (
-                <Card key={item.title} className="border-rule">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2">
-                      <Icon className={`w-5 h-5 ${item.color}`} />
-                      <CardTitle className="text-base text-ink-700">{item.title}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-ink-700/80">{item.body}</p>
-                  </CardContent>
-                </Card>
-              )
-            })}
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 18 }}>What MyVote Does</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+            {FEATURES.map(({ Icon, iconColor, iconBg, title, body }) => (
+              <div key={title} style={{ ...cardStyle, padding: "18px 18px 20px" }}>
+                <div style={{ width: 42, height: 42, borderRadius: 10, background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                  <Icon size={21} color={iconColor} />
+                </div>
+                <p style={{ fontWeight: 700, fontSize: 14.5, color: C.ink900, marginBottom: 6 }}>{title}</p>
+                <p style={{ fontSize: 13.5, color: C.ink700, lineHeight: 1.65 }}>{body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Georgia Pilot */}
-        <section className="bg-teal-100/40 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-ink-700 mb-4">Georgia 2026 Pilot</h2>
-          <p className="text-ink-700/80 leading-relaxed mb-4">
-            MyVote is currently in a test pilot phase focused on Georgia voters ahead of the 2026 election
-            cycle. We are starting here because Georgia has proven to be a true battleground state — home to
-            some of the most competitive and consequential races in the country.
-          </p>
-          <p className="text-ink-700/80 leading-relaxed mb-4">
-            During this pilot, we are gathering feedback from real Georgia voters to improve the platform. Your
-            experience matters to us. If something isn't working or you have ideas to make MyVote more useful,
-            please reach out through our Contact page.
-          </p>
-          <p className="text-ink-700/80 leading-relaxed">
-            Our goal is to expand MyVote to other states following a successful Georgia pilot. But for now — we
-            are all in on Georgia.
-          </p>
+        <section style={{ background: C.tealSoft, borderRadius: 14, border: `1px solid #B2D8D0`, padding: "28px 28px 30px" }}>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: C.tealDk, marginBottom: 12 }}>Georgia 2026 Pilot</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <p style={{ fontSize: 14.5, color: C.ink700, lineHeight: 1.75 }}>
+              MyVote is currently in a test pilot phase focused on Georgia voters ahead of the 2026 election
+              cycle. We are starting here because Georgia has proven to be a true battleground state — home to
+              some of the most competitive and consequential races in the country.
+            </p>
+            <p style={{ fontSize: 14.5, color: C.ink700, lineHeight: 1.75 }}>
+              During this pilot, we are gathering feedback from real Georgia voters to improve the platform. Your
+              experience matters to us. If something isn't working or you have ideas to make MyVote more useful,
+              please reach out through our Contact page.
+            </p>
+            <p style={{ fontSize: 14.5, color: C.ink700, lineHeight: 1.75 }}>
+              Our goal is to expand MyVote to other states following a successful Georgia pilot. But for now — we are all in on Georgia.
+            </p>
+          </div>
         </section>
 
         {/* How Our AI Works */}
-        <section className="border-t border-rule pt-10">
-          <div className="flex items-center gap-2 mb-2">
-            <Bot className="w-5 h-5 text-teal-600" />
-            <h2 className="text-2xl font-bold text-ink-700">How Our AI Works</h2>
+        <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Bot size={20} color={C.teal} />
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900 }}>How Our AI Works</h2>
           </div>
-          <p className="text-ink-700/70 text-sm mb-6 leading-relaxed">
+          <p style={{ fontSize: 13.5, color: C.ink500, marginBottom: 20, lineHeight: 1.7, maxWidth: 560 }}>
             MyVote uses AI to help surface relevant political news — but we believe you deserve to
             know exactly how it works and what its limits are.
           </p>
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                icon: Filter,
-                color: "text-teal-600",
-                bg: "bg-teal-50",
-                title: "What we curate",
-                body: "We pull from established national news sources (AP, Reuters, NPR, Fox News, Politico, and others). Our AI reads headlines and summaries to select stories relevant to Georgia voters and national politics.",
-              },
-              {
-                icon: CheckCircle,
-                color: "text-emerald-600",
-                bg: "bg-emerald-50",
-                title: "What the AI does",
-                body: "The AI writes a brief, neutral summary of each story and tags it by topic. It does not add opinion or analysis. Every summary links directly to the original source so you can read the full article.",
-              },
-              {
-                icon: AlertTriangle,
-                color: "text-amber-600",
-                bg: "bg-amber-50",
-                title: "What it can't do",
-                body: "AI can make mistakes. It may occasionally miss context or select a story that doesn't belong. We review the feed regularly. If you see something off, use the Contact page to flag it — we fix issues quickly.",
-              },
-            ].map((item) => {
-              const Icon = item.icon
-              return (
-                <div key={item.title} className={`rounded-xl p-5 ${item.bg} border border-rule`}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Icon className={`w-4 h-4 ${item.color}`} />
-                    <p className={`font-bold text-sm ${item.color}`}>{item.title}</p>
-                  </div>
-                  <p className="text-sm text-ink-700/80 leading-relaxed">{item.body}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
+            {AI_CARDS.map(({ Icon, color, bg, border, title, body }) => (
+              <div key={title} style={{ borderRadius: 12, padding: "16px 18px", background: bg, border: `1px solid ${border}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <Icon size={15} color={color} />
+                  <p style={{ fontWeight: 700, fontSize: 13.5, color }}>{title}</p>
                 </div>
-              )
-            })}
+                <p style={{ fontSize: 13, color: C.ink700, lineHeight: 1.65 }}>{body}</p>
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-ink-400 mt-4 leading-relaxed">
+          <p style={{ fontSize: 12, color: C.ink400, marginTop: 14, lineHeight: 1.65 }}>
             MyVote does not use AI to generate or fabricate news stories. All stories originate from
             human journalists at named publications. The AI role is curation and summarization only.
           </p>
@@ -186,8 +230,8 @@ export default function AboutPage() {
 
         {/* What We Are Not */}
         <section>
-          <h2 className="text-2xl font-bold text-ink-700 mb-4">What We Are Not</h2>
-          <ul className="space-y-3 text-ink-700/80">
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 16 }}>What We Are Not</h2>
+          <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             {[
               "We are not affiliated with any political party, candidate, or campaign.",
               "We are not a news organization — we aggregate and organize news from existing sources.",
@@ -195,39 +239,37 @@ export default function AboutPage() {
               "We do not sell your personal data to political campaigns or advertisers.",
               "We are not a replacement for your county's official election resources — always verify voting info at sos.ga.gov.",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span className="text-teal-600 font-bold mt-0.5">✓</span>
-                <span>{item}</span>
+              <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 14.5, color: C.ink700, lineHeight: 1.6 }}>
+                <span style={{ color: C.teal, fontWeight: 800, flexShrink: 0, marginTop: 1 }}>✓</span>
+                {item}
               </li>
             ))}
           </ul>
         </section>
 
         {/* Who Built This */}
-        <section className="border-t border-rule pt-10">
-          <h2 className="text-2xl font-bold text-ink-700 mb-4">Who Built This</h2>
-          <div className="flex items-start gap-5">
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #1F3A5F 0%, #3D8073 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 22,
-                flexShrink: 0,
-              }}
-            >
+        <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36 }}>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 18 }}>Who Built This</h2>
+          <div style={{ ...cardStyle, padding: "20px 20px 22px", display: "flex", alignItems: "flex-start", gap: 16 }}>
+            <div style={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #1F3A5F 0%, #3D8073 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 20,
+              flexShrink: 0,
+            }}>
               KC
             </div>
             <div>
-              <div className="font-bold text-ink-700 text-lg">Kevin Cronin</div>
-              <div className="text-sm text-teal-600 font-medium mb-2">Founder · Georgia resident</div>
-              <p className="text-ink-700/80 leading-relaxed text-sm">
+              <p style={{ fontWeight: 700, color: C.ink900, fontSize: 16, marginBottom: 2 }}>Kevin Cronin</p>
+              <p style={{ fontSize: 13, color: C.teal, fontWeight: 600, marginBottom: 10 }}>Founder · Georgia resident</p>
+              <p style={{ fontSize: 14, color: C.ink700, lineHeight: 1.7 }}>
                 MyVote grew out of frustration with how hard it is to get a straight answer about who's on your
                 ballot and what they actually stand for. I built this for Georgia voters who are tired of partisan
                 noise and just want the facts. If something isn't working or you have ideas, my inbox is always open.
@@ -237,24 +279,28 @@ export default function AboutPage() {
         </section>
 
         {/* Contact */}
-        <section className="text-center border-t border-rule pt-10">
-          <h2 className="text-xl font-bold text-ink-700 mb-2">Questions or Feedback?</h2>
-          <p className="text-ink-700/70 mb-6">
+        <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36, textAlign: "center" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: C.ink900, marginBottom: 6 }}>Questions or Feedback?</h2>
+          <p style={{ fontSize: 14.5, color: C.ink500, marginBottom: 22, lineHeight: 1.6 }}>
             I read every message. Reach out anytime.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/contact">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white">Contact Us</Button>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link
+              href="/contact"
+              style={{ display: "inline-flex", alignItems: "center", padding: "11px 24px", borderRadius: 999, background: C.teal, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none", boxShadow: "0 2px 12px rgba(61,128,115,0.28)" }}
+            >
+              Contact Us
             </Link>
-            <Link href="/elections">
-              <Button variant="outline" className="border-teal-600 text-teal-600">
-                Georgia 2026 Elections
-              </Button>
+            <Link
+              href="/elections"
+              style={{ display: "inline-flex", alignItems: "center", padding: "11px 24px", borderRadius: 999, border: `1.5px solid ${C.teal}`, color: C.teal, fontWeight: 600, fontSize: 14, textDecoration: "none", background: "transparent" }}
+            >
+              Georgia 2026 Elections
             </Link>
           </div>
         </section>
-      </div>
 
+      </div>
     </div>
   )
 }

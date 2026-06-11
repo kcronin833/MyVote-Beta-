@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Globe, MapPin, Users, BarChart3, Newspaper, ShieldCheck } from "lucide-react"
+import { Logo } from "@/components/logo"
 
 export const metadata: Metadata = {
   title: "Welcome to MyVote — Georgia's 2026 Voter Guide",
@@ -7,23 +9,85 @@ export const metadata: Metadata = {
     "Georgia's free, non-partisan 2026 voter guide. See your complete ballot for every one of the 159 Georgia counties, read news from left, right, and center, and find your polling place.",
   robots: { index: false, follow: true },
 }
-import { Logo } from "@/components/logo"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Globe, MapPin, Users, BarChart3, Newspaper, ShieldCheck } from "lucide-react"
+
+const C = {
+  card:    "#FDFCF9",
+  rule:    "#E4E0D3",
+  ink900:  "#1A2138",
+  ink700:  "#3D435A",
+  ink500:  "#6B7088",
+  teal:    "#3D8073",
+  tealDk:  "#2F6358",
+  tealSoft:"#E6F0ED",
+  page:    "#F5F3EE",
+}
+
+const FEATURES = [
+  {
+    Icon: Newspaper,
+    iconColor: "#3D8073",
+    iconBg: "#E6F0ED",
+    title: "Balanced News",
+    desc: "Read left, right, and fact-based perspectives on every story so you see the full picture.",
+  },
+  {
+    Icon: ShieldCheck,
+    iconColor: "#059669",
+    iconBg: "#ECFDF5",
+    title: "Just the Facts",
+    desc: "AI-generated factual summaries strip away bias and show you verified information from official sources.",
+  },
+  {
+    Icon: MapPin,
+    iconColor: "#B33A2C",
+    iconBg: "#FEF2F2",
+    title: "Local Focus",
+    desc: "Get news and ballot info for your exact area. Enter your ZIP to see races for all 159 Georgia counties.",
+  },
+  {
+    Icon: Users,
+    iconColor: "#1D4ED8",
+    iconBg: "#EEF2FF",
+    title: "Know Your Representatives",
+    desc: "Detailed profiles, voting records, and compatibility scores for your elected officials.",
+  },
+  {
+    Icon: BarChart3,
+    iconColor: "#B45309",
+    iconBg: "#FFFBEB",
+    title: "Political Spectrum",
+    desc: "Like viewpoints to discover where you fall on the political spectrum based on your actual preferences.",
+  },
+  {
+    Icon: Globe,
+    iconColor: "#3D8073",
+    iconBg: "#E6F0ED",
+    title: "Community Discussion",
+    desc: "Comment on articles, tag other users, and engage in meaningful political discourse.",
+  },
+]
 
 export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-paper-100">
-      {/* Hero Section */}
-      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
-        <div className="container mx-auto px-4 py-20 text-center">
+    <div style={{ minHeight: "100vh", background: C.page }}>
+
+      {/* Hero */}
+      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
+        <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.08, pointerEvents: "none" }}>
+          <defs>
+            <pattern id="wdots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.2" fill="#fff" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#wdots)" />
+        </svg>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "72px 20px 80px", textAlign: "center", position: "relative" }}>
           <Logo size="xl" variant="white" />
-          <p style={{ marginTop: 18, fontSize: 18, maxWidth: 600, margin: "18px auto 0", color: "rgba(255,255,255,0.65)", lineHeight: 1.65 }}>
+          <p style={{ marginTop: 20, fontSize: 17, maxWidth: 540, margin: "20px auto 0", color: "rgba(255,255,255,0.65)", lineHeight: 1.7 }}>
             Georgia&rsquo;s non-partisan voter guide for 2026. See your complete ballot, read every candidate&rsquo;s
             positions, and follow the news from left, right, and center — all in one place.
           </p>
-          <div className="flex gap-3 justify-center mt-10 flex-wrap">
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 36, flexWrap: "wrap" }}>
             <Link href="/auth/signup" style={{ textDecoration: "none" }}>
               <button style={{ background: "#B33A2C", color: "#fff", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
                 Sign Up Free
@@ -44,84 +108,57 @@ export default function WelcomePage() {
       </div>
 
       {/* Features */}
-      <div className="container mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold font-serif text-center text-ink-700 mb-2">Why MyVote?</h2>
-        <p className="text-center text-ink-700/70 mb-10 max-w-xl mx-auto">
+      <div style={{ maxWidth: 1040, margin: "0 auto", padding: "64px 20px" }}>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 700, color: C.ink900, textAlign: "center", marginBottom: 8 }}>Why MyVote?</h2>
+        <p style={{ textAlign: "center", color: C.ink500, fontSize: 15, lineHeight: 1.65, maxWidth: 440, margin: "0 auto 40px" }}>
           We believe informed citizens make better decisions. Here is how we help.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-rule">
-            <CardHeader>
-              <Newspaper className="w-8 h-8 text-teal-600 mb-2" />
-              <CardTitle className="text-ink-700">Balanced News</CardTitle>
-              <CardDescription>Read left, right, and fact-based perspectives on every story so you see the full picture.</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-rule">
-            <CardHeader>
-              <ShieldCheck className="w-8 h-8 text-emerald-600 mb-2" />
-              <CardTitle className="text-ink-700">Just the Facts</CardTitle>
-              <CardDescription>AI-generated factual summaries strip away bias and show you verified information from official sources.</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-rule">
-            <CardHeader>
-              <MapPin className="w-8 h-8 text-civic-red mb-2" />
-              <CardTitle className="text-ink-700">Local Focus</CardTitle>
-              <CardDescription>Get news and ballot info for your exact area. Enter your ZIP to see races for all 159 Georgia counties.</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-rule">
-            <CardHeader>
-              <Users className="w-8 h-8 text-left-lean mb-2" />
-              <CardTitle className="text-ink-700">Know Your Representatives</CardTitle>
-              <CardDescription>Detailed profiles, voting records, and compatibility scores for your elected officials.</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-rule">
-            <CardHeader>
-              <BarChart3 className="w-8 h-8 text-amber-500 mb-2" />
-              <CardTitle className="text-ink-700">Political Spectrum</CardTitle>
-              <CardDescription>Like viewpoints to discover where you fall on the political spectrum based on your actual preferences.</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="border-rule">
-            <CardHeader>
-              <Globe className="w-8 h-8 text-teal-600 mb-2" />
-              <CardTitle className="text-ink-700">Community Discussion</CardTitle>
-              <CardDescription>Comment on articles, tag other users, and engage in meaningful political discourse.</CardDescription>
-            </CardHeader>
-          </Card>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+          {FEATURES.map(({ Icon, iconColor, iconBg, title, desc }) => (
+            <div
+              key={title}
+              className="mv-lift"
+              style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 14, padding: "20px 20px 22px", boxShadow: "0 2px 8px rgba(20,24,40,0.04)" }}
+            >
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <Icon size={22} color={iconColor} />
+              </div>
+              <p style={{ fontWeight: 700, fontSize: 15, color: C.ink900, marginBottom: 6 }}>{title}</p>
+              <p style={{ fontSize: 13.5, color: C.ink700, lineHeight: 1.65, margin: 0 }}>{desc}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Georgia Coverage Section */}
-      <div className="bg-teal-100/40 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold font-serif text-ink-700 mb-2">All 159 Georgia Counties Covered</h2>
-          <p className="text-ink-700/70 mb-8 max-w-xl mx-auto">
+      {/* Georgia Coverage */}
+      <div style={{ background: C.tealSoft, borderTop: `1px solid #B2D8D0`, borderBottom: `1px solid #B2D8D0`, padding: "64px 20px" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 700, color: C.ink900, marginBottom: 10 }}>
+            All 159 Georgia Counties Covered
+          </h2>
+          <p style={{ fontSize: 15, color: C.ink700, lineHeight: 1.7, maxWidth: 480, margin: "0 auto 28px" }}>
             Enter your ZIP code and see every race on your 2026 ballot — from Governor down to local school board — with candidates, key issues, and voting deadlines.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/elections">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-white">View 2026 Georgia Ballot</Button>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/elections" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, background: C.tealDk, color: "#fff", fontWeight: 700, fontSize: 14, boxShadow: "0 2px 12px rgba(47,99,88,0.28)" }}>
+              View 2026 Georgia Ballot
             </Link>
-            <Link href="/news">
-              <Button variant="outline" className="border-teal-600 text-teal-600">News Across the Spectrum</Button>
+            <Link href="/news" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, border: `1.5px solid ${C.tealDk}`, color: C.tealDk, fontWeight: 600, fontSize: 14 }}>
+              News Across the Spectrum
             </Link>
-            <Link href="/g">
-              <Button variant="outline" className="border-civic-red text-civic-red">Browse by County</Button>
+            <Link href="/g" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, border: `1.5px solid #B33A2C`, color: "#B33A2C", fontWeight: 600, fontSize: 14 }}>
+              Browse by County
             </Link>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-rule py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-ink-700/60">
+      <footer style={{ borderTop: `1px solid ${C.rule}`, padding: "36px 20px", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
           <Logo size="sm" />
-          <p className="mt-2">Inform. Clarify. Empower all political perspectives.</p>
         </div>
+        <p style={{ fontSize: 13, color: C.ink500 }}>Inform. Clarify. Empower all political perspectives.</p>
       </footer>
     </div>
   )

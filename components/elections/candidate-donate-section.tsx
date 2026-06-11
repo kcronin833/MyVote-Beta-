@@ -99,9 +99,9 @@ export function CandidateDonateSection({
       style={{
         background: C.card,
         border: `1px solid ${C.rule}`,
-        borderRadius: 10,
+        borderRadius: 12,
         padding: 16,
-        boxShadow: "0 1px 0 rgba(20,24,40,0.03)",
+        boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
       }}
     >
       {/* Header */}

@@ -82,7 +82,7 @@ function HeroZipForm() {
         style={{
           display: "flex",
           background: "#ffffff",
-          borderRadius: 14,
+          borderRadius: 999,
           boxShadow: "0 4px 40px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.07)",
           overflow: "hidden",
         }}

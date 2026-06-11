@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useRef, useState } from "react"
 import { Bell } from "lucide-react"
@@ -6,6 +6,18 @@ import { useAuth } from "@/components/auth-context"
 import { createClient } from "@/lib/supabase/client"
 import { formatNewsTime } from "@/lib/news-service"
 import { UserAvatar } from "@/components/user-avatar"
+
+const C = {
+  card:    "#FDFCF9",
+  rule:    "#E4E0D3",
+  ink900:  "#1A2138",
+  ink700:  "#3D435A",
+  ink500:  "#6B7088",
+  ink400:  "#8B8FA3",
+  teal:    "#3D8073",
+  tealSoft:"#E6F0ED",
+  shade:   "#F0EDE6",
+}
 
 interface NotificationRow {
   id: string
@@ -40,7 +52,6 @@ export function NotificationBell() {
     loadNotifications()
   }, [user])
 
-  // Close on outside click
   useEffect(() => {
     function handle(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -79,32 +90,33 @@ export function NotificationBell() {
   const unreadCount = notifications.filter((n) => !n.read).length
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div style={{ position: "relative" }} ref={dropdownRef}>
       <button
         onClick={() => {
           const opening = !open
           setOpen(opening)
           if (opening && unreadCount > 0) markAllRead()
         }}
-        className="relative p-1.5 rounded-lg hover:bg-paper-100 transition-colors"
         aria-label="Notifications"
+        style={{ position: "relative", width: 32, height: 32, borderRadius: 8, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
       >
-        <Bell className="w-4 h-4 text-muted-foreground" />
+        <Bell size={16} color={C.ink500} />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
+          <span style={{ position: "absolute", top: 0, right: 0, minWidth: 16, height: 16, background: "#E11D48", color: "#fff", fontSize: 9, fontWeight: 700, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" }}>
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card rounded-2xl border border-border shadow-xl z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Notifications</p>
+        <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, background: C.card, border: `1px solid ${C.rule}`, borderRadius: 16, boxShadow: "0 12px 40px rgba(20,24,40,0.18)", zIndex: 50, overflow: "hidden" }}>
+          {/* Header */}
+          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.rule}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, margin: 0 }}>Notifications</p>
             {notifications.length > 0 && (
               <button
                 onClick={loadNotifications}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                style={{ fontSize: 12, color: C.ink400, background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}
               >
                 Refresh
               </button>
@@ -112,30 +124,26 @@ export function NotificationBell() {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <Bell className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
-              <p className="text-sm text-muted-foreground">No notifications yet</p>
+            <div style={{ padding: "32px 16px", textAlign: "center" }}>
+              <Bell size={28} color="#D1CFC6" style={{ margin: "0 auto 8px", display: "block" }} />
+              <p style={{ fontSize: 13, color: C.ink400, margin: 0 }}>No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-border max-h-[320px] overflow-y-auto">
-              {notifications.map((n) => (
+            <div style={{ maxHeight: 320, overflowY: "auto" }}>
+              {notifications.map((n, i) => (
                 <div
                   key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 ${n.read ? "" : "bg-teal-50"}`}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 16px", background: n.read ? "transparent" : C.tealSoft, borderBottom: i < notifications.length - 1 ? `1px solid ${C.rule}` : "none" }}
                 >
-                  <UserAvatar
-                    avatarUrl={n.from_user?.avatar_url ?? null}
-                    displayName={n.from_user?.display_name ?? ""}
-                    size="sm"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground leading-snug">{notificationText(n)}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                  <UserAvatar avatarUrl={n.from_user?.avatar_url ?? null} displayName={n.from_user?.display_name ?? ""} size="sm" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 12.5, color: C.ink700, margin: 0, lineHeight: 1.4 }}>{notificationText(n)}</p>
+                    <p style={{ fontSize: 10.5, color: C.ink400, margin: "3px 0 0" }}>
                       {formatNewsTime(n.created_at)}
                     </p>
                   </div>
                   {!n.read && (
-                    <div className="w-2 h-2 rounded-full bg-teal-500 flex-shrink-0 mt-1.5" />
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.teal, flexShrink: 0, marginTop: 6 }} />
                   )}
                 </div>
               ))}

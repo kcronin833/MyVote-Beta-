@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/auth-context";
 
@@ -76,31 +75,24 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
         </DialogHeader>
 
         {/* Tab switcher */}
-        <div className="flex rounded-lg overflow-hidden border border-rule mb-4">
-          <button
-            className={`flex-1 py-2 text-sm font-medium transition-colors ${
-              tab === "login"
-                ? "bg-ink-900 text-white"
-                : "bg-background text-muted-foreground hover:bg-paper-50"
-            }`}
-            onClick={() => { setTab("login"); setError(null); }}
-          >
-            Sign In
-          </button>
-          <button
-            className={`flex-1 py-2 text-sm font-medium transition-colors ${
-              tab === "signup"
-                ? "bg-ink-900 text-white"
-                : "bg-background text-muted-foreground hover:bg-paper-50"
-            }`}
-            onClick={() => { setTab("signup"); setError(null); }}
-          >
-            Sign Up
-          </button>
+        <div style={{ display: "flex", borderRadius: 10, overflow: "hidden", border: "1px solid #E4E0D3", marginBottom: 16 }}>
+          {(["login", "signup"] as const).map((t) => (
+            <button
+              key={t}
+              style={{
+                flex: 1, padding: "9px 0", fontSize: 13.5, fontWeight: 600, cursor: "pointer", border: "none", transition: "all 0.15s",
+                background: tab === t ? "#2F6358" : "#FDFCF9",
+                color: tab === t ? "#fff" : "#6B7088",
+              }}
+              onClick={() => { setTab(t); setError(null); }}
+            >
+              {t === "login" ? "Sign In" : "Sign Up"}
+            </button>
+          ))}
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+          <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13.5, lineHeight: 1.5 }}>
             {error}
           </div>
         )}
@@ -121,13 +113,13 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
               onChange={(e) => setLoginPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
-            <Button
-              className="w-full bg-ink-900 hover:bg-ink-900/90"
+            <button
+              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
               onClick={handleLogin}
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
+              {loading ? "Signing in…" : "Sign In"}
+            </button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -156,13 +148,13 @@ export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProp
               onChange={(e) => setSignupPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSignup()}
             />
-            <Button
-              className="w-full bg-ink-900 hover:bg-ink-900/90"
+            <button
+              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
               onClick={handleSignup}
               disabled={loading}
             >
-              {loading ? "Creating account..." : "Create Account"}
-            </Button>
+              {loading ? "Creating account…" : "Create Account"}
+            </button>
             <p className="text-xs text-muted-foreground text-center">
               By signing up, you agree to discuss politics civilly 🇺🇸
             </p>

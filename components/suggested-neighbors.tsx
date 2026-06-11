@@ -8,6 +8,15 @@ import { getSuggestedUsers, type SuggestedUser } from "@/lib/suggestions-service
 import { UserAvatar } from "@/components/user-avatar"
 import { FollowButton } from "@/components/follow-button"
 
+const C = {
+  rule:   "#E4E0D3",
+  ink900: "#1A2138",
+  ink500: "#6B7088",
+  ink400: "#8B8FA3",
+  teal:   "#3D8073",
+  shade:  "#F0EDE6",
+}
+
 interface SuggestedNeighborsProps {
   limit?: number
   showHeader?: boolean
@@ -36,51 +45,47 @@ export function SuggestedNeighbors({
   if (!user) return null
 
   return (
-    <div className="space-y-2">
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {showHeader && (
-        <div className="flex items-center gap-1.5">
-          <Users className="w-3.5 h-3.5 text-teal-600" />
-          <p className="text-xs font-semibold text-foreground">
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Users size={13} color={C.teal} />
+          <p style={{ fontSize: 12, fontWeight: 700, color: C.ink900, margin: 0 }}>
             {headline || "Suggested Neighbors"}
           </p>
         </div>
       )}
 
       {loading ? (
-        <div className="space-y-3 animate-pulse">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {Array.from({ length: limit }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-muted flex-shrink-0" />
-              <div className="flex-1 space-y-1.5">
-                <div className="h-2.5 bg-muted rounded w-24" />
-                <div className="h-2 bg-muted rounded w-32" />
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, animation: "mv-pulse 1.6s ease-in-out infinite" }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.shade, flexShrink: 0 }} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
+                <div style={{ height: 10, background: C.shade, borderRadius: 4, width: "60%" }} />
+                <div style={{ height: 8, background: C.shade, borderRadius: 4, width: "80%" }} />
               </div>
-              <div className="w-14 h-6 bg-muted rounded-full flex-shrink-0" />
+              <div style={{ width: 56, height: 24, background: C.shade, borderRadius: 999, flexShrink: 0 }} />
             </div>
           ))}
         </div>
       ) : suggestions.length === 0 ? (
-        <p className="text-xs text-muted-foreground py-1">
+        <p style={{ fontSize: 12, color: C.ink400, margin: 0 }}>
           No suggestions yet — more neighbors will appear as MyVote grows.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {suggestions.map((suggested) => (
-            <div key={suggested.id} className="flex items-center gap-2">
-              <Link href={`/profile/${suggested.username}`} className="flex-shrink-0">
-                <UserAvatar
-                  avatarUrl={suggested.avatar_url}
-                  displayName={suggested.display_name}
-                  size="sm"
-                />
+            <div key={suggested.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Link href={`/profile/${suggested.username}`} style={{ flexShrink: 0, textDecoration: "none" }}>
+                <UserAvatar avatarUrl={suggested.avatar_url} displayName={suggested.display_name} size="sm" />
               </Link>
-              <div className="flex-1 min-w-0">
-                <Link href={`/profile/${suggested.username}`}>
-                  <p className="text-xs font-semibold text-foreground truncate hover:underline leading-tight">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Link href={`/profile/${suggested.username}`} style={{ textDecoration: "none" }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: C.ink900, margin: 0, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {suggested.display_name}
                   </p>
                 </Link>
-                <p className="text-[10px] text-muted-foreground truncate leading-tight">
+                <p style={{ fontSize: 10.5, color: C.ink400, margin: 0, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {suggested.reason}
                 </p>
               </div>
@@ -91,10 +96,8 @@ export function SuggestedNeighbors({
       )}
 
       {showSeeAll && (
-        <Link href="/discover">
-          <p className="text-xs text-teal-600 hover:text-teal-700 font-medium pt-0.5 block">
-            See all suggestions →
-          </p>
+        <Link href="/discover" style={{ fontSize: 12, fontWeight: 600, color: C.teal, textDecoration: "none", marginTop: 2 }}>
+          See all suggestions →
         </Link>
       )}
     </div>

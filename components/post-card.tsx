@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Heart, MessageCircle, Share2, ChevronDown, ChevronUp } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
@@ -8,12 +8,23 @@ import { UserAvatar } from "@/components/user-avatar"
 import { formatNewsTime } from "@/lib/news-service"
 import { CommentSystem } from "@/components/comment-system"
 
-const TOPIC_COLORS: Record<string, string> = {
-  Election: "bg-teal-100 text-teal-800",
-  "Local Issue": "bg-blue-100 text-blue-800",
-  Candidate: "bg-purple-100 text-purple-800",
-  Question: "bg-amber-100 text-amber-800",
-  General: "bg-paper-100 text-muted-foreground",
+const C = {
+  card:   "#FDFCF9",
+  rule:   "#E4E0D3",
+  ink900: "#1A2138",
+  ink700: "#3D435A",
+  ink500: "#6B7088",
+  ink400: "#8B8FA3",
+  shade:  "#F0EDE6",
+}
+
+type TopicStyle = { bg: string; color: string }
+const TOPIC_STYLES: Record<string, TopicStyle> = {
+  Election:      { bg: "#E6F0ED", color: "#2F6358" },
+  "Local Issue": { bg: "#DBEAFE", color: "#1D4ED8" },
+  Candidate:     { bg: "#EDE9FE", color: "#6D28D9" },
+  Question:      { bg: "#FEF3C7", color: "#92400E" },
+  General:       { bg: C.shade,   color: C.ink500  },
 }
 
 export interface PostData {
@@ -53,61 +64,66 @@ export function PostCard({ post }: { post: PostData }) {
     }
   }
 
-  const topicColor = TOPIC_COLORS[post.topic] || TOPIC_COLORS.General
+  const topicStyle = TOPIC_STYLES[post.topic] || TOPIC_STYLES.General
   const name = post.profile?.display_name || "Community member"
 
+  const actionBtn = (active?: boolean): React.CSSProperties => ({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 5,
+    height: 30,
+    padding: "0 10px",
+    borderRadius: 999,
+    border: `1px solid ${active ? "#FCA5A5" : C.rule}`,
+    background: active ? "#FFF1F2" : "transparent",
+    color: active ? "#E11D48" : C.ink500,
+    fontSize: 12,
+    fontWeight: active ? 700 : 500,
+    cursor: "pointer",
+    transition: "all 0.15s",
+  })
+
   return (
-    <div className="bg-paper-50 rounded-2xl border border-border p-4 space-y-3">
-      <div className="flex items-start gap-3">
+    <div style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 14, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", padding: "14px 16px" }}>
+      {/* Author row */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
         <UserAvatar avatarUrl={post.profile?.avatar_url} displayName={name} size="sm" />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-foreground">{name}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900 }}>{name}</span>
             {post.profile?.username && (
-              <span className="text-xs text-muted-foreground">@{post.profile.username}</span>
+              <span style={{ fontSize: 12, color: C.ink400 }}>@{post.profile.username}</span>
             )}
-            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${topicColor}`}>
+            <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: topicStyle.bg, color: topicStyle.color }}>
               {post.topic}
             </span>
-            <span className="text-xs text-muted-foreground ml-auto">{formatNewsTime(post.created_at)}</span>
+            <span style={{ fontSize: 11.5, color: C.ink400, marginLeft: "auto" }}>{formatNewsTime(post.created_at)}</span>
           </div>
-          <p className="text-sm text-foreground mt-1.5 leading-relaxed">{post.content}</p>
+          <p style={{ fontSize: 13.5, color: C.ink700, marginTop: 4, lineHeight: 1.55 }}>{post.content}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 pt-1 border-t border-border">
-        <button
-          onClick={handleLike}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-            liked
-              ? "bg-rose-50 border-rose-300 text-rose-600"
-              : "border-border text-muted-foreground hover:border-rose-300 hover:text-rose-500"
-          }`}
-        >
-          <Heart className={`w-3.5 h-3.5 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
+      {/* Action row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 10, borderTop: `1px solid ${C.rule}` }}>
+        <button onClick={handleLike} style={actionBtn(liked)}>
+          <Heart style={{ width: 13, height: 13, fill: liked ? "currentColor" : "none" }} />
           {likes}
         </button>
 
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all"
-        >
-          <MessageCircle className="w-3.5 h-3.5" />
+        <button onClick={() => setShowComments(!showComments)} style={actionBtn()}>
+          <MessageCircle style={{ width: 13, height: 13 }} />
           {post.comments_count}
-          {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          {showComments ? <ChevronUp style={{ width: 11, height: 11 }} /> : <ChevronDown style={{ width: 11, height: 11 }} />}
         </button>
 
-        <button
-          onClick={handleShare}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-all ml-auto"
-        >
-          <Share2 className="w-3.5 h-3.5" />
+        <button onClick={handleShare} style={{ ...actionBtn(), marginLeft: "auto" }}>
+          <Share2 style={{ width: 13, height: 13 }} />
           Share
         </button>
       </div>
 
       {showComments && (
-        <div className="pt-2 border-t border-border">
+        <div style={{ paddingTop: 12, marginTop: 2, borderTop: `1px solid ${C.rule}` }}>
           <CommentSystem articleUrl={`/posts/${post.id}`} articleTitle={post.content.slice(0, 80)} />
         </div>
       )}
