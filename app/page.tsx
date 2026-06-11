@@ -438,30 +438,59 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Browse without signing up */}
-          <button
-            onClick={() => {
-              sessionStorage.setItem("myvote_guest", "true")
-              setGuestMode(true)
-            }}
+          {/* Explore destinations — quiz, candidates, news */}
+          <p
             style={{
-              marginTop: 28,
-              background: "none",
-              border: "none",
-              fontSize: 13,
-              color: "rgba(255,255,255,0.38)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              textDecoration: "underline",
-              textDecorationColor: "rgba(255,255,255,0.18)",
-              textUnderlineOffset: 3,
+              marginTop: 30,
+              marginBottom: 10,
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: 0.6,
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.4)",
             }}
           >
-            Browse without signing up
-            <ArrowRight size={12} />
-          </button>
+            Or explore first
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              justifyContent: "center",
+              maxWidth: 560,
+            }}
+          >
+            {[
+              { href: "/quiz",       icon: Scale,     label: "Take the quiz" },
+              { href: "/elections",  icon: Vote,      label: "Browse candidates" },
+              { href: "/news/local", icon: MapPin,    label: "Local news" },
+              { href: "/news",       icon: Newspaper, label: "National news" },
+            ].map(({ href, icon: Icon, label }) => (
+              <Link
+                key={href}
+                href={href}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  padding: "10px 18px",
+                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  color: "#fff",
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                  backdropFilter: "blur(4px)",
+                }}
+              >
+                <Icon size={15} style={{ color: "#6FBFB0", flexShrink: 0 }} />
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
