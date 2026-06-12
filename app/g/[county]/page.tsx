@@ -8,6 +8,7 @@ import {
 } from "@/lib/county-utils";
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
+import { ReminderSignup } from "@/components/reminder-signup";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 import { BallotPickTracker } from "@/components/elections/ballot-pick-tracker";
 import { EarlyVotingBanner } from "@/components/early-voting-banner";
@@ -289,6 +290,10 @@ export default async function CountyPage({
               ))}
             </>
           )}
+
+          {/* Retention: a voter who just read their ballot is at peak intent
+              to ask for a reminder */}
+          <ReminderSignup countySlug={found.slug} source="county-page" />
 
           {/* Voter FAQ — visible content backing the FAQPage JSON-LD */}
           <SectionHeading label={`${name} County voter FAQ`} count={faqs.length} />

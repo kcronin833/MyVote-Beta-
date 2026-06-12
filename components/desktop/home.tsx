@@ -534,8 +534,34 @@ function ComposerAndFeed() {
           Loading community posts…
         </div>
       ) : posts.length === 0 ? (
-        <div style={{ ...cardStyle, padding: 16, color: C.ink500, fontSize: 13 }}>
-          No community posts yet — be the first.
+        /* Never show a ghost town — frame the empty feed as an invitation
+           and route energy to the Daily Question, the lowest-friction post. */
+        <div style={{ ...cardStyle, padding: "18px 16px" }}>
+          <p style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, margin: "0 0 4px" }}>
+            Start the conversation in your community
+          </p>
+          <p style={{ fontSize: 12.5, color: C.ink500, lineHeight: 1.55, margin: "0 0 10px" }}>
+            Answer today&rsquo;s question, or share what&rsquo;s on your mind
+            about the June 16 runoff — your neighbors will see it here.
+          </p>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {["What I'm watching this runoff", "A local issue that needs attention", "Question about my ballot"].map((t) => (
+              <span
+                key={t}
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: C.tealDk,
+                  background: C.tealSoft,
+                  border: "1px solid #C0DAD4",
+                  borderRadius: 999,
+                  padding: "3px 10px",
+                }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
       ) : (
         posts.map((p) => <PostCard key={p.id} post={p} />)

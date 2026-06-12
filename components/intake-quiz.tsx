@@ -36,6 +36,7 @@ import {
 } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
 import { shareUrl, shareText } from "@/lib/civic-share"
+import { ReminderSignup } from "@/components/reminder-signup"
 import { syncQuizResult, notifyProfileUpdated } from "@/lib/civic-profile-store"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
@@ -705,6 +706,11 @@ function ResultsScreen({
           >
             See every 2026 Georgia race →
           </a>
+        </div>
+
+        {/* Retention: capture email at the moment of highest engagement */}
+        <div style={{ marginBottom: 16 }}>
+          <ReminderSignup source="quiz-results" compact />
         </div>
 
         {/* CTA */}
