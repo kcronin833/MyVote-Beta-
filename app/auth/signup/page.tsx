@@ -54,7 +54,7 @@ export default function SignUpPage() {
     displayName: "",
     password: "",
     location: "",
-    politicalLean: "",
+    politicalLean: "", // kept for the signUp() signature; never collected at signup
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,23 +176,9 @@ export default function SignUpPage() {
               </select>
             </div>
 
-            <div>
-              <label style={{ display: "block", fontSize: 12.5, fontWeight: 600, color: "#3D435A", marginBottom: 5 }}>
-                Political Leaning{" "}
-                <span style={{ fontWeight: 400, color: "#8B8FA3" }}>(optional)</span>
-              </label>
-              <select
-                value={form.politicalLean}
-                onChange={(e) => setForm({ ...form, politicalLean: e.target.value })}
-                style={selectStyle}
-              >
-                <option value="">Select or skip…</option>
-                <option value="left">Liberal / Progressive</option>
-                <option value="center">Moderate / Independent</option>
-                <option value="right">Conservative</option>
-                <option value="prefer-not">Prefer not to say</option>
-              </select>
-            </div>
+            {/* Political lean is intentionally NOT asked here — asking
+                strangers their politics before delivering value is signup
+                friction and a privacy red flag. The quiz earns that data. */}
 
             <button
               type="submit"

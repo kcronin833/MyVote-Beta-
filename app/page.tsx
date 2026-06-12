@@ -33,6 +33,11 @@ const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
 const GEORGIA_RUNOFF  = new Date("2026-06-16T07:00:00-04:00")
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
 
+/* Hero switches to runoff urgency during runoff week; evaluated at build/
+   render time, so the day after the runoff a redeploy reverts it. The date
+   guard also self-heals on the client since the page is a client component. */
+const RUNOFF_MODE = Date.now() < new Date("2026-06-17T00:00:00-04:00").getTime()
+
 function useElectionCountdown() {
   const [info, setInfo] = useState<{ label: string; days: number } | null>(null)
   useEffect(() => {
@@ -399,8 +404,17 @@ export default function HomePage() {
               marginBottom: 18,
             }}
           >
-            What&rsquo;s on your{" "}
-            <span style={{ color: "#6FBFB0" }}>2026 Georgia ballot?</span>
+            {RUNOFF_MODE ? (
+              <>
+                Ready for the{" "}
+                <span style={{ color: "#6FBFB0" }}>June 16 Runoff?</span>
+              </>
+            ) : (
+              <>
+                What&rsquo;s on your{" "}
+                <span style={{ color: "#6FBFB0" }}>2026 Georgia ballot?</span>
+              </>
+            )}
           </h1>
 
           {/* Subhead */}
@@ -413,8 +427,9 @@ export default function HomePage() {
               marginBottom: 36,
             }}
           >
-            Enter your ZIP and see every race — governor, U.S. Senate, your
-            district, and local offices — with real candidates and key dates.
+            {RUNOFF_MODE
+              ? "Early voting is open now. Enter your ZIP to see exactly what's on your runoff ballot and where to vote."
+              : "Enter your ZIP and see every race — governor, U.S. Senate, your district, and local offices — with real candidates and key dates."}
           </p>
 
           {/* Early voting urgency strip */}

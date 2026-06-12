@@ -73,13 +73,14 @@ export default function RootLayout({
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         <PostHogProvider>
           <AuthProvider>
-            {/* Site-wide support strip — renders above the sticky nav on every
-                page so every visitor sees it on first load (dismissible). */}
-            <SupportBanner />
             {/* Persistent top nav — hidden on landing, auth, quiz (see GlobalNav) */}
             <GlobalNav />
             {/* pb-14 on mobile so content scrolls clear of the fixed bottom nav */}
             <div id="main-content" className="flex-1 pb-14 lg:pb-0">{children}</div>
+            {/* Sponsor card — bottom of page, all viewports. Deliberately NOT
+                at the top: a commercial banner in the trust position made the
+                site look hijacked (see usability audit, June 2026). */}
+            <SupportBanner />
             {/* Footer is redundant on mobile — MobileNav covers those links */}
             <div className="hidden lg:block">
               <SiteFooter />

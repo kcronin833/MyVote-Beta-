@@ -12,6 +12,7 @@ import { CandidateDonateSection } from "@/components/elections/candidate-donate-
 import { SidebarAd } from "@/components/ads/ad-unit";
 import { CandidatePhoto } from "@/components/elections/candidate-photo";
 import { CandidateNews } from "@/components/elections/candidate-news";
+import { ZipBallotLookup } from "@/components/elections/zip-ballot-lookup";
 import { C } from "@/lib/design-tokens";
 
 export async function generateStaticParams() {
@@ -442,6 +443,19 @@ export default async function CandidatePage({
 
         {/* ══ RIGHT RAIL ═══════════════════════════════════════════════ */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+          {/* Ballot funnel — most visitors arrive here from a name search and
+              this is their only prompt to discover their full ballot. */}
+          <div style={cardStyle({ padding: 16 })}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, marginBottom: 3 }}>
+              {c.name.split(" ")[0]} is one race on your ballot
+            </div>
+            <p style={{ fontSize: 12, color: C.ink500, lineHeight: 1.5, margin: "0 0 12px" }}>
+              See every race you&rsquo;ll vote on — statewide, your district, and local offices.
+            </p>
+            <ZipBallotLookup />
+          </div>
+
           {/* Donate */}
           <CandidateDonateSection slug={slug} candidateName={c.name} />
 
