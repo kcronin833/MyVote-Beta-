@@ -134,6 +134,13 @@
   50%       { opacity: 0.45; }
 }
 
+/* Gentle attention pulse for the assistant launcher when nudging a new
+   visitor — a subtle scale, not an opacity fade. */
+@keyframes mv-attn {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+
 @layer base {
   * {
     @apply border-border;

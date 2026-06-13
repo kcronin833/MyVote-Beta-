@@ -36,8 +36,36 @@ export function SiteAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
+  const [nudge, setNudge] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const NUDGE_KEY = "mv_assistant_nudge_seen";
+
+  // One-time proactive greeting: shows a gentle bubble ~6s into a new
+  // visitor's first session to convert the assistant from furniture into an
+  // activation prompt. Shown once per browser, ever — never nags.
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem(NUDGE_KEY) === "1";
+    } catch {
+      /* localStorage blocked — just skip the nudge */
+      seen = true;
+    }
+    if (seen) return;
+    const t = setTimeout(() => setNudge(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+
+  function dismissNudge() {
+    setNudge(false);
+    try {
+      localStorage.setItem(NUDGE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
 
   // Seed the greeting the first time the panel opens.
   useEffect(() => {
@@ -96,10 +124,42 @@ export function SiteAssistant() {
 
   return (
     <>
+      {/* One-time proactive nudge bubble */}
+      {!open && nudge && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 132px)",
+            right: 16,
+            zIndex: 60,
+            maxWidth: 240,
+            background: C.card,
+            border: `1px solid ${C.rule}`,
+            borderRadius: 14,
+            padding: "12px 32px 12px 14px",
+            boxShadow: "0 8px 28px rgba(20,24,40,0.22)",
+          }}
+        >
+          <button
+            onClick={dismissNudge}
+            aria-label="Dismiss"
+            style={{ position: "absolute", top: 6, right: 8, background: "none", border: "none", color: C.ink400, cursor: "pointer", fontSize: 16, lineHeight: 1, padding: 2 }}
+          >
+            ×
+          </button>
+          <p style={{ fontSize: 13, color: C.ink700, margin: 0, lineHeight: 1.5 }}>
+            👋 New here? I can show you around — tap to ask me anything.
+          </p>
+        </div>
+      )}
+
       {/* Launcher */}
       {!open && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            dismissNudge();
+          }}
           aria-label="Open the MyVote guide"
           style={{
             position: "fixed",
@@ -119,6 +179,7 @@ export function SiteAssistant() {
             fontWeight: 700,
             cursor: "pointer",
             boxShadow: "0 6px 20px rgba(61,128,115,0.4), 0 2px 6px rgba(20,24,40,0.15)",
+            animation: nudge ? "mv-attn 1.8s ease-in-out infinite" : undefined,
           }}
         >
           <MessageCircle size={20} />

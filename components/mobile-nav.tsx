@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Globe, MapPin, Vote, ClipboardCheck } from "lucide-react"
+import { Home, Globe, Vote, Sparkles, ClipboardCheck } from "lucide-react"
 
 /* ── Mobile bottom tab bar ──────────────────────────────────────────────
    Visible only on screens < 1024px (lg breakpoint).
@@ -10,23 +10,21 @@ import { Home, Globe, MapPin, Vote, ClipboardCheck } from "lucide-react"
    never overlaps the home indicator on notched iPhones.
    The parent layout adds pb-14 on mobile so page content scrolls clear. */
 
+/* Five primary jobs-to-be-done. Local news lives inside the News tab's
+   sub-nav (National/Local), so it no longer needs its own bottom slot —
+   that slot now surfaces the civic quiz, the app's main engagement hook. */
 const TABS = [
-  { href: "/",           icon: Home,           label: "Home"     },
-  { href: "/news",       icon: Globe,          label: "News"     },
-  { href: "/news/local", icon: MapPin,         label: "Local"    },
-  { href: "/elections",  icon: Vote,           label: "Elections"},
-  { href: "/register",   icon: ClipboardCheck, label: "Register" },
+  { href: "/",          icon: Home,           label: "Home"     },
+  { href: "/news",      icon: Globe,          label: "News"     },
+  { href: "/elections", icon: Vote,           label: "Elections"},
+  { href: "/quiz",      icon: Sparkles,       label: "Quiz"     },
+  { href: "/register",  icon: ClipboardCheck, label: "Register" },
 ] as const
 
 function isTabActive(tabHref: string, pathname: string): boolean {
   if (tabHref === "/") return pathname === "/"
-  // /news tab: matches /news (and any future /news/* sub-paths) but NOT /news/local
-  if (tabHref === "/news") {
-    return (
-      pathname === "/news" ||
-      (pathname.startsWith("/news") && !pathname.startsWith("/news/local"))
-    )
-  }
+  // News tab owns all /news/* paths now that Local has no separate tab.
+  if (tabHref === "/news") return pathname.startsWith("/news")
   return pathname.startsWith(tabHref)
 }
 
