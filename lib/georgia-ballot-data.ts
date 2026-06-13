@@ -256,6 +256,22 @@ export const STATEWIDE_RACES: BallotRace[] = [
             { issue: "National Security", stance: "Strong defense", description: "Supports robust defense funding while advocating for diplomatic solutions to international conflicts." },
           ],
         }),
+      tbdCandidate("Republican"),
+    ]
+  ),
+  // June 16, 2026 GOP U.S. Senate runoff — verified June 2026 (AJC, NBC,
+  // Georgia Recorder). Winner faces Sen. Ossoff in the November general.
+  {
+    office: "U.S. Senate – Republican Primary Runoff",
+    date: "June 16, 2026",
+    type: "Runoff Election",
+    level: "Federal",
+    description:
+      "Neither Republican cleared 50% in the May 19 primary, so Rep. Mike Collins and Derek Dooley meet in a June 16 runoff for the GOP nomination. The winner challenges Democratic incumbent Sen. Jon Ossoff on November 3.",
+    registrationDeadline: "May 19, 2026",
+    earlyVotingStart: "June 6–8 (varies by county)",
+    earlyVotingEnd: "June 12, 2026",
+    candidates: [
       rCandidate("Mike Collins", false,
         "Mike Collins is a U.S. Representative from Georgia's 10th Congressional District, serving since January 2023. The son of former Rep. Mac Collins, he is the founder of Collins Trucking Company and a vocal supporter of border security. He co-authored the Laken Riley Act, signed into law in 2025, which requires federal detention of undocumented immigrants charged with certain crimes. Collins led the May 19 GOP Senate primary and advances to the June 16 runoff against Derek Dooley.",
         ["Border Security", "Economic Growth", "America First", "Public Safety"],
@@ -293,8 +309,8 @@ export const STATEWIDE_RACES: BallotRace[] = [
             { issue: "Education", stance: "Workforce training", description: "Backs funding for technical colleges and apprenticeship programs to match workers with Georgia's job market." },
           ],
         }),
-    ]
-  ),
+    ],
+  },
 ]
 
 // ─── Congressional Races ─────────────────────────────────────────────────────
@@ -461,7 +477,7 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
     type: "Special Election",
     level: "Federal",
     description:
-      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. A special election to fill the remainder of his term is scheduled for July 28, 2026, alongside the regular November general election. Covers Clayton, Douglas, Henry, and parts of south metro Atlanta — a strongly Democratic district.",
+      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. A special election to fill the remainder of his term is scheduled for July 28, 2026, alongside the regular November general election. Covers parts of six metro Atlanta counties — Clayton, Henry, Rockdale, Newton, DeKalb, and Gwinnett — a strongly Democratic district.",
     registrationDeadline: "June 29, 2026",
     earlyVotingStart: "July 7, 2026",
     earlyVotingEnd: "July 25, 2026",

@@ -77,78 +77,9 @@ function cardStyle(extra?: React.CSSProperties): React.CSSProperties {
   };
 }
 
-/* ── Lean meter ─────────────────────────────────────────────────────── */
-function LeanMeter({ score }: { score: number }) {
-  // score: -100 (far left) → +100 (far right)
-  const pct = Math.round(((score + 100) / 200) * 100);
-  const label =
-    score <= -60 ? "Very Liberal" :
-    score <= -20 ? "Liberal" :
-    score <=  20 ? "Moderate" :
-    score <=  60 ? "Conservative" :
-                   "Very Conservative";
-  const dotColor =
-    score < -20 ? C.blue :
-    score >  20 ? C.red  :
-                  C.teal;
-
-  return (
-    <div style={cardStyle({ padding: 16 })}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: C.ink900, marginBottom: 10 }}>
-        Political Lean
-      </div>
-      <div style={{ position: "relative", height: 8, borderRadius: 999, overflow: "hidden" }}>
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `linear-gradient(to right, ${C.blue} 0%, #A5B4FC 30%, #E4E0D3 50%, #FCA5A5 70%, ${C.red} 100%)`,
-          }}
-        />
-        {/* marker */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: `${pct}%`,
-            transform: "translate(-50%, -50%)",
-            width: 14,
-            height: 14,
-            borderRadius: "50%",
-            background: dotColor,
-            border: "2px solid #fff",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.25)",
-          }}
-        />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: 10,
-          color: C.ink400,
-          marginTop: 5,
-        }}
-      >
-        <span>Liberal</span>
-        <span
-          style={{
-            fontWeight: 700,
-            fontSize: 11,
-            color: dotColor,
-          }}
-        >
-          {label}
-        </span>
-        <span>Conservative</span>
-      </div>
-      <div style={{ fontSize: 10, color: C.ink400, marginTop: 6, lineHeight: 1.4 }}>
-        Based on stated positions, voting record, and endorsements. MyVote does not
-        endorse or oppose any candidate.
-      </div>
-    </div>
-  );
-}
+/* The "Political Lean" meter was removed in the June 2026 data-accuracy
+   audit: its 0–100 scores were not sourced from any verifiable methodology,
+   so presenting them as analysis ("based on voting record") was misleading. */
 
 /* ── Stat chip ───────────────────────────────────────────────────────── */
 function StatChip({ label, value }: { label: string; value: string }) {
@@ -458,9 +389,6 @@ export default async function CandidatePage({
 
           {/* Donate */}
           <CandidateDonateSection slug={slug} candidateName={c.name} />
-
-          {/* Political lean */}
-          <LeanMeter score={c.politicalScore} />
 
           {/* Stay-informed news bridge — above the fold so search visitors who
               land on a candidate page discover the news product without
