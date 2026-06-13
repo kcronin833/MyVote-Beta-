@@ -45,7 +45,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Key dates for the June 16, 2026 runoff",
-        body: "Early voting runs June 9–13 at county early-voting sites, typically 7am–7pm. Election day is Tuesday, June 16, with polls open 7am–7pm. You'll need photo ID. Confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov) — runoff polling places occasionally differ from the first round.",
+        body: "Early voting for the runoff began June 6–8 depending on the county (Fulton, Cobb, DeKalb and others opened Saturday, June 6; most counties opened Monday, June 8) and ends statewide on Friday, June 12. Hours vary by county. Election day is Tuesday, June 16, with polls open 7am–7pm. You'll need photo ID. Confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov) — runoff polling places occasionally differ from the first round.",
       },
     ],
     related: [
@@ -138,7 +138,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "When it happens",
-        body: "Advance voting begins the fourth Monday before an election and runs about three weeks, including at least two Saturdays (counties may add Sundays). For the June 16, 2026 runoff, early voting runs June 9–13. For the November 3, 2026 general, expect advance voting from mid-October through October 30.",
+        body: "For general elections, advance voting begins the fourth Monday before election day and runs about three weeks, including at least two Saturdays — for the November 3, 2026 general, that's roughly October 12 through October 30. Runoffs are shorter: counties open advance voting as soon as possible (June 6–8 for the June 16, 2026 runoff, varying by county) and it always ends the Friday before election day — June 12 for this runoff.",
       },
       {
         heading: "Why vote early",

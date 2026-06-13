@@ -59,10 +59,13 @@ function RunoffBanner() {
   noStore();
   const now = new Date();
   const runoff = new Date("2026-06-16T19:00:00-04:00"); // polls close 7pm ET
-  const earlyStart = new Date("2026-06-09T00:00:00-04:00");
+  // Advance voting: began June 6–8 by county, ends statewide Fri June 12
+  const earlyStart = new Date("2026-06-06T00:00:00-04:00");
+  const earlyEnd = new Date("2026-06-13T00:00:00-04:00"); // after last day
   if (now >= runoff) return null;
   const daysLeft = Math.max(0, Math.ceil((runoff.getTime() - now.getTime()) / 86_400_000));
-  const earlyOpen = now >= earlyStart;
+  const earlyOpen = now >= earlyStart && now < earlyEnd;
+  const earlyOver = now >= earlyEnd;
   return (
     <div style={{
       background: `linear-gradient(135deg, #7C1A0F 0%, #B33A2C 100%)`,
@@ -81,9 +84,11 @@ function RunoffBanner() {
         <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.88)", marginTop: 2, lineHeight: 1.45 }}>
           GOP nominations for Georgia Governor &amp; U.S. Senate are decided June 16.
           {earlyOpen
-            ? " Early voting is open now through June 13."
-            : " Early voting opens June 9."}
-          {" "}Polls open 7am–7pm.
+            ? " Early voting is open now — it ends Friday, June 12; hours vary by county."
+            : earlyOver
+              ? " Early voting has ended — vote in person on election day."
+              : " Early voting opens June 6–8, depending on your county."}
+          {" "}Election day polls open 7am–7pm.
         </div>
       </div>
     </div>

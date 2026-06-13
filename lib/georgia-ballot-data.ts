@@ -167,8 +167,8 @@ export const STATEWIDE_RACES: BallotRace[] = [
     description:
       "Open seat — Gov. Brian Kemp is term-limited. No candidate cleared 50% in the May 19 primary, so the top two Republicans advance to a June 16 runoff for the GOP nomination.",
     registrationDeadline: "May 19, 2026",
-    earlyVotingStart: "June 9, 2026",
-    earlyVotingEnd: "June 13, 2026",
+    earlyVotingStart: "June 6–8 (varies by county)",
+    earlyVotingEnd: "June 12, 2026",
     candidates: [
       rCandidate("Burt Jones", false,
         "Georgia's current Lt. Governor and a Trump-endorsed businessman from Commerce, GA. Led the May 19 primary field and advances to the June 16 runoff for the GOP gubernatorial nomination. A former state senator and small business owner, Jones built his political brand on fiscal conservatism, election integrity, and an America First agenda. He was formally endorsed by President Trump, making him the MAGA-aligned frontrunner in the race.",

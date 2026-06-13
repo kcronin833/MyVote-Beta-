@@ -428,7 +428,7 @@ export default function HomePage() {
             }}
           >
             {RUNOFF_MODE
-              ? "Early voting is open now. Enter your ZIP to see exactly what's on your runoff ballot and where to vote."
+              ? "Election day is Tuesday, June 16 — polls open 7am to 7pm. Enter your ZIP for key dates, then confirm your exact runoff ballot at the GA Secretary of State's My Voter Page."
               : "Enter your ZIP and see every race — governor, U.S. Senate, your district, and local offices — with real candidates and key dates."}
           </p>
 

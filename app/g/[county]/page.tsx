@@ -261,6 +261,40 @@ export default async function CountyPage({
           {/* Trust guardrail — candidate data is provisional */}
           <BallotDataDisclaimer />
 
+          {/* CRITICAL accuracy guardrail: the race list below is our 2026
+              tracker (general election preview + statewide runoffs we cover).
+              It is NOT the voter's actual June 16 runoff ballot — runoff
+              ballots are county- and party-specific and may include local
+              runoffs we don't track. Route runoff voters to the authoritative
+              SoS sample ballot rather than implying completeness. */}
+          <div
+            style={{
+              background: "#FFF7ED",
+              border: "1px solid #FDBA74",
+              borderRadius: 12,
+              padding: "14px 16px",
+            }}
+            role="note"
+          >
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: "#9A3412", margin: "0 0 4px" }}>
+              Voting in the June 16 runoff?
+            </p>
+            <p style={{ fontSize: 13, color: "#7C2D12", lineHeight: 1.55, margin: "0 0 8px" }}>
+              Runoff ballots differ by county and by which primary you voted in,
+              and may include local runoff races not listed below. The races on
+              this page are MyVote&rsquo;s 2026 election tracker — not your exact
+              runoff ballot.
+            </p>
+            <a
+              href="https://mvp.sos.ga.gov"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, color: "#9A3412", textDecoration: "underline", textUnderlineOffset: 3 }}
+            >
+              See your official sample ballot on the GA My Voter Page ↗
+            </a>
+          </div>
+
           {/* Statewide */}
           <SectionHeading label="Statewide races" count={statewideRaces.length} />
           {statewideRaces.map((race) => (

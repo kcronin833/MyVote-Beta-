@@ -4,22 +4,26 @@
  * EarlyVotingBanner — time-sensitive urgency strip for the June 16, 2026 Runoff.
  *
  * States (based on current date):
- *   pre        → before June 9: "Early voting opens in X days"
- *   open       → June 9–12:     "Early voting NOW OPEN"
- *   last_day   → June 13:       "LAST day of early voting — vote today"
- *   final_days → June 14–15:    "June 16 Runoff in X days"
- *   election   → June 16:       "Today is Election Day — go vote!"
- *   null       → before June 7 or after June 16: hidden
+ *   pre        → before June 6:  "Early voting opens in X days"
+ *   open       → June 6–11:      "Early voting NOW OPEN"
+ *   last_day   → June 12:        "LAST day of early voting — vote today"
+ *   final_days → June 13–15:     "June 16 Runoff in X days"
+ *   election   → June 16:        "Today is Election Day — go vote!"
+ *   null       → before June 4 or after June 16: hidden
+ *
+ * Dates verified against GA SoS / county election offices: advance voting
+ * for the June 16 runoff began June 6–8 depending on county and ends
+ * statewide on Friday, June 12 (per O.C.G.A. advance-voting rules).
  */
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
 // All times in America/New_York
-const BANNER_VISIBLE_START = new Date("2026-06-07T00:00:00-04:00");
-const EARLY_VOTING_START   = new Date("2026-06-09T00:00:00-04:00");
-const EARLY_VOTING_LAST    = new Date("2026-06-13T00:00:00-04:00"); // last day open
-const EARLY_VOTING_END     = new Date("2026-06-14T00:00:00-04:00"); // after last day
+const BANNER_VISIBLE_START = new Date("2026-06-04T00:00:00-04:00");
+const EARLY_VOTING_START   = new Date("2026-06-06T00:00:00-04:00");
+const EARLY_VOTING_LAST    = new Date("2026-06-12T00:00:00-04:00"); // last day open
+const EARLY_VOTING_END     = new Date("2026-06-13T00:00:00-04:00"); // after last day
 const RUNOFF_DAY           = new Date("2026-06-16T00:00:00-04:00");
 const CUTOFF               = new Date("2026-06-17T00:00:00-04:00"); // banner disappears
 
@@ -110,7 +114,7 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
           Early voting opens in {daysUntil} day{daysUntil !== 1 ? "s" : ""}
         </strong>
         {!compact && (
-          <Sub>June 16 Runoff · Early voting June 9–13 at your county site</Sub>
+          <Sub>June 16 Runoff · Early voting starts June 6–8 depending on county · ends June 12</Sub>
         )}
         <Actions>
           {pillBtn("/elections", "See what's on the ballot")}
@@ -124,7 +128,7 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
       <Banner color={TEAL_GRAD} icon="✅" dismiss={dismissBtn}>
         <strong style={{ color: "#fff" }}>Early voting is NOW OPEN</strong>
         {!compact && (
-          <Sub>June 16 Runoff · Open through June 13 · 7am–7pm at county sites</Sub>
+          <Sub>June 16 Runoff · Ends Friday, June 12 · Hours vary by county — check mvp.sos.ga.gov</Sub>
         )}
         <Actions>
           {pillBtn("https://mvp.sos.ga.gov", "Find my polling place ↗", true)}
@@ -141,7 +145,7 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
           Last day of early voting — vote today
         </strong>
         {!compact && (
-          <Sub>June 16 Runoff · Polls open until 7pm · Early voting ends tonight</Sub>
+          <Sub>June 16 Runoff · Early voting ends today — most county sites close at 7pm · check your county&rsquo;s hours</Sub>
         )}
         <Actions>
           {pillBtn("https://mvp.sos.ga.gov", "Find my polling place ↗", true)}
