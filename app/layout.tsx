@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { MobileNav } from "@/components/mobile-nav";
 import { GlobalNav } from "@/components/global-nav";
 import { SupportBanner } from "@/components/support-banner";
+import { SiteAssistant } from "@/components/site-assistant";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -86,6 +87,9 @@ export default function RootLayout({
               <SiteFooter />
             </div>
             <MobileNav />
+            {/* Floating non-partisan site guide — curated, no LLM (see
+                lib/assistant-knowledge.ts for the rationale) */}
+            <SiteAssistant />
           </AuthProvider>
         </PostHogProvider>
         <Analytics />
