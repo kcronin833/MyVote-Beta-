@@ -9,6 +9,7 @@ import {
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { ReminderSignup } from "@/components/reminder-signup";
+import { ReportErrorLink } from "@/components/report-error-link";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 import { BallotPickTracker } from "@/components/elections/ballot-pick-tracker";
 import { EarlyVotingBanner } from "@/components/early-voting-banner";
@@ -394,6 +395,11 @@ export default async function CountyPage({
                 </p>
               </details>
             ))}
+          </div>
+
+          {/* Self-correction: invite readers to flag wrong info */}
+          <div style={{ paddingTop: 4, textAlign: "center" }}>
+            <ReportErrorLink refPath={`/g/${found.slug}`} />
           </div>
 
           <script

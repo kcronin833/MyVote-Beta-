@@ -421,7 +421,7 @@ export default function HomePage() {
           <p
             style={{
               fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-              color: "rgba(255,255,255,0.6)",
+              color: "rgba(255,255,255,0.75)",
               maxWidth: 480,
               lineHeight: 1.65,
               marginBottom: 36,
@@ -458,7 +458,7 @@ export default function HomePage() {
                   alignItems: "center",
                   gap: 6,
                   fontSize: 13,
-                  color: "rgba(255,255,255,0.45)",
+                  color: "rgba(255,255,255,0.78)",
                   fontWeight: 500,
                 }}
               >
@@ -477,7 +477,7 @@ export default function HomePage() {
               fontWeight: 600,
               letterSpacing: 0.6,
               textTransform: "uppercase",
-              color: "rgba(255,255,255,0.4)",
+              color: "rgba(255,255,255,0.66)",
             }}
           >
             Or explore first

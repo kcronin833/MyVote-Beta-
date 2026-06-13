@@ -13,6 +13,7 @@ import { SidebarAd } from "@/components/ads/ad-unit";
 import { CandidatePhoto } from "@/components/elections/candidate-photo";
 import { CandidateNews } from "@/components/elections/candidate-news";
 import { ZipBallotLookup } from "@/components/elections/zip-ballot-lookup";
+import { ReportErrorLink } from "@/components/report-error-link";
 import { C } from "@/lib/design-tokens";
 
 export async function generateStaticParams() {
@@ -370,6 +371,11 @@ export default async function CandidatePage({
 
           {/* Recent news */}
           <CandidateNews candidateName={c.name} />
+
+          {/* Self-correction: invite readers to flag wrong info */}
+          <div style={{ paddingTop: 2, textAlign: "center" }}>
+            <ReportErrorLink refPath={`/elections/candidate/${slug}`} />
+          </div>
         </div>
 
         {/* ══ RIGHT RAIL ═══════════════════════════════════════════════ */}

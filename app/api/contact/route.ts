@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 })
     }
 
-    if (!["business", "suggestion", "general"].includes(category)) {
+    if (!["business", "suggestion", "general", "correction"].includes(category)) {
       return NextResponse.json({ error: "Invalid category." }, { status: 400 })
     }
 

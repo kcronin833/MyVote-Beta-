@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, CheckCircle, Briefcase, Lightbulb, MessageCircle } from "lucide-react"
+import { Send, CheckCircle, Briefcase, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react"
 
 const C = {
   card:    "#FDFCF9",
@@ -42,6 +42,16 @@ const CATEGORIES = [
     desc: "Ideas to improve MyVote for Georgia voters",
   },
   {
+    id: "correction",
+    label: "Report an Error",
+    Icon: AlertTriangle,
+    activeColor: "#9A3412",
+    activeBg: "#FFF7ED",
+    activeBorder: "#FB923C",
+    idleColor: C.ink500,
+    desc: "Spotted wrong ballot info, dates, or candidate details? Tell us — accuracy matters most",
+  },
+  {
     id: "general",
     label: "General",
     Icon: MessageCircle,
@@ -61,6 +71,26 @@ export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState("")
+
+  // Deep-link prefill: pages link here as /contact?topic=correction&ref=<path>
+  // so a visitor reporting bad ballot data lands with the right category and
+  // page reference already filled in. Read once on mount (client-only).
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get("topic") === "correction") {
+        setCategory("correction")
+        const ref = params.get("ref")
+        if (ref) {
+          setMessage(
+            `I think there may be an error on this page: ${ref}\n\nWhat looks wrong:\n`
+          )
+        }
+      }
+    } catch {
+      /* no-op */
+    }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -125,7 +155,7 @@ export default function ContactPage() {
             {/* Category selector */}
             <div style={{ marginBottom: 22 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: C.ink900, marginBottom: 10 }}>What&rsquo;s this about?</p>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                 {CATEGORIES.map(({ id, label, Icon, activeColor, activeBg, activeBorder, idleColor }) => {
                   const active = category === id
                   return (
