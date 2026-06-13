@@ -126,6 +126,17 @@ export default async function CountyPage({
   const raceCount =
     statewideRaces.length + (congressionalRace ? 1 : 0) + countyRaces.length;
 
+  /* Group races by ELECTION, not just geography — voters think in terms of
+     "which election am I voting in", and mixing June runoff races into the
+     same stack as November races was genuinely confusing. Runoff section
+     auto-retires after election day (build-time date; pages rebuild on each
+     deploy, which happens at least weekly). */
+  const RUNOFF_DATE = "June 16, 2026";
+  const runoffPassed = Date.now() > new Date("2026-06-17T00:00:00-04:00").getTime();
+  const isRunoffRace = (r: { date: string }) => r.date === RUNOFF_DATE;
+  const runoffRaces = runoffPassed ? [] : statewideRaces.filter(isRunoffRace);
+  const novStatewideRaces = statewideRaces.filter((r) => !isRunoffRace(r));
+
   const faqs = buildCountyFaqs(found, generalRace);
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -295,9 +306,36 @@ export default async function CountyPage({
             </a>
           </div>
 
-          {/* Statewide */}
-          <SectionHeading label="Statewide races" count={statewideRaces.length} />
-          {statewideRaces.map((race) => (
+          {/* ── Election 1: June 16 runoff (auto-retires after election day) ── */}
+          {runoffRaces.length > 0 && (
+            <>
+              <div style={{ marginTop: 6 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#B33A2C", margin: "0 0 2px" }}>
+                  Happening now
+                </p>
+                <SectionHeading
+                  label="June 16 Primary Runoff"
+                  count={runoffRaces.length}
+                />
+              </div>
+              {runoffRaces.map((race) => (
+                <RaceCard key={race.office} race={race} />
+              ))}
+              <p style={{ fontSize: 12, color: C.ink500, lineHeight: 1.5, margin: "2px 2px 6px" }}>
+                Statewide runoffs we track. Your county&rsquo;s runoff ballot may
+                also include local runoff races — confirm at mvp.sos.ga.gov.
+              </p>
+            </>
+          )}
+
+          {/* ── Election 2: November 3 general ── */}
+          <div style={{ marginTop: runoffRaces.length > 0 ? 10 : 0 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: C.ink400, margin: "0 0 2px" }}>
+              November 3, 2026
+            </p>
+            <SectionHeading label="General Election · statewide races" count={novStatewideRaces.length} />
+          </div>
+          {novStatewideRaces.map((race) => (
             <RaceCard key={race.office} race={race} />
           ))}
 
