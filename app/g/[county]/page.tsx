@@ -324,7 +324,10 @@ export default async function CountyPage({
               ))}
               <p style={{ fontSize: 12, color: C.ink500, lineHeight: 1.5, margin: "2px 2px 6px" }}>
                 Statewide runoffs we track. Your county&rsquo;s runoff ballot may
-                also include local runoff races — confirm at mvp.sos.ga.gov.
+                also include local runoff races — confirm at mvp.sos.ga.gov.{" "}
+                <Link href="/guides/what-is-a-runoff" style={{ color: C.teal, fontWeight: 700, textDecoration: "none" }}>
+                  New to runoffs? What is a runoff election? →
+                </Link>
               </p>
             </>
           )}
