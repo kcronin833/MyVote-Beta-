@@ -58,6 +58,12 @@ export function ReminderSignup({
         return;
       }
       setState("done");
+      // Mark so the exit-intent prompt never nags someone already subscribed.
+      try {
+        localStorage.setItem("mv_reminder_signed", "1");
+      } catch {
+        /* ignore */
+      }
     } catch {
       setState("error");
       setMessage("Something went wrong. Try again.");

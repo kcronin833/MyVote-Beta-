@@ -10,6 +10,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { GlobalNav } from "@/components/global-nav";
 import { SupportBanner } from "@/components/support-banner";
 import { SiteAssistant } from "@/components/site-assistant";
+import { ExitReminderPrompt } from "@/components/exit-reminder-prompt";
 import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
@@ -90,6 +91,8 @@ export default function RootLayout({
             {/* Floating non-partisan site guide — curated, no LLM (see
                 lib/assistant-knowledge.ts for the rationale) */}
             <SiteAssistant />
+            {/* One-time exit-intent reminder capture (conversion move #3) */}
+            <ExitReminderPrompt />
           </AuthProvider>
         </PostHogProvider>
         <Analytics />
