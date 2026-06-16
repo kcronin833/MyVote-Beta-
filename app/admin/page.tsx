@@ -46,6 +46,20 @@ interface ReminderRow {
   created_at: string
 }
 
+/* Human-readable label for WHERE a reminder signup came from. */
+function reminderSourceLabel(source: string): string {
+  const map: Record<string, string> = {
+    "county-ballot-top": "County ballot — top of page",
+    "county-page": "County page",
+    "exit-prompt": "Exit prompt (about to leave)",
+    "quiz-results": "Quiz results screen",
+    site: "General",
+  }
+  if (map[source]) return map[source]
+  if (source.startsWith("guide-")) return `Guide: ${source.slice(6).replace(/-/g, " ")}`
+  return source
+}
+
 interface CandidateClaim {
   slug: string
   candidate_name: string
@@ -919,14 +933,14 @@ export default function AdminPage() {
                       Export CSV
                     </button>
                   </div>
-                  <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                    <table className="w-full text-sm">
+                  <div className="bg-card rounded-2xl border border-border overflow-x-auto">
+                    <table className="w-full text-sm min-w-[640px]">
                       <thead className="bg-paper-100 border-b border-border">
                         <tr>
                           <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Email</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden sm:table-cell">County</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Source</th>
-                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Signed up</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">County</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Where they signed up</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">When</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
@@ -935,13 +949,13 @@ export default function AdminPage() {
                             <td className="px-4 py-3">
                               <a href={`mailto:${r.email}`} className="text-teal-600 hover:underline break-all">{r.email}</a>
                             </td>
-                            <td className="px-4 py-3 text-xs text-muted-foreground capitalize hidden sm:table-cell">
+                            <td className="px-4 py-3 text-xs text-muted-foreground capitalize">
                               {r.county_slug ?? "—"}
                             </td>
-                            <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">
-                              <code className="font-mono text-[11px] bg-muted px-1 rounded">{r.source}</code>
+                            <td className="px-4 py-3 text-xs text-foreground">
+                              {reminderSourceLabel(r.source)}
                             </td>
-                            <td className="px-4 py-3 text-xs text-muted-foreground">
+                            <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
                               {formatNewsTime(r.created_at)}
                             </td>
                           </tr>
