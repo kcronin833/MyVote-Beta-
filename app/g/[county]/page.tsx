@@ -10,6 +10,7 @@ import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/b
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { ReminderSignup } from "@/components/reminder-signup";
 import { ReportErrorLink } from "@/components/report-error-link";
+import { QuizPromo } from "@/components/quiz-promo";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 import { BallotPickTracker } from "@/components/elections/ballot-pick-tracker";
 import { EarlyVotingBanner } from "@/components/early-voting-banner";
@@ -377,6 +378,9 @@ export default async function CountyPage({
               ))}
             </>
           )}
+
+          {/* Quiz funnel — convert ballot-readers into the engagement loop */}
+          <QuizPromo source="county-page" />
 
           {/* Voter FAQ — visible content backing the FAQPage JSON-LD */}
           <SectionHeading label={`${name} County voter FAQ`} count={faqs.length} />

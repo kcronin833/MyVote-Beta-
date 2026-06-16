@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GUIDES, getGuide } from "@/lib/guides-data";
 import { ReminderSignup } from "@/components/reminder-signup";
+import { QuizPromo } from "@/components/quiz-promo";
 
 const C = {
   card: "#FDFCF9",
@@ -126,6 +127,11 @@ export default async function GuidePage({
       {/* Reminder capture — guide readers are high-intent voters */}
       <div style={{ marginBottom: 22 }}>
         <ReminderSignup source={`guide-${guide.slug}`} />
+      </div>
+
+      {/* Quiz funnel */}
+      <div style={{ marginBottom: 22 }}>
+        <QuizPromo source={`guide-${guide.slug}`} />
       </div>
 
       {/* Related */}

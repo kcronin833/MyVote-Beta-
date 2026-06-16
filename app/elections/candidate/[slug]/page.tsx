@@ -14,6 +14,7 @@ import { CandidatePhoto } from "@/components/elections/candidate-photo";
 import { CandidateNews } from "@/components/elections/candidate-news";
 import { ZipBallotLookup } from "@/components/elections/zip-ballot-lookup";
 import { ReportErrorLink } from "@/components/report-error-link";
+import { QuizPromo } from "@/components/quiz-promo";
 import { C } from "@/lib/design-tokens";
 
 export async function generateStaticParams() {
@@ -371,6 +372,10 @@ export default async function CandidatePage({
 
           {/* Recent news */}
           <CandidateNews candidateName={c.name} />
+
+          {/* Quiz funnel — pull the politically-curious reader into the most
+              engaging asset (also captures email + drives shares) */}
+          <QuizPromo source="candidate-page" />
 
           {/* Self-correction: invite readers to flag wrong info */}
           <div style={{ paddingTop: 2, textAlign: "center" }}>
