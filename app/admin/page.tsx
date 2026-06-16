@@ -7,7 +7,7 @@ import {
   ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss,
   CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle,
   Vote, ExternalLink, TrendingUp, BarChart2, Activity, Award,
-  ThumbsUp, Flame, Zap, MapPin, UserPlus,
+  ThumbsUp, Flame, Zap, MapPin, UserPlus, Bell, Download,
 } from "lucide-react"
 import { TopNav } from "@/components/desktop/top-nav"
 import { UserAvatar } from "@/components/user-avatar"
@@ -37,7 +37,14 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "analytics" | "users" | "posts" | "messages" | "claims" | "pipeline"
+type Tab = "analytics" | "users" | "posts" | "messages" | "reminders" | "claims" | "pipeline"
+
+interface ReminderRow {
+  email: string
+  county_slug: string | null
+  source: string
+  created_at: string
+}
 
 interface CandidateClaim {
   slug: string
@@ -376,6 +383,7 @@ export default function AdminPage() {
   const [posts, setPosts] = useState<AdminPost[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [messages, setMessages] = useState<ContactMessage[]>([])
+  const [reminders, setReminders] = useState<ReminderRow[]>([])
   const [claims, setClaims] = useState<CandidateClaim[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pipelineRunning, setPipelineRunning] = useState(false)
@@ -542,6 +550,15 @@ export default function AdminPage() {
       setMessages((data as ContactMessage[]) || [])
     }
 
+    if (tab === "reminders") {
+      const { data } = await supabase
+        .from("election_reminders")
+        .select("email, county_slug, source, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1000)
+      setReminders((data as ReminderRow[]) || [])
+    }
+
     if (tab === "claims") {
       const res = await fetch("/api/candidate/admin")
       if (res.ok) {
@@ -607,6 +624,20 @@ export default function AdminPage() {
     } finally {
       setPipelineRunning(false)
     }
+  }
+
+  function exportRemindersCsv() {
+    const header = "email,county,source,signed_up\n"
+    const body = reminders
+      .map((r) => `${r.email},${r.county_slug ?? ""},${r.source},${r.created_at}`)
+      .join("\n")
+    const blob = new Blob([header + body], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `myvote-reminders-${new Date().toISOString().split("T")[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   async function toggleAdmin(targetUser: AdminUser) {
@@ -676,7 +707,7 @@ export default function AdminPage() {
 
           {/* ── Tab bar ── */}
           <div className="flex gap-1 mb-5 bg-card border border-border rounded-xl p-1 w-fit flex-wrap">
-            {(["analytics", "users", "posts", "messages", "claims", "pipeline"] as Tab[]).map((t) => (
+            {(["analytics", "users", "posts", "messages", "reminders", "claims", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -857,6 +888,71 @@ export default function AdminPage() {
                     </div>
                   )
                 })
+              )}
+            </div>
+          )}
+
+          {/* ── Reminders tab ── */}
+          {tab === "reminders" && (
+            <div className="space-y-3">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">Loading reminder list…</div>
+              ) : reminders.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
+                  <Bell className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No reminder signups yet.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-teal-600" />
+                      <p className="text-sm font-semibold text-foreground">
+                        {reminders.length} email reminder {reminders.length === 1 ? "signup" : "signups"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={exportRemindersCsv}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Export CSV
+                    </button>
+                  </div>
+                  <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-paper-100 border-b border-border">
+                        <tr>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Email</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden sm:table-cell">County</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Source</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Signed up</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {reminders.map((r) => (
+                          <tr key={r.email} className="hover:bg-paper-50 transition-colors">
+                            <td className="px-4 py-3">
+                              <a href={`mailto:${r.email}`} className="text-teal-600 hover:underline break-all">{r.email}</a>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground capitalize hidden sm:table-cell">
+                              {r.county_slug ?? "—"}
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">
+                              <code className="font-mono text-[11px] bg-muted px-1 rounded">{r.source}</code>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground">
+                              {formatNewsTime(r.created_at)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground px-1">
+                    Admin-only. These are real subscriber emails — never shared or sold. Export to import into an email sender when ready.
+                  </p>
+                </>
               )}
             </div>
           )}
