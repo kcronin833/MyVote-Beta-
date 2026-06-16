@@ -273,6 +273,17 @@ export default async function CountyPage({
           {/* Trust guardrail — candidate data is provisional */}
           <BallotDataDisclaimer />
 
+          {/* High-intent conversion: the visitor just pulled up their ballot —
+              the moment of peak intent to capture a reminder so they return to
+              vote. North-Star metric = email reminder signups. */}
+          <ReminderSignup
+            countySlug={found.slug}
+            source="county-ballot-top"
+            highlight
+            title="Get a reminder before you vote"
+            blurb={`You found your ${name} County ballot. We’ll email you once before each 2026 Georgia election — registration deadline, early voting, and election day. No spam, never sold.`}
+          />
+
           {/* CRITICAL accuracy guardrail: the race list below is our 2026
               tracker (general election preview + statewide runoffs we cover).
               It is NOT the voter's actual June 16 runoff ballot — runoff
@@ -366,10 +377,6 @@ export default async function CountyPage({
               ))}
             </>
           )}
-
-          {/* Retention: a voter who just read their ballot is at peak intent
-              to ask for a reminder */}
-          <ReminderSignup countySlug={found.slug} source="county-page" />
 
           {/* Voter FAQ — visible content backing the FAQPage JSON-LD */}
           <SectionHeading label={`${name} County voter FAQ`} count={faqs.length} />

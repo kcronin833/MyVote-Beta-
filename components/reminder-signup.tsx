@@ -22,10 +22,19 @@ export function ReminderSignup({
   countySlug,
   source = "site",
   compact = false,
+  title = "Never miss an election",
+  blurb = "Get one reminder before each 2026 Georgia election day — registration deadlines, early voting, and what’s on your ballot.",
+  highlight = false,
 }: {
   countySlug?: string;
   source?: string;
   compact?: boolean;
+  /** Custom heading — lets callers use high-intent framing. */
+  title?: string;
+  /** Custom one-line value prop under the heading. */
+  blurb?: string;
+  /** Teal-tinted emphasis treatment for high-intent placements. */
+  highlight?: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
@@ -79,22 +88,21 @@ export function ReminderSignup({
   return (
     <div
       style={{
-        background: C.card,
-        border: `1px solid ${C.rule}`,
+        background: highlight ? C.tealSoft : C.card,
+        border: highlight ? "1px solid #C0DAD4" : `1px solid ${C.rule}`,
         borderRadius: 12,
-        boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+        boxShadow: highlight ? "none" : "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
         padding: compact ? "14px 16px" : "18px 20px",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
         <Bell size={15} color={C.teal} style={{ flexShrink: 0 }} />
         <p style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, margin: 0 }}>
-          Never miss an election
+          {title}
         </p>
       </div>
       <p style={{ fontSize: 12.5, color: C.ink500, margin: "0 0 12px", lineHeight: 1.5 }}>
-        Get one reminder before each 2026 Georgia election day — registration
-        deadlines, early voting, and what&rsquo;s on your ballot.
+        {blurb}
       </p>
 
       <form onSubmit={submit} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
