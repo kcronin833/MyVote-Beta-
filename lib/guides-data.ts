@@ -190,6 +190,142 @@ export const GUIDES: Guide[] = [
       { href: "/register", label: "Full registration guide" },
     ],
   },
+  {
+    slug: "what-does-the-georgia-governor-do",
+    title: "What Does the Governor of Georgia Actually Do?",
+    metaTitle: "What Does the Governor of Georgia Do? · MyVote",
+    description:
+      "The governor is Georgia's chief executive — proposing the state budget, signing or vetoing laws, and commanding the state's response in a crisis. Here's the job, in plain English.",
+    updated: "June 18, 2026",
+    sections: [
+      {
+        heading: "The short version",
+        body: "The governor is the head of Georgia's executive branch — the person who runs state government day to day. They propose the state budget, sign or veto bills the legislature passes, appoint people to state boards and agencies, and serve as commander-in-chief of Georgia's military forces (like the National Guard). It's one of the most powerful elected offices that directly shapes life in the state.",
+      },
+      {
+        heading: "The budget is the biggest lever",
+        body: "Every year the governor proposes a state budget for the General Assembly to consider. Because so much of what state government does — schools, roads, health programs, public safety — runs on that budget, the governor's spending priorities are arguably their single most powerful tool. The legislature can change the budget, but the governor sets the starting point.",
+      },
+      {
+        heading: "Signing and vetoing laws",
+        body: "When the Georgia legislature passes a bill, it goes to the governor, who can sign it into law or veto it. A veto can be overridden, but only by a two-thirds vote in both the House and Senate — a high bar — so the veto gives the governor real influence over what becomes law.",
+      },
+      {
+        heading: "Appointments and emergencies",
+        body: "The governor appoints members to many state boards and commissions, shaping policy well beyond their own term. As 'conservator of the peace,' the governor also leads the state's response to emergencies — natural disasters, public-safety crises — and can call the legislature into special session.",
+      },
+      {
+        heading: "Term limits",
+        body: "Georgia's governor is elected to a four-year term and can serve at most two consecutive terms, after which they must wait four years before running again. That's why an incumbent who has served two terms can't simply run again — the seat opens up.",
+      },
+    ],
+    related: [
+      { href: "/elections", label: "See who's running for Governor in 2026" },
+      { href: "/guides/what-does-the-lieutenant-governor-do", label: "What does the Lieutenant Governor do?" },
+      { href: "/quiz", label: "Find your civic profile" },
+    ],
+  },
+  {
+    slug: "what-does-the-lieutenant-governor-do",
+    title: "What Does the Lieutenant Governor of Georgia Do?",
+    metaTitle: "What Does Georgia's Lieutenant Governor Do? · MyVote",
+    description:
+      "Georgia's lieutenant governor runs the state Senate and is first in line if the governor can't serve — and they're elected separately from the governor. Here's the real job.",
+    updated: "June 18, 2026",
+    sections: [
+      {
+        heading: "The short version",
+        body: "The lieutenant governor's main constitutional job is to serve as president of the Georgia State Senate — presiding over debate, keeping order, and casting the deciding vote when the Senate ties. They are also first in line to take over the governor's duties if the governor can't serve. It's a powerful but often misunderstood role.",
+      },
+      {
+        heading: "Running the state Senate",
+        body: "As president of the Senate, the lieutenant governor controls much of how that chamber operates — which influences which bills move forward and which stall. Notably, because the lieutenant governor isn't an actual member of the Senate, they can't sponsor legislation themselves; their power is procedural and tie-breaking, not authoring bills.",
+      },
+      {
+        heading: "Elected on their own — not a running mate",
+        body: "Unlike the U.S. vice president, Georgia's lieutenant governor is elected separately from the governor, on their own ballot line. That means Georgia can — and sometimes does — elect a governor and lieutenant governor from different parties. When you vote, these are two distinct choices.",
+      },
+      {
+        heading: "Next in line",
+        body: "If the governor dies, resigns, or is unable to serve, the lieutenant governor assumes the governor's powers and duties for the remainder of the term. It's the constitutional backstop that keeps the executive branch running.",
+      },
+      {
+        heading: "Term",
+        body: "The lieutenant governor serves a four-year term and — unlike the governor — faces no term limits, so the same person can hold the office across many elections.",
+      },
+    ],
+    related: [
+      { href: "/elections", label: "See the 2026 statewide races" },
+      { href: "/guides/what-does-the-georgia-governor-do", label: "What does the Governor do?" },
+      { href: "/guides/what-is-the-georgia-public-service-commission", label: "What is the Public Service Commission?" },
+    ],
+  },
+  {
+    slug: "what-does-the-georgia-secretary-of-state-do",
+    title: "What Does the Georgia Secretary of State Do?",
+    metaTitle: "What Does the Georgia Secretary of State Do? · MyVote",
+    description:
+      "Georgia's Secretary of State runs the state's elections — voter registration, ballots, and certifying results — plus business registration and professional licensing. Here's why this office matters to your vote.",
+    updated: "June 18, 2026",
+    sections: [
+      {
+        heading: "The short version",
+        body: "The Secretary of State is Georgia's chief elections officer. Their office oversees voter registration, coordinates and monitors elections at every level, and certifies the official results. The same office also registers businesses and corporations, licenses many professions, and regulates the state's securities market. For voters, the elections role is the one that matters most.",
+      },
+      {
+        heading: "Why this office matters to your vote",
+        body: "When you check whether you're registered, find your polling place, request an absentee ballot, or look up your sample ballot, you're using systems run by the Secretary of State's office — the My Voter Page at mvp.sos.ga.gov. The office maintains the voter rolls and certifies who won. That's why it's one of the most consequential offices on your ballot, even though it gets less attention than governor or senator.",
+      },
+      {
+        heading: "Elections, start to finish",
+        body: "The office's elections division coordinates municipal, county, state, and federal elections; manages voter registration; handles campaign-finance disclosure for state candidates; and certifies final results. It works alongside Georgia's 159 county election offices, which run the actual polling places.",
+      },
+      {
+        heading: "Beyond elections",
+        body: "The Secretary of State also registers and regulates corporations and nonprofits, grants professional licenses (from cosmetologists to engineers), oversees securities, and maintains the State Capitol and the Georgia Archives. It's a wide-ranging office, but the elections function is what puts it on your ballot's radar.",
+      },
+      {
+        heading: "Term",
+        body: "The Secretary of State is a constitutional officer elected to a four-year term.",
+      },
+    ],
+    related: [
+      { href: "/guides/check-voter-registration-georgia", label: "Check your registration (uses the SoS My Voter Page)" },
+      { href: "/elections", label: "See the 2026 races" },
+      { href: "/register", label: "How to register to vote in Georgia" },
+    ],
+  },
+  {
+    slug: "what-is-the-georgia-public-service-commission",
+    title: "What Is the Georgia Public Service Commission? (And Why It's On Your Power Bill)",
+    metaTitle: "What Is the Georgia Public Service Commission? · MyVote",
+    description:
+      "Five elected commissioners set the rates most Georgians pay for electricity and natural gas. Here's what the Public Service Commission does — and why these low-profile races hit your wallet.",
+    updated: "June 18, 2026",
+    sections: [
+      {
+        heading: "The short version",
+        body: "The Georgia Public Service Commission (PSC) is a five-member elected body that regulates the state's investor-owned utilities — setting the rates most Georgians pay for electricity and natural gas, and overseeing telecommunications and some transportation. If your power is from Georgia Power, the PSC has a direct hand in what you pay.",
+      },
+      {
+        heading: "Why a sleepy race hits your wallet",
+        body: "PSC races get little attention, but few offices touch your monthly budget as directly. The commission has exclusive authority to decide what counts as a 'fair and reasonable' rate for the utilities it regulates — balancing reliable service and affordable bills against utilities earning a return on investment. When your electric bill goes up, a PSC decision is often behind it.",
+      },
+      {
+        heading: "How the five commissioners are elected",
+        body: "The PSC has a chairman, vice-chairman, and three commissioners. Each must live in one of five districts, but — importantly — they're elected statewide, in partisan elections, by all Georgia voters. So even though a commissioner represents a district, every voter in Georgia helps choose them. They serve staggered six-year terms.",
+      },
+      {
+        heading: "What it does — and doesn't — regulate",
+        body: "The PSC regulates electric, natural gas, telecommunications, and certain transportation services. Unlike utility regulators in some other states, the Georgia PSC does not regulate water and sewer service — those are handled locally. So a water-bill complaint goes to your city or county, not the PSC.",
+      },
+    ],
+    related: [
+      { href: "/elections", label: "See the 2026 statewide races" },
+      { href: "/guides/what-does-the-georgia-governor-do", label: "What does the Governor do?" },
+      { href: "/g", label: "Find your full county ballot" },
+    ],
+  },
 ];
 
 export function getGuide(slug: string): Guide | null {
