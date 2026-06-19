@@ -11,6 +11,7 @@ import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 import { ReminderSignup } from "@/components/reminder-signup";
 import { ReportErrorLink } from "@/components/report-error-link";
 import { QuizPromo } from "@/components/quiz-promo";
+import { ShareBallot } from "@/components/share-ballot";
 import { SaveBallotNudge } from "@/components/elections/save-ballot-nudge";
 import { BallotPickTracker } from "@/components/elections/ballot-pick-tracker";
 import { EarlyVotingBanner } from "@/components/early-voting-banner";
@@ -378,6 +379,9 @@ export default async function CountyPage({
               ))}
             </>
           )}
+
+          {/* Acquisition wedge → viral: let ballot-finders spread it */}
+          <ShareBallot countyName={name} countySlug={found.slug} />
 
           {/* Quiz funnel — convert ballot-readers into the engagement loop */}
           <QuizPromo source="county-page" />
