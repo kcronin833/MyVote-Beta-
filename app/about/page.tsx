@@ -142,6 +142,18 @@ export default function AboutPage() {
 
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 20px 80px", display: "flex", flexDirection: "column", gap: 48 }}>
 
+        {/* Independence callout */}
+        <section style={{ background: "#1A2138", borderRadius: 14, padding: "28px 28px 30px" }}>
+          <p style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.25rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.4, marginBottom: 12 }}>
+            No grants. No donors. No agenda.
+          </p>
+          <p style={{ fontSize: 14.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.75, maxWidth: 580 }}>
+            MyVote is entirely self-funded. We have not accepted grants, donations, or outside investment
+            from any organization, political party, foundation, or individual donor. That independence isn&rsquo;t
+            a limitation — it&rsquo;s the point. When nobody pays for it, nobody owns it.
+          </p>
+        </section>
+
         {/* Mission */}
         <section>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 16 }}>Our Mission</h2>
@@ -234,6 +246,7 @@ export default function AboutPage() {
           <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             {[
               "We are not affiliated with any political party, candidate, or campaign.",
+              "We are not funded by political organizations, advocacy groups, foundations, or outside donors of any kind.",
               "We are not a news organization — we aggregate and organize news from existing sources.",
               "We do not editorialize or take positions on political issues.",
               "We do not sell your personal data to political campaigns or advertisers.",
@@ -270,9 +283,11 @@ export default function AboutPage() {
               <p style={{ fontWeight: 700, color: C.ink900, fontSize: 16, marginBottom: 2 }}>Kevin Cronin</p>
               <p style={{ fontSize: 13, color: C.teal, fontWeight: 600, marginBottom: 10 }}>Founder · Georgia resident</p>
               <p style={{ fontSize: 14, color: C.ink700, lineHeight: 1.7 }}>
-                MyVote grew out of frustration with how hard it is to get a straight answer about who's on your
-                ballot and what they actually stand for. I built this for Georgia voters who are tired of partisan
-                noise and just want the facts. If something isn't working or you have ideas, my inbox is always open.
+                MyVote grew out of frustration with how hard it is to get a straight answer about who&rsquo;s on your
+                ballot and what they actually stand for. I built and funded this myself — no investors, no grants,
+                no political backers — because the moment someone else pays for it, you have to wonder whose
+                interests it serves. I wanted to build something Georgia voters from any background could actually
+                trust. If something isn&rsquo;t working or you have ideas, my inbox is always open.
               </p>
             </div>
           </div>

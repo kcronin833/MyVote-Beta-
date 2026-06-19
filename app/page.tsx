@@ -450,7 +450,7 @@ export default function HomePage() {
               justifyContent: "center",
             }}
           >
-            {["Free to use", "Non-partisan", "Georgia focused"].map((t) => (
+            {["Free to use", "Non-partisan", "No outside funding", "Georgia focused"].map((t) => (
               <span
                 key={t}
                 style={{
@@ -792,6 +792,7 @@ export default function HomePage() {
           </div>
           <p style={{ marginTop: 24, fontSize: 11.5, color: "#B0B4C4", lineHeight: 1.65, maxWidth: 480, margin: "24px auto 0" }}>
             MyVote is not affiliated with any political party, campaign, or government entity.
+            We have not accepted grants, donations, or outside investment from any organization or individual donor.
             Always verify voting information at{" "}
             <a
               href="https://sos.ga.gov"
