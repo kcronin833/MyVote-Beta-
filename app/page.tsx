@@ -17,8 +17,6 @@ import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 import { EarlyVotingBanner } from "@/components/early-voting-banner"
 
-/* The logged-in app shell and onboarding quiz are only needed after auth —
-   loading them lazily keeps the public landing page bundle small. */
 const DesktopHome = dynamic(
   () => import("@/components/desktop/home").then((m) => m.DesktopHome),
   { ssr: false }
@@ -28,14 +26,10 @@ const OnboardingQuiz = dynamic(
   { ssr: false }
 )
 
-/* ── Election countdown ──────────────────────────────────────────────── */
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
 const GEORGIA_RUNOFF  = new Date("2026-06-16T07:00:00-04:00")
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
 
-/* Hero switches to runoff urgency during runoff week; evaluated at build/
-   render time, so the day after the runoff a redeploy reverts it. The date
-   guard also self-heals on the client since the page is a client component. */
 const RUNOFF_MODE = Date.now() < new Date("2026-06-17T00:00:00-04:00").getTime()
 
 function useElectionCountdown() {
@@ -57,7 +51,6 @@ function useElectionCountdown() {
   return info
 }
 
-/* ── Hero ZIP form ───────────────────────────────────────────────────── */
 function HeroZipForm() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -92,7 +85,6 @@ function HeroZipForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 480 }}>
-      {/* Unified white pill */}
       <div
         style={{
           display: "flex",
@@ -102,7 +94,6 @@ function HeroZipForm() {
           overflow: "hidden",
         }}
       >
-        {/* Input */}
         <div style={{ flex: 1, display: "flex", alignItems: "center", position: "relative" }}>
           <MapPin
             size={17}
@@ -132,7 +123,6 @@ function HeroZipForm() {
           />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -185,7 +175,6 @@ function HeroZipForm() {
   )
 }
 
-/* ── Feature cards ───────────────────────────────────────────────────── */
 const FEATURES = [
   {
     Icon: Scale,
@@ -217,7 +206,6 @@ const FEATURES = [
   },
 ]
 
-/* ── Page ────────────────────────────────────────────────────────────── */
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => {
@@ -229,10 +217,6 @@ export default function HomePage() {
   const [showQuiz, setShowQuiz] = useState(false)
   const countdown = useElectionCountdown()
 
-  // Synchronous hint that a Supabase session exists (token in localStorage).
-  // Lets us show the spinner ONLY to returning logged-in users; new visitors
-  // and crawlers get the full landing page immediately — previously the
-  // prerendered HTML was just the spinner, which gutted SEO and LCP.
   const [sessionHint] = useState(() => {
     if (typeof window === "undefined") return false
     try {
@@ -283,7 +267,6 @@ export default function HomePage() {
     )
   }
 
-  /* ── Logged-in / guest → full app ── */
   if (user || guestMode) {
     return (
       <>
@@ -293,11 +276,9 @@ export default function HomePage() {
     )
   }
 
-  /* ── Landing page (logged-out) ── */
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#F3F1EB" }}>
 
-      {/* ── Minimal top nav ── */}
       <header
         className="sticky top-0 z-20 border-b border-rule"
         style={{ background: "rgba(255,255,255,0.97)", backdropFilter: "blur(8px)", boxShadow: "0 1px 6px rgba(20,24,40,0.06)" }}
@@ -339,7 +320,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Hero — dark gradient ── */}
       <section
         style={{
           background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)",
@@ -360,7 +340,6 @@ export default function HomePage() {
             textAlign: "center",
           }}
         >
-          {/* Countdown pill */}
           {countdown && (
             <div
               style={{
@@ -392,7 +371,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Headline */}
           <h1
             style={{
               fontFamily: "var(--font-serif)",
@@ -417,7 +395,6 @@ export default function HomePage() {
             )}
           </h1>
 
-          {/* Subhead */}
           <p
             style={{
               fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
@@ -432,15 +409,12 @@ export default function HomePage() {
               : "Enter your ZIP and see every race — governor, U.S. Senate, your district, and local offices — with real candidates and key dates."}
           </p>
 
-          {/* Early voting urgency strip */}
           <div style={{ width: "100%", maxWidth: 480, marginBottom: 12 }}>
             <EarlyVotingBanner compact />
           </div>
 
-          {/* Zip form */}
           <HeroZipForm />
 
-          {/* Trust row */}
           <div
             style={{
               display: "flex",
@@ -468,7 +442,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Explore destinations — quiz, candidates, news */}
           <p
             style={{
               marginTop: 30,
@@ -524,7 +497,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats strip ── */}
       <div
         style={{
           background: "#ffffff",
@@ -555,7 +527,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Why create an account ── */}
       <section style={{ background: "#F3F1EB", padding: "72px 16px 80px" }}>
         <div style={{ maxWidth: 1040, margin: "0 auto" }}>
           <h2
@@ -666,7 +637,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Urgency dark section ── */}
       <section
         style={{
           background: "linear-gradient(135deg, #1A2138 0%, #142E2A 100%)",
@@ -764,7 +734,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer ── */}
       <footer style={{ background: "#F3F1EB", borderTop: "1px solid #E4E0D3", padding: "40px 16px" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>

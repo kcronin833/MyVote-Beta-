@@ -112,7 +112,6 @@ export default function AboutPage() {
   return (
     <div style={{ minHeight: "100vh", background: C.page }}>
 
-      {/* ── Hero ── */}
       <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
         <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.08, pointerEvents: "none" }}>
           <defs>
@@ -142,7 +141,6 @@ export default function AboutPage() {
 
       <div style={{ maxWidth: 880, margin: "0 auto", padding: "48px 20px 80px", display: "flex", flexDirection: "column", gap: 48 }}>
 
-        {/* Independence callout */}
         <section style={{ background: "#1A2138", borderRadius: 14, padding: "28px 28px 30px" }}>
           <p style={{ fontSize: "clamp(1.1rem, 2.5vw, 1.25rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.4, marginBottom: 12 }}>
             No grants. No donors. No agenda.
@@ -154,7 +152,6 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Mission */}
         <section>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 16 }}>Our Mission</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -177,7 +174,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* What We Do */}
         <section>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 18 }}>What MyVote Does</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
@@ -193,7 +189,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Georgia Pilot */}
         <section style={{ background: C.tealSoft, borderRadius: 14, border: `1px solid #B2D8D0`, padding: "28px 28px 30px" }}>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: C.tealDk, marginBottom: 12 }}>Georgia 2026 Pilot</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -213,7 +208,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* How Our AI Works */}
         <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <Bot size={20} color={C.teal} />
@@ -240,7 +234,6 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* What We Are Not */}
         <section>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 16 }}>What We Are Not</h2>
           <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
@@ -260,7 +253,6 @@ export default function AboutPage() {
           </ul>
         </section>
 
-        {/* Who Built This */}
         <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36 }}>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: C.ink900, marginBottom: 18 }}>Who Built This</h2>
           <div style={{ ...cardStyle, padding: "20px 20px 22px", display: "flex", alignItems: "flex-start", gap: 16 }}>
@@ -293,7 +285,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Contact */}
         <section style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 36, textAlign: "center" }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: C.ink900, marginBottom: 6 }}>Questions or Feedback?</h2>
           <p style={{ fontSize: 14.5, color: C.ink500, marginBottom: 22, lineHeight: 1.6 }}>
