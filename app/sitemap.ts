@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { createClient } from "@supabase/supabase-js";
 import { getAllCountySlugs } from "@/lib/county-utils";
 import { getAllCandidateSlugs } from "@/lib/candidate-utils";
 import { ARCHETYPE_SLUGS } from "@/lib/civic-share";
@@ -8,7 +9,7 @@ import { getSiteUrl } from "@/lib/site-url";
 /* Dynamic sitemap so Google can discover all ~159 statically generated county
    ballot pages plus the core marketing/utility routes. Regenerated on each
    build, so new counties or routes are picked up automatically. */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const now = new Date();
 
@@ -58,5 +59,35 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }));
 
-  return [...staticRoutes, ...countyRoutes, ...candidateRoutes, ...civicProfileRoutes, ...guideRoutes];
+  // Permanent spectrum story pages — the "free Ground News" content. Pulled
+  // from Supabase so newly clustered stories get indexed automatically.
+  let storyRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "placeholder"
+    );
+    const { data } = await supabase
+      .from("clustered_stories")
+      .select("id, created_at")
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    storyRoutes = (data ?? []).map((s: { id: string; created_at: string }) => ({
+      url: `${base}/news/story/${s.id}`,
+      lastModified: new Date(s.created_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    /* sitemap should never fail the build over story fetch */
+  }
+
+  return [
+    ...staticRoutes,
+    ...countyRoutes,
+    ...candidateRoutes,
+    ...civicProfileRoutes,
+    ...guideRoutes,
+    ...storyRoutes,
+  ];
 }

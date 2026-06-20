@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { ExternalLink, RefreshCw, AlertCircle, Star } from "lucide-react"
 import { formatNewsTime } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
@@ -222,8 +223,10 @@ function StoryCard({ story, filter }: { story: ClusteredStory; filter: LeanFilte
           <span className="ml-auto">{formatNewsTime(story.created_at)}</span>
         </div>
 
-        {/* Headline + synopsis */}
-        <h3 className="font-bold text-foreground text-base leading-snug">{story.headline}</h3>
+        {/* Headline + synopsis — headline links to the permanent story page */}
+        <Link href={`/news/story/${story.id}`} className="block group">
+          <h3 className="font-bold text-foreground text-base leading-snug group-hover:text-teal-700 transition-colors">{story.headline}</h3>
+        </Link>
         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{story.synopsis}</p>
 
         {/* Coverage counts */}
@@ -244,12 +247,18 @@ function StoryCard({ story, filter }: { story: ClusteredStory; filter: LeanFilte
         ))}
       </div>
 
-      {/* Star rating bar */}
-      <div className="px-4 pb-4 pt-1 border-t border-border flex items-center justify-between gap-3">
+      {/* Star rating bar + full breakdown link */}
+      <div className="px-4 pb-4 pt-1 border-t border-border flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-muted-foreground font-medium">Rate this story:</span>
           <StarRating storyId={story.id} storyLeanAvg={storyLeanAvg} />
         </div>
+        <Link
+          href={`/news/story/${story.id}`}
+          className="text-[12px] font-semibold text-teal-700 hover:underline whitespace-nowrap"
+        >
+          Full breakdown →
+        </Link>
       </div>
     </div>
   )
