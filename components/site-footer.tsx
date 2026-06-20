@@ -13,6 +13,7 @@ export function SiteFooter() {
           </Link>
           <Link href="/about" className="hover:text-ink-900 transition-colors">About</Link>
           <Link href="/elections" className="hover:text-ink-900 transition-colors">Elections 2026</Link>
+          <Link href="/news/recap" className="hover:text-ink-900 transition-colors">Day in Review</Link>
           <Link href="/guides" className="hover:text-ink-900 transition-colors">Voter Guides</Link>
           <Link href="/privacy" className="hover:text-ink-900 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-ink-900 transition-colors">Terms</Link>

@@ -304,6 +304,18 @@ export function SpectrumWheel() {
 
   return (
     <div className="space-y-4">
+      {/* Day in Review entry point */}
+      <Link
+        href="/news/recap"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 hover:border-teal-300 transition-colors"
+      >
+        <div>
+          <p className="text-sm font-bold text-foreground">📅 The Day in Review</p>
+          <p className="text-xs text-muted-foreground">Yesterday &amp; today, every story in one place</p>
+        </div>
+        <span className="text-sm font-semibold text-teal-700 whitespace-nowrap">Catch up →</span>
+      </Link>
+
       {/* Filter bar */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1.5">
