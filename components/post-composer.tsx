@@ -40,21 +40,38 @@ export function PostComposer({ onPost }: PostComposerProps) {
   const [content, setContent] = useState("")
   const [topic, setTopic] = useState<Topic>("Election")
   const [posting, setPosting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!user || !profile) return null
 
   async function handlePost() {
-    if (content.trim().length < 10 || posting) return
+    if (posting) return
+    if (content.trim().length < 10) {
+      setError("Please write at least 10 characters before posting.")
+      return
+    }
     setPosting(true)
+    setError(null)
     const supabase = createClient()
 
-    const { data, error } = await supabase
+    const { data, error: postErr } = await supabase
       .from("posts")
       .insert({ user_id: user!.id, content: content.trim(), topic })
       .select()
       .single()
 
-    if (!error && data) {
+    if (postErr) {
+      // Surface the failure instead of swallowing it silently.
+      setError(
+        /jwt|expired|auth|permission|row-level|policy/i.test(postErr.message)
+          ? "Your session may have expired. Please refresh the page or sign in again, then try posting."
+          : `Couldn't post — ${postErr.message}. Please try again.`
+      )
+      setPosting(false)
+      return
+    }
+
+    if (data) {
       onPost({
         ...data,
         profile: {
@@ -77,7 +94,7 @@ export function PostComposer({ onPost }: PostComposerProps) {
         <UserAvatar avatarUrl={profile.avatar_url} displayName={profile.display_name} size="md" />
         <textarea
           value={content}
-          onChange={(e) => setContent(e.target.value.slice(0, 500))}
+          onChange={(e) => { setContent(e.target.value.slice(0, 500)); if (error) setError(null) }}
           placeholder="Share a civic thought, ask a question, or start a discussion..."
           rows={3}
           style={{ flex: 1, resize: "none", fontSize: 13.5, color: C.ink900, background: "transparent", outline: "none", border: "none", lineHeight: 1.55, minHeight: 72, fontFamily: "inherit" }}
@@ -100,6 +117,13 @@ export function PostComposer({ onPost }: PostComposerProps) {
         })}
       </div>
 
+      {/* Error / feedback */}
+      {error && (
+        <div style={{ fontSize: 12.5, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", lineHeight: 1.45 }}>
+          {error}
+        </div>
+      )}
+
       {/* Footer row */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${C.rule}`, paddingTop: 10 }}>
         <span style={{ fontSize: 12, color: remaining < 50 ? "#D97706" : C.ink400, fontWeight: remaining < 50 ? 600 : 400 }}>
@@ -107,8 +131,9 @@ export function PostComposer({ onPost }: PostComposerProps) {
         </span>
         <button
           onClick={handlePost}
-          disabled={content.trim().length < 10 || posting}
-          style={{ height: 34, padding: "0 18px", borderRadius: 999, border: "none", background: content.trim().length < 10 || posting ? "#E4E0D3" : C.teal, color: content.trim().length < 10 || posting ? C.ink400 : "#fff", fontSize: 13.5, fontWeight: 700, cursor: content.trim().length < 10 || posting ? "default" : "pointer", transition: "background 0.15s", boxShadow: content.trim().length >= 10 && !posting ? "0 2px 8px rgba(61,128,115,0.28)" : "none" }}
+          disabled={posting}
+          aria-disabled={posting}
+          style={{ height: 34, padding: "0 18px", borderRadius: 999, border: "none", background: posting ? "#E4E0D3" : C.teal, color: posting ? C.ink400 : "#fff", fontSize: 13.5, fontWeight: 700, cursor: posting ? "default" : "pointer", transition: "background 0.15s", boxShadow: !posting ? "0 2px 8px rgba(61,128,115,0.28)" : "none" }}
         >
           {posting ? "Posting…" : "Post"}
         </button>
