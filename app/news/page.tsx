@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NewsNavigation } from "@/components/news-nav";
 import { AIFactualNews } from "@/components/ai-factual-news";
+import { DayInReviewBanner } from "@/components/day-in-review-banner";
 
 export const metadata: Metadata = {
   title: "National News · MyVote",
@@ -20,6 +21,7 @@ export default function NewsFeed() {
     <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
+        <DayInReviewBanner />
         <AIFactualNews />
       </div>
     </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MapPin, RefreshCw, ExternalLink, MessageCircle } from "lucide-react";
 import { NewsNavigation } from "@/components/news-nav";
+import { DayInReviewBanner } from "@/components/day-in-review-banner";
 import { CommentSystem } from "@/components/comment-system";
 import {
   Dialog,
@@ -311,6 +312,7 @@ export default function LocalNewsPage() {
     <div className="min-h-screen bg-paper-100">
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
+        <DayInReviewBanner />
 
         {/* Section label */}
         <div
