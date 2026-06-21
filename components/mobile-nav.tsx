@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Globe, Vote, Sparkles, ClipboardCheck } from "lucide-react"
+import { Home, Globe, Vote, Sparkles } from "lucide-react"
 
 /* ── Mobile bottom tab bar ──────────────────────────────────────────────
    Visible only on screens < 1024px (lg breakpoint).
@@ -18,7 +18,6 @@ const TABS = [
   { href: "/news",      icon: Globe,          label: "News"     },
   { href: "/elections", icon: Vote,           label: "Elections"},
   { href: "/quiz",      icon: Sparkles,       label: "Quiz"     },
-  { href: "/register",  icon: ClipboardCheck, label: "Voter Reg" },
 ] as const
 
 function isTabActive(tabHref: string, pathname: string): boolean {

@@ -44,7 +44,6 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
     { id: "local",    label: "Local",      icon: Icons.pin(),    href: "/news/local" },
     { id: "ballot",   label: "Elections",  icon: Icons.vote(),   href: "/elections" },
     { id: "quiz",     label: "Quiz",       icon: Icons.spark(),  href: "/quiz" },
-    { id: "register", label: "Register to Vote", icon: Icons.check(),  href: "/register" },
   ];
 
   return (
