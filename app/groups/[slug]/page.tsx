@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { JoinButton } from "@/components/groups/join-button";
 import { GroupDiscussion } from "@/components/groups/group-discussion";
+import { ShareGroup } from "@/components/share-group";
 import { ReportErrorLink } from "@/components/report-error-link";
 
 export const dynamic = "force-dynamic";
@@ -140,6 +141,9 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
       )}
+
+      {/* Shareability — the viral loop for local-issue organizing */}
+      <ShareGroup groupName={g.name} slug={g.slug} />
 
       {/* Discussion */}
       <GroupDiscussion groupId={g.id} />
