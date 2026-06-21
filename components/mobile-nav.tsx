@@ -18,7 +18,7 @@ const TABS = [
   { href: "/news",      icon: Globe,          label: "News"     },
   { href: "/elections", icon: Vote,           label: "Elections"},
   { href: "/quiz",      icon: Sparkles,       label: "Quiz"     },
-  { href: "/register",  icon: ClipboardCheck, label: "Register" },
+  { href: "/register",  icon: ClipboardCheck, label: "Voter Reg" },
 ] as const
 
 function isTabActive(tabHref: string, pathname: string): boolean {
