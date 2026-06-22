@@ -37,8 +37,9 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
     /* fall back to defaults */
   }
 
-  const kicker =
-    "LOCAL ISSUE" + (county ? ` · ${county.charAt(0).toUpperCase()}${county.slice(1)} County, GA` : " · Georgia");
+  const place = county
+    ? `${county.charAt(0).toUpperCase()}${county.slice(1)} County, GA`
+    : "Georgia";
 
   return new ImageResponse(
     (
@@ -62,8 +63,10 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 2, color: "#3D8073", marginBottom: 18 }}>
-            {kicker}
+          <div style={{ display: "flex", alignItems: "center", fontSize: 24, fontWeight: 700, letterSpacing: 2, color: "#3D8073", marginBottom: 18 }}>
+            LOCAL ISSUE
+            <span style={{ display: "flex", width: 7, height: 7, borderRadius: 7, background: "#3D8073", margin: "0 14px" }} />
+            {place}
           </div>
           <div style={{ fontSize: 60, fontWeight: 800, color: "#1A2138", lineHeight: 1.1, maxWidth: 1000 }}>
             {name}
@@ -71,8 +74,14 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ fontSize: 26, color: "#3D435A" }}>
-            {supporters > 0 ? `${supporters} resident${supporters === 1 ? "" : "s"} following · ` : ""}Add your voice
+          <div style={{ display: "flex", alignItems: "center", fontSize: 26, color: "#3D435A" }}>
+            {supporters > 0 ? (
+              <>
+                {supporters} resident{supporters === 1 ? "" : "s"} following
+                <span style={{ display: "flex", width: 6, height: 6, borderRadius: 6, background: "#8B8FA3", margin: "0 12px" }} />
+              </>
+            ) : null}
+            Add your voice
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#2F6358" }}>myvotega.com</div>
         </div>
