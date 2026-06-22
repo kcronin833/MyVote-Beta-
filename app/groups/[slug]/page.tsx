@@ -6,6 +6,8 @@ import { JoinButton } from "@/components/groups/join-button";
 import { GroupDiscussion } from "@/components/groups/group-discussion";
 import { ShareGroup } from "@/components/share-group";
 import { ReportErrorLink } from "@/components/report-error-link";
+import { GroupArticles, type GroupArticle } from "@/components/groups/group-articles";
+import { GroupPetitions, type Petition } from "@/components/groups/group-petitions";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +56,22 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
     .order("vote_position", { ascending: true });
   const officials = (officialRows as Official[]) ?? [];
 
+  const { data: articleRows } = await supabase
+    .from("group_articles")
+    .select("id, title, url, source, created_at")
+    .eq("group_id", g.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+  const articles = (articleRows as GroupArticle[]) ?? [];
+
+  const { data: petitionRows } = await supabase
+    .from("group_petitions")
+    .select("id, title, summary, target, goal, signature_count")
+    .eq("group_id", g.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+  const petitions = (petitionRows as Petition[]) ?? [];
+
   const { count: memberCount } = await supabase
     .from("group_members")
     .select("*", { count: "exact", head: true })
@@ -69,6 +87,16 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
       .eq("user_id", user.id)
       .maybeSingle();
     joined = !!mem;
+  }
+
+  let signedIds: string[] = [];
+  if (user && petitions.length) {
+    const { data: sigs } = await supabase
+      .from("petition_signatures")
+      .select("petition_id")
+      .eq("user_id", user.id)
+      .in("petition_id", petitions.map((p) => p.id));
+    signedIds = (sigs ?? []).map((s: { petition_id: string }) => s.petition_id);
   }
 
   return (
@@ -87,6 +115,9 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
         )}
         <JoinButton groupId={g.id} initialJoined={joined} initialCount={memberCount ?? 0} />
       </div>
+
+      {/* Petitions — turn the issue into a concrete, signable demand */}
+      <GroupPetitions groupId={g.id} initialPetitions={petitions} signedIds={signedIds} />
 
       {/* Who made this decision — factual, sourced accountability (not blame) */}
       {officials.length > 0 && (
@@ -141,6 +172,9 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
       )}
+
+      {/* Associated articles — coverage so neighbors can read the facts */}
+      <GroupArticles groupId={g.id} initialArticles={articles} />
 
       {/* Shareability — the viral loop for local-issue organizing */}
       <ShareGroup groupName={g.name} slug={g.slug} />
