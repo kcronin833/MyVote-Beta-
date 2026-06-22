@@ -54,7 +54,11 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
         }}
       >
         <div style={{ display: "flex", alignItems: "center", fontSize: 34, fontWeight: 800, color: "#1A2138" }}>
-          My<span style={{ color: "#B33A2C" }}>✓</span>ote
+          My
+          <svg width="30" height="30" viewBox="0 0 24 24" style={{ margin: "0 1px" }}>
+            <path d="M5 13l4 4L19 7" stroke="#B33A2C" strokeWidth={3.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          ote
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>

@@ -8,21 +8,20 @@ import { Icons } from "./icons";
 import { UserNav } from "@/components/user-nav";
 import { Logo } from "@/components/logo";
 
-type NavId = "home" | "national" | "local" | "ballot" | "quiz" | "register" | "";
+type NavId = "home" | "news" | "ballot" | "groups" | "quiz" | "";
 
 /** Auto-detect the active tab from pathname, unless an explicit override is passed. */
 function useActiveTab(override?: NavId): NavId {
   const pathname = usePathname();
   if (override !== undefined) return override;
   if (pathname === "/") return "home";
-  if (pathname.startsWith("/news/local")) return "local";
-  if (pathname.startsWith("/news")) return "national";
+  if (pathname.startsWith("/news")) return "news";
+  if (pathname.startsWith("/groups")) return "groups";
   if (
     pathname.startsWith("/elections") ||
     pathname.startsWith("/g")
   ) return "ballot";
   if (pathname.startsWith("/quiz") || pathname.startsWith("/profiles")) return "quiz";
-  if (pathname.startsWith("/register")) return "register";
   return "";
 }
 
@@ -39,11 +38,11 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
   }
 
   const items: { id: NavId; label: string; icon: React.ReactNode; href: string; badge?: string | number }[] = [
-    { id: "home",     label: "Home",       icon: Icons.home(),   href: "/" },
-    { id: "national", label: "National",   icon: Icons.earth(),  href: "/news" },
-    { id: "local",    label: "Local",      icon: Icons.pin(),    href: "/news/local" },
-    { id: "ballot",   label: "Elections",  icon: Icons.vote(),   href: "/elections" },
-    { id: "quiz",     label: "Quiz",       icon: Icons.spark(),  href: "/quiz" },
+    { id: "home",     label: "Home",       icon: Icons.home(),    href: "/" },
+    { id: "news",     label: "News",       icon: Icons.earth(),   href: "/news" },
+    { id: "ballot",   label: "Elections",  icon: Icons.vote(),    href: "/elections" },
+    { id: "groups",   label: "Groups",     icon: Icons.network(), href: "/groups" },
+    { id: "quiz",     label: "Quiz",       icon: Icons.spark(),   href: "/quiz" },
   ];
 
   return (
