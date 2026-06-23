@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { Logo } from "@/components/logo"
-import { Eye, EyeOff, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
+import { AuthShell } from "@/components/auth/auth-shell"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -34,32 +34,13 @@ export default function SignInPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 16, background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
+    <AuthShell>
+      <div style={{ width: "100%", maxWidth: 420, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
 
-      {/* Back link */}
-      <div style={{ width: "100%", maxWidth: 420, margin: "0 auto", paddingTop: 16, paddingBottom: 24 }}>
-        <Link
-          href="/"
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 500, color: "rgba(255,255,255,0.75)", textDecoration: "none" }}
-        >
-          <ArrowLeft size={15} />
-          Back to Home
-        </Link>
-      </div>
+        <h1 style={{ fontSize: 21, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Welcome back</h1>
+        <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 22 }}>Pick up where you left off — your ballot, groups, and reminders.</p>
 
-      {/* Centered card */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 420, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "32px 28px 28px" }}>
-
-          {/* Logo */}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <Logo size="lg" />
-          </div>
-
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Welcome Back</h1>
-          <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 22 }}>Sign in to your MyVote account</p>
-
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {error && (
               <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
                 {error}
@@ -91,14 +72,13 @@ export default function SignInPage() {
             </button>
           </form>
 
-          <p style={{ textAlign: "center", fontSize: 13, color: "#8B8FA3", marginTop: 16 }}>
-            Don&rsquo;t have an account?{" "}
-            <Link href="/auth/signup" style={{ color: "#3D8073", fontWeight: 600, textDecoration: "none" }}>
-              Sign Up
-            </Link>
-          </p>
-        </div>
+        <p style={{ textAlign: "center", fontSize: 13, color: "#8B8FA3", marginTop: 16 }}>
+          Don&rsquo;t have an account?{" "}
+          <Link href="/auth/signup" style={{ color: "#3D8073", fontWeight: 600, textDecoration: "none" }}>
+            Sign Up
+          </Link>
+        </p>
       </div>
-    </div>
+    </AuthShell>
   )
 }

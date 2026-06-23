@@ -4,9 +4,9 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { Logo } from "@/components/logo"
-import { Eye, EyeOff, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, CheckCircle2 } from "lucide-react"
 import { useAuth } from "@/components/auth-context"
+import { AuthShell } from "@/components/auth/auth-shell"
 
 const CITIES = [
   "Atlanta","Savannah","Augusta","Columbus","Macon","Athens",
@@ -20,7 +20,7 @@ const CITIES = [
 
 const VALUE_PROPS = [
   "See every race on your ballot — governor to school board",
-  "Email reminders before the June 16 runoff & November election",
+  "Organize and sign petitions on local issues year-round",
   "Read Georgia politics from left, right, and center in one place",
 ]
 
@@ -81,15 +81,8 @@ export default function SignUpPage() {
     }
   }
 
-  const bg = "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)"
-
   const card = (
-    <div style={{ width: "100%", maxWidth: 440, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "32px 28px 28px" }}>
-      {/* Logo */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-        <Logo size="lg" />
-      </div>
-
+    <div style={{ width: "100%", maxWidth: 440, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
       {success ? (
         /* ── Success state ── */
         <div style={{ textAlign: "center" }}>
@@ -112,11 +105,11 @@ export default function SignUpPage() {
       ) : (
         /* ── Form ── */
         <>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Create Your Free Account</h1>
-          <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 18 }}>Your complete 2026 Georgia ballot guide, saved and personalized</p>
+          <h1 style={{ fontSize: 21, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Create your free account</h1>
+          <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 18 }}>Free, nonpartisan, and built for Georgians.</p>
 
-          {/* Value props */}
-          <div style={{ background: "#E6F0ED", border: "1px solid #B2D8D0", borderRadius: 10, padding: "12px 14px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Value props — mobile only; desktop gets the full brand panel */}
+          <div className="lg:hidden" style={{ background: "#E6F0ED", border: "1px solid #B2D8D0", borderRadius: 10, padding: "12px 14px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 8 }}>
             {VALUE_PROPS.map((item) => (
               <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#2F6358", lineHeight: 1.45 }}>
                 <span style={{ color: "#3D8073", fontWeight: 700, marginTop: 1, flexShrink: 0 }}>✓</span>
@@ -200,23 +193,5 @@ export default function SignUpPage() {
     </div>
   )
 
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", padding: 16, background: bg }}>
-      {/* Back link */}
-      <div style={{ width: "100%", maxWidth: 440, margin: "0 auto", paddingTop: 16, paddingBottom: 24 }}>
-        <Link
-          href="/"
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 500, color: "rgba(255,255,255,0.75)", textDecoration: "none" }}
-        >
-          <ArrowLeft size={15} />
-          Back to Home
-        </Link>
-      </div>
-
-      {/* Centered card */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {card}
-      </div>
-    </div>
-  )
+  return <AuthShell>{card}</AuthShell>
 }
