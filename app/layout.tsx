@@ -32,26 +32,26 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "MyVote — Georgia's 2026 Ballot Guide",
+    default: "MyVote — Georgia's Nonpartisan Civic Platform",
     template: "%s · MyVote",
   },
   description:
-    "Georgia's free, non-partisan 2026 voter guide. Enter your ZIP to see your complete ballot — governor, U.S. Senate, and local races — with candidates from left, right, and center.",
-  keywords: ["Georgia election 2026", "Georgia ballot", "Georgia voter guide", "Georgia governor 2026", "Jon Ossoff", "non-partisan news"],
+    "MyVote is Georgia's nonpartisan civic platform — balanced news from left, right, and center, the local issues your neighbors are organizing around, and your personalized 2026 ballot. Free, independent, Georgia-focused.",
+  keywords: ["Georgia politics", "Georgia election 2026", "Georgia ballot", "Georgia voter guide", "Georgia local news", "Georgia governor 2026", "non-partisan news"],
   openGraph: {
     type: "website",
     siteName: "MyVote",
-    title: "MyVote — Georgia's 2026 Ballot Guide",
+    title: "MyVote — Georgia's Nonpartisan Civic Platform",
     description:
-      "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
+      "Georgia politics from every angle — balanced news, local issues, and your personalized 2026 ballot, all in one place. Free and independent.",
     locale: "en_US",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MyVote — Georgia's Free 2026 Ballot Guide" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MyVote — Georgia's Nonpartisan Civic Platform" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "MyVote — Georgia's 2026 Ballot Guide",
+    title: "MyVote — Georgia's Nonpartisan Civic Platform",
     description:
-      "Free, non-partisan voter guide for Georgia. See your complete 2026 ballot and read political news from every perspective.",
+      "Georgia politics from every angle — balanced news, local issues, and your personalized 2026 ballot, all in one place. Free and independent.",
     images: ["/og-image.png"],
   },
   robots: {

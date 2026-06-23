@@ -11,6 +11,8 @@ import {
   Scale,
   CheckCircle2,
   ArrowRight,
+  Users,
+  Compass,
 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useAuth } from "@/components/auth-context"
@@ -32,11 +34,6 @@ const OnboardingQuiz = dynamic(
 const GEORGIA_PRIMARY = new Date("2026-05-19T07:00:00-04:00")
 const GEORGIA_RUNOFF  = new Date("2026-06-16T07:00:00-04:00")
 const GEORGIA_GENERAL = new Date("2026-11-03T07:00:00-05:00")
-
-/* Hero switches to runoff urgency during runoff week; evaluated at build/
-   render time, so the day after the runoff a redeploy reverts it. The date
-   guard also self-heals on the client since the page is a client component. */
-const RUNOFF_MODE = Date.now() < new Date("2026-06-17T00:00:00-04:00").getTime()
 
 function useElectionCountdown() {
   const [info, setInfo] = useState<{ label: string; days: number } | null>(null)
@@ -185,35 +182,60 @@ function HeroZipForm() {
   )
 }
 
+/* ── Year-round entry points (hero) ──────────────────────────────────────
+   The three things that bring Georgians back between elections: balanced
+   news, the local issues their neighbors are organizing around, and the
+   quiz. The ballot lookup is the seasonal hook, surfaced in its own module
+   below — not the page's whole identity. */
+const PILLARS = [
+  { href: "/news",   Icon: Newspaper, title: "Today's News",   sub: "Every angle, one page" },
+  { href: "/groups", Icon: Users,     title: "Your Community",  sub: "Join the local issues" },
+  { href: "/quiz",   Icon: Compass,   title: "Take the Quiz",   sub: "Find where you land" },
+]
+
 /* ── Feature cards ───────────────────────────────────────────────────── */
 const FEATURES = [
   {
     Icon: Scale,
     iconColor: "#B33A2C",
     iconBg: "#FEF0EE",
-    title: "See Every Side",
-    desc: "Left, center, and right perspectives on every story — decide for yourself.",
+    title: "Every Angle, Every Story",
+    desc: "Read the same Georgia story from left, right, and center — side by side. No bubble, no algorithm pushing one view.",
   },
   {
     Icon: Newspaper,
     iconColor: "#3D8073",
     iconBg: "#E6F0ED",
-    title: "Georgia & National News",
-    desc: "Curated national and local Georgia news, updated daily across the spectrum.",
+    title: "Georgia First, Always",
+    desc: "Daily Georgia political news — local races, state government, and the national stories that actually affect you here.",
+  },
+  {
+    Icon: Users,
+    iconColor: "#2F6358",
+    iconBg: "#E6F0ED",
+    title: "Organize With Your Neighbors",
+    desc: "Join or start groups on the local issues that matter — school boards, zoning, closures — and see how your officials voted.",
   },
   {
     Icon: MapPin,
     iconColor: "#B8862F",
     iconBg: "#F4ECD8",
-    title: "Know Your Ballot",
-    desc: "Every race — governor to local school board — with real candidates and key dates.",
+    title: "Your Exact Ballot",
+    desc: "Enter your ZIP once. See every race from governor to school board, with real candidates and key dates.",
   },
   {
     Icon: ShieldCheck,
     iconColor: "#6B3A6B",
     iconBg: "#F5EAF5",
-    title: "Facts First",
-    desc: "Start with verified facts and candidate positions, then explore opinions.",
+    title: "Facts Before Opinions",
+    desc: "Start with verified facts and candidate positions, then read the takes. Your conclusion, not ours.",
+  },
+  {
+    Icon: Compass,
+    iconColor: "#2C5A8C",
+    iconBg: "#E7EFF7",
+    title: "Find Your Political Spectrum",
+    desc: "Answer a few questions and see where your views actually land — no labels, no judgment, just clarity.",
   },
 ]
 
@@ -304,6 +326,22 @@ export default function HomePage() {
       >
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <Logo size="sm" />
+          <nav className="hidden md:flex" style={{ alignItems: "center", gap: 4, marginLeft: 8 }} aria-label="Primary">
+            {[
+              { href: "/news",      label: "News" },
+              { href: "/groups",    label: "Community" },
+              { href: "/quiz",      label: "Quiz" },
+              { href: "/elections", label: "Elections" },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                style={{ padding: "7px 12px", borderRadius: 999, color: "#3D435A", fontWeight: 600, fontSize: 13.5, textDecoration: "none" }}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Link
               href="/auth/signin"
@@ -339,58 +377,44 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Hero — dark gradient ── */}
+      {/* ── Hero — platform identity ── */}
       <section
         style={{
           background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1,
-          padding: "72px 16px 80px",
+          padding: "72px 16px 64px",
         }}
       >
         <div
           style={{
-            maxWidth: 720,
+            maxWidth: 880,
             width: "100%",
+            margin: "0 auto",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
           }}
         >
-          {/* Countdown pill */}
-          {countdown && (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                background: "rgba(255,255,255,0.09)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                borderRadius: 999,
-                padding: "5px 16px 5px 10px",
-                marginBottom: 28,
-              }}
-            >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "#FF7B6B",
-                  flexShrink: 0,
-                  animation: "mv-pulse 2s ease-in-out infinite",
-                  display: "inline-block",
-                }}
-              />
-              <span style={{ fontSize: 13.5, fontWeight: 500, color: "rgba(255,255,255,0.82)" }}>
-                <strong style={{ color: "#FF9B8E" }}>{countdown.days} days</strong>
-                {" "}until the {countdown.label}
-              </span>
-            </div>
-          )}
+          {/* Eyebrow */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(255,255,255,0.09)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderRadius: 999,
+              padding: "5px 16px",
+              marginBottom: 26,
+              fontSize: 12.5,
+              fontWeight: 600,
+              letterSpacing: 0.3,
+              color: "rgba(255,255,255,0.82)",
+            }}
+          >
+            <Scale size={14} style={{ color: "#6FBFB0", flexShrink: 0 }} />
+            Georgia&rsquo;s nonpartisan civic platform
+          </div>
 
           {/* Headline */}
           <h1
@@ -404,53 +428,100 @@ export default function HomePage() {
               marginBottom: 18,
             }}
           >
-            {RUNOFF_MODE ? (
-              <>
-                Ready for the{" "}
-                <span style={{ color: "#6FBFB0" }}>June 16 Runoff?</span>
-              </>
-            ) : (
-              <>
-                What&rsquo;s on your{" "}
-                <span style={{ color: "#6FBFB0" }}>2026 Georgia ballot?</span>
-              </>
-            )}
+            The antidote to{" "}
+            <span style={{ color: "#6FBFB0" }}>political noise.</span>
           </h1>
 
           {/* Subhead */}
           <p
             style={{
-              fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-              color: "rgba(255,255,255,0.75)",
-              maxWidth: 480,
-              lineHeight: 1.65,
-              marginBottom: 36,
+              fontSize: "clamp(1rem, 2.5vw, 1.18rem)",
+              color: "rgba(255,255,255,0.78)",
+              maxWidth: 560,
+              lineHeight: 1.6,
+              marginBottom: 38,
             }}
           >
-            {RUNOFF_MODE
-              ? "Election day is Tuesday, June 16 — polls open 7am to 7pm. Enter your ZIP for key dates, then confirm your exact runoff ballot at the GA Secretary of State's My Voter Page."
-              : "Enter your ZIP and see every race — governor, U.S. Senate, your district, and local offices — with real candidates and key dates."}
+            Balanced news, the local issues your neighbors are organizing
+            around, and your personalized 2026 ballot — every angle, one place.
           </p>
 
-          {/* Early voting urgency strip */}
-          <div style={{ width: "100%", maxWidth: 480, marginBottom: 12 }}>
-            <EarlyVotingBanner compact />
+          {/* Three year-round entry points */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 14,
+              width: "100%",
+              maxWidth: 760,
+            }}
+          >
+            {PILLARS.map(({ href, Icon, title, sub }) => (
+              <Link
+                key={href}
+                href={href}
+                className="mv-lift"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  textAlign: "left",
+                  padding: "18px 20px",
+                  borderRadius: 16,
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.16)",
+                  textDecoration: "none",
+                  backdropFilter: "blur(4px)",
+                }}
+              >
+                <span
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 12,
+                    background: "rgba(61,128,115,0.28)",
+                    border: "1px solid rgba(122,196,180,0.32)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={20} style={{ color: "#7DCFC5" }} />
+                </span>
+                <span style={{ minWidth: 0, flex: 1 }}>
+                  <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: "#fff" }}>{title}</span>
+                  <span style={{ display: "block", fontSize: 12.5, color: "rgba(255,255,255,0.6)", marginTop: 1 }}>{sub}</span>
+                </span>
+                <ArrowRight size={16} style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0 }} />
+              </Link>
+            ))}
           </div>
 
-          {/* Zip form */}
-          <HeroZipForm />
+          {/* Mission line */}
+          <p
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontSize: 16,
+              color: "rgba(255,255,255,0.7)",
+              marginTop: 30,
+              marginBottom: 18,
+            }}
+          >
+            &ldquo;An informed voter is a better voter.&rdquo;
+          </p>
 
           {/* Trust row */}
           <div
             style={{
               display: "flex",
-              gap: "clamp(16px, 4vw, 32px)",
-              marginTop: 20,
+              gap: "clamp(14px, 4vw, 28px)",
               flexWrap: "wrap",
               justifyContent: "center",
             }}
           >
-            {["Free to use", "Non-partisan", "Georgia focused"].map((t) => (
+            {["No political money", "Left + Right + Center", "Your ZIP, your ballot"].map((t) => (
               <span
                 key={t}
                 style={{
@@ -467,60 +538,93 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Explore destinations — quiz, candidates, news */}
-          <p
-            style={{
-              marginTop: 30,
-              marginBottom: 10,
-              fontSize: 12,
-              fontWeight: 600,
-              letterSpacing: 0.6,
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.66)",
-            }}
-          >
-            Or explore first
-          </p>
+      {/* ── Election Season module (seasonal) ── */}
+      <section
+        style={{
+          background: "#102320",
+          borderTop: "1px solid rgba(122,196,180,0.18)",
+          padding: "44px 16px 48px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 540,
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
+          {/* Seasonal badge + live countdown */}
           <div
             style={{
-              display: "flex",
-              gap: 10,
-              flexWrap: "wrap",
-              justifyContent: "center",
-              maxWidth: 560,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(179,58,44,0.16)",
+              border: "1px solid rgba(255,123,107,0.3)",
+              borderRadius: 999,
+              padding: "5px 14px",
+              marginBottom: 16,
             }}
           >
-            {[
-              { href: "/quiz",       icon: Scale,     label: "Take the quiz" },
-              { href: "/elections",  icon: Vote,      label: "Browse candidates" },
-              { href: "/news/local", icon: MapPin,    label: "Local news" },
-              { href: "/news",       icon: Newspaper, label: "National news" },
-            ].map(({ href, icon: Icon, label }) => (
-              <Link
-                key={href}
-                href={href}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 7,
-                  padding: "10px 18px",
-                  borderRadius: 999,
-                  background: "rgba(255,255,255,0.08)",
-                  border: "1px solid rgba(255,255,255,0.22)",
-                  color: "#fff",
-                  fontSize: 13.5,
-                  fontWeight: 600,
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                  backdropFilter: "blur(4px)",
-                }}
-              >
-                <Icon size={15} style={{ color: "#6FBFB0", flexShrink: 0 }} />
-                {label}
-              </Link>
-            ))}
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#FF7B6B",
+                flexShrink: 0,
+                animation: "mv-pulse 2s ease-in-out infinite",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "#FF9B8E" }}>
+              Election Season
+            </span>
+            {countdown && (
+              <span style={{ fontSize: 12.5, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+                · {countdown.days} days to the {countdown.label}
+              </span>
+            )}
           </div>
+
+          <h2
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(1.5rem, 4vw, 2rem)",
+              fontWeight: 700,
+              color: "#ffffff",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
+              marginBottom: 10,
+            }}
+          >
+            What&rsquo;s on your 2026 Georgia ballot?
+          </h2>
+          <p style={{ fontSize: 14.5, color: "rgba(255,255,255,0.7)", maxWidth: 440, lineHeight: 1.6, marginBottom: 22 }}>
+            Enter your ZIP for every race — governor, U.S. Senate, your district,
+            and local offices — with real candidates and key dates.
+          </p>
+
+          {/* Early voting urgency strip */}
+          <div style={{ width: "100%", maxWidth: 480, marginBottom: 12 }}>
+            <EarlyVotingBanner compact />
+          </div>
+
+          {/* Zip form */}
+          <HeroZipForm />
+
+          <Link
+            href="/elections"
+            style={{ marginTop: 18, fontSize: 13.5, fontWeight: 600, color: "#7DCFC5", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            See all 2026 races &amp; key dates <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 
@@ -545,6 +649,7 @@ export default function HomePage() {
           {[
             { num: "159", label: "Georgia Counties" },
             { num: "14",  label: "U.S. House Districts" },
+            { num: "3",   label: "Perspectives / Story" },
             { num: "100%", label: "Free to Use" },
           ].map(({ num, label }) => (
             <div key={label} style={{ textAlign: "center" }}>
@@ -569,7 +674,7 @@ export default function HomePage() {
               marginBottom: 10,
             }}
           >
-            More than a ballot guide
+            One place. Every side. Your call.
           </h2>
           <p
             style={{
@@ -577,12 +682,12 @@ export default function HomePage() {
               color: "#6B7088",
               fontSize: 16,
               lineHeight: 1.65,
-              maxWidth: 480,
+              maxWidth: 520,
               margin: "0 auto 48px",
             }}
           >
-            Create a free account to save your picks, follow balanced news, and
-            stay informed through Election Day.
+            Balanced news, local organizing, and your personalized ballot — with
+            the tools to decide for yourself. Free, independent, Georgia-focused.
           </p>
 
           <div
@@ -718,7 +823,9 @@ export default function HomePage() {
             }}
           >
             The U.S. Senate seat, all 14 House districts, the governorship, and dozens
-            of local offices are on the 2026 Georgia ballot. Know your races now.
+            of local offices are on the 2026 Georgia ballot. But knowing who&rsquo;s
+            running is only half of it — understanding what they stand for, and what
+            each side is saying, is the other half. MyVote has both.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
@@ -743,7 +850,7 @@ export default function HomePage() {
                   2026 Races &amp; Key Dates
                 </button>
               </Link>
-              <Link href="/auth/signup" style={{ textDecoration: "none" }}>
+              <Link href="/news" style={{ textDecoration: "none" }}>
                 <button
                   style={{
                     background: "transparent",
@@ -754,9 +861,13 @@ export default function HomePage() {
                     fontWeight: 600,
                     border: "1.5px solid rgba(255,255,255,0.3)",
                     cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                   }}
                 >
-                  Create Free Account
+                  <Newspaper size={16} />
+                  Read Today&rsquo;s Georgia News
                 </button>
               </Link>
             </div>
@@ -776,6 +887,8 @@ export default function HomePage() {
           <div style={{ display: "flex", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
             {[
               { href: "/about",     label: "About" },
+              { href: "/news",      label: "News" },
+              { href: "/groups",    label: "Community" },
               { href: "/elections", label: "Elections 2026" },
               { href: "/privacy",   label: "Privacy Policy" },
               { href: "/terms",     label: "Terms of Service" },
@@ -790,7 +903,11 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-          <p style={{ marginTop: 24, fontSize: 11.5, color: "#B0B4C4", lineHeight: 1.65, maxWidth: 480, margin: "24px auto 0" }}>
+          <p style={{ marginTop: 22, fontSize: 12.5, color: "#6B7088", lineHeight: 1.6, maxWidth: 500, margin: "22px auto 0", fontWeight: 500 }}>
+            MyVote is independently funded — no PAC money, no political advertisers,
+            no agenda. Just Georgia voters.
+          </p>
+          <p style={{ marginTop: 14, fontSize: 11.5, color: "#B0B4C4", lineHeight: 1.65, maxWidth: 480, margin: "14px auto 0" }}>
             MyVote is not affiliated with any political party, campaign, or government entity.
             Always verify voting information at{" "}
             <a
