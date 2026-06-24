@@ -542,10 +542,10 @@ function ComposerAndFeed() {
           </p>
           <p style={{ fontSize: 12.5, color: C.ink500, lineHeight: 1.55, margin: "0 0 10px" }}>
             Answer today&rsquo;s question, or share what&rsquo;s on your mind
-            about the June 16 runoff — your neighbors will see it here.
+            about the November election — your neighbors will see it here.
           </p>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {["What I'm watching this runoff", "A local issue that needs attention", "Question about my ballot"].map((t) => (
+            {["What I'm watching this November", "A local issue that needs attention", "Question about my ballot"].map((t) => (
               <span
                 key={t}
                 style={{

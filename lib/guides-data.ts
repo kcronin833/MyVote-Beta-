@@ -21,15 +21,15 @@ export interface Guide {
 export const GUIDES: Guide[] = [
   {
     slug: "what-is-a-runoff",
-    title: "What Is a Runoff Election? Georgia's June 16 Runoff, Explained",
+    title: "What Is a Runoff Election? Georgia's 2026 Runoffs, Explained",
     metaTitle: "What Is a Runoff Election? · MyVote Georgia",
     description:
       "Georgia requires candidates to win a majority — not just the most votes. When nobody clears 50%, the top two finishers meet again in a runoff. Here's how it works.",
-    updated: "June 11, 2026",
+    updated: "June 23, 2026",
     sections: [
       {
         heading: "The short version",
-        body: "In Georgia, a candidate must win more than 50% of the vote to win an election. If nobody clears that bar — common when three or more candidates split the vote — the top two finishers face each other in a second election called a runoff. The June 16, 2026 runoff settles races from the May 19 primary where no candidate won a majority.",
+        body: "In Georgia, a candidate must win more than 50% of the vote to win an election. If nobody clears that bar — common when three or more candidates split the vote — the top two finishers face each other in a second election called a runoff. The June 16, 2026 runoff settled the Republican nominations from the May 19 primary: Rick Jackson won the GOP nomination for governor and Mike Collins won the GOP nomination for U.S. Senate.",
       },
       {
         heading: "Why does Georgia do this?",
@@ -44,12 +44,12 @@ export const GUIDES: Guide[] = [
         body: "Runoff turnout in Georgia routinely drops 30–60% from the first round. That means each vote cast in a runoff carries dramatically more weight. Close races are regularly decided by a few thousand votes statewide — and by a few dozen in local contests.",
       },
       {
-        heading: "Key dates for the June 16, 2026 runoff",
-        body: "Early voting for the runoff began June 6–8 depending on the county (Fulton, Cobb, DeKalb and others opened Saturday, June 6; most counties opened Monday, June 8) and ends statewide on Friday, June 12. Hours vary by county. Election day is Tuesday, June 16, with polls open 7am–7pm. You'll need photo ID. Confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov) — runoff polling places occasionally differ from the first round.",
+        heading: "The June 16, 2026 runoff — completed",
+        body: "The runoff is over. Early voting ran June 6–12 (counties opened between Saturday, June 6 and Monday, June 8) and election day was Tuesday, June 16. Rick Jackson (governor) and Mike Collins (U.S. Senate) won the Republican nominations and now advance to the November 3, 2026 general election against Democrats Keisha Lance Bottoms and Sen. Jon Ossoff. For November, the registration deadline is October 5 and early voting runs October 12–30 — confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov).",
       },
     ],
     related: [
-      { href: "/elections", label: "See what's on the June 16 runoff ballot" },
+      { href: "/elections", label: "See the November 3 general election ballot" },
       { href: "/guides/georgia-voter-id", label: "Georgia voter ID rules" },
       { href: "/g", label: "Find your county ballot" },
     ],

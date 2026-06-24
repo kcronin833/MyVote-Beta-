@@ -106,8 +106,8 @@ const FAQ = [
     a: "For the November 3, 2026 General Election, absentee ballot requests must be received by October 23, 2026 (11 days before Election Day).",
   },
   {
-    q: "Is the June 16 runoff still open for registration?",
-    a: "No — the registration deadline for the June 16 Primary Runoff was May 19, 2026. You can still vote in the June 16 runoff if you were registered by that date.",
+    q: "When is the registration deadline for the November election?",
+    a: "The registration deadline for the November 3, 2026 General Election is October 5, 2026. (The June 16 primary runoff is already complete.) Register or update your information by October 5 to vote in November.",
   },
 ]
 

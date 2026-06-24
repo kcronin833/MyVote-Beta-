@@ -89,7 +89,7 @@ export const INTENTS: Intent[] = [
     id: "dates",
     keywords: ["when do i vote", "when is the election", "election day", "runoff", "when can i vote", "dates", "deadline", "june 16", "voting day", "when's the"],
     answer:
-      "Georgia's next election is the June 16, 2026 primary runoff, followed by the general election on November 3, 2026. Runoff and early-voting dates can vary by county, so check the elections page for the current details and confirm your specific dates and polling place on the GA Secretary of State's My Voter Page.",
+      "Georgia's next statewide election is the general election on November 3, 2026 (polls 7am–7pm). The June 16, 2026 primary runoff is complete — Rick Jackson won the Republican nomination for governor and Mike Collins won the Republican U.S. Senate nomination. For the November election, the registration deadline is October 5 and early voting runs October 12–30. Confirm your specific dates and polling place on the GA Secretary of State's My Voter Page.",
     actions: [
       { label: "Election dates & races", href: "/elections" },
       { label: "What is a runoff?", href: "/guides/what-is-a-runoff" },
