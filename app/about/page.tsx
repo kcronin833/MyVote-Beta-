@@ -3,9 +3,9 @@ import Link from "next/link"
 import { Globe, ShieldCheck, MapPin, BarChart3, Users, Newspaper, Bot, Filter, CheckCircle, AlertTriangle } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "About MyVote",
+  title: "About MyVote — Georgia's Independent Nonpartisan Civic Platform",
   description:
-    "Learn how MyVote helps Georgia citizens stay informed with balanced political news, non-partisan voter guides, and civic engagement tools for the 2026 election cycle.",
+    "MyVote is independently built for Georgia voters who want facts without the spin — balanced political news from every perspective, a personalized 2026 ballot guide, and civic tools. Learn how and why we built it.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About MyVote — Georgia's Non-Partisan Voter Guide",

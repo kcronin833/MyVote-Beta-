@@ -73,6 +73,37 @@ export default function RootLayout({
       <body className="font-sans flex flex-col min-h-screen bg-page text-ink-900">
         {/* Skip-nav — visible only on keyboard focus */}
         <a href="#main-content" className="skip-nav">Skip to main content</a>
+
+        {/* Organization schema — sitewide. areaServed=Georgia is the local-SEO
+            signal; we deliberately omit a physical PostalAddress because the
+            org has no verified Georgia street address and fabricating one
+            invites Google distrust. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "MyVote",
+              url: "https://www.myvotega.com",
+              logo: "https://www.myvotega.com/redesign/myvote-logo-nav.png",
+              description:
+                "Georgia's free nonpartisan civic platform — personalized 2026 ballot guide, political news from every perspective, and voter tools. Built for Georgia voters.",
+              areaServed: {
+                "@type": "State",
+                name: "Georgia",
+                containedInPlace: { "@type": "Country", name: "United States" },
+              },
+              founder: { "@type": "Person", name: "Kevin Cronin" },
+              knowsAbout: [
+                "Georgia elections",
+                "Georgia voter guide",
+                "Nonpartisan political news",
+                "Georgia ballot 2026",
+              ],
+            }),
+          }}
+        />
         <PostHogProvider>
           <AuthProvider>
             {/* Persistent top nav — hidden on landing, auth, quiz (see GlobalNav) */}

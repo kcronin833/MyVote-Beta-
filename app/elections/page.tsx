@@ -12,9 +12,9 @@ import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
 
 export const metadata: Metadata = {
-  title: "Georgia 2026 Elections — Find Your Ballot",
+  title: "Georgia 2026 Ballot Guide — Every Race, Every Candidate · MyVote",
   description:
-    "Enter your ZIP to see your complete 2026 Georgia ballot — governor, U.S. Senate, U.S. House, and local races with candidates, key issues, and voting deadlines.",
+    "Find every race on your 2026 Georgia ballot — governor, U.S. Senate, all 14 U.S. House districts, and local offices. Real candidates, key dates, and nonpartisan coverage. Enter your ZIP to start.",
   alternates: { canonical: "/elections" },
 };
 
