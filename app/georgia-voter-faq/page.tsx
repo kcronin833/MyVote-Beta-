@@ -32,6 +32,17 @@ export default function GeorgiaVoterFaqPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(GA_VOTER_FAQ)) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://www.myvotega.com" },
+            { "@type": "ListItem", position: 2, name: "Georgia Voter FAQ", item: "https://www.myvotega.com/georgia-voter-faq" },
+          ],
+        }) }}
+      />
 
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 16px 64px" }}>
         <nav aria-label="Breadcrumb" style={{ fontSize: 12.5, color: C.ink400, marginBottom: 14 }}>

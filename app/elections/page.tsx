@@ -150,6 +150,17 @@ export default function ElectionsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(electionEventsSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://www.myvotega.com" },
+            { "@type": "ListItem", position: 2, name: "2026 Georgia Elections", item: "https://www.myvotega.com/elections" },
+          ],
+        }) }}
+      />
 
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         {/* MAIN COLUMN */}

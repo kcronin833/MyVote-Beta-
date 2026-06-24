@@ -159,55 +159,12 @@ function tbdCandidate(party: "Republican" | "Democrat"): BallotCandidate {
 // ─── Statewide Races (every Georgia voter) ───────────────────────────────────
 
 export const STATEWIDE_RACES: BallotRace[] = [
-  {
-    office: "Georgia Governor – Republican Primary Runoff",
-    date: "June 16, 2026",
-    type: "Runoff Election",
-    level: "State",
-    description:
-      "Open seat — Gov. Brian Kemp is term-limited. No candidate cleared 50% in the May 19 primary, so the top two Republicans advance to a June 16 runoff for the GOP nomination.",
-    registrationDeadline: "May 19, 2026",
-    earlyVotingStart: "June 6–8 (varies by county)",
-    earlyVotingEnd: "June 12, 2026",
-    candidates: [
-      rCandidate("Burt Jones", false,
-        "Georgia's current Lt. Governor and a Trump-endorsed businessman from Commerce, GA. Led the May 19 primary field and advances to the June 16 runoff for the GOP gubernatorial nomination. A former state senator and small business owner, Jones built his political brand on fiscal conservatism, election integrity, and an America First agenda. He was formally endorsed by President Trump, making him the MAGA-aligned frontrunner in the race.",
-        ["Tax Cuts", "Public Safety", "Election Integrity", "America First"],
-        ["Lt. Governor of Georgia (2023–present)", "Georgia State Senator (2017–2022)", "Small business owner, Commerce GA"],
-        82, "https://burtjones.com", "https://twitter.com/LtGovBurtJones",
-        {
-          age: 42, hometown: "Commerce, GA",
-          education: ["University of Georgia, B.B.A."],
-          wikipediaTitle: "Burt_Jones_(politician)",
-          facebook: "https://www.facebook.com/LtGovBurtJones",
-          campaignSlogan: "Georgia First",
-          endorsements: ["President Donald Trump", "Georgia Right to Life", "National Rifle Association"],
-          positions: [
-            { issue: "Taxes", stance: "Cut taxes", description: "Supports eliminating the state income tax and reducing the overall tax burden on Georgia families and businesses." },
-            { issue: "Election Integrity", stance: "Strict ID requirements", description: "Advocates for photo ID requirements for all elections and opposes changes to Georgia's election laws." },
-            { issue: "Immigration", stance: "Border security", description: "Supports enhanced cooperation with federal immigration enforcement and opposes sanctuary policies." },
-            { issue: "Education", stance: "School choice", description: "Backs expanding Georgia's education savings account program to give parents more options." },
-          ],
-        }),
-      rCandidate("Rick Jackson", false,
-        "Atlanta-area businessman and self-funding political outsider who placed second in the May 19 primary, advancing to the June 16 runoff. Jackson is the founder and CEO of a regional staffing company and is running as a reform candidate focused on cutting government waste and making Georgia more affordable. He has no prior elected office experience.",
-        ["Economic Growth", "Government Reform", "Healthcare Costs", "Education"],
-        ["Founder & CEO, staffing company (Atlanta area)", "Business leader and entrepreneur", "First-time candidate for public office"],
-        68, "https://rickjacksonforgovernor.com", undefined,
-        {
-          hometown: "Atlanta, GA",
-          campaignSlogan: "Real Change for Georgia",
-          positions: [
-            { issue: "Economy", stance: "Pro-business reform", description: "Proposes streamlining state permitting, cutting business regulations, and attracting new investment to rural Georgia." },
-            { issue: "Healthcare", stance: "Lower costs", description: "Supports expanding healthcare access in rural areas and increasing price transparency for medical services." },
-            { issue: "Government", stance: "Reduce waste", description: "Pledges a comprehensive audit of state agencies and elimination of redundant programs." },
-          ],
-        }),
-    ],
-  },
+  // June 16, 2026 GOP runoffs are COMPLETE (verified 2026-06-23 vs AP/NPR/WaPo
+  // + GA SoS): Rick Jackson won Governor; Mike Collins won U.S. Senate. These
+  // are the final November head-to-head matchups — re-verify before editing.
   generalRace(
-    "Georgia Governor – Democratic Nominee", "State",
-    "Former Atlanta Mayor Keisha Lance Bottoms won the Democratic nomination outright in the May 19 primary and advances to the November general election.",
+    "Georgia Governor", "State",
+    "Open seat — Gov. Brian Kemp is term-limited. Democrat Keisha Lance Bottoms faces Republican Rick Jackson, who won the June 16, 2026 GOP primary runoff, on November 3.",
     [
       dCandidate("Keisha Lance Bottoms", false,
         "Former Mayor of Atlanta (2018–2022) and senior adviser to President Biden, Keisha Lance Bottoms is the 2026 Democratic nominee for Georgia Governor. Born and raised in Atlanta, she is the daughter of R&B singer Major Lance. As mayor she navigated Atlanta through the COVID-19 pandemic and the civil unrest following the murder of George Floyd, earning national recognition. She is running to expand Medicaid, fund public education, and grow Georgia's economy across all 159 counties.",
@@ -229,11 +186,25 @@ export const STATEWIDE_RACES: BallotRace[] = [
             { issue: "Criminal Justice", stance: "Reform-oriented", description: "Supports policing reforms, community investment, and reducing incarceration for non-violent offenses." },
           ],
         }),
+      rCandidate("Rick Jackson", false,
+        "Atlanta-area businessman and self-funding political outsider who won the June 16, 2026 Republican primary runoff — defeating Lt. Gov. Burt Jones — to become the GOP nominee for governor. Jackson is the founder and CEO of a regional staffing company and is running as a reform candidate focused on cutting government waste and making Georgia more affordable. He has no prior elected office experience and faces Democrat Keisha Lance Bottoms on November 3.",
+        ["Economic Growth", "Government Reform", "Healthcare Costs", "Education"],
+        ["Republican Nominee for Governor (2026)", "Founder & CEO, staffing company (Atlanta area)", "Business leader and entrepreneur", "First-time candidate for public office"],
+        68, "https://rickjacksonforgovernor.com", undefined,
+        {
+          hometown: "Atlanta, GA",
+          campaignSlogan: "Real Change for Georgia",
+          positions: [
+            { issue: "Economy", stance: "Pro-business reform", description: "Proposes streamlining state permitting, cutting business regulations, and attracting new investment to rural Georgia." },
+            { issue: "Healthcare", stance: "Lower costs", description: "Supports expanding healthcare access in rural areas and increasing price transparency for medical services." },
+            { issue: "Government", stance: "Reduce waste", description: "Pledges a comprehensive audit of state agencies and elimination of redundant programs." },
+          ],
+        }),
     ]
   ),
   generalRace(
     "U.S. Senate – Georgia", "Federal",
-    "Sen. Jon Ossoff (D) is seeking re-election to Georgia's Class III Senate seat — one of the most competitive Senate races in the country. The Republican challenger will be decided in a June 16 runoff between Mike Collins and Derek Dooley.",
+    "Sen. Jon Ossoff (D) is seeking re-election to Georgia's Class III Senate seat — one of the most competitive Senate races in the country. He faces Republican Mike Collins, who won the June 16, 2026 GOP primary runoff against Derek Dooley.",
     [
       dCandidate("Jon Ossoff", true,
         "Jon Ossoff is Georgia's junior U.S. Senator, elected in January 2021 in a historic runoff election that gave Democrats control of the Senate. Born in Atlanta, he is one of the youngest U.S. Senators in history. Before politics, he was an investigative journalist and CEO of Insight TWI, a documentary production company focused on exposing corruption in Africa and the Middle East. In the Senate he has focused on accountability in government contracting, criminal justice reform, and expanding broadband access in rural Georgia.",
@@ -256,26 +227,10 @@ export const STATEWIDE_RACES: BallotRace[] = [
             { issue: "National Security", stance: "Strong defense", description: "Supports robust defense funding while advocating for diplomatic solutions to international conflicts." },
           ],
         }),
-      tbdCandidate("Republican"),
-    ]
-  ),
-  // June 16, 2026 GOP U.S. Senate runoff — verified June 2026 (AJC, NBC,
-  // Georgia Recorder). Winner faces Sen. Ossoff in the November general.
-  {
-    office: "U.S. Senate – Republican Primary Runoff",
-    date: "June 16, 2026",
-    type: "Runoff Election",
-    level: "Federal",
-    description:
-      "Neither Republican cleared 50% in the May 19 primary, so Rep. Mike Collins and Derek Dooley meet in a June 16 runoff for the GOP nomination. The winner challenges Democratic incumbent Sen. Jon Ossoff on November 3.",
-    registrationDeadline: "May 19, 2026",
-    earlyVotingStart: "June 6–8 (varies by county)",
-    earlyVotingEnd: "June 12, 2026",
-    candidates: [
       rCandidate("Mike Collins", false,
-        "Mike Collins is a U.S. Representative from Georgia's 10th Congressional District, serving since January 2023. The son of former Rep. Mac Collins, he is the founder of Collins Trucking Company and a vocal supporter of border security. He co-authored the Laken Riley Act, signed into law in 2025, which requires federal detention of undocumented immigrants charged with certain crimes. Collins led the May 19 GOP Senate primary and advances to the June 16 runoff against Derek Dooley.",
+        "Mike Collins is a U.S. Representative from Georgia's 10th Congressional District, serving since January 2023. The son of former Rep. Mac Collins, he founded Collins Trucking Company and co-authored the Laken Riley Act, signed into law in 2025. He won the June 16, 2026 Republican Senate primary runoff, defeating Derek Dooley, and is the GOP nominee challenging Democratic incumbent Sen. Jon Ossoff on November 3.",
         ["Border Security", "Economic Growth", "America First", "Public Safety"],
-        ["U.S. Representative, GA-10 (2023–present)", "Founder & President, Collins Trucking Co.", "Jackson County Republican Party Chairman"],
+        ["Republican Nominee for U.S. Senate (2026)", "U.S. Representative, GA-10 (2023–present)", "Founder & President, Collins Trucking Co.", "Jackson County Republican Party Chairman"],
         78, "https://mikecollinsforsenate.com", "https://twitter.com/RepMikeCollins",
         {
           hometown: "Jackson, GA",
@@ -292,25 +247,8 @@ export const STATEWIDE_RACES: BallotRace[] = [
             { issue: "Crime", stance: "Law & order", description: "Backs increased funding for law enforcement and opposes efforts to reduce police budgets." },
           ],
         }),
-      rCandidate("Derek Dooley", false,
-        "Derek Dooley is an Athens native, attorney, and former NCAA Division I head football coach. He served as head coach at Louisiana Tech (2007–2009) and the University of Tennessee (2010–2012), compiling a 28–28 record. After coaching he returned to law, earning his degree from UGA. He is running as the more moderate GOP Senate candidate, backed by outgoing Gov. Brian Kemp, and faces Mike Collins in the June 16 runoff. His father is legendary UGA coach Vince Dooley.",
-        ["Georgia First", "Common Sense Governance", "Economic Growth", "Veterans Support"],
-        ["Attorney, Athens GA", "Head Football Coach, University of Tennessee (2010–2012)", "Head Football Coach, Louisiana Tech (2007–2009)", "UGA School of Law, J.D."],
-        65, "https://dooleyforgeorgia.com", undefined,
-        {
-          age: 51, hometown: "Athens, GA",
-          education: ["University of Georgia, B.S.", "University of Georgia School of Law, J.D."],
-          wikipediaTitle: "Derek_Dooley",
-          campaignSlogan: "Commonsense Conservative",
-          endorsements: ["Governor Brian Kemp", "Georgia Chamber of Commerce"],
-          positions: [
-            { issue: "Economy", stance: "Growth-focused", description: "Supports incentives for manufacturers and tech companies to locate in Georgia, with a focus on rural economic development." },
-            { issue: "Veterans", stance: "Strong support", description: "Advocates for expanded VA services in Georgia and increased support for military families at Fort Stewart, Fort Moore, and Robins AFB." },
-            { issue: "Education", stance: "Workforce training", description: "Backs funding for technical colleges and apprenticeship programs to match workers with Georgia's job market." },
-          ],
-        }),
-    ],
-  },
+    ]
+  ),
 ]
 
 // ─── Congressional Races ─────────────────────────────────────────────────────

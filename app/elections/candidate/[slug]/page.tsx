@@ -147,8 +147,33 @@ export default async function CandidatePage({
   const hasInstagram = !!c.socialMedia?.instagram;
   const fundraisingReal = c.fundraising.totalRaised && c.fundraising.totalRaised !== "TBD";
 
+  const candidateUrl = `https://www.myvotega.com/elections/candidate/${slug}`;
+  const partyOrg =
+    c.party === "Democrat" ? "Democratic Party" : c.party === "Republican" ? "Republican Party" : `${c.party} Party`;
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: c.name,
+    jobTitle: race.office,
+    description: `${c.name} is a ${c.party} candidate for ${race.office} in Georgia's 2026 election.`,
+    affiliation: { "@type": "Organization", name: partyOrg },
+    knowsAbout: c.keyIssues,
+    url: candidateUrl,
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.myvotega.com" },
+      { "@type": "ListItem", position: 2, name: "2026 Georgia Elections", item: "https://www.myvotega.com/elections" },
+      { "@type": "ListItem", position: 3, name: c.name, item: candidateUrl },
+    ],
+  };
+
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-3 items-start lg:grid-cols-[1fr_300px] lg:gap-4 lg:px-6 lg:pt-4">
 
         {/* ══ MAIN COLUMN ══════════════════════════════════════════════ */}

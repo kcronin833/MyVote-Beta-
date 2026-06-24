@@ -57,8 +57,30 @@ async function getRecentStories(): Promise<StoryRow[]> {
 export default async function NewsFeed() {
   const stories = await getRecentStories();
 
+  const newsSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Latest Georgia & national political coverage",
+    itemListElement: stories.map((s, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "NewsArticle",
+        headline: s.headline,
+        description: (s.synopsis || "").slice(0, 200),
+        url: `https://www.myvotega.com/news/story/${s.id}`,
+        datePublished: s.created_at,
+        publisher: { "@type": "Organization", name: "MyVote" },
+        about: { "@type": "Thing", name: "Georgia Politics 2026" },
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-paper-100">
+      {stories.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema) }} />
+      )}
       <div className="container mx-auto px-4 pt-4 pb-8">
         <NewsNavigation />
         <DayInReviewBanner />
