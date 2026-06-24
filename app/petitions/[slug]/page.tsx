@@ -45,6 +45,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ slug:
   const countyName = countyDisplayName(p.county_slug);
   const url = `https://www.myvotega.com/petitions/${slug}`;
   const body = p.description || p.summary || "";
+  const isMyVote = p.creator_name === "MyVote";
 
   const schema = {
     "@context": "https://schema.org",
@@ -103,8 +104,19 @@ export default async function PetitionPage({ params }: { params: Promise<{ slug:
           {p.title}
         </h1>
         {p.target && (
-          <p style={{ fontSize: 14, color: C.tealDk, fontWeight: 600, margin: "0 0 18px" }}>
+          <p style={{ fontSize: 14, color: C.tealDk, fontWeight: 600, margin: "0 0 14px" }}>
             Petitioning: {p.target}{p.target_district ? ` · ${p.target_district}` : ""}
+          </p>
+        )}
+
+        {p.creator_name && (
+          <p style={{ fontSize: 12.5, color: C.ink500, fontWeight: 600, margin: "0 0 18px", display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+            Started by {p.creator_name}
+            {isMyVote && (
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#2F6358", background: "#E6F0ED", border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" }}>
+                ✓ Official MyVote petition
+              </span>
+            )}
           </p>
         )}
 
@@ -144,7 +156,9 @@ export default async function PetitionPage({ params }: { params: Promise<{ slug:
 
         <div style={{ borderTop: `1px solid ${C.rule}`, paddingTop: 14 }}>
           <p style={{ fontSize: 11.5, color: C.ink400, lineHeight: 1.5, margin: "0 0 6px" }}>
-            This petition was created by a MyVote community member. Signatures are collected by MyVote and are not an official government filing. MyVote is nonpartisan and not affiliated with any party or campaign.
+            {isMyVote
+              ? "This is a MyVote-led petition on a good-government issue. MyVote is nonpartisan and not affiliated with any political party, candidate, or campaign — we advocate only on transparency and accountability matters, not partisan ones. Signatures are collected by MyVote and are not an official government filing."
+              : "This petition was created by a MyVote community member. Signatures are collected by MyVote and are not an official government filing. MyVote is nonpartisan and not affiliated with any party or campaign."}
           </p>
           <ReportErrorLink refPath={`/petitions/${slug}`} />
         </div>
