@@ -646,6 +646,22 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Civic action bar — petitions + groups ── */}
+      <section style={{ background: "#F3F1EB", borderBottom: "1px solid #E4E0D3", padding: "28px 16px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+          {[
+            { h: "Start a petition", p: "Target your Georgia officials directly — school board, county commission, and beyond.", href: "/petitions/create", cta: "Create one free →" },
+            { h: "Join a civic group", p: "Connect with voters in your county and organize around local issues year-round.", href: "/groups", cta: "Find a group →" },
+          ].map((card) => (
+            <Link key={card.href} href={card.href} className="mv-lift" style={{ display: "block", background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 14, padding: "18px 20px", textDecoration: "none", boxShadow: "0 2px 8px rgba(20,24,40,0.04)" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1A2138", margin: "0 0 5px" }}>{card.h}</h3>
+              <p style={{ fontSize: 13.5, color: "#6B7088", lineHeight: 1.55, margin: "0 0 10px" }}>{card.p}</p>
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: "#2F6358" }}>{card.cta}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* ── Stats strip ── */}
       <div
         style={{

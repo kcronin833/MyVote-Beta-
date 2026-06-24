@@ -4,6 +4,7 @@ import { getAllCountySlugs } from "@/lib/county-utils";
 import { getAllCandidateSlugs } from "@/lib/candidate-utils";
 import { ARCHETYPE_SLUGS } from "@/lib/civic-share";
 import { GUIDES } from "@/lib/guides-data";
+import { TOP_COUNTY_SLUGS } from "@/lib/petitions";
 import { getSiteUrl } from "@/lib/site-url";
 
 /* Dynamic sitemap so Google can discover all ~159 statically generated county
@@ -25,6 +26,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/how-to-vote-georgia`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/georgia-voter-faq`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/groups`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
+    { url: `${base}/georgia-civic-groups`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/petitions`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${base}/petitions/create`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/start-a-petition-georgia`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/profiles`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/register`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
@@ -86,6 +91,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     /* sitemap should never fail the build over story fetch */
   }
 
+  // County hub pages for petitions and groups (top 20 counties).
+  const countyHubRoutes: MetadataRoute.Sitemap = TOP_COUNTY_SLUGS.flatMap((slug) => [
+    { url: `${base}/petitions/county/${slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.6 },
+    { url: `${base}/groups/county/${slug}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.6 },
+  ]);
+
+  // Live standalone petitions (group_id IS NULL) so each gets indexed.
+  let petitionRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "placeholder"
+    );
+    const { data } = await supabase
+      .from("group_petitions")
+      .select("share_slug, created_at")
+      .eq("status", "active")
+      .not("share_slug", "is", null)
+      .limit(1000);
+    petitionRoutes = (data ?? [])
+      .filter((p: { share_slug: string | null }) => p.share_slug)
+      .map((p: { share_slug: string; created_at: string }) => ({
+        url: `${base}/petitions/${p.share_slug}`,
+        lastModified: new Date(p.created_at),
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      }));
+  } catch {
+    /* never fail the build over petition fetch */
+  }
+
   return [
     ...staticRoutes,
     ...countyRoutes,
@@ -93,5 +129,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...civicProfileRoutes,
     ...guideRoutes,
     ...storyRoutes,
+    ...countyHubRoutes,
+    ...petitionRoutes,
   ];
 }
