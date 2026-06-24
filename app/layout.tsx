@@ -32,7 +32,7 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "MyVote — Georgia's Nonpartisan Civic Platform",
+    default: "MyVote — Your 2026 Georgia Ballot Guide & Nonpartisan News",
     template: "%s · MyVote",
   },
   description:
