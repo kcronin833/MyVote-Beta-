@@ -18,6 +18,19 @@ import dynamic from "next/dynamic"
 import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 import { EarlyVotingBanner } from "@/components/early-voting-banner"
+import { GA_VOTER_FAQ, faqPageSchema } from "@/lib/ga-election-facts"
+
+/* Six high-intent questions for homepage FAQ rich results, drawn from the
+   single verified facts source so they can never drift from the FAQ page. */
+const HOME_FAQ_QUESTIONS = [
+  "When is the 2026 Georgia general election?",
+  "Who is running for Georgia governor in 2026?",
+  "Who is running for U.S. Senate in Georgia in 2026?",
+  "What ID do I need to vote in Georgia?",
+  "What statewide offices are on Georgia's 2026 ballot?",
+  "Is MyVote affiliated with any political party?",
+]
+const HOME_FAQ = GA_VOTER_FAQ.filter((e) => HOME_FAQ_QUESTIONS.includes(e.q))
 
 /* The logged-in app shell and onboarding quiz are only needed after auth —
    loading them lazily keeps the public landing page bundle small. */
@@ -318,6 +331,11 @@ export default function HomePage() {
   /* ── Landing page (logged-out) ── */
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#F3F1EB" }}>
+      {/* FAQPage schema — featured-snippet / AI-overview eligibility */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(HOME_FAQ)) }}
+      />
 
       {/* ── Minimal top nav ── */}
       <header

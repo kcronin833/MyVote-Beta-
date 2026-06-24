@@ -10,6 +10,55 @@ import {
 } from "@/components/elections/ballot-ui";
 import { STATEWIDE_RACES } from "@/lib/georgia-ballot-data";
 import { BallotDataDisclaimer } from "@/components/ballot-data-disclaimer";
+import { GA_2026 } from "@/lib/ga-election-facts";
+
+/* Upcoming general-election events for rich results. The June 16 runoff is
+   complete (Jackson & Collins won the GOP nominations), so it is intentionally
+   NOT listed as an upcoming Event. Dates verified 2026-06-23. */
+const electionEventsSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "2026 Georgia General Election Key Dates",
+  itemListElement: [
+    {
+      "@type": "ListItem", position: 1,
+      item: {
+        "@type": "Event",
+        name: "Georgia Voter Registration Deadline — 2026 General Election",
+        startDate: GA_2026.registrationDeadline.iso,
+        endDate: GA_2026.registrationDeadline.iso,
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        location: { "@type": "Place", name: "Georgia", address: { "@type": "PostalAddress", addressRegion: "GA", addressCountry: "US" } },
+        description: "Last day to register to vote in Georgia's November 3, 2026 general election.",
+      },
+    },
+    {
+      "@type": "ListItem", position: 2,
+      item: {
+        "@type": "Event",
+        name: "Georgia Early Voting — 2026 General Election",
+        startDate: GA_2026.earlyVoting.startIso,
+        endDate: GA_2026.earlyVoting.endIso,
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        location: { "@type": "Place", name: "Georgia", address: { "@type": "PostalAddress", addressRegion: "GA", addressCountry: "US" } },
+        description: "In-person early voting period for the 2026 Georgia general election at county sites statewide.",
+      },
+    },
+    {
+      "@type": "ListItem", position: 3,
+      item: {
+        "@type": "Event",
+        name: "2026 Georgia General Election",
+        startDate: GA_2026.generalElection.iso,
+        endDate: GA_2026.generalElection.iso,
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        location: { "@type": "Place", name: "Georgia", address: { "@type": "PostalAddress", addressRegion: "GA", addressCountry: "US" } },
+        description: "Georgia General Election Day. Polls open 7am–7pm. Races include U.S. Senate, Governor, all 14 U.S. House seats, and dozens of local offices.",
+        organizer: { "@type": "GovernmentOrganization", name: "Georgia Secretary of State" },
+      },
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "Georgia 2026 Ballot Guide — Every Race, Every Candidate · MyVote",
@@ -20,8 +69,7 @@ export const metadata: Metadata = {
 
 const KEY_DATES: { date: string; label: string; critical?: boolean; past?: boolean }[] = [
   { date: "May 19, 2026", label: "Georgia Primary Election — completed", past: true },
-  { date: "June 9 – 13, 2026", label: "Early voting — GOP Governor & U.S. Senate runoff", critical: true },
-  { date: "June 16, 2026", label: "Primary Runoff — Governor & U.S. Senate GOP nominations", critical: true },
+  { date: "June 16, 2026", label: "Primary Runoff — completed (Jackson & Collins won GOP nominations)", past: true },
   { date: "October 5, 2026", label: "Voter registration deadline (General)", critical: true },
   { date: "Oct 12 – Oct 30, 2026", label: "Early voting — General Election" },
   { date: "November 3, 2026", label: "General Election Day — polls 7am–7pm", critical: true },
@@ -98,6 +146,10 @@ function RunoffBanner() {
 export default function ElectionsPage() {
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(electionEventsSchema) }}
+      />
 
       <div className="max-w-[1100px] mx-auto px-3 pt-3 pb-10 grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_320px] lg:gap-4 lg:px-6 lg:pt-4">
         {/* MAIN COLUMN */}

@@ -22,6 +22,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/news/local`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
     { url: `${base}/quiz`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/guides`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/how-to-vote-georgia`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: `${base}/georgia-voter-faq`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/groups`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
     { url: `${base}/profiles`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/register`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
