@@ -366,9 +366,9 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   )
 }
 
-export function AIFactualNews() {
-  const [news, setNews]         = useState<FactualNewsItem[]>([])
-  const [loading, setLoading]   = useState(true)
+export function AIFactualNews({ initialNews }: { initialNews?: FactualNewsItem[] } = {}) {
+  const [news, setNews]         = useState<FactualNewsItem[]>(initialNews ?? [])
+  const [loading, setLoading]   = useState(!initialNews || initialNews.length === 0)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const [category, setCategory] = useState<Category>("Top stories")
@@ -395,7 +395,9 @@ export function AIFactualNews() {
     }
   }
 
-  useEffect(() => { loadNews() }, [])
+  // Skip the client fetch when the server already provided the feed — the
+  // cards are in the SSR HTML. Refresh button still re-fetches on demand.
+  useEffect(() => { if (!initialNews || initialNews.length === 0) loadNews() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = category === "Top stories"
     ? news

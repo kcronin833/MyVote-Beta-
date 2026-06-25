@@ -76,6 +76,14 @@ function isAllowedSource(sourceName: string): boolean {
   return ALLOWED_SOURCE_NAMES.has(sourceName.toLowerCase())
 }
 
+// Opinion / editorial / commentary detection — these are excluded so the feed
+// is just the facts, not op-eds. Matches common URL paths and title prefixes.
+const OPINION_URL = /\/(opinion|opinions|editorial|editorials|op-ed|oped|commentary|columns?|columnists?|perspectives?|voices|blogs?)\b/i
+const OPINION_TITLE = /^\s*(opinion|editorial|commentary|analysis|column|op-ed|perspective|essay|review)\s*[:\-–—]/i
+function isOpinion(a: { title: string; url: string }): boolean {
+  return OPINION_URL.test(a.url || "") || OPINION_TITLE.test(a.title || "")
+}
+
 // Strip HTML tags from API responses to prevent React script tag warnings
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").trim();
@@ -630,6 +638,7 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
     const fp = titleFingerprint(a.title)
     if (seenUrl.has(a.url) || seenFp.has(fp)) continue
     if (isBlocklisted(a)) continue
+    if (isOpinion(a)) continue
     seenUrl.add(a.url)
     seenFp.add(fp)
     centerArticles.push(a)
@@ -643,8 +652,8 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
 
   // ── Fix 1: cap each source to 5 articles so no single outlet floods the pool ──
   // This prevents Fox News / Breitbart from dominating the right perspective column.
-  const leftPool  = capBySource(leftRaw.filter(a => !isBlocklisted(a)),  5)
-  const rightPool = capBySource(rightRaw.filter(a => !isBlocklisted(a)), 5)
+  const leftPool  = capBySource(leftRaw.filter(a => !isBlocklisted(a) && !isOpinion(a)),  5)
+  const rightPool = capBySource(rightRaw.filter(a => !isBlocklisted(a) && !isOpinion(a)), 5)
 
   // ── Fix 2: track used URLs so the same article never appears under two headlines ──
   const usedLeft  = new Set<string>()

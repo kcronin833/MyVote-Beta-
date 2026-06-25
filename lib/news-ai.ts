@@ -1,63 +1,70 @@
 import type { FactualNewsWithPerspectives } from "@/lib/news-service";
 
-/* Real "Just the Facts" generation.
+/* Real "Just the Facts" generation — clustered.
  *
- * Replaces the old templated buildOverview (which just echoed one outlet's RSS
- * blurb) with a genuine AI synthesis. Critically, this is GROUNDED: the model
- * is given ONLY the fetched headline + the left/center/right coverage and is
- * instructed to summarize strictly from that material — it must not add facts
- * from its own knowledge. Grounded summarization is what keeps this accurate
- * (no free-form hallucination), in line with the project's accuracy rule.
+ * Takes the fetched center headlines (each already carrying its left/center/
+ * right coverage) and, in ONE grounded Claude Haiku call:
+ *   1. groups headlines covering the SAME event into a single story (so the
+ *      feed shows one card per event, not one per outlet),
+ *   2. drops anything that is opinion/editorial rather than news,
+ *   3. writes a NEUTRAL headline + a 2-3 sentence "just the facts" summary for
+ *      each event, using ONLY the supplied material (no outside knowledge).
  *
- * One batched Claude Haiku call covers all ~12 headlines. The /api/news/factual
- * route caches for 30 min (revalidate 1800), so this runs at most ~once per
- * 30 min regardless of traffic — negligible cost. Reuses the raw-fetch pattern
- * already established in lib/pipeline/cluster.ts. Falls back gracefully to null
- * on any error so the news feed never breaks.
+ * Grounded summarization is what keeps this accurate — the model summarizes the
+ * provided headlines, it does not invent. The /api/news/factual route and the
+ * /news page both cache 30 min, so this runs at most ~once per 30 min. Reuses
+ * the raw-fetch pattern from lib/pipeline/cluster.ts. Returns null on any error
+ * so the caller can fall back to the un-clustered list.
  */
 
 const MODEL = "claude-haiku-4-5";
 
-interface SummaryOut {
-  index: number;
+export interface ClusteredEvent {
+  headline: string;
   summary: string;
+  members: number[]; // indices into the input array
 }
 
-export async function generateFactualSummaries(
+export async function generateClusteredFacts(
   stories: FactualNewsWithPerspectives[]
-): Promise<Map<number, string> | null> {
+): Promise<ClusteredEvent[] | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey || stories.length === 0) return null;
 
-  // Compact, grounded source material — titles + descriptions only.
   const source = stories
     .map((s, i) => {
       const left = [...new Set(s.leftArticles.map((a) => a.title))].slice(0, 3);
       const right = [...new Set(s.rightArticles.map((a) => a.title))].slice(0, 3);
       const lines = [
-        `[${i}] HEADLINE: ${s.title}`,
-        s.description ? `    CENTER: ${s.description.replace(/\s*\[\+\d+ chars\]$/, "").slice(0, 400)}` : "",
-        left.length ? `    LEFT COVERAGE: ${left.join(" | ")}` : "",
-        right.length ? `    RIGHT COVERAGE: ${right.join(" | ")}` : "",
+        `[${i}] ${s.title}`,
+        s.description ? `    DETAIL: ${s.description.replace(/\s*\[\+\d+ chars\]$/, "").slice(0, 300)}` : "",
+        left.length ? `    ALSO COVERED: ${left.join(" | ")}` : "",
+        right.length ? `    ALSO COVERED: ${right.join(" | ")}` : "",
       ].filter(Boolean);
       return lines.join("\n");
     })
     .join("\n\n");
 
-  const prompt = `You are a neutral newswire editor. For each numbered story below, write a "just the facts" summary of 2-3 sentences.
+  const prompt = `You are a neutral newswire editor building a "just the facts" national politics feed from the numbered items below.
+
+Do the following:
+1. GROUP items that are about the same underlying event into one story. Use each item's index.
+2. EXCLUDE any item that is an opinion piece, editorial, op-ed, or pure commentary rather than a news event. If an event is only covered by opinion, drop it.
+3. For each remaining story write:
+   - a NEUTRAL headline (max 12 words) that states what happened — do NOT copy a single outlet's headline, write a plain factual one.
+   - a "summary" of 2-3 sentences that states only the facts.
 
 STRICT RULES:
-- Use ONLY the information in that story's headline and the coverage lines provided. Do NOT add facts, names, numbers, dates, or context that are not present in the provided material.
-- Write in neutral, factual language. No spin, no opinion, no loaded adjectives, no editorializing.
-- Do not mention the outlets by name or that coverage spans the political spectrum — just state what happened.
-- If the provided material is too thin to summarize, write one sentence restating the headline as a factual statement.
-- Return ONLY valid JSON, no markdown, no commentary.
+- Use ONLY the information in the provided items. Do NOT add facts, names, numbers, dates, or context not present in the material.
+- Neutral, factual language only. No spin, opinion, or loaded adjectives. Do not name outlets or mention political lean.
+- If material is thin, write a shorter, careful summary.
+- Order stories by importance (most significant first).
 
-STORIES:
+ITEMS:
 ${source}
 
-Respond with this exact JSON shape:
-[{"index": 0, "summary": "..."}]`;
+Return ONLY valid JSON, no markdown, in exactly this shape:
+[{"headline": "Plain factual headline", "summary": "2-3 factual sentences.", "members": [0, 4]}]`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -69,23 +76,27 @@ Respond with this exact JSON shape:
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 2048,
+        max_tokens: 4096,
         messages: [{ role: "user", content: prompt }],
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(40000),
     });
     if (!res.ok) return null;
     const data = await res.json();
     const raw: string = data.content?.[0]?.text ?? "";
     const jsonStr = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-    const parsed = JSON.parse(jsonStr) as SummaryOut[];
-    const map = new Map<number, string>();
-    for (const o of parsed) {
-      if (typeof o.index === "number" && typeof o.summary === "string" && o.summary.trim()) {
-        map.set(o.index, o.summary.trim());
-      }
-    }
-    return map.size > 0 ? map : null;
+    const parsed = JSON.parse(jsonStr) as ClusteredEvent[];
+    const clean = parsed.filter(
+      (e) =>
+        e &&
+        typeof e.headline === "string" &&
+        e.headline.trim() &&
+        typeof e.summary === "string" &&
+        e.summary.trim() &&
+        Array.isArray(e.members) &&
+        e.members.length > 0
+    );
+    return clean.length > 0 ? clean : null;
   } catch {
     return null;
   }
