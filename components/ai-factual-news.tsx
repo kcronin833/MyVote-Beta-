@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useState, useEffect } from "react"
-import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, Flame } from "lucide-react"
+import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, Flame, Share2, Check } from "lucide-react"
 import { CommentSystem } from "@/components/comment-system"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
@@ -18,6 +18,7 @@ interface FactualNewsItem {
   urlToImage: string | null
   category: string
   aiOverview: string
+  aiGenerated?: boolean
   controversyScore: number
   leftArticles: NewsArticle[]
   rightArticles: NewsArticle[]
@@ -71,6 +72,24 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
   const [myReaction, setMyReaction] = useState<Reaction | null>(null)
   const [reacting, setReacting]     = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [shared, setShared] = useState(false)
+
+  async function share() {
+    const url = "https://www.myvotega.com/news"
+    const summary = (article.aiOverview || article.description || "").slice(0, 400)
+    const text = `${article.title}\n\n${summary}`
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: article.title, text, url })
+        return
+      }
+    } catch { return /* user cancelled the share sheet */ }
+    try {
+      await navigator.clipboard.writeText(`${text}\n\nvia MyVote — ${url}`)
+      setShared(true)
+      setTimeout(() => setShared(false), 1800)
+    } catch { /* clipboard unavailable */ }
+  }
 
   // Combine all sources into one ordered list
   const allSources = [
@@ -153,7 +172,7 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", background: C.tealSoft, color: C.tealDk, border: `1px solid ${C.tealBorder}`, borderRadius: 6, fontSize: 11, fontWeight: 700, letterSpacing: 0.2 }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.teal, flexShrink: 0, display: "inline-block" }} />
-          AI Overview
+          {article.aiGenerated === false ? "Summary" : "AI · Just the Facts"}
         </span>
         {article.controversyScore >= 70 && (
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red, display: "flex", alignItems: "center", gap: 4 }}>
@@ -317,6 +336,14 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
             <ExternalLink style={{ width: 12, height: 12 }} />
             Read
           </a>
+          <button
+            onClick={share}
+            title="Share this summary"
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, fontSize: 12, fontWeight: 600, border: `1.5px solid ${shared ? C.teal : C.rule}`, color: shared ? C.teal : C.ink500, background: shared ? C.tealSoft : "transparent", cursor: "pointer", transition: "all 0.15s ease" }}
+          >
+            {shared ? <Check style={{ width: 12, height: 12 }} /> : <Share2 style={{ width: 12, height: 12 }} />}
+            {shared ? "Copied" : "Share"}
+          </button>
           <button
             onClick={() => setShowComments(v => !v)}
             style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, fontSize: 12, fontWeight: 600, border: `1.5px solid ${showComments ? C.teal : C.rule}`, color: showComments ? C.teal : C.ink500, background: showComments ? C.tealSoft : "transparent", cursor: "pointer", transition: "all 0.15s ease" }}
