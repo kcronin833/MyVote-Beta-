@@ -78,7 +78,7 @@ function isAllowedSource(sourceName: string): boolean {
 
 // Opinion / editorial / commentary detection — these are excluded so the feed
 // is just the facts, not op-eds. Matches common URL paths and title prefixes.
-const OPINION_URL = /\/(opinion|opinions|editorial|editorials|op-ed|oped|commentary|columns?|columnists?|perspectives?|voices|blogs?)\b/i
+const OPINION_URL = /\/(opinion|opinions|editorial|editorials|op-ed|oped|commentary|commentisfree|columns?|columnists?|perspectives?|views?|voices|blogs?)\b/i
 const OPINION_TITLE = /^\s*(opinion|editorial|commentary|analysis|column|op-ed|perspective|essay|review)\s*[:\-–—]/i
 function isOpinion(a: { title: string; url: string }): boolean {
   return OPINION_URL.test(a.url || "") || OPINION_TITLE.test(a.title || "")
