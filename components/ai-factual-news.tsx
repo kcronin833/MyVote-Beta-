@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, Flame, Share2, Check } from "lucide-react"
 import { CommentSystem } from "@/components/comment-system"
+import { SpectrumScrubber } from "@/components/spectrum-scrubber"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
@@ -91,15 +92,11 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
     } catch { /* clipboard unavailable */ }
   }
 
-  // Combine all sources into one ordered list
-  const allSources = [
-    ...article.leftArticles.map(a  => ({ ...a, side: "left"  as const })),
-    ...article.rightArticles.map(a => ({ ...a, side: "right" as const })),
+  // Sources laid out left → right for the interactive spectrum wheel.
+  const scrubSources = [
+    ...article.leftArticles.map(a  => ({ ...a, side: "left"  as const, leanLabel: getSourceLean(a.source, "left").label })),
+    ...article.rightArticles.map(a => ({ ...a, side: "right" as const, leanLabel: getSourceLean(a.source, "right").label })),
   ]
-
-  // Dot position on spectrum (0 = all left, 100 = all right)
-  const total = article.leftArticles.length + article.rightArticles.length
-  const dotPct = total > 0 ? Math.round((article.rightArticles.length / total) * 100) : 50
 
   useEffect(() => {
     async function load() {
@@ -199,100 +196,8 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
         </p>
       )}
 
-      {/* Spectrum bar */}
-      {total > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: "#3B82F6", display: "inline-block" }} />
-            Left
-          </span>
-          <div
-            style={{ flex: 1, position: "relative", height: 6, borderRadius: 999, background: "linear-gradient(to right, #3b82f6, #9ca3af, #ef4444)" }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: `${dotPct}%`,
-                transform: "translate(-50%, -50%)",
-                width: 14,
-                height: 14,
-                borderRadius: "50%",
-                background: dotPct < 40 ? "#2563EB" : dotPct > 60 ? C.red : "#6B7280",
-                border: "2.5px solid #fff",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                transition: "left 0.3s ease",
-              }}
-            />
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.red, display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-            Right
-            <span style={{ width: 8, height: 8, borderRadius: 2, background: C.red, display: "inline-block" }} />
-          </span>
-        </div>
-      )}
-
-      {/* Source cards — horizontal scroll */}
-      {allSources.length > 0 && (
-        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-          {allSources.map((src, i) => {
-            const lean = getSourceLean(src.source, src.side)
-            const isLeft = src.side === "left"
-            const accentColor = isLeft ? "#2563EB" : C.red
-            return (
-              <a
-                key={i}
-                href={src.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mv-lift"
-                style={{
-                  flexShrink: 0,
-                  width: 168,
-                  border: `1px solid ${C.rule}`,
-                  borderRadius: 10,
-                  overflow: "hidden",
-                  textDecoration: "none",
-                  background: C.card,
-                  borderTop: `3px solid ${accentColor}`,
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {src.urlToImage ? (
-                  <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", flexShrink: 0 }}>
-                    <img
-                      src={src.urlToImage}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="hover:scale-105"
-                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease", display: "block" }}
-                      onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none" }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ width: "100%", aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", background: isLeft ? "#EFF6FF" : "#FFF5F5", padding: "0 8px" }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: accentColor, textAlign: "center", lineHeight: 1.3 }}>
-                      {src.source}
-                    </span>
-                  </div>
-                )}
-                <div style={{ padding: "8px 10px 10px", flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4, marginBottom: 5 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: C.ink900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{src.source}</span>
-                    <span style={{ fontSize: 9.5, padding: "2px 6px", borderRadius: 999, fontWeight: 700, flexShrink: 0, background: isLeft ? "#EFF6FF" : "#FFF5F5", color: accentColor }}>
-                      {lean.label}
-                    </span>
-                  </div>
-                  <p className="line-clamp-2" style={{ fontSize: 11.5, color: C.ink700, lineHeight: 1.45, margin: "0 0 5px" }}>{src.title}</p>
-                  <p style={{ fontSize: 10, color: C.ink400 }}>{formatNewsTime(src.publishedAt)}</p>
-                </div>
-              </a>
-            )
-          })}
-        </div>
-      )}
+      {/* Interactive spectrum wheel — pull it to change the featured (middle) article */}
+      {scrubSources.length > 0 && <SpectrumScrubber sources={scrubSources} />}
 
       {/* Reactions + actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 10, borderTop: `1px solid ${C.ruleSoft}`, flexWrap: "wrap" }}>
