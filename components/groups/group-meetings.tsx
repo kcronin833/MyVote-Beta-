@@ -98,7 +98,12 @@ export function GroupMeetings({
       )}
 
       {meetings.length === 0 ? (
-        <p style={{ fontSize: 12.5, color: C.ink400, margin: 0, fontStyle: "italic" }}>No meetings summarized yet.</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 10, padding: "12px 14px" }}>
+          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: "#fff", background: C.tealDk, borderRadius: 999, padding: "3px 9px", flexShrink: 0 }}>Coming soon</span>
+          <p style={{ fontSize: 12.5, color: C.ink700, margin: 0, lineHeight: 1.5 }}>
+            Meeting dates, agendas, and plain-English AI summaries of what was decided will appear here soon.
+          </p>
+        </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {meetings.map((m) => (

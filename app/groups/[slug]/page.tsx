@@ -189,9 +189,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
       )}
 
       {/* Meetings — when the body met, what was on the docket, AI synopsis of what was said */}
-      {(meetings.length > 0 || isAdmin) && (
-        <GroupMeetings groupId={g.id} defaultBody="" initialMeetings={meetings} isAdmin={isAdmin} />
-      )}
+      <GroupMeetings groupId={g.id} defaultBody="" initialMeetings={meetings} isAdmin={isAdmin} />
 
       {/* Associated articles — coverage so neighbors can read the facts */}
       <GroupArticles groupId={g.id} initialArticles={articles} />
