@@ -1,0 +1,146 @@
+"use client";
+
+import { useState } from "react";
+
+const C = {
+  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
+  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+};
+
+export interface MeetingRow {
+  id: string;
+  body_name: string;
+  meeting_date: string | null;
+  source_url: string | null;
+  bullets: string[];
+  synopsis: string | null;
+  created_at: string;
+}
+
+function fmtDate(d: string | null): string {
+  if (!d) return "";
+  const dt = new Date(`${d}T12:00:00`);
+  if (isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" });
+}
+
+export function GroupMeetings({
+  groupId,
+  defaultBody,
+  initialMeetings,
+  isAdmin,
+}: {
+  groupId: string;
+  defaultBody: string;
+  initialMeetings: MeetingRow[];
+  isAdmin: boolean;
+}) {
+  const [meetings, setMeetings] = useState<MeetingRow[]>(initialMeetings);
+  const [open, setOpen] = useState(false);
+  const [body, setBody] = useState(defaultBody);
+  const [date, setDate] = useState("");
+  const [url, setUrl] = useState("");
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function submit() {
+    if (busy) return;
+    if (!body.trim()) { setErr("Name the body (e.g. Brookhaven City Council)."); return; }
+    if (text.trim().length < 40) { setErr("Paste the agenda or minutes text."); return; }
+    setBusy(true); setErr(null);
+    try {
+      const res = await fetch("/api/meetings/create", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ group_id: groupId, body_name: body.trim(), meeting_date: date || null, source_url: url.trim() || null, raw_text: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErr(data.error || "Couldn't add the meeting."); setBusy(false); return; }
+      setMeetings((m) => [data.meeting as MeetingRow, ...m]);
+      setDate(""); setUrl(""); setText(""); setOpen(false);
+    } catch {
+      setErr("Network error — try again.");
+    }
+    setBusy(false);
+  }
+
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 14, boxShadow: "0 2px 10px rgba(20,24,40,0.07)", padding: "16px 18px", marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: 0 }}>Meetings</h2>
+        {isAdmin && (
+          <button
+            onClick={() => { setOpen((o) => !o); setErr(null); }}
+            style={{ height: 30, padding: "0 12px", borderRadius: 999, border: `1.5px solid ${C.rule}`, background: "transparent", color: C.tealDk, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+          >
+            {open ? "Cancel" : "+ Add a meeting"}
+          </button>
+        )}
+      </div>
+      <p style={{ fontSize: 12, color: C.ink500, margin: "0 0 12px", lineHeight: 1.5 }}>
+        When the body met, what was on the docket, and a plain-English summary of what was decided.
+      </p>
+
+      {isAdmin && open && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14, padding: 12, background: "#fff", border: `1px solid ${C.rule}`, borderRadius: 10 }}>
+          <input value={body} onChange={(e) => setBody(e.target.value)} placeholder="Body — e.g. Brookhaven City Council" style={inp} />
+          <div style={{ display: "flex", gap: 8 }}>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...inp, flex: 1 }} />
+            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Source link (agenda/minutes URL)" style={{ ...inp, flex: 2 }} />
+          </div>
+          <textarea value={text} onChange={(e) => { setText(e.target.value); if (err) setErr(null); }} rows={6} placeholder="Paste the meeting agenda or minutes text here. The AI summarizes only what you paste." style={{ ...inp, height: "auto", padding: "8px 12px", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit" }} />
+          {err && <div style={errBox}>{err}</div>}
+          <button onClick={submit} disabled={busy} style={{ alignSelf: "flex-start", height: 36, padding: "0 18px", borderRadius: 999, border: "none", background: busy ? "#E4E0D3" : C.teal, color: busy ? "#8B8FA3" : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" }}>
+            {busy ? "Summarizing…" : "Generate summary & publish"}
+          </button>
+        </div>
+      )}
+
+      {meetings.length === 0 ? (
+        <p style={{ fontSize: 12.5, color: C.ink400, margin: 0, fontStyle: "italic" }}>No meetings summarized yet.</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {meetings.map((m) => (
+            <div key={m.id} style={{ border: `1px solid ${C.rule}`, borderRadius: 12, padding: "14px 16px", background: "#fff" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: C.ink900, margin: 0 }}>{m.body_name}</h3>
+                {m.meeting_date && <span style={{ fontSize: 12, fontWeight: 600, color: C.tealDk }}>{fmtDate(m.meeting_date)}</span>}
+              </div>
+
+              {m.bullets?.length > 0 && (
+                <ul style={{ margin: "0 0 10px", paddingLeft: 18, display: "flex", flexDirection: "column", gap: 4 }}>
+                  {m.bullets.map((b, i) => (
+                    <li key={i} style={{ fontSize: 13, color: C.ink700, lineHeight: 1.5 }}>{b}</li>
+                  ))}
+                </ul>
+              )}
+
+              {m.synopsis && (
+                <div style={{ background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 10, padding: "10px 12px", marginBottom: m.source_url ? 8 : 0 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: C.tealDk, marginBottom: 3 }}>AI summary · what was said</div>
+                  <p style={{ fontSize: 13, color: C.ink700, lineHeight: 1.6, margin: 0 }}>{m.synopsis}</p>
+                </div>
+              )}
+
+              {m.source_url && (
+                <a href={m.source_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 600, color: C.teal, textDecoration: "none" }}>
+                  View the official agenda / minutes ↗
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {meetings.length > 0 && (
+        <p style={{ fontSize: 10.5, color: C.ink400, margin: "12px 0 0", lineHeight: 1.5 }}>
+          Summaries are AI-generated from the official meeting documents linked above. Always verify against the source.
+        </p>
+      )}
+    </div>
+  );
+}
+
+const inp: React.CSSProperties = { height: 36, padding: "0 12px", borderRadius: 8, border: "1px solid #E4E0D3", fontSize: 13, color: "#1A2138", outline: "none", background: "#fff", width: "100%" };
+const errBox: React.CSSProperties = { fontSize: 12, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 };

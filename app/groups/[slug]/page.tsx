@@ -8,6 +8,7 @@ import { ShareGroup } from "@/components/share-group";
 import { ReportErrorLink } from "@/components/report-error-link";
 import { GroupArticles, type GroupArticle } from "@/components/groups/group-articles";
 import { GroupPetitions, type Petition } from "@/components/groups/group-petitions";
+import { GroupMeetings, type MeetingRow } from "@/components/groups/group-meetings";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,14 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
     .order("created_at", { ascending: false });
   const petitions = (petitionRows as Petition[]) ?? [];
 
+  const { data: meetingRows } = await supabase
+    .from("group_meetings")
+    .select("id, body_name, meeting_date, source_url, bullets, synopsis, created_at")
+    .eq("group_id", g.id)
+    .eq("status", "active")
+    .order("meeting_date", { ascending: false, nullsFirst: false });
+  const meetings = (meetingRows as MeetingRow[]) ?? [];
+
   const { count: memberCount } = await supabase
     .from("group_members")
     .select("*", { count: "exact", head: true })
@@ -87,6 +96,12 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
       .eq("user_id", user.id)
       .maybeSingle();
     joined = !!mem;
+  }
+
+  let isAdmin = false;
+  if (user) {
+    const { data: adminFlag } = await supabase.rpc("is_admin");
+    isAdmin = !!adminFlag;
   }
 
   let signedIds: string[] = [];
@@ -171,6 +186,11 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
             })}
           </div>
         </div>
+      )}
+
+      {/* Meetings — when the body met, what was on the docket, AI synopsis of what was said */}
+      {(meetings.length > 0 || isAdmin) && (
+        <GroupMeetings groupId={g.id} defaultBody="" initialMeetings={meetings} isAdmin={isAdmin} />
       )}
 
       {/* Associated articles — coverage so neighbors can read the facts */}
