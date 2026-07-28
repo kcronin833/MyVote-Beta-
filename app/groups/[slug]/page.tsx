@@ -9,6 +9,8 @@ import { ReportErrorLink } from "@/components/report-error-link";
 import { GroupArticles, type GroupArticle } from "@/components/groups/group-articles";
 import { GroupPetitions, type Petition } from "@/components/groups/group-petitions";
 import { GroupMeetings, type MeetingRow } from "@/components/groups/group-meetings";
+import { GROUP_PORTALS } from "@/lib/group-portals";
+import { getPortalFeed, type PortalFeed } from "@/lib/primegov";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +82,12 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
     .eq("status", "active")
     .order("meeting_date", { ascending: false, nullsFirst: false });
   const meetings = (meetingRows as MeetingRow[]) ?? [];
+
+  const portalCfg = GROUP_PORTALS[slug];
+  let portalFeed: PortalFeed | null = null;
+  if (portalCfg) {
+    portalFeed = await getPortalFeed(portalCfg.tenant, portalCfg.committeeIds);
+  }
 
   const { count: memberCount } = await supabase
     .from("group_members")
@@ -188,8 +196,15 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
         </div>
       )}
 
-      {/* Meetings — when the body met, what was on the docket, AI synopsis of what was said */}
-      <GroupMeetings groupId={g.id} defaultBody="" initialMeetings={meetings} isAdmin={isAdmin} />
+      {/* Meetings — live schedule from the city portal + admin AI synopsis of what was said */}
+      <GroupMeetings
+        groupId={g.id}
+        defaultBody=""
+        initialMeetings={meetings}
+        isAdmin={isAdmin}
+        portalFeed={portalFeed}
+        cityLabel={portalCfg?.cityLabel ?? null}
+      />
 
       {/* Associated articles — coverage so neighbors can read the facts */}
       <GroupArticles groupId={g.id} initialArticles={articles} />
