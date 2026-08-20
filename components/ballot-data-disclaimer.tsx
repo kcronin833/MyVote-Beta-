@@ -1,10 +1,11 @@
 import { AlertTriangle } from "lucide-react";
 
-/* Trust guardrail: shown wherever we display candidate/race detail. Our
-   hardcoded ballot data was compiled before the May 19, 2026 primary. The primary
-   has now passed (June 8, 2026) and a June 16 runoff is in progress, so nominees
-   may differ from what is shown. Point voters to the authoritative GA SoS source.
-   Remove or soften this once the data is sourced from an authoritative feed. */
+/* Trust guardrail: shown wherever we display candidate/race detail. The May 19
+   primary and June 16 runoffs are certified and the November general-election
+   nominees are set (verified 2026-08-20). The one race still unsettled is the
+   GA-13 special election, which is in an August 25, 2026 runoff. Point voters to
+   the authoritative GA SoS source. Update this whenever the ballot data is
+   re-verified. */
 export function BallotDataDisclaimer({ className = "" }: { className?: string }) {
   return (
     <div
@@ -13,9 +14,9 @@ export function BallotDataDisclaimer({ className = "" }: { className?: string })
     >
       <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
       <div className="text-[13px] leading-snug text-amber-900">
-        <strong className="font-semibold">Data current through the May 19 primary.</strong>{" "}
-        A June 16 runoff is in progress — runoff nominees update when certified by the GA SoS.
-        For your official ballot, polling place, and registration status, always verify at the{" "}
+        <strong className="font-semibold">November nominees are set (verified August 2026).</strong>{" "}
+        The GA-13 special election is in an August 25 runoff. For your official ballot,
+        polling place, and registration status, always verify at the{" "}
         <a
           href="https://mvp.sos.ga.gov"
           target="_blank"
