@@ -252,18 +252,33 @@ export const STATEWIDE_RACES: BallotRace[] = [
 ]
 
 // ─── Congressional Races ─────────────────────────────────────────────────────
+// The four open/special seats were re-verified 2026-08-20 against Ballotpedia,
+// AP (via syndication), WABE, AJC, The Current, WSB-TV, and Wikipedia:
+//   GA-1  (open)    — R Jim Kingston (won May 19 primary) vs D Amanda Hollowell
+//   GA-10 (open)    — R Houston Gaines (won May 19 primary) vs D Pam Delancy
+//   GA-11 (open)    — R John Cowan (won June 16 runoff) vs D Chris Harden
+//   GA-13 (special) — David Scott (D) died 2026-04-22; July 28 special went to
+//                     an Aug 25 runoff between Democrats Marcye Scott & Everton Blair
+// Do NOT edit these from memory — re-verify vs GA SoS before changing (see the
+// June 2026 wrong-dates incident). Other races still use tbdCandidate() for the
+// safe-incumbent challenger slot; those were not part of this refresh.
 
 export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   "GA-1": generalRace(
     "U.S. House – GA-1 (Coastal Georgia)", "Federal",
-    "Open seat — Rep. Buddy Carter vacated GA-1 to run for U.S. Senate. Covers coastal SE Georgia including Savannah's suburbs, Brunswick, and the Golden Isles. Solidly Republican district.",
+    "Open seat — Rep. Buddy Carter vacated GA-1 to run for U.S. Senate. Republican Jim Kingston faces Democrat Amanda Hollowell on November 3. Covers coastal SE Georgia including Savannah's suburbs, Brunswick, and the Golden Isles. Solidly Republican district.",
     [
-      rCandidate("TBD – Republican Nominee", false,
-        "The Republican nominee for the open GA-1 seat was decided in the May 19, 2026 primary. Confirm the certified nominee on the Georgia My Voter Page.",
+      rCandidate("Jim Kingston", false,
+        "Savannah insurance executive and son of former U.S. Rep. Jack Kingston, who represented this coastal district for over 20 years. Kingston won the May 19, 2026 Republican primary outright with about 52% of the vote in a six-candidate field, avoiding a runoff, and was endorsed by President Donald Trump. He is the favorite in the solidly Republican district.",
         ["Coastal Economy", "Military Bases", "Border Security", "Small Business"],
-        ["Primary winner — to be confirmed"],
-        72),
-      tbdCandidate("Democrat"),
+        ["Republican Nominee GA-1 (2026)", "Insurance executive", "Son of former U.S. Rep. Jack Kingston"],
+        72, undefined, undefined,
+        { hometown: "Savannah, GA", endorsements: ["President Donald Trump"] }),
+      dCandidate("Amanda Hollowell", false,
+        "Voting-rights organizer and political strategist who won the June 16, 2026 Democratic primary runoff over Joyce Griggs. Hollowell has led national organizing at When We All Vote and directs campaigns at Color Of Change. She faces Republican Jim Kingston in November in a district that leans strongly Republican.",
+        ["Voting Rights", "Healthcare Access", "Economic Opportunity", "Coastal Communities"],
+        ["Democratic Nominee GA-1 (2026)", "Chief of Campaigns, Color Of Change", "National organizer, When We All Vote"],
+        -58),
     ]
   ),
   "GA-2": generalRace(
@@ -374,26 +389,35 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   ),
   "GA-10": generalRace(
     "U.S. House – GA-10 (Augusta/NE Georgia)", "Federal",
-    "Open seat — Rep. Mike Collins is running for U.S. Senate. Covers Augusta, Athens area, and NE Georgia. Solidly Republican district.",
+    "Open seat — Rep. Mike Collins vacated GA-10 to run for U.S. Senate. Republican Houston Gaines faces Democrat Pam Delancy on November 3. Covers Augusta, the Athens area, and NE Georgia. Solidly Republican district.",
     [
-      rCandidate("TBD – Republican Nominee", false,
-        "The Republican nominee will be determined in the May 2026 primary. This is a safe Republican district centered on Augusta and NE Georgia.",
-        ["Conservative Values", "Economic Growth", "Border Security", "Military"],
-        ["Primary winner — to be determined"],
-        72),
-      tbdCandidate("Democrat"),
+      rCandidate("Houston Gaines", false,
+        "State representative from the Athens area who won the May 19, 2026 Republican primary outright, defeating Jeff Baker and Ryan Millsap. Backed by President Donald Trump and state party leaders, Gaines is the strong favorite in this solidly Republican district.",
+        ["Conservative Values", "Economic Growth", "Border Security", "Public Safety"],
+        ["Republican Nominee GA-10 (2026)", "Georgia State Representative"],
+        72, undefined, undefined,
+        { hometown: "Athens, GA", endorsements: ["President Donald Trump"] }),
+      dCandidate("Pam Delancy", false,
+        "Nurse and U.S. Army veteran running as the Democratic nominee for the open GA-10 seat. She faces Republican Houston Gaines in November in a district that leans strongly Republican.",
+        ["Healthcare", "Veterans", "Economic Opportunity", "Education"],
+        ["Democratic Nominee GA-10 (2026)", "Registered nurse", "U.S. Army veteran"],
+        -55),
     ]
   ),
   "GA-11": generalRace(
     "U.S. House – GA-11 (NW Atlanta Suburbs)", "Federal",
-    "Open seat — Rep. Barry Loudermilk announced in February 2026 that he will not seek re-election, setting off a crowded Republican primary. Covers northwest Atlanta suburbs including Kennesaw, Acworth, Cartersville, and Rome. Solidly Republican district.",
+    "Open seat — Rep. Barry Loudermilk is not seeking re-election. Republican John Cowan faces Democrat Chris Harden on November 3. Covers northwest Atlanta suburbs including Kennesaw, Acworth, Cartersville, and Rome. Solidly Republican district.",
     [
-      rCandidate("TBD – Republican Nominee", false,
-        "Rep. Loudermilk's retirement drew a large GOP field in the May 19, 2026 primary. Confirm the certified nominee — and any runoff — on the Georgia My Voter Page.",
-        ["Fiscal Responsibility", "National Security", "Border Security", "Conservative Values"],
-        ["Primary winner — to be confirmed"],
+      rCandidate("John Cowan", false,
+        "Neurosurgeon who won the June 16, 2026 Republican primary runoff, defeating Rob Adkerson — a top aide to the retiring incumbent — with about 66% of the vote. Cowan is favored in this solidly Republican district and faces Democrat Chris Harden in November.",
+        ["Fiscal Responsibility", "Healthcare", "Border Security", "Conservative Values"],
+        ["Republican Nominee GA-11 (2026)", "Neurosurgeon"],
         75),
-      tbdCandidate("Democrat"),
+      dCandidate("Chris Harden", false,
+        "Democratic nominee for the open GA-11 seat, advancing to challenge Republican John Cowan in the November general election. The northwest Atlanta suburban district leans strongly Republican.",
+        ["Healthcare", "Education", "Economic Opportunity", "Infrastructure"],
+        ["Democratic Nominee GA-11 (2026)"],
+        -55),
     ]
   ),
   "GA-12": generalRace(
@@ -411,25 +435,25 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
   ),
   "GA-13": {
     office: "U.S. House – GA-13 (South Atlanta Suburbs)",
-    date: "July 28, 2026",
-    type: "Special Election",
+    date: "August 25, 2026",
+    type: "Runoff Election",
     level: "Federal",
     description:
-      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. A special election to fill the remainder of his term is scheduled for July 28, 2026, alongside the regular November general election. Covers parts of six metro Atlanta counties — Clayton, Henry, Rockdale, Newton, DeKalb, and Gwinnett — a strongly Democratic district.",
+      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. In the July 28, 2026 special election no candidate won a majority (Marcye Scott 46%, Everton Blair 37%), so a runoff is set for August 25, 2026 between the top two finishers — both Democrats: Marcye Scott, the late congressman's daughter, and Everton Blair. Covers parts of six metro Atlanta counties — Clayton, Henry, Rockdale, Newton, DeKalb, and Gwinnett — a strongly Democratic district.",
     registrationDeadline: "June 29, 2026",
-    earlyVotingStart: "July 7, 2026",
-    earlyVotingEnd: "July 25, 2026",
+    earlyVotingStart: "August 15, 2026",
+    earlyVotingEnd: "August 21, 2026",
     candidates: [
-      dCandidate("TBD – Democratic Candidate", false,
-        "Multiple Democrats are running in the July 28 special election to succeed the late Rep. David Scott. Confirm the candidates and any runoff on the Georgia My Voter Page.",
-        ["Agriculture", "Economic Opportunity", "Healthcare", "Voting Rights"],
-        ["Special election candidate — to be confirmed"],
+      dCandidate("Marcye Scott", false,
+        "Computer consultant and daughter of the late Rep. David Scott. She led the July 28, 2026 special election with about 46% of the vote and advanced to the August 25 runoff against fellow Democrat Everton Blair.",
+        ["Healthcare", "Economic Opportunity", "Voting Rights", "Constituent Services"],
+        ["Special election runoff candidate, GA-13 (2026)", "Computer consultant", "Daughter of Rep. David Scott"],
         -55),
-      rCandidate("TBD – Republican Candidate", false,
-        "Republican candidates are also competing in the July 28 special election for the vacant GA-13 seat.",
-        ["Public Safety", "Economic Growth", "Conservative Values", "Small Business"],
-        ["Special election candidate — to be confirmed"],
-        55),
+      dCandidate("Everton Blair", false,
+        "Former chair of the Gwinnett County Board of Education. He finished second in the July 28, 2026 special election with about 37% of the vote and advanced to the August 25 runoff against Marcye Scott.",
+        ["Education", "Economic Opportunity", "Healthcare", "Youth & Families"],
+        ["Special election runoff candidate, GA-13 (2026)", "Former Chair, Gwinnett County Board of Education"],
+        -58),
     ],
   },
   "GA-14": generalRace(
