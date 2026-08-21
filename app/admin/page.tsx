@@ -444,9 +444,9 @@ export default function AdminPage() {
         { data: locationProfiles },
         { data: allMessages },
       ] = await Promise.all([
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),
-        supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", thirtyDaysAgo),
         supabase.from("profiles").select("created_at").gte("created_at", range14IsoStart),
         supabase.from("posts").select("*", { count: "exact", head: true }),
         supabase.from("posts").select("*", { count: "exact", head: true }).gte("created_at", sevenDaysAgo),

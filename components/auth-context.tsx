@@ -86,7 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        // Explicit non-PII columns: email/full_name are no longer SELECT-able by
+        // the authenticated role (see restrict_profiles_pii_columns migration),
+        // so `select("*")` would fail. The Profile type never used those anyway.
+        .select("id, username, display_name, avatar_url, bio, location, political_lean, verified, is_admin, created_at")
         .eq("id", userId)
         .maybeSingle();
 
