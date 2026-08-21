@@ -16,6 +16,8 @@ import {
 import { SearchService, type SearchResult } from "@/lib/search-service"
 import { formatDistanceToNow } from "date-fns"
 import { C } from "@/lib/design-tokens"
+import { UserAvatar } from "@/components/user-avatar"
+import { FriendButton } from "@/components/friend-button"
 
 const cardBase: React.CSSProperties = {
   background: C.card,
@@ -25,10 +27,11 @@ const cardBase: React.CSSProperties = {
 }
 
 /* ── Tab definitions ────────────────────────────────────────────────── */
-type Tab = "all" | "candidate" | "county" | "post" | "news"
+type Tab = "all" | "people" | "candidate" | "county" | "post" | "news"
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "all",       label: "All"        },
+  { id: "people",    label: "People"     },
   { id: "candidate", label: "Candidates" },
   { id: "county",    label: "Counties"   },
   { id: "news",      label: "News"       },
@@ -192,8 +195,42 @@ function PostCard({ r }: { r: SearchResult }) {
   )
 }
 
+function PeopleCard({ r }: { r: SearchResult }) {
+  return (
+    <div style={{ ...cardBase, padding: 14 }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <UserAvatar avatarUrl={r.avatarUrl} displayName={r.title} size="lg" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <Link href={r.url || "#"} style={{ fontSize: 15, fontWeight: 700, color: C.ink900, textDecoration: "none" }}>
+              {r.title}
+            </Link>
+            {r.badge && (
+              <span style={{ fontSize: 10, fontWeight: 600, ...leanStyle(r.badge), borderRadius: 4, padding: "2px 7px" }}>
+                {r.badge}
+              </span>
+            )}
+          </div>
+          <p style={{ fontSize: 12, color: C.ink400, margin: "1px 0 0" }}>{r.meta}</p>
+          {r.description && (
+            <p style={{ fontSize: 12.5, color: C.ink500, margin: "3px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {r.description}
+            </p>
+          )}
+        </div>
+        {r.userId && (
+          <div style={{ flexShrink: 0 }}>
+            <FriendButton targetUserId={r.userId} size="default" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function renderResult(r: SearchResult) {
   switch (r.type) {
+    case "people":    return <PeopleCard    key={r.id} r={r} />
     case "candidate": return <CandidateCard key={r.id} r={r} />
     case "county":    return <CountyCard    key={r.id} r={r} />
     case "news":      return <NewsCard      key={r.id} r={r} />
@@ -222,6 +259,7 @@ function SearchResults() {
 
   const counts: Record<Tab, number> = {
     all:       results.length,
+    people:    results.filter((r) => r.type === "people").length,
     candidate: results.filter((r) => r.type === "candidate").length,
     county:    results.filter((r) => r.type === "county").length,
     news:      results.filter((r) => r.type === "news").length,
@@ -358,7 +396,7 @@ export default function SearchPage() {
               MYVOTE SEARCH
             </p>
             <p style={{ fontSize: 13, color: C.ink700, margin: 0 }}>
-              Candidates · Counties · News · Community
+              People · Candidates · Counties · News · Community
             </p>
           </div>
         </div>

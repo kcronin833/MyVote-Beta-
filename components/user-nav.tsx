@@ -12,7 +12,7 @@ import {
 import { useAuth } from "@/components/auth-context";
 import { AuthModal } from "@/components/auth-modal";
 import Link from "next/link";
-import { LogOut, User, Vote, Compass, ShieldCheck } from "lucide-react";
+import { LogOut, User, Vote, Compass, ShieldCheck, Users } from "lucide-react";
 
 export function UserNav() {
   const { user, profile, signOut, loading } = useAuth();
@@ -89,6 +89,12 @@ export function UserNav() {
           <Link href={`/profile/${profile.username}`}>
             <User className="mr-2 h-4 w-4" />
             Public Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/friends">
+            <Users className="mr-2 h-4 w-4" />
+            Friends
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

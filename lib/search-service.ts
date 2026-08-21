@@ -8,7 +8,7 @@ import { listCounties, candidateDetailHref } from "@/lib/county-utils"
 
 export interface SearchResult {
   id: string
-  type: "candidate" | "county" | "post" | "news"
+  type: "candidate" | "county" | "post" | "news" | "people"
   title: string
   description: string
   /** Internal route to navigate to. */
@@ -19,6 +19,10 @@ export interface SearchResult {
   meta?: string
   timestamp?: string
   relevanceScore: number
+  /** People results only — for the avatar + friend button. */
+  avatarUrl?: string | null
+  username?: string
+  userId?: string
 }
 
 const PARTY_ABBR: Record<string, string> = {
@@ -146,6 +150,45 @@ export class SearchService {
           badge: county.congressionalDistrict,
           relevanceScore: score,
         })
+      }
+    }
+
+    // ── People (member profiles — PUBLIC columns only) ────────────────
+    if (want("people")) {
+      try {
+        const supabase = createClient()
+        const escaped = q.replace(/[%,]/g, " ")
+        const { data } = await supabase
+          .from("profiles")
+          // Never select email / full_name here — this is public-facing search.
+          .select("id, username, display_name, avatar_url, bio, location, political_lean, verified")
+          .or(`username.ilike.%${escaped}%,display_name.ilike.%${escaped}%,bio.ilike.%${escaped}%`)
+          .limit(20)
+
+        for (const row of (data as any[]) || []) {
+          const name: string = row.display_name || row.username || "Member"
+          const score = Math.max(
+            relevance(q, row.display_name || ""),
+            relevance(q, row.username || "") + 5, // exact @handle should rank high
+            relevance(q, row.bio || "") * 0.5
+          )
+          if (score <= 0) continue
+          results.push({
+            id: row.id,
+            type: "people",
+            title: name,
+            description: row.bio || (row.location ? `${row.location}, GA` : "MyVote member"),
+            url: row.username ? `/profile/${row.username}` : undefined,
+            badge: row.political_lean || undefined,
+            meta: `@${row.username}`,
+            avatarUrl: row.avatar_url,
+            username: row.username,
+            userId: row.id,
+            relevanceScore: score,
+          })
+        }
+      } catch (e) {
+        console.error("people search error:", e)
       }
     }
 

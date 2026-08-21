@@ -6,8 +6,10 @@ import Link from "next/link"
 import { ArrowLeft, MapPin, Calendar } from "lucide-react"
 import { UserAvatar } from "@/components/user-avatar"
 import { FollowButton } from "@/components/follow-button"
+import { FriendButton } from "@/components/friend-button"
 import { createClient } from "@/lib/supabase/client"
 import { isFollowing } from "@/lib/friends-service"
+import { getFriendCount } from "@/lib/friend-requests-service"
 import { useAuth } from "@/components/auth-context"
 import { formatNewsTime } from "@/lib/news-service"
 
@@ -46,6 +48,7 @@ export default function ProfilePage() {
   const [followingUser, setFollowingUser] = useState(false)
   const [followerCount, setFollowerCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
+  const [friendCount, setFriendCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -72,7 +75,7 @@ export default function ProfilePage() {
 
     setProfile(prof)
 
-    const [postsRes, followersRes, followingRes, isFollowingRes] = await Promise.all([
+    const [postsRes, followersRes, followingRes, isFollowingRes, friendCountRes] = await Promise.all([
       supabase
         .from("posts")
         .select("id, content, topic, created_at, likes_count")
@@ -88,12 +91,14 @@ export default function ProfilePage() {
         .select("id", { count: "exact", head: true })
         .eq("follower_id", prof.id),
       user ? isFollowing(user.id, prof.id) : Promise.resolve(false),
+      getFriendCount(prof.id),
     ])
 
     setPosts(postsRes.data || [])
     setFollowerCount(followersRes.count || 0)
     setFollowingCount(followingRes.count || 0)
     setFollowingUser(isFollowingRes)
+    setFriendCount(friendCountRes)
     setLoading(false)
   }
 
@@ -167,7 +172,10 @@ export default function ProfilePage() {
                     </h1>
                     <p className="text-sm text-muted-foreground">@{profile.username}</p>
                   </div>
-                  <FollowButton targetUserId={profile.id} initialFollowing={followingUser} />
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <FriendButton targetUserId={profile.id} size="default" />
+                    <FollowButton targetUserId={profile.id} initialFollowing={followingUser} />
+                  </div>
                 </div>
 
                 {profile.bio && (
@@ -192,6 +200,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex gap-4 mt-3 text-sm">
+                  <Link href="/friends" className="hover:underline">
+                    <strong className="text-foreground">{friendCount}</strong>{" "}
+                    <span className="text-muted-foreground">Friends</span>
+                  </Link>
                   <span>
                     <strong className="text-foreground">{followingCount}</strong>{" "}
                     <span className="text-muted-foreground">Following</span>
