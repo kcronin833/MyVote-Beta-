@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { ARCHETYPES } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
 import { ARCHETYPE_SLUGS, archetypeFromSlug } from "@/lib/civic-share"
+import { ExploreFeatures } from "@/components/explore-features"
 
 /* Public share landing page for a quiz result. When someone posts
    "I'm a Civic Pragmatist", the link lands here: the visitor sees what
@@ -198,13 +199,11 @@ export default async function CivicProfileSharePage({
         </Link>
       </div>
 
-      <div style={{ textAlign: "center" }}>
-        <Link
-          href="/profiles"
-          style={{ fontSize: 13, fontWeight: 600, color: C.teal, textDecoration: "none" }}
-        >
-          Explore all 8 civic profiles →
-        </Link>
+      <div style={{ marginTop: 20 }}>
+        <ExploreFeatures
+          heading="More on MyVote"
+          note="A free, nonpartisan home base for Georgia voters."
+        />
       </div>
     </div>
   )

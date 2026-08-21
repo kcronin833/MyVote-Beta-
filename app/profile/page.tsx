@@ -10,6 +10,7 @@ import { useAuth } from "@/components/auth-context"
 import { UserAvatar } from "@/components/user-avatar"
 import { AvatarUploadModal } from "@/components/avatar-upload-modal"
 import { ARCHETYPES, type QuizResult } from "@/lib/quiz-engine"
+import { ExploreFeatures } from "@/components/explore-features"
 
 const ProfilePage = () => {
   const { profile, updateProfile } = useAuth()
@@ -133,6 +134,11 @@ const ProfilePage = () => {
             <CountyPicker />
             <PoliticalSpectrumBar />
           </div>
+        </div>
+
+        {/* Launchpad into the rest of the product */}
+        <div style={{ marginTop: 20 }}>
+          <ExploreFeatures />
         </div>
       </div>
     </div>

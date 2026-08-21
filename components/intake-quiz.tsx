@@ -35,6 +35,7 @@ import {
   type QuizResult,
 } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
+import { ExploreFeatures } from "@/components/explore-features"
 import { shareUrl, shareText } from "@/lib/civic-share"
 import { ReminderSignup } from "@/components/reminder-signup"
 import { syncQuizResult, notifyProfileUpdated } from "@/lib/civic-profile-store"
@@ -706,6 +707,14 @@ function ResultsScreen({
           >
             See every 2026 Georgia race →
           </a>
+        </div>
+
+        {/* Discovery: the results screen was a dead end — surface the whole product */}
+        <div style={{ marginBottom: 16 }}>
+          <ExploreFeatures
+            note="Your profile is just the start — here's everything else on MyVote."
+            exclude={["profiles"]}
+          />
         </div>
 
         {/* Retention: capture email at the moment of highest engagement */}
