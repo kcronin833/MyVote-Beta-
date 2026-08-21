@@ -58,9 +58,20 @@ interface GNewsArticle {
   source: { name: string; url: string }
 }
 
-async function fetchGNews(endpoint: string): Promise<GNewsArticle[]> {
+async function fetchGNews(endpoint: string, attempt = 0): Promise<GNewsArticle[]> {
   try {
     const res = await fetch(endpoint, { signal: AbortSignal.timeout(15000) })
+    if (res.status === 429) {
+      // GNews free-tier burst limit. Back off once, then treat as a soft miss —
+      // this is expected/transient, so warn (don't error) to keep it out of the
+      // runtime-error dashboard. RSS + other topics still supply the feed.
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 2000))
+        return fetchGNews(endpoint, 1)
+      }
+      console.warn("[ingest] GNews 429 rate-limited — skipping this feed for now")
+      return []
+    }
     if (!res.ok) {
       console.error(`[ingest] GNews ${res.status}:`, await res.text())
       return []
@@ -92,7 +103,7 @@ export async function runIngest(supabase: SupabaseClient) {
   for (let i = 0; i < feeds.length; i++) {
     const articles = await fetchGNews(feeds[i])
     allArticles.push(...articles)
-    if (i < feeds.length - 1) await new Promise((r) => setTimeout(r, 300))
+    if (i < feeds.length - 1) await new Promise((r) => setTimeout(r, 700))
   }
 
   if (allArticles.length === 0) throw new Error("GNews returned no articles — check GNEWS_API_KEY")
