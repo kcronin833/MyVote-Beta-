@@ -37,24 +37,31 @@ export function ExploreFeatures({
   heading = "Explore everything MyVote offers",
   note,
   exclude = [],
+  bare = false,
 }: {
   heading?: string
   /** Optional line under the heading. */
   note?: string
   /** Feature keys to hide (e.g. the page you're already on). */
   exclude?: FeatureKey[]
+  /** Drop the outer card chrome so it can blend into an existing container. */
+  bare?: boolean
 }) {
   const items = FEATURES.filter((f) => !exclude.includes(f.key))
 
   return (
     <section
-      style={{
-        background: C.card,
-        border: `1px solid ${C.rule}`,
-        borderRadius: 14,
-        boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
-        padding: "16px 16px 14px",
-      }}
+      style={
+        bare
+          ? { background: "transparent" }
+          : {
+              background: C.card,
+              border: `1px solid ${C.rule}`,
+              borderRadius: 14,
+              boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+              padding: "16px 16px 14px",
+            }
+      }
     >
       <p style={{ fontSize: 14.5, fontWeight: 800, color: C.ink900, margin: "0 0 2px" }}>{heading}</p>
       <p style={{ fontSize: 12.5, color: C.ink500, margin: `0 0 ${note ? 4 : 12}px`, lineHeight: 1.5 }}>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ReminderSignup } from "@/components/reminder-signup";
+import { ExploreFeatures } from "@/components/explore-features";
 
 /* One-time exit-intent / scroll-depth reminder prompt.
  *
@@ -104,6 +105,8 @@ export function ExitReminderPrompt() {
           borderRadius: 18,
           padding: "16px 14px 14px",
           boxShadow: "0 16px 50px rgba(20,24,40,0.3)",
+          maxHeight: "88vh",
+          overflowY: "auto",
         }}
       >
         <button
@@ -129,6 +132,18 @@ export function ExitReminderPrompt() {
           source="exit-prompt"
           title="Before you go — get a reminder?"
           blurb="One email before each 2026 Georgia election — registration deadline, early voting, and election day. No spam, never sold."
+        />
+
+        {/* Feature discovery: many visitors never find the rest of the product. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 2px 12px" }}>
+          <span style={{ flex: 1, height: 1, background: "#E4E0D3" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#8B8FA3", letterSpacing: 0.4 }}>OR EXPLORE MYVOTE</span>
+          <span style={{ flex: 1, height: 1, background: "#E4E0D3" }} />
+        </div>
+        <ExploreFeatures
+          bare
+          heading="There's more here than you think"
+          note="Free, nonpartisan tools for Georgia voters — take a look before you go."
         />
       </div>
     </div>
