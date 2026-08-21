@@ -59,14 +59,14 @@ export function FriendButton({ targetUserId, initialState, size = "sm", onChange
     opacity: ready ? 1 : 0.5,
   }
   const filled: React.CSSProperties = {
-    ...base, border: "none", background: "#3D8073", color: "#fff",
-    boxShadow: "0 1px 6px rgba(61,128,115,0.25)",
+    ...base, border: "none", background: "#030213", color: "#fff",
+    boxShadow: "0 1px 6px rgba(3,2,19,0.25)",
   }
   const outlined = (danger: boolean): React.CSSProperties => ({
     ...base,
     border: `1.5px solid ${danger ? "#FCA5A5" : "#B2D8D0"}`,
-    background: danger ? "#FFF1F2" : "#E6F0ED",
-    color: danger ? "#B33A2C" : "#2F6358",
+    background: danger ? "#FFF1F2" : "#EFEFF3",
+    color: danger ? "#D4183D" : "#030213",
   })
 
   function apply(next: FriendState) {

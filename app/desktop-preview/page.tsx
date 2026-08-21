@@ -11,7 +11,7 @@ export default function DesktopPreviewPage() {
     <>
       <div
         style={{
-          background: "#1A2138",
+          background: "#030213",
           color: "#fff",
           padding: "8px 16px",
           fontSize: 12,

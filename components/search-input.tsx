@@ -7,13 +7,13 @@ import { Search, X } from "lucide-react"
 import { SearchService } from "@/lib/search-service"
 
 const C = {
-  card:   "#FDFCF9",
-  rule:   "#E4E0D3",
-  ink900: "#1A2138",
-  ink500: "#6B7088",
+  card:   "#FFFFFF",
+  rule:   "#E9EBEF",
+  ink900: "#030213",
+  ink500: "#717182",
   ink400: "#8B8FA3",
   shade:  "#F0EDE6",
-  page:   "#F5F3EE",
+  page:   "#F0F0F3",
 }
 
 export function SearchInput() {

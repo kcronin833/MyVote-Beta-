@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/auth-context";
 import { createClient } from "@/lib/supabase/client";
 
-const C = { rule: "#E4E0D3", ink400: "#8B8FA3", ink700: "#3D435A", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED" };
+const C = { rule: "#E9EBEF", ink400: "#8B8FA3", ink700: "#3D435A", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3" };
 
 export function JoinButton({
   groupId,

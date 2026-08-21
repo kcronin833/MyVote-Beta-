@@ -5,8 +5,8 @@ import { useAuth } from "@/components/auth-context";
 import { createClient } from "@/lib/supabase/client";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 export interface GroupArticle {
@@ -92,12 +92,12 @@ export function GroupArticles({ groupId, initialArticles }: { groupId: string; i
             style={{ height: 36, padding: "0 12px", borderRadius: 8, border: `1px solid ${C.rule}`, fontSize: 13, color: C.ink900, outline: "none" }}
           />
           {error && (
-            <div style={{ fontSize: 12, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 }}>{error}</div>
+            <div style={{ fontSize: 12, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 }}>{error}</div>
           )}
           <button
             onClick={add}
             disabled={busy}
-            style={{ alignSelf: "flex-start", height: 34, padding: "0 16px", borderRadius: 999, border: "none", background: busy ? "#E4E0D3" : C.teal, color: busy ? C.ink400 : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" }}
+            style={{ alignSelf: "flex-start", height: 34, padding: "0 16px", borderRadius: 999, border: "none", background: busy ? "#E9EBEF" : C.teal, color: busy ? C.ink400 : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" }}
           >
             {busy ? "Adding…" : "Add article"}
           </button>

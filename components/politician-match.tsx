@@ -164,7 +164,7 @@ export function PoliticianMatch() {
 
   if (leanScore === null || totalRatings < 3) {
     return (
-      <div className="bg-card rounded-2xl border border-[#1A2138]/20 p-5 space-y-3">
+      <div className="bg-card rounded-2xl border border-[#030213]/20 p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-ink-900" />
           <p className="text-sm font-bold text-foreground">Politician Match</p>
@@ -188,7 +188,7 @@ export function PoliticianMatch() {
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-[#1A2138]/20 overflow-hidden shadow-sm">
+    <div className="bg-card rounded-2xl border border-[#030213]/20 overflow-hidden shadow-sm">
       <div className="bg-ink-900 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

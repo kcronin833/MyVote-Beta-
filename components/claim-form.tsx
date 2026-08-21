@@ -5,8 +5,8 @@ import Link from "next/link"
 import { useAuth } from "@/components/auth-context"
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 }
 
 function suggestFromEmail(email: string) {
@@ -76,7 +76,7 @@ export function ClaimForm({
 
   if (done) {
     return (
-      <div style={{ background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 14, padding: "20px 18px", textAlign: "center" }}>
+      <div style={{ background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 14, padding: "20px 18px", textAlign: "center" }}>
         <p style={{ fontSize: 16, fontWeight: 800, color: C.tealDk, margin: "0 0 6px" }}>✓ Profile created</p>
         <p style={{ fontSize: 13.5, color: C.ink700, margin: "0 0 14px", lineHeight: 1.6 }}>
           Check <strong>{emailValue}</strong> for a confirmation link to finish signing in.
@@ -92,7 +92,7 @@ export function ClaimForm({
   return (
     <div style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 14, boxShadow: "0 2px 10px rgba(20,24,40,0.07)", padding: "18px 18px 16px" }}>
       {alreadyClaimed && (
-        <div style={{ fontSize: 12.5, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 8, padding: "8px 12px", marginBottom: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12.5, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 8, padding: "8px 12px", marginBottom: 14, lineHeight: 1.5 }}>
           Looks like you may have started this already. If you have an account,{" "}
           <Link href="/auth/signin" style={{ color: C.tealDk, fontWeight: 700 }}>sign in</Link> — otherwise finish below.
         </div>
@@ -104,7 +104,7 @@ export function ClaimForm({
           <input
             type="email" value={emailValue} onChange={(e) => setEmailValue(e.target.value)}
             readOnly={!!email}
-            style={{ ...inp, background: email ? "#F5F3EE" : "#fff", color: email ? C.ink500 : C.ink900 }}
+            style={{ ...inp, background: email ? "#F0F0F3" : "#fff", color: email ? C.ink500 : C.ink900 }}
             placeholder="your@email.com"
           />
         </div>
@@ -123,17 +123,17 @@ export function ClaimForm({
         </div>
 
         {err && (
-          <div style={{ fontSize: 12.5, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12.5, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
             {err}{" "}
             {/already have an account/i.test(err) && (
-              <Link href="/auth/signin" style={{ color: "#B33A2C", fontWeight: 700 }}>Sign in →</Link>
+              <Link href="/auth/signin" style={{ color: "#D4183D", fontWeight: 700 }}>Sign in →</Link>
             )}
           </div>
         )}
 
         <button
           onClick={submit} disabled={busy}
-          style={{ height: 46, borderRadius: 999, border: "none", background: busy ? C.rule : C.teal, color: busy ? C.ink400 : "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "default" : "pointer", marginTop: 2, boxShadow: busy ? "none" : "0 2px 12px rgba(61,128,115,0.3)" }}
+          style={{ height: 46, borderRadius: 999, border: "none", background: busy ? C.rule : C.teal, color: busy ? C.ink400 : "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "default" : "pointer", marginTop: 2, boxShadow: busy ? "none" : "0 2px 12px rgba(3,2,19,0.3)" }}
         >
           {busy ? "Creating your profile…" : "Create my free profile"}
         </button>

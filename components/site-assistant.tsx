@@ -12,16 +12,16 @@ import {
 } from "@/lib/assistant-knowledge";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
-  page: "#F5F3EE",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
+  page: "#F0F0F3",
 };
 
 interface Msg {
@@ -178,7 +178,7 @@ export function SiteAssistant() {
             fontSize: 14.5,
             fontWeight: 700,
             cursor: "pointer",
-            boxShadow: "0 6px 20px rgba(61,128,115,0.4), 0 2px 6px rgba(20,24,40,0.15)",
+            boxShadow: "0 6px 20px rgba(3,2,19,0.4), 0 2px 6px rgba(20,24,40,0.15)",
             animation: nudge ? "mv-attn 1.8s ease-in-out infinite" : undefined,
           }}
         >
@@ -296,7 +296,7 @@ export function SiteAssistant() {
                           fontSize: 12.5,
                           fontWeight: 700,
                           cursor: "pointer",
-                          boxShadow: "0 1px 6px rgba(61,128,115,0.25)",
+                          boxShadow: "0 1px 6px rgba(3,2,19,0.25)",
                         }}
                       >
                         {a.label}

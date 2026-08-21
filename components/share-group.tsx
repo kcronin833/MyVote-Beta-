@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Share2 } from "lucide-react";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 /* Make a local-issue group spread. The whole strategy rests on issues being
@@ -30,7 +30,7 @@ export function ShareGroup({ groupName, slug }: { groupName: string; slug: strin
   const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
   return (
-    <div style={{ background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 12, padding: "14px 16px", marginBottom: 18 }}>
+    <div style={{ background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 12, padding: "14px 16px", marginBottom: 18 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
         <Share2 size={15} color={C.teal} style={{ flexShrink: 0 }} />
         <p style={{ fontSize: 13.5, fontWeight: 700, color: C.ink900, margin: 0 }}>Rally your neighbors</p>
@@ -44,7 +44,7 @@ export function ShareGroup({ groupName, slug }: { groupName: string; slug: strin
         )}
         <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" style={pill}>Post on X</a>
         <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" style={pill}>Facebook</a>
-        <button onClick={copyLink} style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#C0DAD4" } : {}) }}>
+        <button onClick={copyLink} style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#D9DCE3" } : {}) }}>
           {copied ? "Copied ✓" : "Copy link"}
         </button>
       </div>

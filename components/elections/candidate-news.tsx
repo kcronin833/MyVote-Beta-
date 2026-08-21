@@ -29,8 +29,8 @@ type Story = {
 function leanLabel(lo: number | null, hi: number | null): { text: string; bg: string; color: string } {
   const l = lo ?? 0; const h = hi ?? 0
   if (l < -0.25 && h < -0.25) return { text: "Left-leaning",  bg: "#DBEAFE", color: "#1D4ED8" }
-  if (l >  0.25 && h >  0.25) return { text: "Right-leaning", bg: "#F5E3DF", color: "#B33A2C" }
-  return { text: "Multi-perspective", bg: "#E6F0ED", color: "#3D8073" }
+  if (l >  0.25 && h >  0.25) return { text: "Right-leaning", bg: "#FCE7EA", color: "#D4183D" }
+  return { text: "Multi-perspective", bg: "#EFEFF3", color: "#030213" }
 }
 
 /* Two big destination buttons — the actual funnel into the news product. */

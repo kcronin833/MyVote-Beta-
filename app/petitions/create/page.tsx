@@ -12,8 +12,8 @@ import {
 import { countySlug } from "@/lib/county-utils";
 
 const C = {
-  page: "#F5F3EE", card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358",
+  page: "#F0F0F3", card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213",
 };
 
 export default function CreatePetitionPage() {
@@ -145,9 +145,9 @@ export default function CreatePetitionPage() {
             </Field>
           </div>
 
-          {err && <div style={{ fontSize: 13, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "9px 12px", lineHeight: 1.45 }}>{err}</div>}
+          {err && <div style={{ fontSize: 13, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "9px 12px", lineHeight: 1.45 }}>{err}</div>}
 
-          <button onClick={submit} disabled={busy} style={{ height: 48, borderRadius: 999, border: "none", background: busy ? "#E4E0D3" : "#3D8073", color: busy ? "#8B8FA3" : "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "default" : "pointer", boxShadow: busy ? "none" : "0 2px 12px rgba(61,128,115,0.3)" }}>
+          <button onClick={submit} disabled={busy} style={{ height: 48, borderRadius: 999, border: "none", background: busy ? "#E9EBEF" : "#030213", color: busy ? "#8B8FA3" : "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "default" : "pointer", boxShadow: busy ? "none" : "0 2px 12px rgba(3,2,19,0.3)" }}>
             {busy ? "Publishing…" : "Publish petition"}
           </button>
           <p style={{ fontSize: 11.5, color: C.ink400, lineHeight: 1.5, margin: 0, textAlign: "center" }}>
@@ -169,5 +169,5 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-const inp: React.CSSProperties = { width: "100%", height: 44, padding: "0 12px", borderRadius: 8, border: "1px solid #E4E0D3", fontSize: 14, color: "#1A2138", outline: "none", background: "#fff" };
+const inp: React.CSSProperties = { width: "100%", height: 44, padding: "0 12px", borderRadius: 8, border: "1px solid #E9EBEF", fontSize: 14, color: "#030213", outline: "none", background: "#fff" };
 const sel: React.CSSProperties = { ...inp, appearance: "none", WebkitAppearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B8FA3' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" };

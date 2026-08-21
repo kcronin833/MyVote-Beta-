@@ -43,8 +43,8 @@ const ACTIONS = [
     label: "Check Registration",
     desc: "Confirm you're registered and find your polling place.",
     href: "https://mvp.sos.ga.gov",
-    color: "#3D8073",
-    bg: "#E6F0ED",
+    color: "#030213",
+    bg: "#EFEFF3",
   },
   {
     icon: Vote,
@@ -164,18 +164,18 @@ export default function RegisterPage() {
           <div
             className="rounded-2xl border p-4 mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4"
             style={{
-              background: daysToRegDeadline <= 14 ? "#FFF3CD" : "#E6F0ED",
+              background: daysToRegDeadline <= 14 ? "#FFF3CD" : "#EFEFF3",
               borderColor: daysToRegDeadline <= 14 ? "#F0C040" : "#B0D5CB",
             }}
           >
             <CalendarDays
               className="w-8 h-8 flex-shrink-0 mt-0.5 sm:mt-0"
-              style={{ color: daysToRegDeadline <= 14 ? "#B8862F" : "#3D8073" }}
+              style={{ color: daysToRegDeadline <= 14 ? "#B8862F" : "#030213" }}
             />
             <div className="flex-1">
               <p className="font-semibold text-foreground text-sm">
                 General Election registration deadline —{" "}
-                <span style={{ color: "#1A2138" }}>{fmt(DATES.generalRegDeadline)}</span>
+                <span style={{ color: "#030213" }}>{fmt(DATES.generalRegDeadline)}</span>
               </p>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {daysToRegDeadline > 0
@@ -188,7 +188,7 @@ export default function RegisterPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: "#3D8073", borderRadius: 999, padding: "8px 16px" }}
+              style={{ background: "#030213", borderRadius: 999, padding: "8px 16px" }}
             >
               Register Now
               <ExternalLink className="w-3 h-3" />
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group mv-lift"
-                style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 18, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", textDecoration: "none", display: "flex", gap: 14, alignItems: "flex-start" }}
+                style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 18, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", textDecoration: "none", display: "flex", gap: 14, alignItems: "flex-start" }}
               >
                 <div
                   style={{ width: 44, height: 44, borderRadius: 10, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: bg }}
@@ -212,18 +212,18 @@ export default function RegisterPage() {
                   <Icon style={{ color, width: 20, height: 20 }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#1A2138", display: "flex", alignItems: "center", gap: 4, margin: "0 0 3px" }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#030213", display: "flex", alignItems: "center", gap: 4, margin: "0 0 3px" }}>
                     {label}
-                    <ExternalLink style={{ width: 12, height: 12, color: "#6B7088", opacity: 0 }} className="group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink style={{ width: 12, height: 12, color: "#717182", opacity: 0 }} className="group-hover:opacity-100 transition-opacity" />
                   </p>
-                  <p style={{ fontSize: 12.5, color: "#6B7088", lineHeight: 1.55, margin: 0 }}>{desc}</p>
+                  <p style={{ fontSize: 12.5, color: "#717182", lineHeight: 1.55, margin: 0 }}>{desc}</p>
                 </div>
               </a>
             ))}
           </div>
 
           {/* ── 2026 Election Timeline ── */}
-          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
+          <section className="mb-6" style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-5 flex items-center gap-2">
               <CalendarDays className="w-4 h-4 text-teal-600" />
               2026 Georgia Election Timeline
@@ -297,7 +297,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── Voter ID ── */}
-          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
+          <section className="mb-6" style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-1 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-teal-600" />
               Georgia Voter ID Requirements
@@ -335,7 +335,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── Your County ── */}
-          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
+          <section className="mb-6" style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}>
             <h2 className="font-bold text-foreground text-base mb-1 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-teal-600" />
               Your County Election Office
@@ -360,7 +360,7 @@ export default function RegisterPage() {
                   <Link
                     href={`/g/${countySlugFromProfile}`}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-xl px-4 py-2 transition-opacity hover:opacity-90"
-                    style={{ background: "#E6F0ED", color: "#3D8073" }}
+                    style={{ background: "#EFEFF3", color: "#030213" }}
                   >
                     View {countyName} ballot →
                   </Link>
@@ -450,7 +450,7 @@ export default function RegisterPage() {
           </section>
 
           {/* ── FAQ ── */}
-          <section className="mb-6" style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", overflow: "hidden" }}>
+          <section className="mb-6" style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", overflow: "hidden" }}>
             <div className="p-6 pb-4">
               <h2 className="font-bold text-foreground text-base">
                 Frequently Asked Questions
@@ -526,7 +526,7 @@ function TimelineItem({
 }) {
   const dotColor =
     status === "past"    ? "#9CA3AF" :
-    status === "current" ? "#3D8073" :
+    status === "current" ? "#030213" :
     status === "next"    ? "#B8862F" :
     status === "upcoming"? "#1F3A5F" :
                            "#D1D5DB"

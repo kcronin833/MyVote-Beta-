@@ -152,7 +152,7 @@ function ArticleCard({ article }: { article: Article }) {
                 fontWeight: 600,
                 color: C.teal,
                 background: C.tealSoft,
-                border: "1px solid #C0DAD4",
+                border: "1px solid #D9DCE3",
                 borderRadius: 999,
                 padding: "1px 7px",
                 whiteSpace: "nowrap",
@@ -229,7 +229,7 @@ function ArticleCard({ article }: { article: Article }) {
                 padding: "5px 12px",
                 borderRadius: 999,
                 background: C.tealSoft,
-                border: "1px solid #C0DAD4",
+                border: "1px solid #D9DCE3",
                 transition: "all 0.15s ease",
               }}
             >

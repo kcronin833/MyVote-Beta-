@@ -42,16 +42,16 @@ const ARCHETYPE_ORDER: ArchetypeKey[] = [
 ]
 
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
+  ink500:  "#717182",
   ink400:  "#8B8FA3",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
-  page:    "#F5F3EE",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
+  page:    "#F0F0F3",
   shade:   "#F0EDE6",
 }
 
@@ -104,7 +104,7 @@ export default function CivicProfilesPage() {
       </div>
 
       {/* ── Hero ── */}
-      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)" }}>
+      <div style={{ background: "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)" }}>
         {/* Dot pattern */}
         <div style={{ position: "relative", overflow: "hidden" }}>
           <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.1, pointerEvents: "none" }}>
@@ -116,7 +116,7 @@ export default function CivicProfilesPage() {
             <rect width="100%" height="100%" fill="url(#pdots)" />
           </svg>
           <div style={{ maxWidth: 780, margin: "0 auto", padding: "64px 16px 72px", textAlign: "center", position: "relative" }}>
-            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6FBFB0", marginBottom: 14 }}>
+            <p style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#C7CAD1", marginBottom: 14 }}>
               MyVote Civic Profiles
             </p>
             <h1 style={{
@@ -144,7 +144,7 @@ export default function CivicProfilesPage() {
                   padding: "12px 28px", borderRadius: 999,
                   background: C.teal, color: "#fff",
                   fontWeight: 700, fontSize: 14.5, textDecoration: "none",
-                  boxShadow: "0 2px 14px rgba(61,128,115,0.4)",
+                  boxShadow: "0 2px 14px rgba(3,2,19,0.4)",
                 }}
               >
                 Take the quiz — find your profile
@@ -272,7 +272,7 @@ export default function CivicProfilesPage() {
                             wikipediaTitle={fig.wikiTitle}
                             size={idx === 0 ? 60 : 44}
                             shape="circle"
-                            partyColor="#6B7088"
+                            partyColor="#717182"
                           />
                         </div>
                         <div style={{ minWidth: 0, flex: 1 }}>
@@ -316,7 +316,7 @@ export default function CivicProfilesPage() {
               padding: "13px 32px", borderRadius: 999,
               background: C.teal, color: "#fff",
               fontWeight: 700, fontSize: 15, textDecoration: "none",
-              boxShadow: "0 2px 16px rgba(61,128,115,0.32)",
+              boxShadow: "0 2px 16px rgba(3,2,19,0.32)",
             }}
           >
             Discover your civic profile →

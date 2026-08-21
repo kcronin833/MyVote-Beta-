@@ -35,14 +35,14 @@ export default function SignInPage() {
 
   return (
     <AuthShell>
-      <div style={{ width: "100%", maxWidth: 420, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
+      <div style={{ width: "100%", maxWidth: 420, background: "#FFFFFF", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
 
-        <h1 style={{ fontSize: 21, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Welcome back</h1>
-        <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 22 }}>Pick up where you left off — your ballot, groups, and reminders.</p>
+        <h1 style={{ fontSize: 21, fontWeight: 700, color: "#030213", textAlign: "center", marginBottom: 4 }}>Welcome back</h1>
+        <p style={{ fontSize: 13.5, color: "#717182", textAlign: "center", marginBottom: 22 }}>Pick up where you left off — your ballot, groups, and reminders.</p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {error && (
-              <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
+              <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#D4183D", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
                 {error}
               </div>
             )}
@@ -66,7 +66,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={loading}
-              style={{ height: 44, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14.5, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s", boxShadow: loading ? "none" : "0 2px 12px rgba(61,128,115,0.28)" }}
+              style={{ height: 44, borderRadius: 999, border: "none", background: loading ? "#E9EBEF" : "#030213", color: loading ? "#8B8FA3" : "#fff", fontSize: 14.5, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s", boxShadow: loading ? "none" : "0 2px 12px rgba(3,2,19,0.28)" }}
             >
               {loading ? "Signing in…" : "Sign In"}
             </button>
@@ -74,7 +74,7 @@ export default function SignInPage() {
 
         <p style={{ textAlign: "center", fontSize: 13, color: "#8B8FA3", marginTop: 16 }}>
           Don&rsquo;t have an account?{" "}
-          <Link href="/auth/signup" style={{ color: "#3D8073", fontWeight: 600, textDecoration: "none" }}>
+          <Link href="/auth/signup" style={{ color: "#030213", fontWeight: 600, textDecoration: "none" }}>
             Sign Up
           </Link>
         </p>

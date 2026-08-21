@@ -13,8 +13,8 @@ export function generateStaticParams() {
 }
 
 const C = {
-  page: "#F5F3EE", card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  page: "#F0F0F3", card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 const KNOWN = new Set(getAllCountySlugs());
@@ -91,7 +91,7 @@ export default async function CountyGroupsPage({ params }: { params: Promise<{ c
             {groups.map((g) => (
               <Link key={g.id} href={`/groups/${g.slug}`} style={{ display: "block", background: C.card, border: `1px solid ${C.rule}`, borderRadius: 12, padding: "14px 16px", textDecoration: "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                  {g.category && <span style={{ fontSize: 10.5, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" }}>{categoryLabel(g.category)}</span>}
+                  {g.category && <span style={{ fontSize: 10.5, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 8px" }}>{categoryLabel(g.category)}</span>}
                   <span style={{ marginLeft: "auto", fontSize: 11.5, color: C.ink400 }}>{counts.get(g.id) ?? 0} {(counts.get(g.id) ?? 0) === 1 ? "member" : "members"}</span>
                 </div>
                 <p style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: "0 0 3px", lineHeight: 1.3 }}>{g.name}</p>

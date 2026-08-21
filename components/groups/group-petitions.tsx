@@ -5,8 +5,8 @@ import { useAuth } from "@/components/auth-context";
 import { createClient } from "@/lib/supabase/client";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 export interface Petition {
@@ -211,7 +211,7 @@ export function GroupPetitions({
                     </p>
                   </div>
                 ) : (
-                  <button onClick={() => { setOpenSign(p.id); setSignErr(null); }} style={{ width: "100%", height: 40, borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(61,128,115,0.28)" }}>
+                  <button onClick={() => { setOpenSign(p.id); setSignErr(null); }} style={{ width: "100%", height: 40, borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(3,2,19,0.28)" }}>
                     Sign this petition
                   </button>
                 )}
@@ -224,8 +224,8 @@ export function GroupPetitions({
   );
 }
 
-const inp: React.CSSProperties = { height: 36, padding: "0 12px", borderRadius: 8, border: "1px solid #E4E0D3", fontSize: 13, color: "#1A2138", outline: "none", background: "#fff" };
-const errBox: React.CSSProperties = { fontSize: 12, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 };
+const inp: React.CSSProperties = { height: 36, padding: "0 12px", borderRadius: 8, border: "1px solid #E9EBEF", fontSize: 13, color: "#030213", outline: "none", background: "#fff" };
+const errBox: React.CSSProperties = { fontSize: 12, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 };
 function primaryBtn(busy: boolean): React.CSSProperties {
-  return { height: 36, padding: "0 18px", borderRadius: 999, border: "none", background: busy ? "#E4E0D3" : "#3D8073", color: busy ? "#8B8FA3" : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" };
+  return { height: 36, padding: "0 18px", borderRadius: 999, border: "none", background: busy ? "#E9EBEF" : "#030213", color: busy ? "#8B8FA3" : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" };
 }

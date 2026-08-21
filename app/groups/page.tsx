@@ -6,8 +6,8 @@ import { CreateGroup } from "@/components/groups/create-group";
 export const dynamic = "force-dynamic";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 export const metadata: Metadata = {
@@ -64,7 +64,7 @@ export default async function GroupsPage() {
             <Link key={g.id} href={`/groups/${g.slug}`} style={{ display: "block", background: C.card, border: `1px solid ${C.rule}`, borderRadius: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)", padding: "16px 18px", textDecoration: "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
                 {g.category && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 9px" }}>{g.category}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 9px" }}>{g.category}</span>
                 )}
                 <span style={{ marginLeft: "auto", fontSize: 11.5, color: C.ink400 }}>
                   {counts.get(g.id) ?? 0} {(counts.get(g.id) ?? 0) === 1 ? "member" : "members"}

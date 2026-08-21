@@ -81,8 +81,8 @@ export function Chip({
 }) {
   const styles: Record<ChipTone, { bg: string; fg: string; br: string }> = {
     neutral:  { bg: C.shade,    fg: C.ink700, br: C.rule },
-    teal:     { bg: C.tealSoft, fg: C.tealDk, br: "#C9DDD7" },
-    red:      { bg: C.redSoft,  fg: C.red,    br: "#E8CDC7" },
+    teal:     { bg: C.tealSoft, fg: C.tealDk, br: "#D9DCE3" },
+    red:      { bg: C.redSoft,  fg: C.red,    br: "#F3C9D1" },
     amber:    { bg: C.amberSoft,fg: C.amber,  br: "#E2D2A8" },
     inkSolid: { bg: C.ink900,   fg: "#fff",   br: C.ink900 },
   };
@@ -176,7 +176,7 @@ export function VerifiedMark({ size = 14 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24">
       <path
         d="M12 1l2.5 2L18 2l1 3.5 3 1.5-1.5 3L22 13l-3 1-1 3.5-3.5-1L12 19l-2.5-2L6 18l-1-3.5-3-1L3.5 10 2 7l3-1.5L6 2l3.5 1z"
-        fill="#3D8073"
+        fill="#030213"
       />
       <path
         d="M8 12l3 3 5-6"

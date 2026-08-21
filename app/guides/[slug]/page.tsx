@@ -6,16 +6,16 @@ import { ReminderSignup } from "@/components/reminder-signup";
 import { QuizPromo } from "@/components/quiz-promo";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
   ruleSoft: "#EDEAE0",
-  ink900: "#1A2138",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
 };
 
 export function generateStaticParams() {
@@ -138,7 +138,7 @@ export default async function GuidePage({
       <div
         style={{
           background: C.tealSoft,
-          border: "1px solid #C0DAD4",
+          border: "1px solid #D9DCE3",
           borderRadius: 12,
           padding: "16px 18px",
         }}

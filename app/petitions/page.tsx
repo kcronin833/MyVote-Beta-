@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 };
 
 const C = {
-  page: "#F5F3EE", card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  page: "#F0F0F3", card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 export default async function PetitionsHub() {
@@ -43,7 +43,7 @@ export default async function PetitionsHub() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
       {/* Hero */}
-      <section style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", padding: "56px 16px 48px" }}>
+      <section style={{ background: "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)", padding: "56px 16px 48px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
           <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 700, color: "#fff", lineHeight: 1.1, letterSpacing: "-0.02em", margin: "0 0 16px" }}>
             Make your voice heard in Georgia
@@ -54,7 +54,7 @@ export default async function PetitionsHub() {
             legislator, or beyond.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/petitions/create" style={{ background: "#B33A2C", color: "#fff", fontSize: 15, fontWeight: 700, padding: "13px 28px", borderRadius: 999, textDecoration: "none", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
+            <Link href="/petitions/create" style={{ background: "#D4183D", color: "#fff", fontSize: 15, fontWeight: 700, padding: "13px 28px", borderRadius: 999, textDecoration: "none", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
               Start a Petition →
             </Link>
             <a href="#browse" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff", fontSize: 15, fontWeight: 600, padding: "13px 28px", borderRadius: 999, textDecoration: "none" }}>
@@ -131,7 +131,7 @@ export default async function PetitionsHub() {
           <h2 style={{ fontSize: 18, fontWeight: 700, color: C.ink900, margin: "0 0 12px" }}>Browse by county</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {TOP_COUNTY_SLUGS.map((slug) => (
-              <Link key={slug} href={`/petitions/county/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "8px 14px", textDecoration: "none" }}>
+              <Link key={slug} href={`/petitions/county/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "8px 14px", textDecoration: "none" }}>
                 {countyDisplayName(slug)} County
               </Link>
             ))}
@@ -155,4 +155,4 @@ export default async function PetitionsHub() {
   );
 }
 
-const miniBadge: React.CSSProperties = { fontSize: 10.5, fontWeight: 700, color: "#2F6358", background: "#E6F0ED", border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" };
+const miniBadge: React.CSSProperties = { fontSize: 10.5, fontWeight: 700, color: "#030213", background: "#EFEFF3", border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 8px" };

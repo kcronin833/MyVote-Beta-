@@ -6,8 +6,8 @@ import { useAuth } from "@/components/auth-context";
 import { createClient } from "@/lib/supabase/client";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 const CATEGORIES = ["Schools", "Public Safety", "Local Development", "Environment", "Transportation", "Other"];
@@ -28,7 +28,7 @@ export function CreateGroup() {
 
   if (!user) {
     return (
-      <div style={{ background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 12, padding: "14px 18px", fontSize: 13.5, color: C.ink700 }}>
+      <div style={{ background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 12, padding: "14px 18px", fontSize: 13.5, color: C.ink700 }}>
         <a href="/auth/signin" style={{ color: C.tealDk, fontWeight: 700 }}>Sign in</a> to start a group around a local issue.
       </div>
     );
@@ -38,7 +38,7 @@ export function CreateGroup() {
     return (
       <button
         onClick={() => setOpen(true)}
-        style={{ height: 42, padding: "0 22px", borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 14.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 12px rgba(61,128,115,0.3)" }}
+        style={{ height: 42, padding: "0 22px", borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 14.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 12px rgba(3,2,19,0.3)" }}
       >
         + Start a group
       </button>
@@ -82,7 +82,7 @@ export function CreateGroup() {
       <select style={input} value={category} onChange={(e) => setCategory(e.target.value)}>
         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
-      {error && <p style={{ fontSize: 12.5, color: "#B33A2C", margin: 0 }}>{error}</p>}
+      {error && <p style={{ fontSize: 12.5, color: "#D4183D", margin: 0 }}>{error}</p>}
       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
         <button type="button" onClick={() => setOpen(false)} style={{ height: 38, padding: "0 16px", borderRadius: 999, border: `1px solid ${C.rule}`, background: "transparent", color: C.ink700, fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
         <button type="submit" disabled={saving} style={{ height: 38, padding: "0 20px", borderRadius: 999, border: "none", background: saving ? C.rule : C.teal, color: saving ? C.ink400 : "#fff", fontSize: 13.5, fontWeight: 700, cursor: saving ? "default" : "pointer" }}>{saving ? "Creating…" : "Create group"}</button>

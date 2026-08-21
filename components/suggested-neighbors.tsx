@@ -9,11 +9,11 @@ import { UserAvatar } from "@/components/user-avatar"
 import { FollowButton } from "@/components/follow-button"
 
 const C = {
-  rule:   "#E4E0D3",
-  ink900: "#1A2138",
-  ink500: "#6B7088",
+  rule:   "#E9EBEF",
+  ink900: "#030213",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal:   "#3D8073",
+  teal:   "#030213",
   shade:  "#F0EDE6",
 }
 

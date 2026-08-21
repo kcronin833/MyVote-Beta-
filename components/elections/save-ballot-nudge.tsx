@@ -34,7 +34,7 @@ export function SaveBallotNudge() {
     <div
       style={{
         background: "#FFFFFF",
-        border: "1.5px solid #3D8073",
+        border: "1.5px solid #030213",
         borderRadius: 12,
         padding: 14,
         position: "relative",
@@ -67,16 +67,16 @@ export function SaveBallotNudge() {
             width: 32,
             height: 32,
             borderRadius: 8,
-            background: "#E6F0ED",
+            background: "#EFEFF3",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
           }}
         >
-          <BookmarkCheck size={16} color="#3D8073" />
+          <BookmarkCheck size={16} color="#030213" />
         </div>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "#1A2138" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#030213" }}>
           Save your ballot picks
         </span>
       </div>
@@ -94,7 +94,7 @@ export function SaveBallotNudge() {
           fontSize: 13,
           fontWeight: 700,
           color: "#fff",
-          background: "#B33A2C",
+          background: "#D4183D",
           borderRadius: 999,
           padding: "9px 12px",
           textDecoration: "none",
@@ -111,7 +111,7 @@ export function SaveBallotNudge() {
           textAlign: "center",
           fontSize: 12,
           fontWeight: 600,
-          color: "#3D8073",
+          color: "#030213",
           textDecoration: "none",
         }}
       >

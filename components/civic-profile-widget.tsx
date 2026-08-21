@@ -67,7 +67,7 @@ export function CivicProfileWidget({ dailyAnswered, className }: Props) {
       <div
         className={className}
         style={{
-          background: `linear-gradient(135deg, #1A2138 0%, #3D8073 100%)`,
+          background: `linear-gradient(135deg, #030213 0%, #030213 100%)`,
           border: `1px solid rgba(255,255,255,0.1)`,
           borderRadius: 10,
           padding: 16,
@@ -119,7 +119,7 @@ export function CivicProfileWidget({ dailyAnswered, className }: Props) {
     >
       {/* Header strip */}
       <div style={{
-        background: `linear-gradient(135deg, #1A2138 0%, #3D8073 100%)`,
+        background: `linear-gradient(135deg, #030213 0%, #030213 100%)`,
         padding: "12px 16px",
         display: "flex",
         alignItems: "center",

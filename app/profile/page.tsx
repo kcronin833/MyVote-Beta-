@@ -26,8 +26,8 @@ const ProfilePage = () => {
   }, [])
 
   const cardStyle: React.CSSProperties = {
-    background: "#FDFCF9",
-    border: "1px solid #E4E0D3",
+    background: "#FFFFFF",
+    border: "1px solid #E9EBEF",
     borderRadius: 12,
     boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
   }
@@ -43,7 +43,7 @@ const ProfilePage = () => {
         )}
 
         <div style={{ marginBottom: 14 }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 600, color: "#3D8073", textDecoration: "none" }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 600, color: "#030213", textDecoration: "none" }}>
             <ArrowLeft style={{ width: 14, height: 14 }} />
             Home
           </Link>
@@ -53,7 +53,7 @@ const ProfilePage = () => {
         {profile && (
           <div style={{ ...cardStyle, overflow: "hidden", marginBottom: 16 }}>
             {/* Dark banner */}
-            <div style={{ height: 72, background: "linear-gradient(135deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
+            <div style={{ height: 72, background: "linear-gradient(135deg, #030213 0%, #030213 45%, #0A0A14 100%)", position: "relative", overflow: "hidden" }}>
               <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.15 }}>
                 <defs>
                   <pattern id="pdots" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
@@ -77,12 +77,12 @@ const ProfilePage = () => {
                 </span>
               </button>
               <div style={{ paddingTop: 10, flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 600, color: "#1A2138", margin: 0, letterSpacing: -0.3, lineHeight: 1.2 }}>{profile.display_name}</p>
-                <p style={{ fontSize: 13, color: "#6B7088", margin: "2px 0 0" }}>@{profile.username}</p>
+                <p style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 600, color: "#030213", margin: 0, letterSpacing: -0.3, lineHeight: 1.2 }}>{profile.display_name}</p>
+                <p style={{ fontSize: 13, color: "#717182", margin: "2px 0 0" }}>@{profile.username}</p>
               </div>
               <button
                 onClick={() => setShowAvatarModal(true)}
-                style={{ fontSize: 12, fontWeight: 600, color: "#3D8073", background: "#E6F0ED", border: "1px solid #C9DDD7", borderRadius: 999, padding: "5px 12px", cursor: "pointer", flexShrink: 0, marginBottom: 4 }}
+                style={{ fontSize: 12, fontWeight: 600, color: "#030213", background: "#EFEFF3", border: "1px solid #D9DCE3", borderRadius: 999, padding: "5px 12px", cursor: "pointer", flexShrink: 0, marginBottom: 4 }}
               >
                 Change photo
               </button>
@@ -90,7 +90,7 @@ const ProfilePage = () => {
           </div>
         )}
 
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, color: "#1A2138", margin: "0 0 16px", letterSpacing: -0.3 }}>Your Political Profile</h1>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, color: "#030213", margin: "0 0 16px", letterSpacing: -0.3 }}>Your Political Profile</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
@@ -103,29 +103,29 @@ const ProfilePage = () => {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                   <span style={{ fontSize: 22 }}>{ARCHETYPES[quizResult.archetype]?.emoji}</span>
                   <div>
-                    <p style={{ fontSize: 10.5, fontWeight: 700, color: "#3D8073", textTransform: "uppercase", letterSpacing: 0.4, margin: 0 }}>Civic Profile</p>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1A2138", margin: 0 }}>{ARCHETYPES[quizResult.archetype]?.label}</p>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: "#030213", textTransform: "uppercase", letterSpacing: 0.4, margin: 0 }}>Civic Profile</p>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#030213", margin: 0 }}>{ARCHETYPES[quizResult.archetype]?.label}</p>
                   </div>
                 </div>
                 {quizResult.selectedIssues.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 10 }}>
                     {quizResult.selectedIssues.map((issue) => (
-                      <span key={issue} style={{ fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: "#E6F0ED", color: "#2F6358", border: "1px solid #C9DDD7" }}>
+                      <span key={issue} style={{ fontSize: 11.5, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: "#EFEFF3", color: "#030213", border: "1px solid #D9DCE3" }}>
                         {issue}
                       </span>
                     ))}
                   </div>
                 )}
-                <Link href="/quiz" style={{ fontSize: 12, fontWeight: 600, color: "#3D8073", textDecoration: "none" }}>
+                <Link href="/quiz" style={{ fontSize: 12, fontWeight: 600, color: "#030213", textDecoration: "none" }}>
                   Retake quiz →
                 </Link>
               </div>
             ) : (
-              <div style={{ ...cardStyle, padding: 16, textAlign: "center", border: "1.5px dashed #E4E0D3" }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#1A2138", margin: "0 0 4px" }}>No civic profile yet</p>
-                <p style={{ fontSize: 12.5, color: "#6B7088", margin: "0 0 12px", lineHeight: 1.5 }}>Answer 12 quick questions to personalize your experience.</p>
+              <div style={{ ...cardStyle, padding: 16, textAlign: "center", border: "1.5px dashed #E9EBEF" }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#030213", margin: "0 0 4px" }}>No civic profile yet</p>
+                <p style={{ fontSize: 12.5, color: "#717182", margin: "0 0 12px", lineHeight: 1.5 }}>Answer 12 quick questions to personalize your experience.</p>
                 <Link href="/quiz">
-                  <button style={{ background: "#3D8073", color: "#fff", borderRadius: 999, padding: "8px 20px", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer" }}>
+                  <button style={{ background: "#030213", color: "#fff", borderRadius: 999, padding: "8px 20px", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer" }}>
                     Take the quiz →
                   </button>
                 </Link>

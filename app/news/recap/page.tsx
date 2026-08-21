@@ -12,20 +12,20 @@ import { ReminderSignup } from "@/components/reminder-signup";
 export const revalidate = 1800; // refresh at most every 30 min
 
 const C = {
-  page: "#F5F3EE",
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
+  page: "#F0F0F3",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
   ruleSoft: "#EDEAE0",
-  ink900: "#1A2138",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
   left: "#1E88E5",
   center: "#78909C",
-  right: "#B33A2C",
+  right: "#D4183D",
 };
 
 interface ArticleEntry { lean: number }
@@ -114,7 +114,7 @@ export default async function DayInReviewPage() {
           <div
             style={{
               background: C.tealSoft,
-              border: "1px solid #C0DAD4",
+              border: "1px solid #D9DCE3",
               borderRadius: 12,
               padding: "14px 18px",
               marginBottom: 18,

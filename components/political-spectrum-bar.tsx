@@ -11,19 +11,19 @@ interface ViewpointLike {
 }
 
 const C = {
-  card:     "#FDFCF9",
-  rule:     "#E4E0D3",
+  card:     "#FFFFFF",
+  rule:     "#E9EBEF",
   ruleSoft: "#EDEAE0",
-  shade:    "#F5F3EE",
-  ink900:   "#1A2138",
+  shade:    "#F0F0F3",
+  ink900:   "#030213",
   ink700:   "#2E3148",
   ink500:   "#5A5D72",
-  ink400:   "#6B7088",
-  teal:     "#3D8073",
-  tealDk:   "#2F6358",
-  tealSoft: "#E6F0ED",
-  tealBorder:"#C9DDD7",
-  red:      "#B33A2C",
+  ink400:   "#717182",
+  teal:     "#030213",
+  tealDk:   "#030213",
+  tealSoft: "#EFEFF3",
+  tealBorder:"#D9DCE3",
+  red:      "#D4183D",
 }
 
 export function PoliticalSpectrumBar() {

@@ -37,7 +37,7 @@ export function MobileNav() {
       className="fixed bottom-0 inset-x-0 z-50 lg:hidden"
       style={{
         background: "#FFFFFF",
-        borderTop: "1px solid #E4E0D3",
+        borderTop: "1px solid #E9EBEF",
         boxShadow: "0 -2px 10px rgba(20,24,40,0.06)",
         /* Respect iOS home indicator */
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
@@ -62,21 +62,21 @@ export function MobileNav() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: active ? "#E6F0ED" : "transparent",
+                  background: active ? "#EFEFF3" : "transparent",
                   transition: "background 0.15s ease",
                 }}
               >
                 <Icon
                   size={20}
                   strokeWidth={active ? 2.3 : 1.6}
-                  color={active ? "#2F6358" : "#6B7088"}
+                  color={active ? "#030213" : "#717182"}
                 />
               </span>
               <span
                 style={{
                   fontSize: 10,
                   fontWeight: active ? 700 : 400,
-                  color: active ? "#2F6358" : "#8B8FA3",
+                  color: active ? "#030213" : "#8B8FA3",
                   lineHeight: 1,
                   transition: "color 0.15s ease",
                 }}

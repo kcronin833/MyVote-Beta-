@@ -9,18 +9,18 @@ import { formatNewsTime } from "@/lib/news-service"
 import { CommentSystem } from "@/components/comment-system"
 
 const C = {
-  card:   "#FDFCF9",
-  rule:   "#E4E0D3",
-  ink900: "#1A2138",
+  card:   "#FFFFFF",
+  rule:   "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
   shade:  "#F0EDE6",
 }
 
 type TopicStyle = { bg: string; color: string }
 const TOPIC_STYLES: Record<string, TopicStyle> = {
-  Election:      { bg: "#E6F0ED", color: "#2F6358" },
+  Election:      { bg: "#EFEFF3", color: "#030213" },
   "Local Issue": { bg: "#DBEAFE", color: "#1D4ED8" },
   Candidate:     { bg: "#EDE9FE", color: "#6D28D9" },
   Question:      { bg: "#FEF3C7", color: "#92400E" },

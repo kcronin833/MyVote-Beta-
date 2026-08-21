@@ -6,17 +6,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { Send, CheckCircle, Briefcase, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react"
 
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
+  ink500:  "#717182",
   ink400:  "#8B8FA3",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
-  red:     "#B33A2C",
-  page:    "#F5F3EE",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
+  red:     "#D4183D",
+  page:    "#F0F0F3",
   shade:   "#F0EDE6",
 }
 
@@ -216,7 +216,7 @@ export default function ContactPage() {
               </div>
 
               {error && (
-                <div style={{ fontSize: 13.5, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "10px 14px" }}>
+                <div style={{ fontSize: 13.5, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "10px 14px" }}>
                   {error}
                 </div>
               )}
@@ -227,7 +227,7 @@ export default function ContactPage() {
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   height: 46, borderRadius: 999, border: "none",
-                  background: submitting || message.length > 2000 ? "#E4E0D3" : C.red,
+                  background: submitting || message.length > 2000 ? "#E9EBEF" : C.red,
                   color: submitting || message.length > 2000 ? C.ink400 : "#fff",
                   fontSize: 14.5, fontWeight: 700, cursor: submitting || message.length > 2000 ? "default" : "pointer",
                   transition: "background 0.15s",

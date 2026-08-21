@@ -41,14 +41,14 @@ export function DonorboxWidget({
           width: isCompact ? "auto" : "100%",
           padding: isCompact ? "8px 16px" : "13px 20px",
           borderRadius: 10,
-          background: "#3D8073",
+          background: "#030213",
           color: "#fff",
           fontWeight: 700,
           fontSize: isCompact ? 13 : 15,
           textDecoration: "none",
           cursor: "pointer",
           letterSpacing: -0.1,
-          boxShadow: "0 1px 3px rgba(61,128,115,0.35)",
+          boxShadow: "0 1px 3px rgba(3,2,19,0.35)",
           transition: "opacity 0.15s",
         }}
         onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.88" }}

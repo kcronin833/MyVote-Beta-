@@ -6,15 +6,15 @@ import { useAuth } from "@/components/auth-context";
 import { AuthModal } from "@/components/auth-modal";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
 };
 
 /* Election reminder email capture — the retention asset. Renders as a
@@ -98,7 +98,7 @@ export function ReminderSignup({
       <div
         style={{
           background: C.tealSoft,
-          border: "1px solid #C0DAD4",
+          border: "1px solid #D9DCE3",
           borderRadius: 12,
           padding: "16px 18px",
         }}
@@ -122,7 +122,7 @@ export function ReminderSignup({
             </p>
             <button
               onClick={() => setAuthOpen(true)}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 16px", borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 8px rgba(61,128,115,0.25)" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 16px", borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 8px rgba(3,2,19,0.25)" }}
             >
               <UserPlus size={14} /> Create your free profile
             </button>
@@ -132,7 +132,7 @@ export function ReminderSignup({
         {/* Turn every signup into a referral. */}
         <button
           onClick={share}
-          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, border: `1px solid #C0DAD4`, background: "transparent", color: C.tealDk, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, border: `1px solid #D9DCE3`, background: "transparent", color: C.tealDk, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
         >
           <Share2 size={14} /> {copied ? "Copied ✓" : "Share MyVote with a neighbor"}
         </button>
@@ -146,7 +146,7 @@ export function ReminderSignup({
     <div
       style={{
         background: highlight ? C.tealSoft : C.card,
-        border: highlight ? "1px solid #C0DAD4" : `1px solid ${C.rule}`,
+        border: highlight ? "1px solid #D9DCE3" : `1px solid ${C.rule}`,
         borderRadius: 12,
         boxShadow: highlight ? "none" : "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
         padding: compact ? "14px 16px" : "18px 20px",
@@ -197,7 +197,7 @@ export function ReminderSignup({
             fontWeight: 700,
             cursor: state === "saving" ? "default" : "pointer",
             whiteSpace: "nowrap",
-            boxShadow: state === "saving" ? "none" : "0 1px 8px rgba(61,128,115,0.25)",
+            boxShadow: state === "saving" ? "none" : "0 1px 8px rgba(3,2,19,0.25)",
           }}
         >
           {state === "saving" ? "Saving…" : "Remind me"}
@@ -205,7 +205,7 @@ export function ReminderSignup({
       </form>
 
       {message && (
-        <p style={{ fontSize: 12, color: "#B33A2C", margin: "8px 0 0" }}>{message}</p>
+        <p style={{ fontSize: 12, color: "#D4183D", margin: "8px 0 0" }}>{message}</p>
       )}
       <p style={{ fontSize: 10.5, color: C.ink400, margin: "8px 0 0" }}>
         Only election reminders — never shared, never sold. Unsubscribe anytime.

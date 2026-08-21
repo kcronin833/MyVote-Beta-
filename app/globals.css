@@ -12,25 +12,25 @@
   :root {
     /* ── Desktop Redesign Tokens (exact from design spec) ─────────────── */
     /* Paper / page surfaces */
-    --bg:        38 27% 92%;   /* #F3F1EB  page background */
+    --bg:        240 13% 96%;  /* #F5F5F7  page background (Citizn cool white) */
     --card-raw:  0 0% 100%;    /* #FFFFFF  card */
-    --shade:     43 26% 95%;   /* #F7F5EF  inset/embedded bg, search field */
-    --rule-raw:  41 25% 86%;   /* #E4E0D3  card border / divider */
-    --rule-soft: 41 27% 91%;   /* #EFEBE0  internal divider */
+    --shade:     240 12% 95%;  /* #F0F0F3  inset/embedded bg, search field */
+    --rule-raw:  220 16% 93%;  /* #E9EBEF  card border / divider */
+    --rule-soft: 228 16% 94%;  /* #EEEFF3  internal divider */
 
     /* Ink (text) */
-    --ink-900-raw: 226 37% 16%; /* #1A2138 */
+    --ink-900-raw: 248 81% 4%; /* #030213 (Citizn near-black) */
     --ink-700-raw: 228 20% 29%; /* #3D435A */
-    --ink-500-raw: 232 12% 47%; /* #6B7088 */
+    --ink-500-raw: 240 7% 48%; /* #717182 (Citizn muted) */
     --ink-400-raw: 232 11% 59%; /* #8B8FA3 */
     --ink-200-raw: 226 13% 82%; /* #C9CCD7 */
 
     /* Accents */
-    --teal-raw:      168 36% 37%;  /* #3D8073 */
-    --teal-dk:       169 36% 28%;  /* #2F6358 */
-    --teal-soft:     162 29% 92%;  /* #E6F0ED */
-    --red-raw:       6   60% 44%;  /* #B33A2C */
-    --red-soft:      11  51% 91%;  /* #F5E3DF */
+    --teal-raw:      248 81% 4%;   /* #030213 (brand primary -> Citizn near-black) */
+    --teal-dk:       248 81% 4%;   /* #030213 */
+    --teal-soft:     240 16% 95%;  /* #EFEFF3 (tint surface -> cool gray) */
+    --red-raw:       347 80% 46%;  /* #D4183D (Citizn red) */
+    --red-soft:      348 80% 95%;  /* #FCE7EA (cool light red) */
     --amber-raw:     39  58% 45%;  /* #B8862F */
     --amber-soft:    44  56% 90%;  /* #F4ECD8 */
 
@@ -45,14 +45,14 @@
     --lean-center: 0   0%  48%; /* #7A7A7A */
 
     /* ── Design-system canonical tokens (hex) ─────────────────────────── */
-    --teal-border:        #C9DDD7;
+    --teal-border:        #D9DCE3;
     --civic-red-border:   #E8CDC7;
     --amber-border:       #E2D2A8;
-    --paper-200:          #E6E0D4;
+    --paper-200:          #E1E3E9;
     --lean-left-muted:    #7796C2;
     --lean-right-muted:   #C29377;
     --lean-center-muted:  #9CA39C;
-    --font-serif:         "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-serif:         "Lora", Georgia, "Times New Roman", serif;
 
     /* ── shadcn/ui semantic mappings ─────────────────────────────────── */
     --background:           var(--bg);

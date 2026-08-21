@@ -16,7 +16,7 @@ import { ArrowLeft, Vote, Users, Scale, Newspaper } from "lucide-react"
    form. Mobile: the panel collapses to a compact logo + one-line purpose above
    the form so small screens still get the "why." */
 
-const BG = "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)"
+const BG = "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)"
 
 const HEADLINE = "Georgia politics you can actually act on."
 const SUBHEAD = "Your ballot, your local issues, and the people who represent you — in one place."
@@ -56,8 +56,8 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {PILLARS.map(({ icon: Icon, title, body }) => (
               <div key={title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(61,128,115,0.22)", border: "1px solid rgba(122,196,180,0.30)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icon size={18} color="#7AC4B4" />
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(3,2,19,0.22)", border: "1px solid rgba(255,255,255,0.30)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon size={18} color="#C7CAD1" />
                 </div>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 700, color: "#fff", marginBottom: 2 }}>{title}</div>

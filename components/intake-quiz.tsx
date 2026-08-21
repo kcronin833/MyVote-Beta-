@@ -498,7 +498,7 @@ function ResultsScreen({
 
         {/* Archetype hero */}
         <div style={{
-          background: `linear-gradient(135deg, #1A2138 0%, #3D8073 100%)`,
+          background: `linear-gradient(135deg, #030213 0%, #030213 100%)`,
           borderRadius: 16,
           padding: "28px 24px",
           textAlign: "center",
@@ -552,7 +552,7 @@ function ResultsScreen({
                   display: "flex", gap: 12, alignItems: "center",
                   padding: idx === 0 ? "12px" : "10px 12px",
                   borderRadius: 10,
-                  background: idx === 0 ? "#F3F1EB" : "transparent",
+                  background: idx === 0 ? "#F5F5F7" : "transparent",
                   border: `1px solid ${idx === 0 ? C.rule : "transparent"}`,
                 }}
               >
@@ -562,7 +562,7 @@ function ResultsScreen({
                     wikipediaTitle={fig.wikiTitle}
                     size={idx === 0 ? 56 : 44}
                     shape="circle"
-                    partyColor="#6B7088"
+                    partyColor="#717182"
                   />
                 </div>
                 <div style={{ minWidth: 0 }}>
@@ -575,7 +575,7 @@ function ResultsScreen({
                         fontSize: 9.5, fontWeight: 700, letterSpacing: 0.5,
                         textTransform: "uppercase",
                         background: C.tealSoft, color: C.tealDk,
-                        border: `1px solid #C0DAD4`,
+                        border: `1px solid #D9DCE3`,
                         borderRadius: 20, padding: "1px 7px",
                       }}>Primary</span>
                     )}
@@ -680,7 +680,7 @@ function ResultsScreen({
                   padding: "5px 11px", borderRadius: 20,
                   background: C.tealSoft, color: C.tealDk,
                   fontSize: 13, fontWeight: 600,
-                  border: `1px solid #C0DAD4`,
+                  border: `1px solid #D9DCE3`,
                 }}>
                   {issue}
                 </span>
@@ -692,7 +692,7 @@ function ResultsScreen({
         {/* Ballot connection — ties profile to 2026 Georgia races */}
         <div style={{
           background: C.tealSoft,
-          border: `1px solid #C0DAD4`,
+          border: `1px solid #D9DCE3`,
           borderRadius: 12, padding: "14px 16px", marginBottom: 16,
         }}>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase", color: C.tealDk, margin: "0 0 6px" }}>
@@ -838,7 +838,7 @@ function ShareBar({ archetypeKey, label }: { archetypeKey: QuizResult["archetype
         >
           Facebook
         </a>
-        <button onClick={copyLink} style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#C0DAD4" } : {}) }}>
+        <button onClick={copyLink} style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#D9DCE3" } : {}) }}>
           {copied ? "Copied ✓" : "Copy link"}
         </button>
       </div>
@@ -930,7 +930,7 @@ function StepChip({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontSize: 11.5, fontWeight: 700, color: C.teal,
-      background: C.tealSoft, border: `1px solid #C0DAD4`,
+      background: C.tealSoft, border: `1px solid #D9DCE3`,
       borderRadius: 20, padding: "3px 10px",
       marginBottom: 18, alignSelf: "center",
     }}>

@@ -101,7 +101,7 @@ export function ExitReminderPrompt() {
           width: "100%",
           maxWidth: 460,
           margin: "0 12px 12px",
-          background: "#F5F3EE",
+          background: "#F0F0F3",
           borderRadius: 18,
           padding: "16px 14px 14px",
           boxShadow: "0 16px 50px rgba(20,24,40,0.3)",
@@ -136,9 +136,9 @@ export function ExitReminderPrompt() {
 
         {/* Feature discovery: many visitors never find the rest of the product. */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 2px 12px" }}>
-          <span style={{ flex: 1, height: 1, background: "#E4E0D3" }} />
+          <span style={{ flex: 1, height: 1, background: "#E9EBEF" }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: "#8B8FA3", letterSpacing: 0.4 }}>OR EXPLORE MYVOTE</span>
-          <span style={{ flex: 1, height: 1, background: "#E4E0D3" }} />
+          <span style={{ flex: 1, height: 1, background: "#E9EBEF" }} />
         </div>
         <ExploreFeatures
           bare

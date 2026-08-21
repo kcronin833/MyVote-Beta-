@@ -9,8 +9,8 @@ import { PETITION_SELECT, type PetitionRow, targetTypeLabel, categoryLabel, coun
 export const dynamic = "force-dynamic";
 
 const C = {
-  page: "#F5F3EE", card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  page: "#F0F0F3", card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 async function getPetition(slug: string): Promise<PetitionRow | null> {
@@ -113,7 +113,7 @@ export default async function PetitionPage({ params }: { params: Promise<{ slug:
           <p style={{ fontSize: 12.5, color: C.ink500, fontWeight: 600, margin: "0 0 18px", display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
             Started by {p.creator_name}
             {isMyVote && (
-              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#2F6358", background: "#E6F0ED", border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: "#030213", background: "#EFEFF3", border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 8px" }}>
                 ✓ Official MyVote petition
               </span>
             )}
@@ -167,5 +167,5 @@ export default async function PetitionPage({ params }: { params: Promise<{ slug:
   );
 }
 
-const badge: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#2F6358", background: "#E6F0ED", border: "1px solid #C0DAD4", borderRadius: 999, padding: "2px 10px" };
-const shareBtn: React.CSSProperties = { fontSize: 12.5, fontWeight: 600, color: "#3D435A", background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 999, padding: "7px 14px", textDecoration: "none" };
+const badge: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#030213", background: "#EFEFF3", border: "1px solid #D9DCE3", borderRadius: 999, padding: "2px 10px" };
+const shareBtn: React.CSSProperties = { fontSize: 12.5, fontWeight: 600, color: "#3D435A", background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 999, padding: "7px 14px", textDecoration: "none" };

@@ -94,14 +94,14 @@ export function AuthModal({ open, onClose, defaultTab = "login", defaultEmail = 
         </DialogHeader>
 
         {/* Tab switcher */}
-        <div style={{ display: "flex", borderRadius: 10, overflow: "hidden", border: "1px solid #E4E0D3", marginBottom: 16 }}>
+        <div style={{ display: "flex", borderRadius: 10, overflow: "hidden", border: "1px solid #E9EBEF", marginBottom: 16 }}>
           {(["login", "signup"] as const).map((t) => (
             <button
               key={t}
               style={{
                 flex: 1, padding: "9px 0", fontSize: 13.5, fontWeight: 600, cursor: "pointer", border: "none", transition: "all 0.15s",
-                background: tab === t ? "#2F6358" : "#FDFCF9",
-                color: tab === t ? "#fff" : "#6B7088",
+                background: tab === t ? "#030213" : "#FFFFFF",
+                color: tab === t ? "#fff" : "#717182",
               }}
               onClick={() => { setTab(t); setError(null); }}
             >
@@ -111,7 +111,7 @@ export function AuthModal({ open, onClose, defaultTab = "login", defaultEmail = 
         </div>
 
         {error && (
-          <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13.5, lineHeight: 1.5 }}>
+          <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#D4183D", padding: "10px 14px", borderRadius: 8, fontSize: 13.5, lineHeight: 1.5 }}>
             {error}
           </div>
         )}
@@ -133,7 +133,7 @@ export function AuthModal({ open, onClose, defaultTab = "login", defaultEmail = 
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
             <button
-              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
+              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E9EBEF" : "#030213", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
               onClick={handleLogin}
               disabled={loading}
             >
@@ -168,7 +168,7 @@ export function AuthModal({ open, onClose, defaultTab = "login", defaultEmail = 
               onKeyDown={(e) => e.key === "Enter" && handleSignup()}
             />
             <button
-              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
+              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: loading ? "#E9EBEF" : "#030213", color: loading ? "#8B8FA3" : "#fff", fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s" }}
               onClick={handleSignup}
               disabled={loading}
             >

@@ -189,9 +189,9 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
 
 /* ── Color constants ────────────────────────────────────────── */
 const AMBER_GRAD = "linear-gradient(135deg, #B8862F 0%, #C99A35 100%)";
-const TEAL_GRAD  = "linear-gradient(135deg, #2F6358 0%, #3D8073 100%)";
-const RED_GRAD   = "linear-gradient(135deg, #B33A2C 0%, #C94433 100%)";
-const RED_DARK_GRAD = "linear-gradient(135deg, #8B2A1C 0%, #B33A2C 100%)";
+const TEAL_GRAD  = "linear-gradient(135deg, #030213 0%, #030213 100%)";
+const RED_GRAD   = "linear-gradient(135deg, #D4183D 0%, #C94433 100%)";
+const RED_DARK_GRAD = "linear-gradient(135deg, #8B2A1C 0%, #D4183D 100%)";
 
 const PILL_STYLE: React.CSSProperties = {
   fontSize: 11.5,

@@ -4,14 +4,14 @@ import { useState } from "react";
 import { Share2 } from "lucide-react";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  ink500: "#717182",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
 };
 
 /* "Share this ballot" — the acquisition wedge made viral. Most Georgians
@@ -64,7 +64,7 @@ export function ShareBallot({
     <div
       style={{
         background: C.tealSoft,
-        border: "1px solid #C0DAD4",
+        border: "1px solid #D9DCE3",
         borderRadius: 12,
         padding: "16px 18px",
       }}
@@ -103,7 +103,7 @@ export function ShareBallot({
         </a>
         <button
           onClick={copyLink}
-          style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#C0DAD4" } : {}) }}
+          style={{ ...pill, ...(copied ? { background: C.tealSoft, color: C.tealDk, borderColor: "#D9DCE3" } : {}) }}
         >
           {copied ? "Copied ✓" : "Copy link"}
         </button>

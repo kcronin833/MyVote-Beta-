@@ -12,14 +12,14 @@ import { ExploreFeatures } from "@/components/explore-features"
    Statically generated — one page per archetype. */
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  ink500: "#717182",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
   shade: "#F0EDE6",
 }
 
@@ -80,7 +80,7 @@ export default async function CivicProfileSharePage({
       {/* Hero — mirrors the quiz results screen */}
       <div
         style={{
-          background: "linear-gradient(135deg, #1A2138 0%, #3D8073 100%)",
+          background: "linear-gradient(135deg, #030213 0%, #030213 100%)",
           borderRadius: 16,
           padding: "32px 24px",
           textAlign: "center",
@@ -167,7 +167,7 @@ export default async function CivicProfileSharePage({
       <div
         style={{
           background: C.tealSoft,
-          border: "1px solid #C0DAD4",
+          border: "1px solid #D9DCE3",
           borderRadius: 14,
           padding: "20px 18px",
           textAlign: "center",
@@ -192,7 +192,7 @@ export default async function CivicProfileSharePage({
             fontSize: 15,
             fontWeight: 700,
             textDecoration: "none",
-            boxShadow: "0 2px 12px rgba(61,128,115,0.35)",
+            boxShadow: "0 2px 12px rgba(3,2,19,0.35)",
           }}
         >
           Take the free quiz →

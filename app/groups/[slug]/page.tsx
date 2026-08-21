@@ -15,8 +15,8 @@ import { getPortalFeed, type PortalFeed } from "@/lib/primegov";
 export const dynamic = "force-dynamic";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 interface Group {
@@ -128,7 +128,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
 
       <div style={{ marginTop: 12, marginBottom: 18 }}>
         {g.category && (
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "2px 10px" }}>{g.category}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "2px 10px" }}>{g.category}</span>
         )}
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.5rem, 4vw, 2rem)", fontWeight: 600, color: C.ink900, lineHeight: 1.2, margin: "8px 0 10px", letterSpacing: -0.3 }}>
           {g.name}
@@ -148,7 +148,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: 0 }}>Who made this decision</h2>
             {g.verified && (
-              <span style={{ fontSize: 10.5, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 8px" }}>
                 ✓ Sourced
               </span>
             )}
@@ -160,8 +160,8 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
             {officials.map((o) => {
               const closing = /close|against|cut|remov/i.test(o.vote_position || "");
               const chipBg = closing ? "#FEF2F2" : C.tealSoft;
-              const chipColor = closing ? "#B33A2C" : C.tealDk;
-              const chipBorder = closing ? "#FECACA" : "#C0DAD4";
+              const chipColor = closing ? "#D4183D" : C.tealDk;
+              const chipBorder = closing ? "#FECACA" : "#D9DCE3";
               const inner = (
                 <>
                   <div style={{ minWidth: 0 }}>

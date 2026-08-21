@@ -9,14 +9,14 @@ const TOPICS = ["Election", "Local Issue", "Candidate", "Question"] as const
 type Topic = typeof TOPICS[number]
 
 const C = {
-  card:   "#FDFCF9",
-  rule:   "#E4E0D3",
-  ink900: "#1A2138",
+  card:   "#FFFFFF",
+  rule:   "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal:   "#3D8073",
-  tealDk: "#2F6358",
+  teal:   "#030213",
+  tealDk: "#030213",
   shade:  "#F0EDE6",
 }
 
@@ -119,7 +119,7 @@ export function PostComposer({ onPost }: PostComposerProps) {
 
       {/* Error / feedback */}
       {error && (
-        <div style={{ fontSize: 12.5, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", lineHeight: 1.45 }}>
+        <div style={{ fontSize: 12.5, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "8px 12px", lineHeight: 1.45 }}>
           {error}
         </div>
       )}
@@ -133,7 +133,7 @@ export function PostComposer({ onPost }: PostComposerProps) {
           onClick={handlePost}
           disabled={posting}
           aria-disabled={posting}
-          style={{ height: 34, padding: "0 18px", borderRadius: 999, border: "none", background: posting ? "#E4E0D3" : C.teal, color: posting ? C.ink400 : "#fff", fontSize: 13.5, fontWeight: 700, cursor: posting ? "default" : "pointer", transition: "background 0.15s", boxShadow: !posting ? "0 2px 8px rgba(61,128,115,0.28)" : "none" }}
+          style={{ height: 34, padding: "0 18px", borderRadius: 999, border: "none", background: posting ? "#E9EBEF" : C.teal, color: posting ? C.ink400 : "#fff", fontSize: 13.5, fontWeight: 700, cursor: posting ? "default" : "pointer", transition: "background 0.15s", boxShadow: !posting ? "0 2px 8px rgba(3,2,19,0.28)" : "none" }}
         >
           {posting ? "Posting…" : "Post"}
         </button>

@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { PortalFeed, PortalMeeting } from "@/lib/primegov";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 export interface MeetingRow {
@@ -100,14 +100,14 @@ export function GroupMeetings({
           </div>
           <textarea value={text} onChange={(e) => { setText(e.target.value); if (err) setErr(null); }} rows={6} placeholder="Paste the meeting agenda or minutes text here. The AI summarizes only what you paste." style={{ ...inp, height: "auto", padding: "8px 12px", resize: "vertical", lineHeight: 1.5, fontFamily: "inherit" }} />
           {err && <div style={errBox}>{err}</div>}
-          <button onClick={submit} disabled={busy} style={{ alignSelf: "flex-start", height: 36, padding: "0 18px", borderRadius: 999, border: "none", background: busy ? "#E4E0D3" : C.teal, color: busy ? "#8B8FA3" : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" }}>
+          <button onClick={submit} disabled={busy} style={{ alignSelf: "flex-start", height: 36, padding: "0 18px", borderRadius: 999, border: "none", background: busy ? "#E9EBEF" : C.teal, color: busy ? "#8B8FA3" : "#fff", fontSize: 13, fontWeight: 700, cursor: busy ? "default" : "pointer" }}>
             {busy ? "Summarizing…" : "Generate summary & publish"}
           </button>
         </div>
       )}
 
       {!hasAny && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 10, padding: "12px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 10, padding: "12px 14px" }}>
           <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: "#fff", background: C.tealDk, borderRadius: 999, padding: "3px 9px", flexShrink: 0 }}>Coming soon</span>
           <p style={{ fontSize: 12.5, color: C.ink700, margin: 0, lineHeight: 1.5 }}>
             Meeting dates, agendas, and plain-English AI summaries of what was decided will appear here soon.
@@ -153,7 +153,7 @@ export function GroupMeetings({
                 )}
 
                 {m.synopsis && (
-                  <div style={{ background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 10, padding: "10px 12px", marginBottom: m.source_url ? 8 : 0 }}>
+                  <div style={{ background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 10, padding: "10px 12px", marginBottom: m.source_url ? 8 : 0 }}>
                     <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: C.tealDk, marginBottom: 3 }}>AI summary · what was said</div>
                     <p style={{ fontSize: 13, color: C.ink700, lineHeight: 1.6, margin: 0 }}>{m.synopsis}</p>
                   </div>
@@ -215,7 +215,7 @@ function ScheduleRow({ m, upcoming }: { m: PortalMeeting; upcoming?: boolean }) 
         {m.docs.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 6 }}>
             {m.docs.map((d) => (
-              <span key={d.kind} style={{ fontSize: 10, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 7px" }}>
+              <span key={d.kind} style={{ fontSize: 10, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 7px" }}>
                 {d.label}
               </span>
             ))}
@@ -226,5 +226,5 @@ function ScheduleRow({ m, upcoming }: { m: PortalMeeting; upcoming?: boolean }) 
   );
 }
 
-const inp: React.CSSProperties = { height: 36, padding: "0 12px", borderRadius: 8, border: "1px solid #E4E0D3", fontSize: 13, color: "#1A2138", outline: "none", background: "#fff", width: "100%" };
-const errBox: React.CSSProperties = { fontSize: 12, color: "#B33A2C", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 };
+const inp: React.CSSProperties = { height: 36, padding: "0 12px", borderRadius: 8, border: "1px solid #E9EBEF", fontSize: 13, color: "#030213", outline: "none", background: "#fff", width: "100%" };
+const errBox: React.CSSProperties = { fontSize: 12, color: "#D4183D", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 10px", lineHeight: 1.4 };

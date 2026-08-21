@@ -7,8 +7,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { formatNewsTime } from "@/lib/news-service";
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ruleSoft: "#EDEAE0", ink900: "#1A2138",
-  ink700: "#3D435A", ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073",
+  card: "#FFFFFF", rule: "#E9EBEF", ruleSoft: "#EDEAE0", ink900: "#030213",
+  ink700: "#3D435A", ink500: "#717182", ink400: "#8B8FA3", teal: "#030213",
 };
 
 interface GPost {
@@ -79,7 +79,7 @@ export function GroupDiscussion({ groupId }: { groupId: string }) {
             rows={3}
             style={{ resize: "vertical", fontSize: 13.5, color: C.ink900, background: "transparent", outline: "none", border: "none", lineHeight: 1.55, minHeight: 60, fontFamily: "inherit" }}
           />
-          {error && <p style={{ fontSize: 12.5, color: "#B33A2C", margin: 0 }}>{error}</p>}
+          {error && <p style={{ fontSize: 12.5, color: "#D4183D", margin: 0 }}>{error}</p>}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button onClick={submit} disabled={posting} style={{ height: 32, padding: "0 16px", borderRadius: 999, border: "none", background: posting ? C.rule : C.teal, color: posting ? C.ink400 : "#fff", fontSize: 13, fontWeight: 700, cursor: posting ? "default" : "pointer" }}>
               {posting ? "Posting…" : "Post"}

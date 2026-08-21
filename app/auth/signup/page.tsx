@@ -30,9 +30,9 @@ const selectStyle: React.CSSProperties = {
   paddingLeft: 12,
   paddingRight: 12,
   borderRadius: 8,
-  border: "1px solid #E4E0D3",
-  background: "#FDFCF9",
-  color: "#1A2138",
+  border: "1px solid #E9EBEF",
+  background: "#FFFFFF",
+  color: "#030213",
   fontSize: 14,
   outline: "none",
   appearance: "none",
@@ -82,22 +82,22 @@ export default function SignUpPage() {
   }
 
   const card = (
-    <div style={{ width: "100%", maxWidth: 440, background: "#FDFCF9", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
+    <div style={{ width: "100%", maxWidth: 440, background: "#FFFFFF", borderRadius: 18, boxShadow: "0 24px 64px rgba(0,0,0,0.38), 0 4px 16px rgba(0,0,0,0.18)", padding: "30px 28px 28px" }}>
       {success ? (
         /* ── Success state ── */
         <div style={{ textAlign: "center" }}>
           <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#ECFDF5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             <CheckCircle2 size={28} color="#059669" />
           </div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1A2138", marginBottom: 8 }}>Check Your Email</h1>
-          <p style={{ fontSize: 13.5, color: "#6B7088", lineHeight: 1.6, marginBottom: 24 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#030213", marginBottom: 8 }}>Check Your Email</h1>
+          <p style={{ fontSize: 13.5, color: "#717182", lineHeight: 1.6, marginBottom: 24 }}>
             We sent a confirmation link to{" "}
             <strong style={{ color: "#3D435A" }}>{form.email}</strong>.
             Click the link to activate your account, then sign in.
           </p>
           <Link
             href="/auth/signin"
-            style={{ display: "inline-block", height: 42, lineHeight: "42px", paddingLeft: 22, paddingRight: 22, borderRadius: 999, background: "#3D8073", color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 12px rgba(61,128,115,0.28)" }}
+            style={{ display: "inline-block", height: 42, lineHeight: "42px", paddingLeft: 22, paddingRight: 22, borderRadius: 999, background: "#030213", color: "#fff", fontSize: 14, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 12px rgba(3,2,19,0.28)" }}
           >
             Go to Sign In
           </Link>
@@ -105,14 +105,14 @@ export default function SignUpPage() {
       ) : (
         /* ── Form ── */
         <>
-          <h1 style={{ fontSize: 21, fontWeight: 700, color: "#1A2138", textAlign: "center", marginBottom: 4 }}>Create your free account</h1>
-          <p style={{ fontSize: 13.5, color: "#6B7088", textAlign: "center", marginBottom: 18 }}>Free, nonpartisan, and built for Georgians.</p>
+          <h1 style={{ fontSize: 21, fontWeight: 700, color: "#030213", textAlign: "center", marginBottom: 4 }}>Create your free account</h1>
+          <p style={{ fontSize: 13.5, color: "#717182", textAlign: "center", marginBottom: 18 }}>Free, nonpartisan, and built for Georgians.</p>
 
           {/* Value props — mobile only; desktop gets the full brand panel */}
-          <div className="lg:hidden" style={{ background: "#E6F0ED", border: "1px solid #B2D8D0", borderRadius: 10, padding: "12px 14px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="lg:hidden" style={{ background: "#EFEFF3", border: "1px solid #B2D8D0", borderRadius: 10, padding: "12px 14px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 8 }}>
             {VALUE_PROPS.map((item) => (
-              <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#2F6358", lineHeight: 1.45 }}>
-                <span style={{ color: "#3D8073", fontWeight: 700, marginTop: 1, flexShrink: 0 }}>✓</span>
+              <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#030213", lineHeight: 1.45 }}>
+                <span style={{ color: "#030213", fontWeight: 700, marginTop: 1, flexShrink: 0 }}>✓</span>
                 <span>{item}</span>
               </div>
             ))}
@@ -120,7 +120,7 @@ export default function SignUpPage() {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {error && (
-              <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#B33A2C", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
+              <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#D4183D", padding: "10px 14px", borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
                 {error}
               </div>
             )}
@@ -176,7 +176,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              style={{ height: 44, borderRadius: 999, border: "none", background: loading ? "#E4E0D3" : "#3D8073", color: loading ? "#8B8FA3" : "#fff", fontSize: 14.5, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s", boxShadow: loading ? "none" : "0 2px 12px rgba(61,128,115,0.28)" }}
+              style={{ height: 44, borderRadius: 999, border: "none", background: loading ? "#E9EBEF" : "#030213", color: loading ? "#8B8FA3" : "#fff", fontSize: 14.5, fontWeight: 700, cursor: loading ? "default" : "pointer", transition: "background 0.15s", boxShadow: loading ? "none" : "0 2px 12px rgba(3,2,19,0.28)" }}
             >
               {loading ? "Creating Account…" : "Create Free Account"}
             </button>
@@ -184,7 +184,7 @@ export default function SignUpPage() {
 
           <p style={{ textAlign: "center", fontSize: 13, color: "#8B8FA3", marginTop: 16 }}>
             Already have an account?{" "}
-            <Link href="/auth/signin" style={{ color: "#3D8073", fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/auth/signin" style={{ color: "#030213", fontWeight: 600, textDecoration: "none" }}>
               Sign In
             </Link>
           </p>

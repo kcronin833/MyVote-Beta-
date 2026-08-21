@@ -58,8 +58,8 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
         style={{
           height: h, padding: px, borderRadius: 999,
           border: `1.5px solid ${hovered ? "#FCA5A5" : "#B2D8D0"}`,
-          background: hovered ? "#FFF1F2" : "#E6F0ED",
-          color: hovered ? "#B33A2C" : "#2F6358",
+          background: hovered ? "#FFF1F2" : "#EFEFF3",
+          color: hovered ? "#D4183D" : "#030213",
           fontSize: fs, fontWeight: 700, cursor: "pointer",
           flexShrink: 0, transition: "all 0.15s",
         }}
@@ -76,11 +76,11 @@ export function FollowButton({ targetUserId, initialFollowing = false, size = "s
       style={{
         height: h, padding: px, borderRadius: 999,
         border: "none",
-        background: "#3D8073",
+        background: "#030213",
         color: "#fff",
         fontSize: fs, fontWeight: 700, cursor: "pointer",
         flexShrink: 0, transition: "background 0.15s",
-        boxShadow: "0 1px 6px rgba(61,128,115,0.25)",
+        boxShadow: "0 1px 6px rgba(3,2,19,0.25)",
       }}
     >
       Follow

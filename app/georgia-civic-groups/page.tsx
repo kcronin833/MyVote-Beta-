@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 const C = {
-  page: "#F5F3EE", card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", teal: "#3D8073", tealDk: "#2F6358", tealSoft: "#E6F0ED",
+  page: "#F0F0F3", card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", teal: "#030213", tealDk: "#030213", tealSoft: "#EFEFF3",
 };
 
 const GROUP_FAQ = [
@@ -101,7 +101,7 @@ export default async function GeorgiaCivicGroupsPage() {
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.2rem, 3vw, 1.5rem)", fontWeight: 700, color: C.ink900, margin: "0 0 12px" }}>Browse by county</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {TOP_COUNTY_SLUGS.map((slug) => (
-              <Link key={slug} href={`/groups/county/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: C.tealDk, background: C.tealSoft, border: "1px solid #C0DAD4", borderRadius: 999, padding: "8px 14px", textDecoration: "none" }}>
+              <Link key={slug} href={`/groups/county/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: C.tealDk, background: C.tealSoft, border: "1px solid #D9DCE3", borderRadius: 999, padding: "8px 14px", textDecoration: "none" }}>
                 {countyDisplayName(slug)} County
               </Link>
             ))}
@@ -136,10 +136,10 @@ export default async function GeorgiaCivicGroupsPage() {
 function Section({ h, children }: { h: string; children: React.ReactNode }) {
   return (
     <section style={{ marginBottom: 24 }}>
-      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.2rem, 3vw, 1.5rem)", fontWeight: 700, color: "#1A2138", margin: "0 0 8px" }}>{h}</h2>
+      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.2rem, 3vw, 1.5rem)", fontWeight: 700, color: "#030213", margin: "0 0 8px" }}>{h}</h2>
       <p style={{ fontSize: 15, color: "#3D435A", lineHeight: 1.7, margin: 0 }}>{children}</p>
     </section>
   );
 }
 
-const miniBadge: React.CSSProperties = { fontSize: 10.5, fontWeight: 700, color: "#2F6358", background: "#E6F0ED", border: "1px solid #C0DAD4", borderRadius: 999, padding: "1px 8px" };
+const miniBadge: React.CSSProperties = { fontSize: 10.5, fontWeight: 700, color: "#030213", background: "#EFEFF3", border: "1px solid #D9DCE3", borderRadius: 999, padding: "1px 8px" };

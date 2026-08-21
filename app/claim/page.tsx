@@ -48,7 +48,7 @@ export default async function ClaimPage({
         {/* Hero */}
         <div
           style={{
-            background: "linear-gradient(135deg, #1A2138 0%, #3D8073 100%)",
+            background: "linear-gradient(135deg, #030213 0%, #030213 100%)",
             borderRadius: 16,
             padding: "26px 22px",
             color: "#fff",

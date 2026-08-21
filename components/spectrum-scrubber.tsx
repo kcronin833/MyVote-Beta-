@@ -21,8 +21,8 @@ export type ScrubSource = NewsArticle & {
 };
 
 const C = {
-  card: "#FDFCF9", rule: "#E4E0D3", ink900: "#1A2138", ink700: "#3D435A",
-  ink500: "#6B7088", ink400: "#8B8FA3", left: "#2563EB", right: "#B33A2C",
+  card: "#FFFFFF", rule: "#E9EBEF", ink900: "#030213", ink700: "#3D435A",
+  ink500: "#717182", ink400: "#8B8FA3", left: "#2563EB", right: "#D4183D",
 };
 
 export function SpectrumScrubber({ sources }: { sources: ScrubSource[] }) {

@@ -9,17 +9,17 @@ import {
 } from "lucide-react"
 
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
+  ink500:  "#717182",
   ink400:  "#8B8FA3",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
   shade:   "#F0EDE6",
-  page:    "#F5F3EE",
+  page:    "#F0F0F3",
 }
 
 const cardStyle: React.CSSProperties = {
@@ -33,7 +33,7 @@ const cardStyle: React.CSSProperties = {
 function getPartyStyle(party: string): { bg: string; color: string; border: string; header: string } {
   switch (party) {
     case "Democrat":    return { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE", header: "#1D4ED8" }
-    case "Republican":  return { bg: "#FEF2F2", color: "#B33A2C", border: "#FECACA", header: "#B33A2C" }
+    case "Republican":  return { bg: "#FEF2F2", color: "#D4183D", border: "#FECACA", header: "#D4183D" }
     case "Independent": return { bg: "#F5F3FF", color: "#6D28D9", border: "#DDD6FE", header: "#6D28D9" }
     case "Green":       return { bg: "#ECFDF5", color: "#065F46", border: "#A7F3D0", header: "#065F46" }
     case "Libertarian": return { bg: "#FFFBEB", color: "#92400E", border: "#FDE68A", header: "#92400E" }
@@ -53,7 +53,7 @@ function PartyBadge({ party }: { party: string }) {
 function VoteBadge({ vote }: { vote: "Yes" | "No" | "Abstain" | "Not in office" }) {
   const styles: Record<string, React.CSSProperties> = {
     Yes:    { background: "#ECFDF5", color: "#065F46", border: "1px solid #A7F3D0" },
-    No:     { background: "#FEF2F2", color: "#B33A2C", border: "1px solid #FECACA" },
+    No:     { background: "#FEF2F2", color: "#D4183D", border: "1px solid #FECACA" },
     Abstain:{ background: C.shade,   color: C.ink500,  border: `1px solid ${C.rule}` },
     "Not in office": { background: C.shade, color: C.ink500, border: `1px solid ${C.rule}` },
   }
@@ -67,7 +67,7 @@ function VoteBadge({ vote }: { vote: "Yes" | "No" | "Abstain" | "Not in office" 
 
 function ProgressBar({ value }: { value: number }) {
   return (
-    <div style={{ flex: 1, height: 7, background: "#E4E0D3", borderRadius: 999, overflow: "hidden" }}>
+    <div style={{ flex: 1, height: 7, background: "#E9EBEF", borderRadius: 999, overflow: "hidden" }}>
       <div style={{ width: `${Math.min(100, value)}%`, height: "100%", background: C.teal, borderRadius: 999 }} />
     </div>
   )
@@ -388,7 +388,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate }: Cand
                   href={candidate.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 18px", borderRadius: 999, background: C.teal, color: "#fff", fontSize: 13.5, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 8px rgba(61,128,115,0.28)" }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 18px", borderRadius: 999, background: C.teal, color: "#fff", fontSize: 13.5, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 8px rgba(3,2,19,0.28)" }}
                 >
                   <Globe size={14} /> Visit Campaign Website
                 </a>
@@ -502,7 +502,7 @@ export function CandidateProfileDetail({ candidate, office, electionDate }: Cand
                   </div>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: C.ink400, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Spent</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: "#B33A2C" }}>{candidate.campaignFinance.totalSpent}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: "#D4183D" }}>{candidate.campaignFinance.totalSpent}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: C.ink400, marginBottom: 3, textTransform: "uppercase", letterSpacing: "0.05em" }}>Cash on Hand</div>

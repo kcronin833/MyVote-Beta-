@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
+  ink500: "#717182",
+  teal: "#030213",
+  tealDk: "#030213",
 };
 
 /* Quiz funnel for deep SEO-landing pages (candidate / county / guide).
@@ -18,7 +18,7 @@ export function QuizPromo({ source = "deep-page" }: { source?: string }) {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #1A2138 0%, #2F6358 100%)",
+        background: "linear-gradient(135deg, #030213 0%, #030213 100%)",
         borderRadius: 14,
         padding: "18px 20px",
         color: "#fff",

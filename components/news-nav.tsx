@@ -38,8 +38,8 @@ export function NewsNavigation() {
               borderRadius: 8,
               fontSize: 13.5,
               fontWeight: active ? 600 : 500,
-              color: active ? "#2F6358" : "#6B7088",
-              background: active ? "#E6F0ED" : "transparent",
+              color: active ? "#030213" : "#717182",
+              background: active ? "#EFEFF3" : "transparent",
               textDecoration: "none",
               transition: "color 0.15s ease, background 0.15s ease",
             }}

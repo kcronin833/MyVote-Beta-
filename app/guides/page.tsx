@@ -3,15 +3,15 @@ import Link from "next/link";
 import { GUIDES } from "@/lib/guides-data";
 
 const C = {
-  card: "#FDFCF9",
-  rule: "#E4E0D3",
-  ink900: "#1A2138",
+  card: "#FFFFFF",
+  rule: "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal: "#3D8073",
-  tealDk: "#2F6358",
-  tealSoft: "#E6F0ED",
+  teal: "#030213",
+  tealDk: "#030213",
+  tealSoft: "#EFEFF3",
 };
 
 export const metadata: Metadata = {
@@ -85,7 +85,7 @@ export default function GuidesIndexPage() {
         style={{
           marginTop: 24,
           background: C.tealSoft,
-          border: "1px solid #C0DAD4",
+          border: "1px solid #D9DCE3",
           borderRadius: 14,
           padding: "18px 20px",
           textAlign: "center",
@@ -109,7 +109,7 @@ export default function GuidesIndexPage() {
             fontSize: 14.5,
             fontWeight: 700,
             textDecoration: "none",
-            boxShadow: "0 2px 12px rgba(61,128,115,0.35)",
+            boxShadow: "0 2px 12px rgba(3,2,19,0.35)",
           }}
         >
           See my ballot →

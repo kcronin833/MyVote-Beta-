@@ -116,7 +116,7 @@ function RunoffBanner() {
   const earlyOver = now >= earlyEnd;
   return (
     <div style={{
-      background: `linear-gradient(135deg, #7C1A0F 0%, #B33A2C 100%)`,
+      background: `linear-gradient(135deg, #7C1A0F 0%, #D4183D 100%)`,
       borderRadius: 10,
       padding: "14px 18px",
       display: "flex",

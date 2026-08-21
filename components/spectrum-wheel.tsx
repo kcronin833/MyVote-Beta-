@@ -26,7 +26,7 @@ function leanLabel(lean: number): string {
 
 function leanDotColor(lean: number): string {
   if (lean < 0) return "#1E88E5"
-  if (lean > 0) return "#B33A2C"
+  if (lean > 0) return "#D4183D"
   return "#78909C"
 }
 

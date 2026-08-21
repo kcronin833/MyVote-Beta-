@@ -230,7 +230,7 @@ function LeftRail({
         <div
           style={{
             height: 62,
-            background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 40%, ${C.tealDk} 100%)`,
+            background: `linear-gradient(135deg, #030213 0%, ${C.ink900} 40%, ${C.tealDk} 100%)`,
           }}
         />
         <div style={{ padding: "0 16px 16px", marginTop: -28, textAlign: "center" }}>
@@ -269,11 +269,11 @@ function LeftRail({
                 gap: 5,
                 padding: "4px 11px",
                 borderRadius: 20,
-                background: "#E6F0ED",
-                border: "1px solid #C0DAD4",
+                background: "#EFEFF3",
+                border: "1px solid #D9DCE3",
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#2F6358",
+                color: "#030213",
                 cursor: "pointer",
               }}>
                 {civicChip.emoji} {civicChip.label} →
@@ -553,7 +553,7 @@ function ComposerAndFeed() {
                   fontWeight: 600,
                   color: C.tealDk,
                   background: C.tealSoft,
-                  border: "1px solid #C0DAD4",
+                  border: "1px solid #D9DCE3",
                   borderRadius: 999,
                   padding: "3px 10px",
                 }}
@@ -720,7 +720,7 @@ function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) 
               fontSize: 12,
               color: C.red,
               background: C.redSoft,
-              border: `1px solid #E8CDC7`,
+              border: `1px solid #F3C9D1`,
               borderRadius: 6,
               padding: "6px 10px",
             }}
@@ -756,7 +756,7 @@ function DailyQuestionCard({ dq }: { dq: ReturnType<typeof useDailyQuestion> }) 
                 padding: "9px 12px",
                 borderRadius: 8,
                 background: majority ? C.tealSoft : C.amberSoft,
-                border: `1px solid ${majority ? "#C0DAD4" : "#E8D9B2"}`,
+                border: `1px solid ${majority ? "#D9DCE3" : "#E8D9B2"}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: 3,
@@ -1207,7 +1207,7 @@ function RightRail() {
       {!quizDone && (
         <div style={{
           ...cardStyle,
-          background: "linear-gradient(135deg, #1A2138 0%, #3D8073 100%)",
+          background: "linear-gradient(135deg, #030213 0%, #030213 100%)",
           color: "#fff",
         }}>
           <div style={{ padding: "14px 16px" }}>
@@ -1357,7 +1357,7 @@ function RightRail() {
           overflow: "hidden",
           boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
           border: `1px solid ${C.tealBorder}`,
-          background: "linear-gradient(160deg, #E6F0ED 0%, #F0F7F5 100%)",
+          background: "linear-gradient(160deg, #EFEFF3 0%, #F0F7F5 100%)",
         }}
       >
         <div style={{ padding: "16px 16px 14px" }}>
@@ -1423,7 +1423,7 @@ export function DesktopHome() {
   // column so they stay in sync after a vote.
   const dq = useDailyQuestion();
   return (
-    <div style={{ background: "#F3F1EB", minHeight: "100vh", color: C.ink900, overflowX: "hidden" }}>
+    <div style={{ background: "#F5F5F7", minHeight: "100vh", color: C.ink900, overflowX: "hidden" }}>
       <TopNav active="home" />
       <div className="max-w-[1240px] mx-auto px-3 pt-4 pb-10 grid grid-cols-1 gap-3 items-start lg:grid-cols-[260px_1fr_320px] lg:gap-5 lg:px-6 lg:pt-5">
         <LeftRail

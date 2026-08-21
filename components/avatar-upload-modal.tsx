@@ -6,13 +6,13 @@ import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/components/auth-context"
 
 const C = {
-  card:   "#FDFCF9",
-  rule:   "#E4E0D3",
-  ink900: "#1A2138",
+  card:   "#FFFFFF",
+  rule:   "#E9EBEF",
+  ink900: "#030213",
   ink700: "#3D435A",
-  ink500: "#6B7088",
+  ink500: "#717182",
   ink400: "#8B8FA3",
-  teal:   "#3D8073",
+  teal:   "#030213",
   shade:  "#F0EDE6",
 }
 
@@ -79,7 +79,7 @@ export function AvatarUploadModal({ onClose, onSuccess }: AvatarUploadModalProps
     borderRadius: 10,
     border: "none",
     background: "transparent",
-    color: danger ? "#B33A2C" : C.ink700,
+    color: danger ? "#D4183D" : C.ink700,
     fontSize: 14,
     fontWeight: 600,
     cursor: "pointer",
@@ -108,11 +108,11 @@ export function AvatarUploadModal({ onClose, onSuccess }: AvatarUploadModalProps
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
             <img src={preview} alt="Preview" style={{ width: 96, height: 96, borderRadius: "50%", objectFit: "cover", border: "4px solid #B2D8D0" }} />
             <p style={{ fontSize: 12.5, color: C.ink500, margin: 0 }}>Looks good?</p>
-            {error && <p style={{ fontSize: 12, color: "#B33A2C", margin: 0 }}>{error}</p>}
+            {error && <p style={{ fontSize: 12, color: "#D4183D", margin: 0 }}>{error}</p>}
             <button
               onClick={handleUpload}
               disabled={uploading}
-              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: uploading ? "#E4E0D3" : C.teal, color: uploading ? C.ink400 : "#fff", fontSize: 14, fontWeight: 700, cursor: uploading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              style={{ width: "100%", height: 42, borderRadius: 999, border: "none", background: uploading ? "#E9EBEF" : C.teal, color: uploading ? C.ink400 : "#fff", fontSize: 14, fontWeight: 700, cursor: uploading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               {uploading ? <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> : <Check size={16} />}
               {uploading ? "Uploading…" : "Save photo"}
@@ -120,7 +120,7 @@ export function AvatarUploadModal({ onClose, onSuccess }: AvatarUploadModalProps
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {error && <p style={{ fontSize: 12, color: "#B33A2C", textAlign: "center", margin: "0 0 8px" }}>{error}</p>}
+            {error && <p style={{ fontSize: 12, color: "#D4183D", textAlign: "center", margin: "0 0 8px" }}>{error}</p>}
             <button
               onClick={() => pickFile(false)}
               style={rowBtn()}

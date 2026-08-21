@@ -218,14 +218,14 @@ const FEATURES = [
   {
     Icon: Newspaper,
     iconColor: "#030213",
-    iconBg: "#E6F0ED",
+    iconBg: "#EFEFF3",
     title: "Georgia First, Always",
     desc: "Daily Georgia political news — local races, state government, and the national stories that actually affect you here.",
   },
   {
     Icon: Users,
     iconColor: "#030213",
-    iconBg: "#E6F0ED",
+    iconBg: "#EFEFF3",
     title: "Organize With Your Neighbors",
     desc: "Join or start groups on the local issues that matter — school boards, zoning, closures — and see how your officials voted.",
   },

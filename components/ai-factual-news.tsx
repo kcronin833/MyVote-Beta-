@@ -313,16 +313,16 @@ export function AIFactualNews({ initialNews }: { initialNews?: FactualNewsItem[]
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
           {CATEGORIES.map(c => (
-            <div key={c} style={{ height: 32, width: 88, borderRadius: 999, background: "#E4E0D3", opacity: 0.6 }} className="animate-pulse" />
+            <div key={c} style={{ height: 32, width: 88, borderRadius: 999, background: "#E9EBEF", opacity: 0.6 }} className="animate-pulse" />
           ))}
         </div>
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse" style={{ background: C.card, border: `1px solid ${C.rule}`, borderRadius: 12, padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ height: 22, width: 80, background: "#E4E0D3", borderRadius: 6 }} />
-            <div style={{ height: 26, width: "85%", background: "#E4E0D3", borderRadius: 6 }} />
+            <div style={{ height: 22, width: 80, background: "#E9EBEF", borderRadius: 6 }} />
+            <div style={{ height: 26, width: "85%", background: "#E9EBEF", borderRadius: 6 }} />
             <div style={{ height: 15, width: "100%", background: "#EEEBE1", borderRadius: 4 }} />
             <div style={{ height: 15, width: "75%", background: "#EEEBE1", borderRadius: 4 }} />
-            <div style={{ height: 6, width: "100%", background: "#E4E0D3", borderRadius: 999 }} />
+            <div style={{ height: 6, width: "100%", background: "#E9EBEF", borderRadius: 999 }} />
             <div style={{ display: "flex", gap: 8 }}>
               {[...Array(3)].map((_, j) => <div key={j} style={{ height: 96, width: 168, background: "#EEEBE1", borderRadius: 10, flexShrink: 0 }} />)}
             </div>

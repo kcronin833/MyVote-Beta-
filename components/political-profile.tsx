@@ -81,18 +81,18 @@ interface Candidate {
 
 // Design tokens
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
+  ink500:  "#717182",
   ink400:  "#8B8FA3",
   ink300:  "#AEB2C3",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
-  red:     "#B33A2C",
-  page:    "#F5F3EE",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
+  red:     "#D4183D",
+  page:    "#F0F0F3",
   shade:   "#F0EDE6",
 }
 
@@ -105,11 +105,11 @@ const cardStyle = {
 
 // Level styling — hex-based, no Tailwind color classes
 const LEVEL_STYLES: Record<string, { label: string; pill: { bg: string; color: string }; border: string; stripe: string }> = {
-  "Federal":      { label: "Federal",      pill: { bg: "#1A2138", color: "#fff" }, border: "#1A2138", stripe: "rgba(26,33,56,0.05)"  },
+  "Federal":      { label: "Federal",      pill: { bg: "#030213", color: "#fff" }, border: "#030213", stripe: "rgba(26,33,56,0.05)"  },
   "State":        { label: "State",        pill: { bg: "#27AE60", color: "#fff" }, border: "#27AE60", stripe: "rgba(39,174,96,0.06)"  },
   "County":       { label: "County",       pill: { bg: "#D4871A", color: "#fff" }, border: "#D4871A", stripe: "rgba(212,135,26,0.06)" },
   "School Board": { label: "School Board", pill: { bg: "#8E44AD", color: "#fff" }, border: "#8E44AD", stripe: "rgba(142,68,173,0.06)" },
-  "Local":        { label: "Local",        pill: { bg: "#B33A2C", color: "#fff" }, border: "#B33A2C", stripe: "rgba(179,58,44,0.06)"  },
+  "Local":        { label: "Local",        pill: { bg: "#D4183D", color: "#fff" }, border: "#D4183D", stripe: "rgba(179,58,44,0.06)"  },
 }
 
 const LEVEL_ORDER = ["Federal", "State", "County", "School Board", "Local"]
@@ -117,7 +117,7 @@ const LEVEL_ORDER = ["Federal", "State", "County", "School Board", "Local"]
 function getPartyStyle(party: string): { bg: string; color: string; border: string } {
   switch (party) {
     case "Democrat":    return { bg: "#EEF2FF", color: "#3730A3", border: "#C7D2FE" }
-    case "Republican":  return { bg: "#FEF2F2", color: "#B33A2C", border: "#FECACA" }
+    case "Republican":  return { bg: "#FEF2F2", color: "#D4183D", border: "#FECACA" }
     case "Independent": return { bg: "#FFFBEB", color: "#B45309", border: "#FDE68A" }
     case "Green":       return { bg: "#ECFDF5", color: "#065F46", border: "#A7F3D0" }
     case "Libertarian": return { bg: "#FEF9C3", color: "#854D0E", border: "#FEF08A" }
@@ -273,7 +273,7 @@ export function PoliticalProfile({ initialZipCode = "30309" }: PoliticalProfileP
                     ? { background: "#ECFDF5", color: "#065F46", border: "1px solid #A7F3D0" }
                     : matchScore >= 50
                     ? { background: "#FFFBEB", color: "#B45309", border: "1px solid #FDE68A" }
-                    : { background: "#FEF2F2", color: "#B33A2C", border: "1px solid #FECACA" })
+                    : { background: "#FEF2F2", color: "#D4183D", border: "1px solid #FECACA" })
                 }}>
                   {matchScore}% Match
                 </span>

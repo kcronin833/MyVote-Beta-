@@ -199,7 +199,7 @@ export default async function CandidatePage({
             <div
               style={{
                 height: 168,
-                background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 45%, ${C.tealDk} 100%)`,
+                background: `linear-gradient(135deg, #030213 0%, ${C.ink900} 45%, ${C.tealDk} 100%)`,
                 position: "relative",
                 overflow: "hidden",
                 borderRadius: "12px 12px 0 0",
@@ -337,7 +337,7 @@ export default async function CandidatePage({
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {c.keyIssues.map((issue) => (
-                    <span key={issue} style={{ background: C.tealSoft, color: C.tealDk, border: "1px solid #C9DDD7", padding: "4px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600 }}>
+                    <span key={issue} style={{ background: C.tealSoft, color: C.tealDk, border: "1px solid #D9DCE3", padding: "4px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600 }}>
                       {issue}
                     </span>
                   ))}

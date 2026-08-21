@@ -7,7 +7,7 @@
 
 export function SupportBanner() {
   return (
-    <div style={{ background: "#F0EDE6", borderTop: "1px solid #E4E0D3" }}>
+    <div style={{ background: "#F0EDE6", borderTop: "1px solid #E9EBEF" }}>
       <div
         style={{
           maxWidth: 760,
@@ -26,7 +26,7 @@ export function SupportBanner() {
             fontWeight: 500,
           }}
         >
-          <strong style={{ color: "#1A2138" }}>MyVote is independently funded</strong>{" "}
+          <strong style={{ color: "#030213" }}>MyVote is independently funded</strong>{" "}
           — no PAC money, no political advertisers, no agenda. Just Georgia voters.
         </p>
       </div>

@@ -16,16 +16,16 @@ export const metadata: Metadata = {
 }
 
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
+  ink500:  "#717182",
   ink400:  "#8B8FA3",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
-  page:    "#F5F3EE",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
+  page:    "#F0F0F3",
   shade:   "#F0EDE6",
 }
 
@@ -39,8 +39,8 @@ const cardStyle = {
 const FEATURES = [
   {
     Icon: Newspaper,
-    iconColor: "#3D8073",
-    iconBg: "#E6F0ED",
+    iconColor: "#030213",
+    iconBg: "#EFEFF3",
     title: "Balanced News",
     body: "Read the same story from left-leaning, right-leaning, and centrist sources side by side. No more living in a news bubble.",
   },
@@ -53,7 +53,7 @@ const FEATURES = [
   },
   {
     Icon: MapPin,
-    iconColor: "#B33A2C",
+    iconColor: "#D4183D",
     iconBg: "#FEF2F2",
     title: "Local Georgia Focus",
     body: "News specific to your area of Georgia, plus profiles of your local and state representatives.",
@@ -74,8 +74,8 @@ const FEATURES = [
   },
   {
     Icon: Globe,
-    iconColor: "#3D8073",
-    iconBg: "#E6F0ED",
+    iconColor: "#030213",
+    iconBg: "#EFEFF3",
     title: "Community Discussion",
     body: "Comment on articles and engage with other Georgia citizens in real, civil political discourse.",
   },
@@ -84,8 +84,8 @@ const FEATURES = [
 const AI_CARDS = [
   {
     Icon: Filter,
-    color: "#3D8073",
-    bg: "#E6F0ED",
+    color: "#030213",
+    bg: "#EFEFF3",
     border: "#B2D8D0",
     title: "What we curate",
     body: "We pull from established national news sources (AP, Reuters, NPR, Fox News, Politico, and others). Our AI reads headlines and summaries to select stories relevant to Georgia voters and national politics.",
@@ -113,7 +113,7 @@ export default function AboutPage() {
     <div style={{ minHeight: "100vh", background: C.page }}>
 
       {/* ── Hero ── */}
-      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)", position: "relative", overflow: "hidden" }}>
         <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.08, pointerEvents: "none" }}>
           <defs>
             <pattern id="adots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
@@ -255,7 +255,7 @@ export default function AboutPage() {
               width: 60,
               height: 60,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #1F3A5F 0%, #3D8073 100%)",
+              background: "linear-gradient(135deg, #1F3A5F 0%, #030213 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -287,7 +287,7 @@ export default function AboutPage() {
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             <Link
               href="/contact"
-              style={{ display: "inline-flex", alignItems: "center", padding: "11px 24px", borderRadius: 999, background: C.teal, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none", boxShadow: "0 2px 12px rgba(61,128,115,0.28)" }}
+              style={{ display: "inline-flex", alignItems: "center", padding: "11px 24px", borderRadius: 999, background: C.teal, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none", boxShadow: "0 2px 12px rgba(3,2,19,0.28)" }}
             >
               Contact Us
             </Link>

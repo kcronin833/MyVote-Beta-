@@ -34,7 +34,7 @@ export function CandidatePhoto({
   name,
   wikipediaTitle,
   size = 130,
-  partyColor = "#1A2138",
+  partyColor = "#030213",
   shape = "circle",
 }: Props) {
   const [src, setSrc]       = useState<string | null>(null)
@@ -62,7 +62,7 @@ export function CandidatePhoto({
     width: size,
     height: size,
     borderRadius: shape === "square" ? 8 : "50%",
-    boxShadow: shape === "circle" ? "0 0 0 4px #FFFFFF, 0 0 0 6px #E4E0D3" : undefined,
+    boxShadow: shape === "circle" ? "0 0 0 4px #FFFFFF, 0 0 0 6px #E9EBEF" : undefined,
     flexShrink: 0,
     overflow: "hidden",
   }
@@ -73,7 +73,7 @@ export function CandidatePhoto({
       <div
         style={{
           ...ring,
-          background: "linear-gradient(90deg, #E4E0D3 25%, #F3F1EB 50%, #E4E0D3 75%)",
+          background: "linear-gradient(90deg, #E9EBEF 25%, #F5F5F7 50%, #E9EBEF 75%)",
           backgroundSize: "200% 100%",
           animation: "shimmer 1.6s ease-in-out infinite",
         }}

@@ -11,22 +11,22 @@ export const metadata: Metadata = {
 }
 
 const C = {
-  card:    "#FDFCF9",
-  rule:    "#E4E0D3",
-  ink900:  "#1A2138",
+  card:    "#FFFFFF",
+  rule:    "#E9EBEF",
+  ink900:  "#030213",
   ink700:  "#3D435A",
-  ink500:  "#6B7088",
-  teal:    "#3D8073",
-  tealDk:  "#2F6358",
-  tealSoft:"#E6F0ED",
-  page:    "#F5F3EE",
+  ink500:  "#717182",
+  teal:    "#030213",
+  tealDk:  "#030213",
+  tealSoft:"#EFEFF3",
+  page:    "#F0F0F3",
 }
 
 const FEATURES = [
   {
     Icon: Newspaper,
-    iconColor: "#3D8073",
-    iconBg: "#E6F0ED",
+    iconColor: "#030213",
+    iconBg: "#EFEFF3",
     title: "Balanced News",
     desc: "Read left, right, and fact-based perspectives on every story so you see the full picture.",
   },
@@ -39,7 +39,7 @@ const FEATURES = [
   },
   {
     Icon: MapPin,
-    iconColor: "#B33A2C",
+    iconColor: "#D4183D",
     iconBg: "#FEF2F2",
     title: "Local Focus",
     desc: "Get news and ballot info for your exact area. Enter your ZIP to see races for all 159 Georgia counties.",
@@ -60,8 +60,8 @@ const FEATURES = [
   },
   {
     Icon: Globe,
-    iconColor: "#3D8073",
-    iconBg: "#E6F0ED",
+    iconColor: "#030213",
+    iconBg: "#EFEFF3",
     title: "Community Discussion",
     desc: "Comment on articles, tag other users, and engage in meaningful political discourse.",
   },
@@ -72,7 +72,7 @@ export default function WelcomePage() {
     <div style={{ minHeight: "100vh", background: C.page }}>
 
       {/* Hero */}
-      <div style={{ background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)", position: "relative", overflow: "hidden" }}>
         <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity: 0.08, pointerEvents: "none" }}>
           <defs>
             <pattern id="wdots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
@@ -89,7 +89,7 @@ export default function WelcomePage() {
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 36, flexWrap: "wrap" }}>
             <Link href="/auth/signup" style={{ textDecoration: "none" }}>
-              <button style={{ background: "#B33A2C", color: "#fff", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
+              <button style={{ background: "#D4183D", color: "#fff", borderRadius: 999, padding: "12px 28px", fontSize: 15, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 2px 16px rgba(179,58,44,0.4)" }}>
                 Sign Up Free
               </button>
             </Link>
@@ -146,7 +146,7 @@ export default function WelcomePage() {
             <Link href="/news" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, border: `1.5px solid ${C.tealDk}`, color: C.tealDk, fontWeight: 600, fontSize: 14 }}>
               News Across the Spectrum
             </Link>
-            <Link href="/g" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, border: `1.5px solid #B33A2C`, color: "#B33A2C", fontWeight: 600, fontSize: 14 }}>
+            <Link href="/g" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", padding: "11px 22px", borderRadius: 999, border: `1.5px solid #D4183D`, color: "#D4183D", fontWeight: 600, fontSize: 14 }}>
               Browse by County
             </Link>
           </div>

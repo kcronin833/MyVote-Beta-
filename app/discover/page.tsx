@@ -51,13 +51,13 @@ export default function DiscoverPage() {
           {/* Search + filter bar */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#6B7088" }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#717182" }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name…"
                 className="w-full pl-9 pr-4 focus:outline-none"
-                style={{ height: 40, background: "#FDFCF9", border: "1.5px solid #E4E0D3", borderRadius: 999, fontSize: 13.5, color: "#1A2138", paddingRight: 16 }}
+                style={{ height: 40, background: "#FFFFFF", border: "1.5px solid #E9EBEF", borderRadius: 999, fontSize: 13.5, color: "#030213", paddingRight: 16 }}
               />
             </div>
             <div className="flex gap-1.5 flex-wrap">
@@ -72,9 +72,9 @@ export default function DiscoverPage() {
                       borderRadius: 999,
                       fontSize: 12.5,
                       fontWeight: active ? 700 : 500,
-                      color: active ? "#fff" : "#6B7088",
-                      background: active ? "#2F6358" : "transparent",
-                      border: `1.5px solid ${active ? "#2F6358" : "#E4E0D3"}`,
+                      color: active ? "#fff" : "#717182",
+                      background: active ? "#030213" : "transparent",
+                      border: `1.5px solid ${active ? "#030213" : "#E9EBEF"}`,
                       cursor: "pointer",
                       transition: "all 0.15s ease",
                     }}
@@ -92,18 +92,18 @@ export default function DiscoverPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 16, animation: "mv-pulse 1.6s ease-in-out infinite" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 16, animation: "mv-pulse 1.6s ease-in-out infinite" }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#E4E0D3", flexShrink: 0 }} />
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#E9EBEF", flexShrink: 0 }} />
                     <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-                      <div style={{ height: 12, background: "#E4E0D3", borderRadius: 6, width: 110 }} />
-                      <div style={{ height: 10, background: "#E4E0D3", borderRadius: 6, width: 80 }} />
+                      <div style={{ height: 12, background: "#E9EBEF", borderRadius: 6, width: 110 }} />
+                      <div style={{ height: 10, background: "#E9EBEF", borderRadius: 6, width: 80 }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <div style={{ height: 22, width: 64, background: "#E4E0D3", borderRadius: 999 }} />
-                    <div style={{ height: 22, width: 80, background: "#E4E0D3", borderRadius: 999 }} />
+                    <div style={{ height: 22, width: 64, background: "#E9EBEF", borderRadius: 999 }} />
+                    <div style={{ height: 22, width: 80, background: "#E9EBEF", borderRadius: 999 }} />
                   </div>
                 </div>
               ))}
@@ -111,14 +111,14 @@ export default function DiscoverPage() {
           ) : !user ? (
             <div style={{ textAlign: "center", padding: "64px 16px" }}>
               <Users size={44} color="#AEB2C3" style={{ margin: "0 auto 16px", opacity: 0.6 }} />
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#1A2138", marginBottom: 6 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#030213", marginBottom: 6 }}>
                 Sign in to discover neighbors
               </h3>
-              <p style={{ fontSize: 13.5, color: "#6B7088", marginBottom: 18, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 13.5, color: "#717182", marginBottom: 18, lineHeight: 1.6 }}>
                 Create an account to connect with Georgia voters near you.
               </p>
               <Link href="/auth/signup">
-                <button style={{ background: "#3D8073", color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 24px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 2px 12px rgba(61,128,115,0.3)" }}>
+                <button style={{ background: "#030213", color: "#fff", fontWeight: 700, fontSize: 14, padding: "10px 24px", borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 2px 12px rgba(3,2,19,0.3)" }}>
                   Sign Up Free
                 </button>
               </Link>
@@ -126,8 +126,8 @@ export default function DiscoverPage() {
           ) : displayed.length === 0 ? (
             <div style={{ textAlign: "center", padding: "64px 16px" }}>
               <Users size={44} color="#AEB2C3" style={{ margin: "0 auto 16px", opacity: 0.6 }} />
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#1A2138", marginBottom: 6 }}>No matches found</h3>
-              <p style={{ fontSize: 13.5, color: "#6B7088" }}>
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#030213", marginBottom: 6 }}>No matches found</h3>
+              <p style={{ fontSize: 13.5, color: "#717182" }}>
                 {filter !== "All"
                   ? "Try 'All' to see everyone, or clear your search."
                   : "More neighbors will appear as MyVote grows."}
@@ -139,7 +139,7 @@ export default function DiscoverPage() {
                 <div
                   key={suggested.id}
                   className="mv-lift"
-                  style={{ background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}
+                  style={{ background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 12, boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)" }}
                 >
                   <div className="flex items-start gap-3">
                     <Link href={`/profile/${suggested.username}`} className="flex-shrink-0">

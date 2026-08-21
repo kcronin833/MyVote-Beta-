@@ -54,7 +54,7 @@ export default function CountyIndexPage() {
           <div
             style={{
               height: 110,
-              background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
+              background: `linear-gradient(135deg, #030213 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
               position: "relative",
             }}
           >

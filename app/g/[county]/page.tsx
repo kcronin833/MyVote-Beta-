@@ -186,7 +186,7 @@ export default async function CountyPage({
             <div
               style={{
                 height: 130,
-                background: `linear-gradient(135deg, #0F1929 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
+                background: `linear-gradient(135deg, #030213 0%, ${C.ink900} 50%, ${C.tealDk} 100%)`,
                 position: "relative",
               }}
             >
@@ -324,7 +324,7 @@ export default async function CountyPage({
           {runoffRaces.length > 0 && (
             <>
               <div style={{ marginTop: 6 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#B33A2C", margin: "0 0 2px" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#D4183D", margin: "0 0 2px" }}>
                   Happening now
                 </p>
                 <SectionHeading

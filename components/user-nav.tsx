@@ -29,13 +29,13 @@ export function UserNav() {
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <button
             onClick={() => { setAuthTab("login"); setAuthOpen(true); }}
-            style={{ height: 32, padding: "0 12px", borderRadius: 999, background: "transparent", border: "none", color: "#2F6358", fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}
+            style={{ height: 32, padding: "0 12px", borderRadius: 999, background: "transparent", border: "none", color: "#030213", fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}
           >
             Sign In
           </button>
           <button
             onClick={() => { setAuthTab("signup"); setAuthOpen(true); }}
-            style={{ height: 32, padding: "0 14px", borderRadius: 999, background: "#3D8073", color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer", border: "none", boxShadow: "0 1px 8px rgba(61,128,115,0.28)" }}
+            style={{ height: 32, padding: "0 14px", borderRadius: 999, background: "#030213", color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer", border: "none", boxShadow: "0 1px 8px rgba(3,2,19,0.28)" }}
           >
             Sign Up
           </button>
@@ -57,7 +57,7 @@ export function UserNav() {
             {profile.avatar_url ? (
               <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
             ) : null}
-            <AvatarFallback style={{ background: "#2F6358", color: "#fff", fontSize: 11, fontWeight: 700 }}>
+            <AvatarFallback style={{ background: "#030213", color: "#fff", fontSize: 11, fontWeight: 700 }}>
               {profile.display_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
             </AvatarFallback>
           </Avatar>

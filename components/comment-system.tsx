@@ -194,8 +194,8 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
 
   function getPoliticalStyle(lean?: string): React.CSSProperties {
     if (lean === "left")  return { background: "#EEF2FF", color: "#3730A3", border: "1px solid #C7D2FE" };
-    if (lean === "right") return { background: "#FEF2F2", color: "#B33A2C", border: "1px solid #FECACA" };
-    return { background: "#F0EDE6", color: "#6B7088", border: "1px solid #E4E0D3" };
+    if (lean === "right") return { background: "#FEF2F2", color: "#D4183D", border: "1px solid #FECACA" };
+    return { background: "#F0EDE6", color: "#717182", border: "1px solid #E9EBEF" };
   }
 
   function renderContent(content: string) {
@@ -243,10 +243,10 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 rows={2}
               />
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(comment.id)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "#3D8073", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => handleEdit(comment.id)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "#030213", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
                   <Check size={11} /> Save
                 </button>
-                <button onClick={() => setEditingId(null)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E4E0D3", color: "#6B7088", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
+                <button onClick={() => setEditingId(null)} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E9EBEF", color: "#717182", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>
                   <X size={11} /> Cancel
                 </button>
               </div>
@@ -327,10 +327,10 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
                 </div>
               )}
               <div className="flex gap-2 mt-2">
-                <button onClick={() => handleSubmit(comment.id)} disabled={submitting} style={{ height: 28, padding: "0 12px", borderRadius: 999, background: submitting ? "#E4E0D3" : "#3D8073", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: submitting ? "default" : "pointer" }}>
+                <button onClick={() => handleSubmit(comment.id)} disabled={submitting} style={{ height: 28, padding: "0 12px", borderRadius: 999, background: submitting ? "#E9EBEF" : "#030213", color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: submitting ? "default" : "pointer" }}>
                   {submitting ? "Posting…" : "Reply"}
                 </button>
-                <button onClick={() => setReplyingTo(null)} style={{ height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E4E0D3", color: "#6B7088", fontSize: 12, cursor: "pointer" }}>
+                <button onClick={() => setReplyingTo(null)} style={{ height: 28, padding: "0 10px", borderRadius: 999, background: "transparent", border: "1px solid #E9EBEF", color: "#717182", fontSize: 12, cursor: "pointer" }}>
                   Cancel
                 </button>
               </div>
@@ -387,7 +387,7 @@ export function CommentSystem({ articleUrl, articleTitle }: CommentSystemProps) 
             <button
               onClick={() => handleSubmit()}
               disabled={!newComment.trim() || submitting}
-              style={{ height: 32, padding: "0 14px", borderRadius: 999, background: !newComment.trim() || submitting ? "#E4E0D3" : "#3D8073", color: !newComment.trim() || submitting ? "#8B8FA3" : "#fff", border: "none", fontSize: 12.5, fontWeight: 700, cursor: !newComment.trim() || submitting ? "default" : "pointer", transition: "background 0.15s" }}
+              style={{ height: 32, padding: "0 14px", borderRadius: 999, background: !newComment.trim() || submitting ? "#E9EBEF" : "#030213", color: !newComment.trim() || submitting ? "#8B8FA3" : "#fff", border: "none", fontSize: 12.5, fontWeight: 700, cursor: !newComment.trim() || submitting ? "default" : "pointer", transition: "background 0.15s" }}
             >
               {submitting ? "Posting…" : user ? "Post Comment" : "Sign In to Comment"}
             </button>

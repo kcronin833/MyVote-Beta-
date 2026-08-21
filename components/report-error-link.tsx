@@ -15,7 +15,7 @@ export function ReportErrorLink({ refPath }: { refPath: string }) {
         gap: 6,
         fontSize: 12.5,
         fontWeight: 600,
-        color: "#6B7088",
+        color: "#717182",
         textDecoration: "none",
       }}
     >
