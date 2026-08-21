@@ -12,7 +12,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["var(--font-serif)", "Source Serif 4", "Georgia", "Times New Roman", "serif"],
+        serif: ["var(--font-serif)", "Lora", "Georgia", "Times New Roman", "serif"],
       },
       colors: {
         /* ── shadcn semantics ─────────────────────────────────────── */
@@ -67,44 +67,44 @@ const config: Config = {
           "5": "hsl(var(--chart-5))",
         },
 
-        /* ── Desktop Redesign tokens (exact hex from spec) ──────── */
-        page: "#F3F1EB",
-        shade: "#F7F5EF",
-        rule: "#E4E0D3",
-        "rule-soft": "#EFEBE0",
+        /* ── Brand tokens — Citizn design language (white / near-black / cool gray) ── */
+        page: "#F5F5F7",
+        shade: "#F0F0F3",
+        rule: "#E9EBEF",
+        "rule-soft": "#EEEFF3",
         ink: {
-          900: "#1A2138",
-          700: "#3D435A",
-          500: "#6B7088",
-          400: "#8B8FA3",
-          200: "#C9CCD7",
-          100: "#DEE0E9", // kept for legacy
+          900: "#030213",
+          700: "#3D3D4A",
+          500: "#717182",
+          400: "#8B8B99",
+          200: "#C9CACF",
+          100: "#E1E3E9", // kept for legacy
         },
         teal: {
-          DEFAULT: "#3D8073",
-          dk: "#2F6358",
-          soft: "#E6F0ED",
-          border: "#C9DDD7", // tint-surface border (DS canonical)
-          50:  "#f0f7f6",
-          100: "#d9eeea",
-          200: "#b3ddd5",
-          300: "#80c4b8",
-          400: "#4fa597",
-          500: "#3D8073",
-          600: "#326b61",
-          700: "#285751",
-          800: "#1e4440",
-          900: "#152f2d",
+          DEFAULT: "#030213",
+          dk: "#030213",
+          soft: "#EFEFF3",
+          border: "#D9DCE3", // tint-surface border
+          50:  "#f4f4f6",
+          100: "#e6e6ea",
+          200: "#cfd0d7",
+          300: "#a9abb6",
+          400: "#6d6f7e",
+          500: "#030213",
+          600: "#030213",
+          700: "#030213",
+          800: "#030213",
+          900: "#030213",
         },
         "civic-red": {
-          DEFAULT: "#B33A2C",
-          soft: "#F5E3DF",
-          border: "#E8CDC7",
+          DEFAULT: "#D4183D",
+          soft: "#FCE7EA",
+          border: "#F3C9D1",
         },
         red: {
-          DEFAULT: "#B33A2C",
-          soft: "#F5E3DF",
-          border: "#E8CDC7",
+          DEFAULT: "#D4183D",
+          soft: "#FCE7EA",
+          border: "#F3C9D1",
         },
         amber: {
           DEFAULT: "#B8862F",
@@ -114,9 +114,9 @@ const config: Config = {
         plum: "#6B3A6B",
         navy: "#1F3A5F",
         olive: "#5A6A2E",
-        "paper-50":  "#F7F5EF",
-        "paper-100": "#F3F1EB",
-        "paper-200": "#E6E0D4",
+        "paper-50":  "#F0F0F3",
+        "paper-100": "#F5F5F7",
+        "paper-200": "#E1E3E9",
         /* Saturated lenses — charts / desktop only */
         "lean-left":   "#3A6AA5",
         "lean-right":  "#A53A3A",
@@ -135,7 +135,7 @@ const config: Config = {
       },
       boxShadow: {
         "card-hairline": "0 1px 0 rgba(20,24,40,0.03)",
-        "avatar-ring": "0 0 0 3px #FFFFFF, 0 0 0 4px #E4E0D3",
+        "avatar-ring": "0 0 0 3px #FFFFFF, 0 0 0 4px #E9EBEF",
       },
       keyframes: {
         "accordion-down": {
