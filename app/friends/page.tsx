@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft, Users, UserPlus, Search as SearchIcon } from "lucide-react"
+import { ArrowLeft, Users, UserPlus, Search as SearchIcon, Share2 } from "lucide-react"
 import { C } from "@/lib/design-tokens"
 import { useAuth } from "@/components/auth-context"
 import { UserAvatar } from "@/components/user-avatar"
@@ -74,6 +74,21 @@ export default function FriendsPage() {
   const [outgoing, setOutgoing] = useState<PublicPerson[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [invited, setInvited] = useState(false)
+
+  async function invite() {
+    const text = "Join me on MyVote — Georgia's free, nonpartisan voter guide. See your ballot, follow local issues, and connect with neighbors:"
+    const url = "https://www.myvotega.com"
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "MyVote", text, url })
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`)
+        setInvited(true)
+        setTimeout(() => setInvited(false), 2000)
+      }
+    } catch { /* dismissed */ }
+  }
 
   const load = useCallback(async () => {
     if (!user) return
@@ -137,9 +152,14 @@ export default function FriendsPage() {
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 20 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: C.ink900, margin: 0 }}>Friends</h1>
-          <Link href="/search" style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, background: C.teal, color: "#fff", fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>
-            <SearchIcon size={14} /> Find people
-          </Link>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={invite} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, background: "transparent", border: `1.5px solid ${C.rule}`, color: C.tealDk, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+              <Share2 size={14} /> {invited ? "Copied ✓" : "Invite"}
+            </button>
+            <Link href="/search" style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, background: C.teal, color: "#fff", fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}>
+              <SearchIcon size={14} /> Find people
+            </Link>
+          </div>
         </div>
 
         {loading ? (

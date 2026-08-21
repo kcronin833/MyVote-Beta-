@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,23 +14,42 @@ interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   defaultTab?: "login" | "signup";
+  /** Prefill the email (e.g. carried over from a reminder signup) and
+      suggest a username + display name so account creation is near one-tap. */
+  defaultEmail?: string;
 }
 
-export function AuthModal({ open, onClose, defaultTab = "login" }: AuthModalProps) {
+export function AuthModal({ open, onClose, defaultTab = "login", defaultEmail = "" }: AuthModalProps) {
   const { signIn, signUp } = useAuth();
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Login fields
-  const [loginEmail, setLoginEmail] = useState("");
+  const [loginEmail, setLoginEmail] = useState(defaultEmail);
   const [loginPassword, setLoginPassword] = useState("");
 
   // Signup fields
-  const [signupEmail, setSignupEmail] = useState("");
+  const [signupEmail, setSignupEmail] = useState(defaultEmail);
   const [signupPassword, setSignupPassword] = useState("");
   const [signupUsername, setSignupUsername] = useState("");
   const [signupDisplayName, setSignupDisplayName] = useState("");
+
+  // When opened with a carried-over email, seed the fields and suggest a
+  // username / display name from the local part so there's little left to type.
+  useEffect(() => {
+    if (!open) return;
+    setTab(defaultTab);
+    if (defaultEmail) {
+      setLoginEmail(defaultEmail);
+      setSignupEmail(defaultEmail);
+      const local = defaultEmail.split("@")[0] || "";
+      const uname = local.toLowerCase().replace(/[^a-z0-9_]/g, "_").replace(/_+/g, "_").replace(/^_+|_+$/g, "").slice(0, 20);
+      if (uname.length >= 3) setSignupUsername((u) => u || uname);
+      const disp = local.replace(/[._-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+      setSignupDisplayName((d) => d || disp);
+    }
+  }, [open, defaultEmail, defaultTab]);
 
   async function handleLogin() {
     setLoading(true);

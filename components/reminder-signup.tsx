@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Share2, UserPlus } from "lucide-react";
+import { useAuth } from "@/components/auth-context";
+import { AuthModal } from "@/components/auth-modal";
 
 const C = {
   card: "#FDFCF9",
@@ -36,9 +38,30 @@ export function ReminderSignup({
   /** Teal-tinted emphasis treatment for high-intent placements. */
   highlight?: boolean;
 }) {
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const shareUrl = "https://www.myvotega.com";
+  const shareText =
+    "I just signed up to stay ready for Georgia's 2026 elections with MyVote — see your ballot, who's running, and key dates:";
+
+  async function share() {
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "MyVote", text: shareText, url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      /* dismissed — not an error */
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,15 +101,43 @@ export function ReminderSignup({
           border: "1px solid #C0DAD4",
           borderRadius: 12,
           padding: "16px 18px",
-          textAlign: "center",
         }}
       >
-        <p style={{ fontSize: 14, fontWeight: 700, color: C.tealDk, margin: "0 0 2px" }}>
+        <p style={{ fontSize: 14, fontWeight: 700, color: C.tealDk, margin: "0 0 2px", textAlign: "center" }}>
           ✓ You&rsquo;re on the list
         </p>
-        <p style={{ fontSize: 12.5, color: C.ink700, margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 12.5, color: C.ink700, margin: "0 0 12px", lineHeight: 1.5, textAlign: "center" }}>
           We&rsquo;ll remind you before every 2026 Georgia election. No spam, ever.
         </p>
+
+        {/* Convert the email you already gave into a free account. */}
+        {!user && (
+          <div style={{ background: "#fff", border: `1px solid ${C.rule}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900, margin: "0 0 3px" }}>
+              Do more than get reminded
+            </p>
+            <p style={{ fontSize: 12, color: C.ink500, margin: "0 0 10px", lineHeight: 1.5 }}>
+              Create a free profile to save your ballot, connect with neighbors, and follow your local issues — we&rsquo;ll use{" "}
+              <strong style={{ color: C.ink700 }}>{email}</strong>.
+            </p>
+            <button
+              onClick={() => setAuthOpen(true)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 36, padding: "0 16px", borderRadius: 999, border: "none", background: C.teal, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 8px rgba(61,128,115,0.25)" }}
+            >
+              <UserPlus size={14} /> Create your free profile
+            </button>
+          </div>
+        )}
+
+        {/* Turn every signup into a referral. */}
+        <button
+          onClick={share}
+          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, height: 34, padding: "0 14px", borderRadius: 999, border: `1px solid #C0DAD4`, background: "transparent", color: C.tealDk, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+        >
+          <Share2 size={14} /> {copied ? "Copied ✓" : "Share MyVote with a neighbor"}
+        </button>
+
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} defaultTab="signup" defaultEmail={email} />
       </div>
     );
   }
