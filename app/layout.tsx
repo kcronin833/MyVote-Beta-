@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { AuthProvider } from "@/components/auth-context";
@@ -18,13 +18,13 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-// Source Serif 4 — editorial display type (story headlines, hero copy, big
-// quotes). Weight 500 with tight tracking is the canonical display style;
-// italics carry emphasis. Wired to --font-serif / Tailwind's `font-serif`.
-const sourceSerif = Source_Serif_4({
+// Lora — editorial serif display type mirroring Citizn's design language
+// (large serif headlines, serif hero copy, big quotes). Wired to --font-serif /
+// Tailwind's `font-serif`, so every serif heading across the app inherits it.
+const sourceSerif = Lora({
   subsets: ["latin"],
   variable: "--font-serif",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
 });

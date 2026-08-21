@@ -135,7 +135,7 @@ function HeroZipForm() {
               border: "none",
               outline: "none",
               background: "transparent",
-              color: "#1A2138",
+              color: "#030213",
               fontSize: 16,
               fontWeight: 500,
             }}
@@ -149,7 +149,7 @@ function HeroZipForm() {
           style={{
             height: 56,
             padding: "0 24px",
-            background: "#B33A2C",
+            background: "#D4183D",
             color: "#ffffff",
             border: "none",
             fontWeight: 700,
@@ -186,7 +186,7 @@ function HeroZipForm() {
       {error && (
         <p style={{ marginTop: 10, fontSize: 13, color: "#FFB8AD", lineHeight: 1.5 }}>
           {error}{" "}
-          <Link href="/g" style={{ color: "#7DCFC5", textDecoration: "underline", fontWeight: 600 }}>
+          <Link href="/g" style={{ color: "#C7CAD1", textDecoration: "underline", fontWeight: 600 }}>
             Browse by county →
           </Link>
         </p>
@@ -210,21 +210,21 @@ const PILLARS = [
 const FEATURES = [
   {
     Icon: Scale,
-    iconColor: "#B33A2C",
+    iconColor: "#D4183D",
     iconBg: "#FEF0EE",
     title: "Every Angle, Every Story",
     desc: "Read the same Georgia story from left, right, and center — side by side. No bubble, no algorithm pushing one view.",
   },
   {
     Icon: Newspaper,
-    iconColor: "#3D8073",
+    iconColor: "#030213",
     iconBg: "#E6F0ED",
     title: "Georgia First, Always",
     desc: "Daily Georgia political news — local races, state government, and the national stories that actually affect you here.",
   },
   {
     Icon: Users,
-    iconColor: "#2F6358",
+    iconColor: "#030213",
     iconBg: "#E6F0ED",
     title: "Organize With Your Neighbors",
     desc: "Join or start groups on the local issues that matter — school boards, zoning, closures — and see how your officials voted.",
@@ -292,7 +292,7 @@ export default function HomePage() {
       <div
         style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #0F1929 0%, #1A2138 55%, #142E2A 100%)",
+          background: "linear-gradient(135deg, #030213 0%, #030213 55%, #0A0A14 100%)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -304,8 +304,8 @@ export default function HomePage() {
           style={{
             width: 36,
             height: 36,
-            border: "3px solid rgba(61,128,115,0.3)",
-            borderTopColor: "#3D8073",
+            border: "3px solid rgba(3,2,19,0.28)",
+            borderTopColor: "#030213",
             borderRadius: "50%",
             display: "inline-block",
             animation: "mv-spin 0.8s linear infinite",
@@ -330,7 +330,7 @@ export default function HomePage() {
 
   /* ── Landing page (logged-out) ── */
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#F3F1EB" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "#F5F5F7" }}>
       {/* FAQPage schema — featured-snippet / AI-overview eligibility */}
       <script
         type="application/ld+json"
@@ -380,12 +380,12 @@ export default function HomePage() {
               style={{
                 padding: "7px 16px",
                 borderRadius: 999,
-                background: "#3D8073",
+                background: "#030213",
                 color: "#ffffff",
                 fontWeight: 700,
                 fontSize: 13.5,
                 textDecoration: "none",
-                boxShadow: "0 2px 8px rgba(61,128,115,0.3)",
+                boxShadow: "0 2px 8px rgba(3,2,19,0.28)",
                 transition: "background 0.15s",
               }}
             >
@@ -398,7 +398,7 @@ export default function HomePage() {
       {/* ── Hero — platform identity ── */}
       <section
         style={{
-          background: "linear-gradient(145deg, #0F1929 0%, #1A2138 45%, #142E2A 100%)",
+          background: "linear-gradient(145deg, #030213 0%, #030213 45%, #0A0A14 100%)",
           padding: "72px 16px 64px",
         }}
       >
@@ -430,7 +430,7 @@ export default function HomePage() {
               color: "rgba(255,255,255,0.82)",
             }}
           >
-            <Scale size={14} style={{ color: "#6FBFB0", flexShrink: 0 }} />
+            <Scale size={14} style={{ color: "#C7CAD1", flexShrink: 0 }} />
             Georgia&rsquo;s nonpartisan civic platform
           </div>
 
@@ -447,7 +447,7 @@ export default function HomePage() {
             }}
           >
             The antidote to{" "}
-            <span style={{ color: "#6FBFB0" }}>political noise.</span>
+            <span style={{ color: "#E86A5C", fontStyle: "italic" }}>political noise.</span>
           </h1>
 
           {/* Subhead */}
@@ -497,15 +497,15 @@ export default function HomePage() {
                     width: 42,
                     height: 42,
                     borderRadius: 12,
-                    background: "rgba(61,128,115,0.28)",
-                    border: "1px solid rgba(122,196,180,0.32)",
+                    background: "rgba(255,255,255,0.1)",
+                    border: "1px solid rgba(255,255,255,0.22)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
                   }}
                 >
-                  <Icon size={20} style={{ color: "#7DCFC5" }} />
+                  <Icon size={20} style={{ color: "#C7CAD1" }} />
                 </span>
                 <span style={{ minWidth: 0, flex: 1 }}>
                   <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: "#fff" }}>{title}</span>
@@ -551,7 +551,7 @@ export default function HomePage() {
                   fontWeight: 500,
                 }}
               >
-                <CheckCircle2 size={14} style={{ color: "#6FBFB0", flexShrink: 0 }} />
+                <CheckCircle2 size={14} style={{ color: "#C7CAD1", flexShrink: 0 }} />
                 {t}
               </span>
             ))}
@@ -562,8 +562,8 @@ export default function HomePage() {
       {/* ── Election Season module (seasonal) ── */}
       <section
         style={{
-          background: "#102320",
-          borderTop: "1px solid rgba(122,196,180,0.18)",
+          background: "#0A0A14",
+          borderTop: "1px solid rgba(255,255,255,0.12)",
           padding: "44px 16px 48px",
         }}
       >
@@ -639,7 +639,7 @@ export default function HomePage() {
 
           <Link
             href="/elections"
-            style={{ marginTop: 18, fontSize: 13.5, fontWeight: 600, color: "#7DCFC5", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
+            style={{ marginTop: 18, fontSize: 13.5, fontWeight: 600, color: "#C7CAD1", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
           >
             See all 2026 races &amp; key dates <ArrowRight size={14} />
           </Link>
@@ -647,16 +647,16 @@ export default function HomePage() {
       </section>
 
       {/* ── Civic action bar — petitions + groups ── */}
-      <section style={{ background: "#F3F1EB", borderBottom: "1px solid #E4E0D3", padding: "28px 16px" }}>
+      <section style={{ background: "#F5F5F7", borderBottom: "1px solid #E9EBEF", padding: "28px 16px" }}>
         <div style={{ maxWidth: 760, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
           {[
             { h: "Start a petition", p: "Target your Georgia officials directly — school board, county commission, and beyond.", href: "/petitions/create", cta: "Create one free →" },
             { h: "Join a civic group", p: "Connect with voters in your county and organize around local issues year-round.", href: "/groups", cta: "Find a group →" },
           ].map((card) => (
-            <Link key={card.href} href={card.href} className="mv-lift" style={{ display: "block", background: "#FDFCF9", border: "1px solid #E4E0D3", borderRadius: 14, padding: "18px 20px", textDecoration: "none", boxShadow: "0 2px 8px rgba(20,24,40,0.04)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1A2138", margin: "0 0 5px" }}>{card.h}</h3>
-              <p style={{ fontSize: 13.5, color: "#6B7088", lineHeight: 1.55, margin: "0 0 10px" }}>{card.p}</p>
-              <span style={{ fontSize: 13.5, fontWeight: 700, color: "#2F6358" }}>{card.cta}</span>
+            <Link key={card.href} href={card.href} className="mv-lift" style={{ display: "block", background: "#FFFFFF", border: "1px solid #E9EBEF", borderRadius: 14, padding: "18px 20px", textDecoration: "none", boxShadow: "0 2px 8px rgba(20,24,40,0.04)" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#030213", margin: "0 0 5px" }}>{card.h}</h3>
+              <p style={{ fontSize: 13.5, color: "#717182", lineHeight: 1.55, margin: "0 0 10px" }}>{card.p}</p>
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: "#030213" }}>{card.cta}</span>
             </Link>
           ))}
         </div>
@@ -666,7 +666,7 @@ export default function HomePage() {
       <div
         style={{
           background: "#ffffff",
-          borderBottom: "1px solid #E4E0D3",
+          borderBottom: "1px solid #E9EBEF",
           padding: "18px 16px",
         }}
       >
@@ -687,22 +687,22 @@ export default function HomePage() {
             { num: "100%", label: "Free to Use" },
           ].map(({ num, label }) => (
             <div key={label} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "#1A2138", lineHeight: 1 }}>{num}</div>
-              <div style={{ fontSize: 12, color: "#6B7088", marginTop: 3, fontWeight: 500 }}>{label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#030213", lineHeight: 1 }}>{num}</div>
+              <div style={{ fontSize: 12, color: "#717182", marginTop: 3, fontWeight: 500 }}>{label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── Why create an account ── */}
-      <section style={{ background: "#F3F1EB", padding: "72px 16px 80px" }}>
+      <section style={{ background: "#F5F5F7", padding: "72px 16px 80px" }}>
         <div style={{ maxWidth: 1040, margin: "0 auto" }}>
           <h2
             style={{
               fontFamily: "var(--font-serif)",
               fontSize: "clamp(1.75rem, 3.5vw, 2.25rem)",
               fontWeight: 700,
-              color: "#1A2138",
+              color: "#030213",
               textAlign: "center",
               letterSpacing: "-0.02em",
               marginBottom: 10,
@@ -713,7 +713,7 @@ export default function HomePage() {
           <p
             style={{
               textAlign: "center",
-              color: "#6B7088",
+              color: "#717182",
               fontSize: 16,
               lineHeight: 1.65,
               maxWidth: 520,
@@ -731,16 +731,16 @@ export default function HomePage() {
               gap: 16,
             }}
           >
-            {FEATURES.map(({ Icon, iconColor, iconBg, title, desc }) => (
+            {FEATURES.map(({ Icon, title, desc }) => (
               <div
                 key={title}
                 className="mv-lift"
                 style={{
                   background: "#ffffff",
-                  borderRadius: 16,
+                  borderRadius: 12,
                   padding: "24px 22px",
-                  border: "1px solid #E4E0D3",
-                  boxShadow: "0 2px 8px rgba(20,24,40,0.04)",
+                  border: "1px solid #E9EBEF",
+                  boxShadow: "0 1px 2px rgba(3,2,19,0.04)",
                   cursor: "default",
                 }}
               >
@@ -748,28 +748,28 @@ export default function HomePage() {
                   style={{
                     width: 52,
                     height: 52,
-                    background: iconBg,
-                    borderRadius: 14,
+                    background: "#F0F0F3",
+                    borderRadius: 12,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: 16,
                   }}
                 >
-                  <Icon size={26} style={{ color: iconColor }} />
+                  <Icon size={24} style={{ color: "#030213" }} strokeWidth={1.75} />
                 </div>
                 <h3
                   style={{
                     fontWeight: 700,
                     fontSize: 16,
-                    color: "#1A2138",
+                    color: "#030213",
                     marginBottom: 8,
                     lineHeight: 1.25,
                   }}
                 >
                   {title}
                 </h3>
-                <p style={{ fontSize: 14, color: "#6B7088", lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 14, color: "#717182", lineHeight: 1.6, margin: 0 }}>
                   {desc}
                 </p>
               </div>
@@ -780,7 +780,7 @@ export default function HomePage() {
             <Link href="/auth/signup" style={{ textDecoration: "none" }}>
               <button
                 style={{
-                  background: "#3D8073",
+                  background: "#030213",
                   color: "#fff",
                   borderRadius: 999,
                   padding: "14px 38px",
@@ -788,7 +788,7 @@ export default function HomePage() {
                   fontWeight: 700,
                   border: "none",
                   cursor: "pointer",
-                  boxShadow: "0 2px 16px rgba(61,128,115,0.35)",
+                  boxShadow: "0 2px 16px rgba(3,2,19,0.3)",
                   transition: "background 0.15s ease, box-shadow 0.15s ease",
                 }}
               >
@@ -797,7 +797,7 @@ export default function HomePage() {
             </Link>
             <p style={{ marginTop: 12, fontSize: 13.5, color: "#8B8FA3" }}>
               Already have an account?{" "}
-              <Link href="/auth/signin" style={{ color: "#3D8073", textDecoration: "underline", fontWeight: 600 }}>
+              <Link href="/auth/signin" style={{ color: "#030213", textDecoration: "underline", fontWeight: 600 }}>
                 Sign in
               </Link>
             </p>
@@ -808,7 +808,7 @@ export default function HomePage() {
       {/* ── Urgency dark section ── */}
       <section
         style={{
-          background: "linear-gradient(135deg, #1A2138 0%, #142E2A 100%)",
+          background: "linear-gradient(135deg, #030213 0%, #0A0A14 100%)",
           padding: "72px 16px",
         }}
       >
@@ -830,7 +830,7 @@ export default function HomePage() {
               marginBottom: 22,
             }}
           >
-            <Vote size={13} style={{ color: "#6FBFB0" }} />
+            <Vote size={13} style={{ color: "#C7CAD1" }} />
             Georgia 2026
           </div>
           <h2
@@ -866,7 +866,7 @@ export default function HomePage() {
               <Link href="/elections" style={{ textDecoration: "none" }}>
                 <button
                   style={{
-                    background: "#B33A2C",
+                    background: "#D4183D",
                     color: "#fff",
                     borderRadius: 999,
                     padding: "13px 28px",
@@ -910,7 +910,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: "#F3F1EB", borderTop: "1px solid #E4E0D3", padding: "40px 16px" }}>
+      <footer style={{ background: "#F5F5F7", borderTop: "1px solid #E9EBEF", padding: "40px 16px" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
             <Logo size="sm" />
@@ -937,7 +937,7 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-          <p style={{ marginTop: 22, fontSize: 12.5, color: "#6B7088", lineHeight: 1.6, maxWidth: 500, margin: "22px auto 0", fontWeight: 500 }}>
+          <p style={{ marginTop: 22, fontSize: 12.5, color: "#717182", lineHeight: 1.6, maxWidth: 500, margin: "22px auto 0", fontWeight: 500 }}>
             MyVote is independently funded — no PAC money, no political advertisers,
             no agenda. Just Georgia voters.
           </p>
