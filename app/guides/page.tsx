@@ -15,7 +15,7 @@ const C = {
 };
 
 export const metadata: Metadata = {
-  title: "Georgia Voter Guides · MyVote",
+  title: "Georgia Voter Guides",
   description:
     "Plain-English, non-partisan guides for Georgia voters — how runoffs work, voter ID, registration, early voting, absentee ballots, and what each statewide office actually does.",
   alternates: { canonical: "/guides" },

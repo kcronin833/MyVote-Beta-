@@ -3,12 +3,12 @@ import Link from "next/link";
 import { GA_VOTER_FAQ, faqPageSchema } from "@/lib/ga-election-facts";
 
 export const metadata: Metadata = {
-  title: "Georgia Voter FAQ 2026 — Your Questions Answered · MyVote",
+  title: "Georgia Voter FAQ 2026 — Your Questions Answered",
   description:
     "Answers to the most common questions Georgia voters ask about the 2026 election — registration, photo ID, early and absentee voting, who's running for governor and U.S. Senate, and ballot rules.",
   alternates: { canonical: "/georgia-voter-faq" },
   openGraph: {
-    title: "Georgia Voter FAQ 2026 · MyVote",
+    title: "Georgia Voter FAQ 2026",
     description:
       "Clear answers on registration, ID, early voting, and the 2026 Georgia races for governor and U.S. Senate.",
     type: "website",

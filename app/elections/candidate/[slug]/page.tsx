@@ -34,6 +34,7 @@ export async function generateMetadata({
   return {
     title: `${candidate.name} · ${race.office}`,
     description: desc,
+    alternates: { canonical: `/elections/candidate/${slug}` },
     openGraph: {
       title: `${candidate.name} — ${candidate.party} · ${race.office}`,
       description: desc,

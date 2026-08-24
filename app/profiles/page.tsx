@@ -6,13 +6,13 @@ import { ARCHETYPES, type ArchetypeKey } from "@/lib/quiz-engine"
 import { ARCHETYPE_PROFILE_DATA } from "@/lib/civic-profile-data"
 
 export const metadata: Metadata = {
-  title: "Civic Profile Types · MyVote",
+  title: "Civic Profile Types",
   description:
     "Explore all 8 MyVote civic profile types — from Institutional Skeptic to Civic Pragmatist — and discover which historical figures shared your values.",
   alternates: { canonical: "/profiles" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Civic Profile Types · MyVote",
+    title: "Civic Profile Types",
     description: "8 civic profiles grounded in peer-reviewed political psychology. Which one are you?",
     type: "website",
   },

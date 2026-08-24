@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ county: s
   const name = countyDisplayName(county);
   if (!KNOWN.has(county) || !name) return { title: "County not found" };
   return {
-    title: `${name} County Petitions — Local Georgia Civic Petitions · MyVote`,
+    title: `${name} County Petitions — Local Georgia Civic Petitions`,
     description: `Browse and sign active petitions in ${name} County, Georgia. Start a free petition targeting ${name} County commissioners, the school board, or local officials.`,
     alternates: { canonical: `/petitions/county/${county}` },
   };

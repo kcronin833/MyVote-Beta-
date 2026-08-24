@@ -11,7 +11,7 @@ const C = {
 };
 
 export const metadata: Metadata = {
-  title: "Community Groups — Organize Around Local Issues · MyVote",
+  title: "Community Groups — Organize Around Local Issues",
   description:
     "Start or join a group around a local Georgia issue — a school closing, a development fight, a safety concern — rally your neighbors, and connect with the officials responsible.",
   alternates: { canonical: "/groups" },

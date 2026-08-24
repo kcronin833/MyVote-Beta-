@@ -11,12 +11,12 @@ import { getClusteredFactualNews } from "@/lib/news-feed";
 export const revalidate = 1800;
 
 export const metadata: Metadata = {
-  title: "Political News, Every Perspective — Left, Right & Center · MyVote",
+  title: "Political News, Every Perspective — Left, Right & Center",
   description:
     "The day's biggest national political stories, told just the facts — one neutral AI summary per event, with the left/center/right spectrum on each. No opinion pieces.",
   alternates: { canonical: "/news" },
   openGraph: {
-    title: "Political News, Every Perspective — Left, Right & Center · MyVote",
+    title: "Political News, Every Perspective — Left, Right & Center",
     description:
       "Just the facts on the day's national politics — one neutral summary per story, with the full coverage spectrum.",
     type: "website",

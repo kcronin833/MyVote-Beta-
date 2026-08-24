@@ -61,7 +61,7 @@ const electionEventsSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Georgia 2026 Ballot Guide — Every Race, Every Candidate · MyVote",
+  title: "Georgia 2026 Ballot Guide — Every Race, Every Candidate",
   description:
     "Find every race on your 2026 Georgia ballot — governor, U.S. Senate, all 14 U.S. House districts, and local offices. Real candidates, key dates, and nonpartisan coverage. Enter your ZIP to start.",
   alternates: { canonical: "/elections" },

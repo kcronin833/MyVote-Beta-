@@ -9,7 +9,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Georgia Petitions — Start or Sign a Free Petition · MyVote",
+  title: "Georgia Petitions — Start or Sign a Free Petition",
   description:
     "Start a free petition for Georgia — target your county commissioner, school board, state legislator, or any local official. Nonpartisan, Georgia-focused, always free.",
   keywords: "start a petition Georgia, free petition Georgia 2026, Georgia school board petition, Georgia county petition, nonpartisan petition Georgia",

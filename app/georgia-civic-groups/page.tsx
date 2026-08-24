@@ -6,7 +6,7 @@ import { TOP_COUNTY_SLUGS, countyDisplayName, PETITION_CATEGORIES, categoryLabel
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Georgia Civic Groups — Nonpartisan Local Voter Groups · MyVote",
+  title: "Georgia Civic Groups — Nonpartisan Local Voter Groups",
   description:
     "Find nonpartisan civic groups in Georgia organized by county, city, school district, and issue. Join or start a free Georgia voter group on MyVote.",
   keywords: "Georgia civic groups, Georgia political group, Georgia voter groups, nonpartisan Georgia community group",

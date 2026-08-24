@@ -40,7 +40,7 @@ interface Story {
 }
 
 export const metadata: Metadata = {
-  title: "The Day in Review — Georgia & National News, Across the Spectrum · MyVote",
+  title: "The Day in Review — Georgia & National News, Across the Spectrum",
   description:
     "Yesterday and today's top news stories in one place — each summarized neutrally with coverage from the left, center, and right. A free, non-partisan daily recap from MyVote.",
   alternates: { canonical: "/news/recap" },

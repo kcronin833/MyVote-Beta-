@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Discover Voters · MyVote",
+  title: "Discover Voters",
   description:
     "Find and follow Georgia voters who share your civic values and your community.",
   alternates: { canonical: "/discover" },

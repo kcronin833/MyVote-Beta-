@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ county: s
   const name = countyDisplayName(county);
   if (!KNOWN.has(county) || !name) return { title: "County not found" };
   return {
-    title: `${name} County Civic Groups — Local Georgia Voter Groups · MyVote`,
+    title: `${name} County Civic Groups — Local Georgia Voter Groups`,
     description: `Find or start a civic group in ${name} County, Georgia. Connect with local voters, track ${name} County races, and organize around the issues that matter in your community.`,
     alternates: { canonical: `/groups/county/${county}` },
   };

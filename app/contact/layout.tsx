@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us · MyVote",
+  title: "Contact Us",
   description:
     "Questions, feedback, or partnership inquiries about MyVote — Georgia's non-partisan 2026 voter guide. We read every message.",
   alternates: { canonical: "/contact" },

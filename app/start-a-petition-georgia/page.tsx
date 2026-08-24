@@ -6,7 +6,7 @@ import { PETITION_FAQ, type PetitionRow, PETITION_SELECT } from "@/lib/petitions
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "How to Start a Petition in Georgia — Free Guide · MyVote",
+  title: "How to Start a Petition in Georgia — Free Guide",
   description:
     "Step-by-step guide to starting a free petition in Georgia. Target school boards, county commissioners, state legislators, and more — start in minutes on MyVote.",
   alternates: { canonical: "/start-a-petition-georgia" },

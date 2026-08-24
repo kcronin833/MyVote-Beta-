@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data } = await supabase.from("groups").select("name, description").eq("slug", slug).eq("status", "active").single();
   if (!data) return { title: "Group not found" };
   return {
-    title: `${data.name} · MyVote Community`,
+    title: `${data.name}`,
     description: (data.description || `A MyVote community group organizing around a local Georgia issue.`).slice(0, 200),
     alternates: { canonical: `/groups/${slug}` },
   };

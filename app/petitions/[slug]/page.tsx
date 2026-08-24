@@ -30,10 +30,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!p) return { title: "Petition not found" };
   const where = countyDisplayName(p.county_slug) ? `${countyDisplayName(p.county_slug)}, Georgia` : "Georgia";
   return {
-    title: `${p.title} — Georgia Petition · MyVote`,
+    title: `${p.title} — Georgia Petition`,
     description: `Sign this Georgia petition: ${p.title}. ${p.signature_count} signatures so far${p.target ? `, petitioning ${p.target}` : ""} in ${where}.`,
     alternates: { canonical: `/petitions/${slug}` },
-    openGraph: { title: `${p.title} · MyVote`, description: `Sign this Georgia petition — ${p.signature_count} signatures so far.`, type: "website" },
+    openGraph: { title: `${p.title}`, description: `Sign this Georgia petition — ${p.signature_count} signatures so far.`, type: "website" },
   };
 }
 

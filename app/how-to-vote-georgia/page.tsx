@@ -3,12 +3,12 @@ import Link from "next/link";
 import { GA_2026, GA_VOTER_FAQ, faqPageSchema } from "@/lib/ga-election-facts";
 
 export const metadata: Metadata = {
-  title: "How to Vote in Georgia 2026 — Complete Voter Guide · MyVote",
+  title: "How to Vote in Georgia 2026 — Complete Voter Guide",
   description:
     "Everything Georgia voters need for 2026: registration deadline (Oct 5), photo ID requirements, early voting (Oct 12–30), absentee ballot rules, and how to find your polling place.",
   alternates: { canonical: "/how-to-vote-georgia" },
   openGraph: {
-    title: "How to Vote in Georgia 2026 · MyVote",
+    title: "How to Vote in Georgia 2026",
     description:
       "Registration, photo ID, early voting, absentee ballots, and Election Day — the complete 2026 Georgia voter guide.",
     type: "website",
