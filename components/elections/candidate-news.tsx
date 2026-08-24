@@ -86,22 +86,38 @@ function NewsDestinations({ lastName }: { lastName: string }) {
   )
 }
 
+const STORY_COLS = "id, headline, synopsis, created_at, lean_min, lean_max"
+
 export function CandidateNews({ candidateName }: { candidateName: string }) {
   const [stories, setStories] = useState<Story[]>([])
+  const [matched, setMatched] = useState(false)
   const [ready,   setReady]   = useState(false)
 
   const lastName = candidateName.trim().split(/\s+/).pop() || candidateName
 
   useEffect(() => {
     const supabase = createClient()
+    // 1) Stories that actually name this candidate.
     supabase
       .from("clustered_stories")
-      .select("id, headline, synopsis, created_at, lean_min, lean_max")
+      .select(STORY_COLS)
       .ilike("headline", `%${lastName}%`)
       .order("created_at", { ascending: false })
       .limit(3)
-      .then(({ data }) => {
-        setStories((data as Story[]) || [])
+      .then(async ({ data }) => {
+        const named = (data as Story[]) || []
+        if (named.length > 0) {
+          setStories(named); setMatched(true); setReady(true); return
+        }
+        // 2) Fallback: latest Georgia coverage so the block always drives into
+        //    real, clickable stories (not just CTAs).
+        const { data: recent } = await supabase
+          .from("clustered_stories")
+          .select(STORY_COLS)
+          .order("created_at", { ascending: false })
+          .limit(3)
+        setStories((recent as Story[]) || [])
+        setMatched(false)
         setReady(true)
       })
   }, [lastName])
@@ -136,12 +152,14 @@ export function CandidateNews({ candidateName }: { candidateName: string }) {
         </div>
         <div>
           <div style={{ fontSize: 15, fontWeight: 700, color: C.ink900, lineHeight: 1 }}>
-            {hasStories ? "Recent Coverage" : "Follow the 2026 race"}
+            {matched ? "Recent Coverage" : hasStories ? "Georgia in the News" : "Follow the 2026 race"}
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
-            {hasStories
+            {matched
               ? `Latest news mentioning ${lastName}`
-              : "Track this race across the political spectrum"}
+              : hasStories
+                ? "The latest, across the political spectrum"
+                : "Track this race across the political spectrum"}
           </div>
         </div>
       </div>
@@ -154,7 +172,7 @@ export function CandidateNews({ candidateName }: { candidateName: string }) {
             return (
               <Link
                 key={story.id}
-                href="/news"
+                href={`/news/story/${story.id}`}
                 style={{
                   display: "block",
                   padding: "12px 0",
