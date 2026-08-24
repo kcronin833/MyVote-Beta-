@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   getAllCountySlugs,
   getCountyBySlug,
+  listCounties,
   type CountyLookup,
 } from "@/lib/county-utils";
 import { C, RaceCard, SectionHeading, cardStyle } from "@/components/elections/ballot-ui";
@@ -162,6 +163,13 @@ export default async function CountyPage({
       .filter((c) => !c.name.includes("TBD"))
       .map((c) => c.name),
   }));
+
+  // Lateral internal links — other counties in the same congressional district.
+  // Interlinks the 159 county pages for crawlability + neighbor exploration.
+  const relatedCounties = listCounties()
+    .filter((c) => c.slug !== found.slug && c.congressionalDistrict === congressionalDistrict)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 18);
 
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
@@ -413,6 +421,34 @@ export default async function CountyPage({
                 </p>
               </details>
             ))}
+          </div>
+
+          {/* Lateral internal links — related county ballots */}
+          <div style={{ ...cardStyle(), padding: "14px 16px" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 3px", color: C.ink900 }}>
+              More Georgia county ballots
+            </h2>
+            <p style={{ fontSize: 12.5, color: C.ink500, margin: "0 0 10px", lineHeight: 1.5 }}>
+              {relatedCounties.length > 0
+                ? `Other counties in ${congressionalDistrict} — compare ballots across the district.`
+                : "Explore the 2026 ballot in any Georgia county."}
+            </p>
+            {relatedCounties.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                {relatedCounties.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={c.href}
+                    style={{ fontSize: 12.5, fontWeight: 600, color: C.tealDk, background: C.tealSoft, border: `1px solid ${C.tealBorder}`, borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}
+                  >
+                    {c.name} County
+                  </Link>
+                ))}
+              </div>
+            )}
+            <Link href="/g" style={{ display: "inline-block", marginTop: relatedCounties.length > 0 ? 12 : 0, fontSize: 12.5, fontWeight: 700, color: C.teal, textDecoration: "none" }}>
+              Browse all 159 Georgia counties →
+            </Link>
           </div>
 
           {/* Self-correction: invite readers to flag wrong info */}

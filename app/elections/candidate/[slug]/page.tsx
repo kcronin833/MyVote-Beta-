@@ -550,6 +550,11 @@ export default async function CandidatePage({
             style={cardStyle({ padding: "12px 16px", textAlign: "center", fontSize: 12.5, fontWeight: 600, color: C.teal, textDecoration: "none", display: "block" })}>
             ← Back to all 2026 races
           </Link>
+
+          <Link href="/g"
+            style={cardStyle({ padding: "12px 16px", textAlign: "center", fontSize: 12.5, fontWeight: 600, color: C.teal, textDecoration: "none", display: "block" })}>
+            See this race on your county ballot →
+          </Link>
         </div>
       </div>
     </div>
