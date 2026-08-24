@@ -176,7 +176,8 @@ export default async function CountyPage({
   const allCounties = listCounties();
   const relatedCounties = allCounties
     .filter((c) => c.slug !== found.slug && c.congressionalDistrict === congressionalDistrict)
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 18);
   if (relatedCounties.length < 18) {
     const have = new Set([found.slug, ...relatedCounties.map((c) => c.slug)]);
     for (const m of allCounties.filter((c) => MAJOR_COUNTIES.includes(c.name) && !have.has(c.slug))) {
