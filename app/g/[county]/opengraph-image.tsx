@@ -40,7 +40,7 @@ export default async function OgImage({ params }: { params: Promise<{ county: st
             ) : null}
           </div>
           <div style={{ fontSize: 88, fontWeight: 800, color: "#030213", lineHeight: 1.05 }}>
-            {name} County
+            {`${name} County`}
           </div>
           <div style={{ fontSize: 30, color: "#3D435A", marginTop: 18 }}>
             {raceCount > 0 ? `${raceCount} races - governor to school board` : "Every 2026 race, candidate, and key date"}
