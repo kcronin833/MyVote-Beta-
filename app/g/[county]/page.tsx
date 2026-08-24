@@ -164,12 +164,26 @@ export default async function CountyPage({
       .map((c) => c.name),
   }));
 
-  // Lateral internal links — other counties in the same congressional district.
-  // Interlinks the 159 county pages for crawlability + neighbor exploration.
-  const relatedCounties = listCounties()
+  // Lateral internal links — interlink the 159 county pages for crawlability +
+  // neighbor exploration. Same-district counties first, then padded with the
+  // largest counties so even metro pages (whose districts map to few whole
+  // counties) always carry a healthy set of links.
+  const MAJOR_COUNTIES = [
+    "Fulton", "Gwinnett", "Cobb", "DeKalb", "Chatham", "Clayton", "Cherokee",
+    "Forsyth", "Henry", "Hall", "Richmond", "Muscogee", "Bibb", "Houston",
+    "Columbia", "Paulding", "Coweta", "Douglas",
+  ];
+  const allCounties = listCounties();
+  const relatedCounties = allCounties
     .filter((c) => c.slug !== found.slug && c.congressionalDistrict === congressionalDistrict)
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .slice(0, 18);
+    .sort((a, b) => a.name.localeCompare(b.name));
+  if (relatedCounties.length < 18) {
+    const have = new Set([found.slug, ...relatedCounties.map((c) => c.slug)]);
+    for (const m of allCounties.filter((c) => MAJOR_COUNTIES.includes(c.name) && !have.has(c.slug))) {
+      relatedCounties.push(m);
+      if (relatedCounties.length >= 18) break;
+    }
+  }
 
   return (
     <div style={{ background: C.page, minHeight: "100vh", color: C.ink900 }}>
@@ -429,9 +443,7 @@ export default async function CountyPage({
               More Georgia county ballots
             </h2>
             <p style={{ fontSize: 12.5, color: C.ink500, margin: "0 0 10px", lineHeight: 1.5 }}>
-              {relatedCounties.length > 0
-                ? `Other counties in ${congressionalDistrict} — compare ballots across the district.`
-                : "Explore the 2026 ballot in any Georgia county."}
+              Compare the 2026 ballot in other Georgia counties.
             </p>
             {relatedCounties.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
