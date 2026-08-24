@@ -3,6 +3,21 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 const GNEWS_BASE = "https://gnews.io/api/v4"
 const TOPICS = ["nation", "politics", "world", "business"]
 
+/* Georgia-specific search queries — the reason MyVote exists. The topic feeds
+   above are national; these pull the state's own races and candidates into the
+   corpus so the news feed and candidate pages have real Georgia coverage to
+   cluster and cross-link. Anchored with disambiguating political terms so they
+   surface the US state (not the country) and the 2026 races. The pipeline runs
+   once daily (see vercel.json), so these extra requests stay well within the
+   GNews free-tier limit. */
+const GEORGIA_QUERIES = [
+  "Georgia governor election 2026",
+  "Georgia Senate race Ossoff Collins",
+  "Georgia 2026 election candidates",
+  "Georgia General Assembly politics",
+  "Georgia voters ballot 2026",
+]
+
 // Reject articles that are clearly sports, entertainment, or lifestyle — not relevant
 // to a political-news platform. Keep this list specific to avoid false positives
 // (e.g. "draft" without a sport context is fine).
@@ -103,7 +118,16 @@ export async function runIngest(supabase: SupabaseClient) {
   for (let i = 0; i < feeds.length; i++) {
     const articles = await fetchGNews(feeds[i])
     allArticles.push(...articles)
-    if (i < feeds.length - 1) await new Promise((r) => setTimeout(r, 700))
+    await new Promise((r) => setTimeout(r, 700))
+  }
+
+  // Georgia-specific coverage via search — gives the feed + candidate pages
+  // real local content to cluster and cross-link.
+  for (let i = 0; i < GEORGIA_QUERIES.length; i++) {
+    const url = `${GNEWS_BASE}/search?q=${encodeURIComponent(GEORGIA_QUERIES[i])}&lang=en&country=us&max=8&apikey=${gnewsKey}`
+    const articles = await fetchGNews(url)
+    allArticles.push(...articles)
+    if (i < GEORGIA_QUERIES.length - 1) await new Promise((r) => setTimeout(r, 700))
   }
 
   if (allArticles.length === 0) throw new Error("GNews returned no articles — check GNEWS_API_KEY")
