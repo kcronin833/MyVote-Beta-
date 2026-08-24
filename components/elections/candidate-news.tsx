@@ -152,7 +152,7 @@ export function CandidateNews({ candidateName }: { candidateName: string }) {
         </div>
         <div>
           <div style={{ fontSize: 15, fontWeight: 700, color: C.ink900, lineHeight: 1 }}>
-            {matched ? "Recent Coverage" : hasStories ? "Georgia in the News" : "Follow the 2026 race"}
+            {matched ? "Recent Coverage" : hasStories ? "In the News" : "Follow the 2026 race"}
           </div>
           <div style={{ fontSize: 11.5, color: C.ink500, marginTop: 2 }}>
             {matched
