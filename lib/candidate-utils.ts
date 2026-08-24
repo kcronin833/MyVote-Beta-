@@ -78,6 +78,26 @@ export interface CandidateListItem {
   href: string;
 }
 
+/** Candidates (with detail pages) whose full name appears in a block of text —
+ *  used to link news stories back to the profiles of candidates they mention.
+ *  Word-boundary, full-name matching keeps it precise (no "Brian Jack" inside
+ *  "Brian Jackson", no bare common surnames), so a link is only shown when the
+ *  match is unambiguous. */
+export function findMentionedCandidates(text: string): CandidateListItem[] {
+  if (!text) return [];
+  const out: CandidateListItem[] = [];
+  const seen = new Set<string>();
+  for (const c of listCandidates()) {
+    if (c.name.includes("TBD") || seen.has(c.slug)) continue;
+    const escaped = c.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (new RegExp(`\\b${escaped}\\b`, "i").test(text)) {
+      seen.add(c.slug);
+      out.push(c);
+    }
+  }
+  return out;
+}
+
 export function listCandidates(): CandidateListItem[] {
   return Array.from(allCandidates()).map((x) => ({
     slug: x.slug,

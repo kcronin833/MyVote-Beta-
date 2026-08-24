@@ -1,7 +1,9 @@
 ﻿"use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { RefreshCw, ExternalLink, MessageCircle, ChevronDown, ChevronUp, Flame, Share2, Check } from "lucide-react"
+import { findMentionedCandidates } from "@/lib/candidate-utils"
 import { CommentSystem } from "@/components/comment-system"
 import { SpectrumScrubber } from "@/components/spectrum-scrubber"
 import { formatNewsTime, type NewsArticle } from "@/lib/news-service"
@@ -91,6 +93,11 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
       setTimeout(() => setShared(false), 1800)
     } catch { /* clipboard unavailable */ }
   }
+
+  // Candidates on the 2026 ballot named in this story — link back to profiles.
+  const mentioned = findMentionedCandidates(
+    [article.title, article.aiOverview, article.description].filter(Boolean).join(" ")
+  )
 
   // Sources laid out left → right for the interactive spectrum wheel.
   const scrubSources = [
@@ -194,6 +201,22 @@ function NewsCard({ article }: { article: FactualNewsItem }) {
         <p style={{ fontSize: 13.5, color: C.ink700, lineHeight: 1.65, margin: 0 }}>
           {article.aiOverview || article.description}
         </p>
+      )}
+
+      {/* On your ballot — link mentioned candidates back to their profiles */}
+      {mentioned.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.ink500 }}>On your ballot:</span>
+          {mentioned.map((c) => (
+            <Link
+              key={c.slug}
+              href={c.href}
+              style={{ fontSize: 12, fontWeight: 700, color: C.tealDk, background: C.tealSoft, border: `1px solid ${C.tealBorder}`, borderRadius: 999, padding: "3px 10px", textDecoration: "none" }}
+            >
+              {c.name} →
+            </Link>
+          ))}
+        </div>
       )}
 
       {/* Interactive spectrum wheel — pull it to change the featured (middle) article */}

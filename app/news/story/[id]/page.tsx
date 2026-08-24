@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { findMentionedCandidates } from "@/lib/candidate-utils";
 
 /* Permanent, indexable page for one clustered news story — the "free Ground
    News" product, made searchable. Each page is original cross-source
@@ -155,6 +156,8 @@ export default async function StoryPage({
   const story = await getStory(id);
   if (!story) notFound();
 
+  const mentioned = findMentionedCandidates(`${story.headline} ${story.synopsis}`);
+
   const arts = story.article_data || [];
   const left = arts.filter((a) => a.lean < 0);
   const center = arts.filter((a) => a.lean === 0);
@@ -240,6 +243,66 @@ export default async function StoryPage({
           reporting, read the originals — we always link out.
         </p>
       </div>
+
+      {/* On your ballot — link mentioned candidates back to their profiles. */}
+      {mentioned.length > 0 && (
+        <div
+          style={{
+            background: C.tealSoft,
+            border: `1px solid #D9DCE3`,
+            borderRadius: 12,
+            padding: "14px 16px",
+            margin: "0 0 18px",
+          }}
+        >
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", color: C.tealDk, margin: "0 0 9px" }}>
+            On your 2026 Georgia ballot
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {mentioned.map((c) => (
+              <Link
+                key={c.slug}
+                href={c.href}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  background: C.card,
+                  border: `1px solid ${C.rule}`,
+                  borderRadius: 999,
+                  padding: "5px 12px 5px 6px",
+                  textDecoration: "none",
+                }}
+              >
+                <span
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: C.ink900,
+                    color: "#fff",
+                    fontSize: 9.5,
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {c.initials}
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.ink900, lineHeight: 1.15 }}>{c.name}</span>
+                  <span style={{ display: "block", fontSize: 10.5, color: C.ink500, lineHeight: 1.15 }}>{c.office}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <p style={{ fontSize: 11, color: C.ink500, margin: "9px 0 0" }}>
+            Tap a candidate to see where they stand and how they compare.
+          </p>
+        </div>
+      )}
 
       {/* Coverage across the spectrum */}
       <h2 style={{ fontSize: 16, fontWeight: 700, color: C.ink900, margin: "0 0 10px" }}>
