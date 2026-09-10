@@ -257,8 +257,10 @@ export const STATEWIDE_RACES: BallotRace[] = [
 //   GA-1  (open)    — R Jim Kingston (won May 19 primary) vs D Amanda Hollowell
 //   GA-10 (open)    — R Houston Gaines (won May 19 primary) vs D Pam Delancy
 //   GA-11 (open)    — R John Cowan (won June 16 runoff) vs D Chris Harden
-//   GA-13 (special) — David Scott (D) died 2026-04-22; July 28 special went to
-//                     an Aug 25 runoff between Democrats Marcye Scott & Everton Blair
+//   GA-13           — David Scott (D) died 2026-04-22. SETTLED (re-verified 2026-09-10):
+//                     special-election runoff (Aug 25) won by Everton Blair (D), serving
+//                     through Jan 2027; the Nov 3 FULL-TERM race is D Jasmine Clark
+//                     (won May 19 primary) — GA-13 entry now models the Nov 3 general.
 // Do NOT edit these from memory — re-verify vs GA SoS before changing (see the
 // June 2026 wrong-dates incident). Other races still use tbdCandidate() for the
 // safe-incumbent challenger slot; those were not part of this refresh.
@@ -433,29 +435,22 @@ export const CONGRESSIONAL_RACES: Record<string, BallotRace> = {
       tbdCandidate("Democrat"),
     ]
   ),
-  "GA-13": {
-    office: "U.S. House – GA-13 (South Atlanta Suburbs)",
-    date: "August 25, 2026",
-    type: "Runoff Election",
-    level: "Federal",
-    description:
-      "Vacant seat — Rep. David Scott (D), who held GA-13 since 2003, died in office on April 22, 2026. In the July 28, 2026 special election no candidate won a majority (Marcye Scott 46%, Everton Blair 37%), so a runoff is set for August 25, 2026 between the top two finishers — both Democrats: Marcye Scott, the late congressman's daughter, and Everton Blair. Covers parts of six metro Atlanta counties — Clayton, Henry, Rockdale, Newton, DeKalb, and Gwinnett — a strongly Democratic district.",
-    registrationDeadline: "June 29, 2026",
-    earlyVotingStart: "August 15, 2026",
-    earlyVotingEnd: "August 21, 2026",
-    candidates: [
-      dCandidate("Marcye Scott", false,
-        "Computer consultant and daughter of the late Rep. David Scott. She led the July 28, 2026 special election with about 46% of the vote and advanced to the August 25 runoff against fellow Democrat Everton Blair.",
-        ["Healthcare", "Economic Opportunity", "Voting Rights", "Constituent Services"],
-        ["Special election runoff candidate, GA-13 (2026)", "Computer consultant", "Daughter of Rep. David Scott"],
-        -55),
-      dCandidate("Everton Blair", false,
-        "Former chair of the Gwinnett County Board of Education. He finished second in the July 28, 2026 special election with about 37% of the vote and advanced to the August 25 runoff against Marcye Scott.",
-        ["Education", "Economic Opportunity", "Healthcare", "Youth & Families"],
-        ["Special election runoff candidate, GA-13 (2026)", "Former Chair, Gwinnett County Board of Education"],
-        -58),
-    ],
-  },
+  "GA-13": generalRace(
+    "U.S. House – GA-13 (South Atlanta Suburbs)", "Federal",
+    "Open seat for a full term — longtime Rep. David Scott (D) died in office on April 22, 2026. Democrat Jasmine Clark won the May 19 primary and is favored on November 3 in this strongly Democratic district. (Separately, Democrat Everton Blair won the August 25 special-election runoff to finish Scott's current term through January 2027.) Covers parts of six metro Atlanta counties — Clayton, Henry, Rockdale, Newton, DeKalb, and Gwinnett.",
+    [
+      dCandidate("Jasmine Clark", false,
+        "Georgia state representative since 2019 and a nursing professor at Emory University. She won the May 19, 2026 Democratic primary for the full GA-13 term, defeating a field that included Everton Blair and Emanuel Jones. Forecasters rate the seat Safe Democratic.",
+        ["Public Health", "Science & Education", "Reproductive Freedom", "Voting Rights"],
+        ["Democratic Nominee GA-13 (2026)", "Georgia State Representative (2019–present)", "Nursing professor, Emory University"],
+        -60),
+      rCandidate("Republican Nominee", false,
+        "The Republican nominee for GA-13 was decided in the May 19, 2026 primary. Confirm the certified candidate on the Georgia My Voter Page — GA-13 is a strongly Democratic district.",
+        ["Conservative Values", "Economic Growth", "Public Safety"],
+        ["Republican Nominee GA-13 (2026)"],
+        55),
+    ]
+  ),
   "GA-14": generalRace(
     "U.S. House – GA-14 (NW Georgia)", "Federal",
     "Rep. Clay Fuller (R) is seeking a full term. He won the special election to replace Marjorie Taylor Greene, who resigned from Congress in January 2026. Covers northwest Georgia including Rome, Dalton, and the mountainous northwest corner of the state. Solidly Republican district.",
