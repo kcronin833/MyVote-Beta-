@@ -32,15 +32,16 @@ export interface Intent {
 
 /** Shown when the panel first opens. */
 export const GREETING =
-  "Hi! I'm the MyVote guide. I can explain what this site does, help you find what's on your ballot, or point you to the right page. What would you like to know?";
+  "Hi! I'm the MyVote guide. I can find what's on your ballot, show you the news ranked left-to-right by bias, or help you start a group to organize on a local issue. What brings you here?";
 
-/** Starter chips shown under the greeting. */
+/** Starter chips shown under the greeting. Lead with the things people come
+    back for — the ballot, the bias-ranked news, and organizing — not just FAQs. */
 export const STARTER_CHIPS = [
-  "What is MyVote?",
   "What's on my ballot?",
-  "When do I vote?",
-  "Is this nonpartisan?",
+  "See news by bias",
+  "Start a group",
   "Take the quiz",
+  "When do I vote?",
 ];
 
 export const INTENTS: Intent[] = [
@@ -48,12 +49,13 @@ export const INTENTS: Intent[] = [
     id: "what-is-myvote",
     keywords: ["what is myvote", "what is this", "what does this site", "what do you do", "about myvote", "what's myvote", "purpose", "what is the site"],
     answer:
-      "MyVote is a free, non-partisan voter guide for Georgia's 2026 elections. Enter your ZIP and you'll see your complete ballot — governor, U.S. Senate, your U.S. House district, and local offices — with candidate info. We also gather political news from the left, center, and right in one place, and offer a quick quiz to help you understand your own civic profile. No account required to look things up.",
+      "MyVote is a free, non-partisan civic platform for Georgia. Four things live here: (1) your complete 2026 ballot by ZIP — governor to school board; (2) political news ranked left-to-right by bias, so you see every side of a story; (3) community groups and petitions to organize your neighbors around local issues; and (4) a quick quiz that maps your civic profile. No account needed to look things up.",
     actions: [
       { label: "See my ballot", href: "/elections" },
-      { label: "About our mission", href: "/about" },
+      { label: "News by bias", href: "/news" },
+      { label: "Start a group", href: "/groups" },
     ],
-    followups: ["Why does MyVote exist?", "Is this nonpartisan?", "Is it really free?"],
+    followups: ["See news by bias", "Start a group", "Is this nonpartisan?"],
   },
   {
     id: "why",
@@ -83,7 +85,7 @@ export const INTENTS: Intent[] = [
       { label: "Look up my ballot", href: "/elections" },
       { label: "Official ballot (GA SoS)", href: "https://mvp.sos.ga.gov", external: true },
     ],
-    followups: ["When do I vote?", "Does it cover my county?"],
+    followups: ["See news by bias", "Start a group", "When do I vote?"],
   },
   {
     id: "dates",
@@ -95,7 +97,7 @@ export const INTENTS: Intent[] = [
       { label: "What is a runoff?", href: "/guides/what-is-a-runoff" },
       { label: "Check dates (GA SoS)", href: "https://mvp.sos.ga.gov", external: true },
     ],
-    followups: ["What is early voting?", "What's on my ballot?"],
+    followups: ["What's on my ballot?", "See news by bias", "Start a group"],
   },
   {
     id: "register",
@@ -121,14 +123,36 @@ export const INTENTS: Intent[] = [
   },
   {
     id: "news",
-    keywords: ["news", "spectrum", "left right center", "media", "articles", "headlines", "coverage", "perspectives", "both sides", "local news"],
+    keywords: ["news", "spectrum", "bias", "by bias", "news by bias", "ranked", "left right center", "media", "articles", "headlines", "coverage", "perspectives", "both sides", "every side", "which side", "local news", "biased"],
     answer:
-      "MyVote pulls political news into one place and shows how stories are covered across the spectrum — left, center, and right — so you're not stuck in one bubble. There's national coverage and Georgia-local coverage. You can browse without an account.",
+      "MyVote gathers each political story into one place and ranks the coverage left-to-right by bias — you can pull an interactive spectrum wheel to slide from the left take to the center to the right, all on the same event, so you're never stuck in one bubble. We lead with the neutral facts, then show every side. There's national coverage and Georgia-local coverage, no account needed.",
     actions: [
-      { label: "National news", href: "/news" },
+      { label: "See news by bias", href: "/news" },
       { label: "Local Georgia news", href: "/news/local" },
     ],
-    followups: ["Is this nonpartisan?", "What is MyVote?"],
+    followups: ["Start a group", "Is this nonpartisan?"],
+  },
+  {
+    id: "groups",
+    keywords: ["group", "groups", "start a group", "join a group", "organize", "organizing", "organise", "local issue", "local issues", "neighbors", "neighbours", "community", "rally", "get involved", "take action", "hold officials", "accountable", "school board", "zoning", "activism", "movement"],
+    answer:
+      "This is the heart of MyVote: when something's happening in your community — a school closing, a development fight, a tax hike, a safety concern — you can start a group, rally your neighbors, track how your officials voted, and even pull up upcoming council-meeting agendas. It turns 'someone should do something' into a real, organized effort. Browsing is open to all; starting or joining a group takes a free account.",
+    actions: [
+      { label: "Browse or start a group", href: "/groups" },
+      { label: "See a real example", href: "/groups/brookhaven-property-tax-increase-2026" },
+    ],
+    followups: ["Start a petition", "See news by bias"],
+  },
+  {
+    id: "petitions",
+    keywords: ["petition", "petitions", "sign a petition", "start a petition", "demand", "pressure officials", "campaign", "call to action"],
+    answer:
+      "Petitions turn a shared frustration into a concrete ask you can put in front of your Georgia officials — school board, county commission, city council, and beyond. Anyone can sign with a name and email, and you can start your own in a couple of minutes. It's a fast way to show numbers behind an issue.",
+    actions: [
+      { label: "Start a petition", href: "/petitions/create" },
+      { label: "Browse petitions", href: "/petitions" },
+    ],
+    followups: ["Start a group", "See news by bias"],
   },
   {
     id: "early-voting",
