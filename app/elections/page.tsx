@@ -288,6 +288,27 @@ export default function ElectionsPage() {
             </div>
           </div>
 
+          {/* News bridge — pull ballot-focused visitors into the spectrum news */}
+          <div style={{ ...cardStyle(), background: C.ink900, padding: "18px 20px", marginTop: 4 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "#C7CAD1", margin: "0 0 6px" }}>
+              The story behind the ballot
+            </p>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 21, fontWeight: 600, color: "#fff", margin: "0 0 7px", letterSpacing: -0.2 }}>
+              See how these races are covered — every side
+            </h2>
+            <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.55, margin: "0 0 14px" }}>
+              Knowing who&rsquo;s running is half of it. See the day&rsquo;s political news covered from the left, center, and right — side by side, so you decide for yourself.
+            </p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link href="/news" style={{ background: "#fff", color: C.ink900, fontWeight: 700, fontSize: 13.5, padding: "10px 18px", borderRadius: 999, textDecoration: "none" }}>
+                See the news — every side →
+              </Link>
+              <Link href="/news/local" style={{ background: "rgba(255,255,255,0.12)", color: "#fff", fontWeight: 600, fontSize: 13.5, padding: "10px 18px", borderRadius: 999, textDecoration: "none", border: "1px solid rgba(255,255,255,0.25)" }}>
+                Georgia news →
+              </Link>
+            </div>
+          </div>
+
           {/* Voting rules */}
           <SectionHeading label="Georgia voting rules" count={VOTING_RULES.length} />
           <div
