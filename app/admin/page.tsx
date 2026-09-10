@@ -877,6 +877,9 @@ export default function AdminPage() {
                     claim:      { icon: ShieldCheck,   label: "Profile Claim",    color: "bg-purple-100 text-purple-700"},
                   } as const)[msg.category] ?? { icon: MessageCircle, label: "Message", color: "bg-teal-100 text-teal-700" }
                   const Icon = catMeta.icon
+                  // Pre-filled reply — opens the admin's email client addressed to
+                  // the sender, with a greeting + their original message quoted.
+                  const replyHref = `mailto:${msg.email}?subject=${encodeURIComponent("Re: your message to MyVote")}&body=${encodeURIComponent(`Hi ${msg.name || "there"},\n\nThanks for reaching out to MyVote.\n\n\n\n— The MyVote Team\nmyvotega.com\n\n———\nYour message:\n${(msg.message || "").slice(0, 800)}`)}`
                   return (
                     <div key={msg.id} className={`bg-card rounded-2xl border p-4 transition-colors ${msg.read ? "border-border opacity-70" : "border-civic-red/30 shadow-sm"}`}>
                       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -899,6 +902,19 @@ export default function AdminPage() {
                         <a href={`mailto:${msg.email}`} className="text-xs text-teal-600 hover:underline">{msg.email}</a>
                       </div>
                       <p className="text-sm text-foreground mt-3 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                      <div className="mt-3 flex items-center gap-3 flex-wrap">
+                        <a
+                          href={replyHref}
+                          className="inline-flex items-center gap-1.5 bg-teal-600 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full hover:opacity-90 transition-opacity"
+                        >
+                          ✉ Reply by email
+                        </a>
+                        {!msg.read && (
+                          <button onClick={() => toggleRead(msg)} className="text-xs text-muted-foreground hover:text-foreground">
+                            Mark handled
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )
                 })
