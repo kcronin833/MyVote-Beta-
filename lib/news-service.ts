@@ -143,49 +143,17 @@ export async function getFactualNews(): Promise<NewsArticle[]> {
 // Results are merged, deduplicated by URL AND title fingerprint, sports/fluff filtered.
 
 // Direct RSS feeds — WordPress sites are most reliable; TV stations vary
+// Georgia news RSS. The old corporate feeds (AJC/WSB/11Alive/CBS46) are dead
+// (404/301/not-RSS as of 2026-09), so this now leads with working GA
+// state-politics feeds (Georgia Recorder, Capitol Beat, The Current) plus
+// still-live local WordPress feeds. Verified returning items 2026-09-10.
 const ATLANTA_RSS_SOURCES: { name: string; urls: string[] }[] = [
-  {
-    name: "AJC",
-    urls: [
-      "https://www.ajc.com/news/?outputType=rss",
-      "https://www.ajc.com/news/georgia/?outputType=rss",
-      "https://www.ajc.com/news/local/?outputType=rss",
-    ],
-  },
-  {
-    name: "WSB-TV",
-    urls: [
-      "https://www.wsbtv.com/rss/section/news",
-      "https://www.wsbtv.com/rss/",
-    ],
-  },
-  {
-    name: "11Alive",
-    urls: [
-      "https://www.11alive.com/feeds/rss/news/home",
-      "https://www.11alive.com/feeds/syndication/rss/",
-      "https://www.11alive.com/feeds/syndication/rss/?topicID=66262",
-    ],
-  },
-  {
-    name: "The Atlanta Voice",
-    urls: ["https://theatlantavoice.com/feed/"],
-  },
-  {
-    name: "Saporta Report",
-    urls: ["https://saportareport.com/feed/"],
-  },
-  {
-    name: "Decaturish",
-    urls: ["https://decaturish.com/feed/"],
-  },
-  {
-    name: "CBS46",
-    urls: [
-      "https://www.cbs46.com/rss/section/news",
-      "https://www.cbs46.com/arcio/rss/",
-    ],
-  },
+  { name: "Georgia Recorder",           urls: ["https://georgiarecorder.com/feed/"] },
+  { name: "Capitol Beat News Service",  urls: ["https://capitol-beat.org/feed/"] },
+  { name: "The Current GA",             urls: ["https://thecurrentga.org/feed/"] },
+  { name: "Saporta Report",             urls: ["https://saportareport.com/feed/"] },
+  { name: "The Atlanta Voice",          urls: ["https://theatlantavoice.com/feed/"] },
+  { name: "Decaturish",                 urls: ["https://decaturish.com/feed/"] },
 ]
 
 // Topic-bucketed GNews queries — run in parallel, one topic per bucket
