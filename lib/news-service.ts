@@ -204,6 +204,10 @@ const ATLANTA_GNEWS_BUCKETS = [
 // Strip sports, entertainment and lifestyle fluff — keep civic content
 const LOCAL_JUNK = /\b(NFL|NBA|MLB|NHL|MLS|WNBA|NASCAR|PGA|ATP|WTA|Falcons|Braves|Hawks|Atlanta United|Gwinnett Stripers|football game|football score|basketball game|baseball game|soccer match|soccer score|tennis match|golf tournament|boxing|MMA|UFC|WWE|Olympics|gymnastics|swim meet|draft pick|trade rumor|box score|game recap|standings|fashion week|style tips|beauty tips|makeup|skincare|celebrity|Hollywood|movie review|film review|TV recap|album review|concert review|restaurant review|food review|recipe|horoscope|zodiac|lottery results|crossword|photo gallery)\b/i
 
+// Positive gate: a Georgia local story only belongs in the political feed if it's
+// actually civic/government/election content (not crime, weather, or human-interest).
+const GA_POLITICAL = /\b(elect|election|vote|voter|voting|ballot|governor|lieutenant governor|senate|senator|congress|congressional|legislat|general assembly|state house|state senate|representative|lawmaker|mayor|city council|county commission|commissioner|school board|superintendent|ordinance|zoning|millage|budget|policy|bill|law|campaign|candidate|primary|runoff|referendum|Kemp|Ossoff|Collins|Bottoms|Jackson|Raffensperger|Warnock|Clark|Blair|city hall|county board)\b/i
+
 // ── RSS helpers ───────────────────────────────────────────────────────────────
 
 function extractRssText(xml: string, tag: string): string {
@@ -622,11 +626,14 @@ async function fetchNationalRssPool(
 }
 
 export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithPerspectives[]> {
-  // Fetch all three RSS pools in parallel — no API key, no rate limit
-  const [centerRaw, leftRaw, rightRaw] = await Promise.all([
+  // Fetch all RSS pools in parallel — no API key, no rate limit. The Georgia
+  // pool lets us lead the feed with local political coverage (we're a Georgia
+  // platform — a GA voter shouldn't land on an all-national feed).
+  const [centerRaw, leftRaw, rightRaw, gaRaw] = await Promise.all([
     fetchNationalRssPool(NATIONAL_CENTER_RSS),
     fetchNationalRssPool(NATIONAL_LEFT_RSS),
     fetchNationalRssPool(NATIONAL_RIGHT_RSS),
+    fetchNationalRssPool(ATLANTA_RSS_SOURCES),
   ])
 
   // Deduplicate center pool by URL + title fingerprint, filter junk
@@ -644,9 +651,28 @@ export async function getFactualNewsWithPerspectives(): Promise<FactualNewsWithP
     centerArticles.push(a)
   }
 
-  // Sort by recency, take top 12 center stories
+  // Sort by recency
   centerArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-  const topHeadlines = centerArticles.slice(0, 12)
+
+  // Georgia-first: pull recent LOCAL political/civic stories to the top of the
+  // feed. Dedups against the national pool via the shared seen-sets, drops junk,
+  // opinion, and any non-civic local story (crime/weather) via GA_POLITICAL.
+  const gaArticles: NewsArticle[] = []
+  for (const a of gaRaw) {
+    if (!a.title || !a.url) continue
+    const fp = titleFingerprint(a.title)
+    if (seenUrl.has(a.url) || seenFp.has(fp)) continue
+    if (isBlocklisted(a) || isOpinion(a)) continue
+    const hay = `${a.title} ${a.description}`
+    if (LOCAL_JUNK.test(hay) || !GA_POLITICAL.test(hay)) continue
+    seenUrl.add(a.url)
+    seenFp.add(fp)
+    gaArticles.push(a)
+  }
+  gaArticles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+
+  // Lead with up to 4 Georgia stories, then fill with national to 12 total.
+  const topHeadlines = [...gaArticles.slice(0, 4), ...centerArticles].slice(0, 12)
 
   if (topHeadlines.length === 0) return []
 
