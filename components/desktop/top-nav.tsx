@@ -8,7 +8,7 @@ import { Icons } from "./icons";
 import { UserNav } from "@/components/user-nav";
 import { Logo } from "@/components/logo";
 
-type NavId = "home" | "news" | "ballot" | "groups" | "quiz" | "";
+type NavId = "home" | "news" | "ballot" | "groups" | "quiz" | "store" | "";
 
 /** Auto-detect the active tab from pathname, unless an explicit override is passed. */
 function useActiveTab(override?: NavId): NavId {
@@ -22,6 +22,7 @@ function useActiveTab(override?: NavId): NavId {
     pathname.startsWith("/g")
   ) return "ballot";
   if (pathname.startsWith("/quiz") || pathname.startsWith("/profiles")) return "quiz";
+  if (pathname.startsWith("/store")) return "store";
   return "";
 }
 
@@ -43,6 +44,7 @@ export function TopNav({ active: activeProp }: { active?: NavId } = {}) {
     { id: "ballot",   label: "Elections",  icon: Icons.vote(),    href: "/elections" },
     { id: "groups",   label: "Groups",     icon: Icons.network(), href: "/groups" },
     { id: "quiz",     label: "Quiz",       icon: Icons.spark(),   href: "/quiz" },
+    { id: "store",    label: "Shop",       icon: Icons.bag(),     href: "/store", badge: "New" },
   ];
 
   return (

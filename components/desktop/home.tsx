@@ -22,6 +22,7 @@ import { Avatar, Btn, Chip, PALETTE as C, type AvatarTone } from "./atoms";
 import { Icons } from "./icons";
 import { TopNav } from "./top-nav";
 import { PostComposer } from "@/components/post-composer";
+import { StorePromo } from "@/components/merch/store-promo";
 import { PostCard, type PostData } from "@/components/post-card";
 import { createClient } from "@/lib/supabase/client";
 import { useDailyQuestion } from "@/lib/use-daily-question";
@@ -1244,6 +1245,9 @@ function RightRail() {
           </div>
         </div>
       )}
+
+      {/* Merch store promo — coming-soon Undecided 2028 collection */}
+      <StorePromo layout="rail" />
 
       {/* Suggested candidates */}
       <div style={cardStyle}>

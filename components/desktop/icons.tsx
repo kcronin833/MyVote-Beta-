@@ -128,4 +128,10 @@ export const Icons = {
       <path d="M12 3a13 13 0 010 18 13 13 0 010-18z" />
     </Ico>
   ),
+  bag: (s = 18) => (
+    <Ico size={s}>
+      <path d="M6 8h12l-1 12H7z" />
+      <path d="M9 8V6a3 3 0 016 0v2" />
+    </Ico>
+  ),
 };

@@ -18,6 +18,7 @@ import dynamic from "next/dynamic"
 import { useAuth } from "@/components/auth-context"
 import { Logo } from "@/components/logo"
 import { EarlyVotingBanner } from "@/components/early-voting-banner"
+import { StorePromo } from "@/components/merch/store-promo"
 import { GA_VOTER_FAQ, faqPageSchema } from "@/lib/ga-election-facts"
 
 /* Six high-intent questions for homepage FAQ rich results, drawn from the
@@ -350,6 +351,7 @@ export default function HomePage() {
               { href: "/groups",    label: "Community" },
               { href: "/quiz",      label: "Quiz" },
               { href: "/elections", label: "Elections" },
+              { href: "/store",     label: "Shop" },
             ].map(({ href, label }) => (
               <Link
                 key={href}
@@ -662,6 +664,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Merch promo banner ── */}
+      <section style={{ background: "#F5F5F7", padding: "8px 16px 32px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <StorePromo layout="banner" />
+        </div>
+      </section>
+
       {/* ── Stats strip ── */}
       <div
         style={{
@@ -924,6 +933,7 @@ export default function HomePage() {
               { href: "/news",      label: "News" },
               { href: "/groups",    label: "Community" },
               { href: "/elections", label: "Elections 2026" },
+              { href: "/store",     label: "Shop" },
               { href: "/privacy",   label: "Privacy Policy" },
               { href: "/terms",     label: "Terms of Service" },
               { href: "/contact",   label: "Contact" },
