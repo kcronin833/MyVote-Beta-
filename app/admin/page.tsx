@@ -7,7 +7,7 @@ import {
   ShieldCheck, Users, FileText, Trash2, RefreshCw, Rss,
   CheckCircle, XCircle, Mail, Briefcase, Lightbulb, MessageCircle,
   Vote, ExternalLink, TrendingUp, BarChart2, Activity, Award,
-  ThumbsUp, Flame, Zap, MapPin, UserPlus, Bell, Download,
+  ThumbsUp, Flame, Zap, MapPin, UserPlus, Bell, Download, ShoppingBag,
 } from "lucide-react"
 import { TopNav } from "@/components/desktop/top-nav"
 import { UserAvatar } from "@/components/user-avatar"
@@ -37,7 +37,15 @@ interface AdminPost {
   author: { username: string; display_name: string; avatar_url: string | null } | null
 }
 
-type Tab = "analytics" | "users" | "posts" | "messages" | "reminders" | "claims" | "pipeline"
+type Tab = "analytics" | "users" | "posts" | "messages" | "reminders" | "merch" | "claims" | "pipeline"
+
+interface MerchRow {
+  product_slug: string
+  product_name: string
+  variant: string | null
+  email: string
+  created_at: string
+}
 
 interface ReminderRow {
   email: string
@@ -398,6 +406,7 @@ export default function AdminPage() {
   const [loadingData, setLoadingData] = useState(true)
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [reminders, setReminders] = useState<ReminderRow[]>([])
+  const [merch, setMerch] = useState<MerchRow[]>([])
   const [claims, setClaims] = useState<CandidateClaim[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pipelineRunning, setPipelineRunning] = useState(false)
@@ -573,6 +582,15 @@ export default function AdminPage() {
       setReminders((data as ReminderRow[]) || [])
     }
 
+    if (tab === "merch") {
+      const { data } = await supabase
+        .from("merch_interest")
+        .select("product_slug, product_name, variant, email, created_at")
+        .order("created_at", { ascending: false })
+        .limit(2000)
+      setMerch((data as MerchRow[]) || [])
+    }
+
     if (tab === "claims") {
       const res = await fetch("/api/candidate/admin")
       if (res.ok) {
@@ -654,6 +672,20 @@ export default function AdminPage() {
     URL.revokeObjectURL(url)
   }
 
+  function exportMerchCsv() {
+    const header = "product,variant,email,signed_up\n"
+    const body = merch
+      .map((r) => `${r.product_name},${r.variant ?? ""},${r.email},${r.created_at}`)
+      .join("\n")
+    const blob = new Blob([header + body], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `myvote-merch-interest-${new Date().toISOString().split("T")[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function toggleAdmin(targetUser: AdminUser) {
     const newValue = !targetUser.is_admin
     const supabase = createClient()
@@ -701,6 +733,31 @@ export default function AdminPage() {
 
   const unreadCount = messages.filter((m) => !m.read).length
 
+  // Merch demand signal: rank products by interest, and within each product
+  // rank the color/size variants people asked for — what to print first.
+  const merchStats = useMemo(() => {
+    const byProduct = new Map<string, { name: string; count: number; variants: Map<string, number> }>()
+    const emails = new Set<string>()
+    for (const r of merch) {
+      emails.add(r.email)
+      const key = r.product_slug
+      const entry = byProduct.get(key) ?? { name: r.product_name, count: 0, variants: new Map<string, number>() }
+      entry.count++
+      if (r.variant) entry.variants.set(r.variant, (entry.variants.get(r.variant) ?? 0) + 1)
+      byProduct.set(key, entry)
+    }
+    const products = Array.from(byProduct.values())
+      .map((p) => ({
+        name: p.name,
+        count: p.count,
+        variants: Array.from(p.variants.entries())
+          .map(([variant, count]) => ({ variant, count }))
+          .sort((a, b) => b.count - a.count),
+      }))
+      .sort((a, b) => b.count - a.count)
+    return { total: merch.length, uniquePeople: emails.size, products }
+  }, [merch])
+
   return (
     <div className="min-h-screen bg-paper-100">
       <TopNav active="ballot" />
@@ -721,7 +778,7 @@ export default function AdminPage() {
 
           {/* ── Tab bar ── */}
           <div className="flex gap-1 mb-5 bg-card border border-border rounded-xl p-1 w-fit flex-wrap">
-            {(["analytics", "users", "posts", "messages", "reminders", "claims", "pipeline"] as Tab[]).map((t) => (
+            {(["analytics", "users", "posts", "messages", "reminders", "merch", "claims", "pipeline"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -732,6 +789,7 @@ export default function AdminPage() {
                 }`}
               >
                 {t === "analytics" && <BarChart2 className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />}
+                {t === "merch" && <ShoppingBag className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />}
                 {t}
                 {t === "messages" && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-civic-red text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -981,6 +1039,113 @@ export default function AdminPage() {
                   </div>
                   <p className="text-[11px] text-muted-foreground px-1">
                     Admin-only. These are real subscriber emails — never shared or sold. Export to import into an email sender when ready.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ── Merch tab ── */}
+          {tab === "merch" && (
+            <div className="space-y-4">
+              {loadingData ? (
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm animate-pulse">Loading merch interest…</div>
+              ) : merch.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center">
+                  <ShoppingBag className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-30" />
+                  <p className="text-sm text-muted-foreground">No merch interest yet.</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Signups from the <Link href="/store" className="text-teal-600 hover:underline">/store</Link> waitlist will show up here.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* KPI row */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <KpiTile label="Total signups"       value={merchStats.total}            icon={ShoppingBag} colorClass="text-teal-600" />
+                    <KpiTile label="Unique people"        value={merchStats.uniquePeople}     icon={Users}       colorClass="text-teal-600" />
+                    <KpiTile label="Products w/ interest" value={merchStats.products.length}  icon={TrendingUp}  colorClass="text-amber-500" />
+                  </div>
+
+                  {/* Top products */}
+                  <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Flame className="w-4 h-4 text-civic-red" />
+                      <p className="text-sm font-semibold text-foreground">Most-wanted products</p>
+                    </div>
+                    {merchStats.products.map((p) => (
+                      <HorizBar
+                        key={p.name}
+                        label={p.name}
+                        value={p.count}
+                        max={merchStats.products[0]?.count ?? 1}
+                        colorClass="bg-teal-500"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Variant demand per product */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {merchStats.products.filter((p) => p.variants.length > 0).map((p) => (
+                      <div key={p.name} className="bg-card rounded-2xl border border-border p-4 space-y-2">
+                        <p className="text-sm font-semibold text-foreground">{p.name}</p>
+                        <p className="text-[11px] text-muted-foreground -mt-1">What to print first · {p.count} interested</p>
+                        <div className="pt-1 space-y-1.5">
+                          {p.variants.map((v) => (
+                            <div key={v.variant} className="flex items-center justify-between gap-2">
+                              <span className="text-xs text-foreground">{v.variant}</span>
+                              <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">{v.count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Raw signup list + export */}
+                  <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+                    <div className="flex items-center gap-2">
+                      <ShoppingBag className="w-4 h-4 text-teal-600" />
+                      <p className="text-sm font-semibold text-foreground">
+                        {merch.length} interest {merch.length === 1 ? "signup" : "signups"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={exportMerchCsv}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Export CSV
+                    </button>
+                  </div>
+                  <div className="bg-card rounded-2xl border border-border overflow-x-auto">
+                    <table className="w-full text-sm min-w-[640px]">
+                      <thead className="bg-paper-100 border-b border-border">
+                        <tr>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Product</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Color / Size</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Email</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">When</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {merch.map((r, i) => (
+                          <tr key={`${r.email}-${r.product_slug}-${i}`} className="hover:bg-paper-50 transition-colors">
+                            <td className="px-4 py-3 text-foreground">{r.product_name}</td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground">{r.variant ?? "—"}</td>
+                            <td className="px-4 py-3">
+                              <a href={`mailto:${r.email}`} className="text-teal-600 hover:underline break-all">{r.email}</a>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                              {formatNewsTime(r.created_at)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground px-1">
+                    Admin-only. Real emails from the coming-soon store waitlist — never shared or sold. Variant counts are your demand signal for what to stock first.
                   </p>
                 </>
               )}
