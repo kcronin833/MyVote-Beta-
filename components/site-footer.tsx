@@ -16,6 +16,7 @@ export function SiteFooter() {
           <Link href="/groups" className="hover:text-ink-900 transition-colors">Groups</Link>
           <Link href="/news/recap" className="hover:text-ink-900 transition-colors">Day in Review</Link>
           <Link href="/guides" className="hover:text-ink-900 transition-colors">Voter Guides</Link>
+          <Link href="/store" className="hover:text-ink-900 transition-colors">Shop</Link>
           <Link href="/privacy" className="hover:text-ink-900 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-ink-900 transition-colors">Terms</Link>
         </nav>
