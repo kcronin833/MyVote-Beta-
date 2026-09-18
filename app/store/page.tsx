@@ -3,6 +3,7 @@ import Link from "next/link";
 import { C } from "@/lib/design-tokens";
 import { InterestButton } from "@/components/merch/interest-button";
 import { Lookbook } from "@/components/merch/lookbook";
+import { ProductArt } from "@/components/merch/product-art";
 import {
   MERCH_PRODUCTS,
   MERCH_CATEGORIES,
@@ -77,12 +78,13 @@ export default function StorePage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
                 {items.map((p) => (
                   <div key={p.slug} style={cardStyle}>
-                    {/* Placeholder tile — the lookbook up top shows the real
-                        products; per-card photos drop in later. */}
-                    <div style={{ height: 120, borderRadius: 10, background: "#0A0A14", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                      <span style={{ fontSize: 34, lineHeight: 1 }}>{p.emoji}</span>
-                      <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 15, color: "#fff" }}>Undefined · Undecided</span>
-                      <span style={{ fontSize: 8.5, letterSpacing: 3, color: "rgba(255,255,255,0.55)" }}>{MERCH_BRAND}</span>
+                    {/* Vector product art (recreated from the mockup sheet).
+                        Swap for real photos later. */}
+                    <div style={{ height: 128, borderRadius: 10, background: "linear-gradient(160deg, #12121C 0%, #0A0A14 100%)", position: "relative", overflow: "hidden" }}>
+                      <div style={{ position: "absolute", inset: 0, padding: "10px 10px 4px" }}>
+                        <ProductArt slug={p.slug} />
+                      </div>
+                      <span style={{ position: "absolute", bottom: 7, left: 0, right: 0, textAlign: "center", fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,0.5)" }}>{MERCH_BRAND}</span>
                     </div>
                     <div style={{ minHeight: 66 }}>
                       <h3 style={{ fontSize: 15, fontWeight: 700, color: C.ink900, margin: "0 0 3px" }}>{p.name}</h3>
