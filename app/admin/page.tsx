@@ -43,6 +43,7 @@ interface MerchRow {
   product_slug: string
   product_name: string
   variant: string | null
+  wordmark: string | null
   email: string
   created_at: string
 }
@@ -585,7 +586,7 @@ export default function AdminPage() {
     if (tab === "merch") {
       const { data } = await supabase
         .from("merch_interest")
-        .select("product_slug, product_name, variant, email, created_at")
+        .select("product_slug, product_name, variant, wordmark, email, created_at")
         .order("created_at", { ascending: false })
         .limit(2000)
       setMerch((data as MerchRow[]) || [])
@@ -673,9 +674,9 @@ export default function AdminPage() {
   }
 
   function exportMerchCsv() {
-    const header = "product,variant,email,signed_up\n"
+    const header = "product,wordmark,variant,email,signed_up\n"
     const body = merch
-      .map((r) => `${r.product_name},${r.variant ?? ""},${r.email},${r.created_at}`)
+      .map((r) => `${r.product_name},${r.wordmark ?? ""},${r.variant ?? ""},${r.email},${r.created_at}`)
       .join("\n")
     const blob = new Blob([header + body], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
@@ -738,8 +739,10 @@ export default function AdminPage() {
   const merchStats = useMemo(() => {
     const byProduct = new Map<string, { name: string; count: number; variants: Map<string, number> }>()
     const emails = new Set<string>()
+    const wordmarks = new Map<string, number>()
     for (const r of merch) {
       emails.add(r.email)
+      if (r.wordmark) wordmarks.set(r.wordmark, (wordmarks.get(r.wordmark) ?? 0) + 1)
       const key = r.product_slug
       const entry = byProduct.get(key) ?? { name: r.product_name, count: 0, variants: new Map<string, number>() }
       entry.count++
@@ -755,7 +758,10 @@ export default function AdminPage() {
           .sort((a, b) => b.count - a.count),
       }))
       .sort((a, b) => b.count - a.count)
-    return { total: merch.length, uniquePeople: emails.size, products }
+    const wordmarkSplit = Array.from(wordmarks.entries())
+      .map(([wordmark, count]) => ({ wordmark, count }))
+      .sort((a, b) => b.count - a.count)
+    return { total: merch.length, uniquePeople: emails.size, products, wordmarkSplit }
   }, [merch])
 
   return (
@@ -1067,6 +1073,26 @@ export default function AdminPage() {
                     <KpiTile label="Products w/ interest" value={merchStats.products.length}  icon={TrendingUp}  colorClass="text-amber-500" />
                   </div>
 
+                  {/* Wordmark split — Undefined vs Undecided */}
+                  {merchStats.wordmarkSplit.length > 0 && (
+                    <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ThumbsUp className="w-4 h-4 text-violet-500" />
+                        <p className="text-sm font-semibold text-foreground">Wordmark preference</p>
+                        <span className="text-[11px] text-muted-foreground">Undefined vs Undecided</span>
+                      </div>
+                      {merchStats.wordmarkSplit.map((w) => (
+                        <HorizBar
+                          key={w.wordmark}
+                          label={w.wordmark}
+                          value={w.count}
+                          max={merchStats.wordmarkSplit[0]?.count ?? 1}
+                          colorClass="bg-violet-400"
+                        />
+                      ))}
+                    </div>
+                  )}
+
                   {/* Top products */}
                   <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
                     <div className="flex items-center gap-2 mb-1">
@@ -1123,6 +1149,7 @@ export default function AdminPage() {
                       <thead className="bg-paper-100 border-b border-border">
                         <tr>
                           <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Product</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Wordmark</th>
                           <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Color / Size</th>
                           <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Email</th>
                           <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">When</th>
@@ -1132,6 +1159,7 @@ export default function AdminPage() {
                         {merch.map((r, i) => (
                           <tr key={`${r.email}-${r.product_slug}-${i}`} className="hover:bg-paper-50 transition-colors">
                             <td className="px-4 py-3 text-foreground">{r.product_name}</td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground">{r.wordmark ?? "—"}</td>
                             <td className="px-4 py-3 text-xs text-muted-foreground">{r.variant ?? "—"}</td>
                             <td className="px-4 py-3">
                               <a href={`mailto:${r.email}`} className="text-teal-600 hover:underline break-all">{r.email}</a>

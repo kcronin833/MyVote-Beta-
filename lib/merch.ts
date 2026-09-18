@@ -1,11 +1,21 @@
-/* Coming-soon merch catalog for the "Undecided 2028" collection. No storefront
+/* Coming-soon merch catalog for the CITIZN.APP 2028 collection. No storefront
    or payments yet — each product just captures interest (see merch_interest).
-   Variants (color/size) are the demand signal worth measuring before printing. */
+   The demand signals worth measuring before printing: which WORDMARK people
+   want (Undefined vs Undecided), and the color/size variant. */
 
-export const MERCH_COLLECTION = "Undecided 2028";
+export const MERCH_COLLECTION = "The 2028 Collection";
+export const MERCH_BRAND = "CITIZN.APP";
 export const MERCH_TAGLINE = "Less noise. More options.";
 export const MERCH_SUBHEAD =
-  "Informed citizens make a brighter tomorrow. The Undecided 2028 collection is on the way — tell us what you'd wear and we'll make it first.";
+  "Informed citizens make a brighter tomorrow. Two wordmarks — Undefined and Undecided 2028, tagged CITIZN.APP — are on the way. Tell us what you'd wear, your color or size, and which wordmark, and we'll make it first.";
+
+/* The full mockup sheet, shown as a lookbook at the top of /store.
+   Drop the file at public/merch/lookbook.jpg; the hero hides itself until then. */
+export const MERCH_LOOKBOOK = "/merch/lookbook.jpg";
+
+/* Every product comes in two wordmarks — this is a primary demand signal. */
+export const MERCH_WORDMARKS = ["Undefined 2028", "Undecided 2028"] as const;
+export type MerchWordmark = (typeof MERCH_WORDMARKS)[number];
 
 export type MerchCategory = "Hats" | "Drinkware" | "Apparel" | "Accessories";
 
@@ -22,19 +32,21 @@ export interface MerchProduct {
 export const MERCH_PRODUCTS: MerchProduct[] = [
   // ── Hats ──
   { slug: "classic-cap", name: "Classic Cap", category: "Hats", emoji: "🧢",
-    blurb: "The staple — structured cotton with the embroidered Undecided 2028 script.",
+    blurb: "The staple — structured cotton with the embroidered 2028 script.",
     variantLabel: "Color", variants: ["Navy", "Black", "Charcoal", "Olive", "Khaki", "White", "Red"] },
+  { slug: "trucker-hat", name: "Trucker Hat", category: "Hats", emoji: "🧢",
+    blurb: "Navy front, cream mesh back — classic trucker breathability." },
+  { slug: "camo-cap", name: "Camo Cap", category: "Hats", emoji: "🧢",
+    blurb: "Outdoor camo for the range, the trail, or the tailgate." },
+  { slug: "washed-denim-cap", name: "Washed Denim Cap", category: "Hats", emoji: "🧢",
+    blurb: "Vintage washed denim with a faded, broken-in look." },
+  { slug: "corduroy-cap", name: "Corduroy Cap", category: "Hats", emoji: "🧢",
+    blurb: "Premium corduroy for a heavier, textured look." },
+  { slug: "rope-hat", name: "Rope Hat", category: "Hats", emoji: "🧢",
+    blurb: "White crown, navy brim, rope detail across the front." },
   { slug: "dad-hat", name: "Dad Hat (Low Profile)", category: "Hats", emoji: "🧢",
     blurb: "Soft, unstructured, broken-in-from-day-one low-profile cap.",
     variantLabel: "Color", variants: ["Navy", "Black", "White"] },
-  { slug: "trucker-hat", name: "Trucker Hat", category: "Hats", emoji: "🧢",
-    blurb: "Navy front, cream mesh back — classic trucker breathability." },
-  { slug: "rope-hat", name: "Rope Hat", category: "Hats", emoji: "🧢",
-    blurb: "White crown, navy brim, rope detail across the front." },
-  { slug: "corduroy-cap", name: "Corduroy Cap", category: "Hats", emoji: "🧢",
-    blurb: "Premium corduroy for a heavier, textured look." },
-  { slug: "camo-cap", name: "Camo Cap", category: "Hats", emoji: "🧢",
-    blurb: "Outdoor camo for the range, the trail, or the tailgate." },
 
   // ── Drinkware ──
   { slug: "mug", name: "Ceramic Mug", category: "Drinkware", emoji: "☕",
@@ -67,4 +79,8 @@ export const MERCH_CATEGORIES: MerchCategory[] = ["Hats", "Drinkware", "Apparel"
 
 export function getMerchProduct(slug: string): MerchProduct | null {
   return MERCH_PRODUCTS.find((p) => p.slug === slug) ?? null;
+}
+
+export function isMerchWordmark(value: string): value is MerchWordmark {
+  return (MERCH_WORDMARKS as readonly string[]).includes(value);
 }

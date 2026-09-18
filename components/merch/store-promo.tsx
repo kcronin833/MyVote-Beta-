@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MERCH_COLLECTION, MERCH_TAGLINE } from "@/lib/merch";
+import { MERCH_COLLECTION, MERCH_TAGLINE, MERCH_BRAND } from "@/lib/merch";
 
 /* On-site advertisement for the coming-soon Undecided 2028 store.
    Two layouts:
@@ -24,7 +24,7 @@ export function StorePromo({ layout = "rail" }: { layout?: "rail" | "banner" }) 
         padding: "3px 10px",
       }}
     >
-      Coming Soon · Merch
+      Coming Soon · {MERCH_BRAND} Merch
     </span>
   );
 
@@ -39,7 +39,7 @@ export function StorePromo({ layout = "rail" }: { layout?: "rail" | "banner" }) 
         display: "block",
       }}
     >
-      The {MERCH_COLLECTION} Collection
+      {MERCH_COLLECTION}
     </span>
   );
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MerchProduct } from "@/lib/merch";
+import { type MerchProduct, MERCH_WORDMARKS } from "@/lib/merch";
 
 const C = {
   ink900: "#030213", ink700: "#3D3D4A", ink500: "#717182", ink400: "#8B8B99",
@@ -17,6 +17,7 @@ export function InterestButton({ product }: { product: MerchProduct }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [variant, setVariant] = useState("");
+  const [wordmark, setWordmark] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -30,7 +31,7 @@ export function InterestButton({ product }: { product: MerchProduct }) {
       const res = await fetch("/api/merch/interest", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, productSlug: product.slug, variant: variant || null }),
+        body: JSON.stringify({ email, productSlug: product.slug, variant: variant || null, wordmark: wordmark || null }),
       });
       const data = await res.json();
       if (!res.ok) { setErr(data.error || "Something went wrong."); setBusy(false); return; }
@@ -44,7 +45,7 @@ export function InterestButton({ product }: { product: MerchProduct }) {
   if (done) {
     return (
       <div style={{ background: C.soft, border: `1px solid ${C.rule}`, borderRadius: 8, padding: "9px 11px", fontSize: 12.5, color: C.ink700, lineHeight: 1.45 }}>
-        ✓ You&rsquo;re on the list{variant ? ` (${variant})` : ""} — we&rsquo;ll email you the moment the {product.name.toLowerCase()} drops.
+        ✓ You&rsquo;re on the list{[wordmark, variant].filter(Boolean).length ? ` (${[wordmark, variant].filter(Boolean).join(", ")})` : ""} — we&rsquo;ll email you the moment the {product.name.toLowerCase()} drops.
       </div>
     );
   }
@@ -62,6 +63,15 @@ export function InterestButton({ product }: { product: MerchProduct }) {
 
   return (
     <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      <select
+        value={wordmark}
+        onChange={(e) => setWordmark(e.target.value)}
+        aria-label={`Wordmark for ${product.name}`}
+        style={{ ...inp, cursor: "pointer" }}
+      >
+        <option value="">Wordmark (optional)</option>
+        {MERCH_WORDMARKS.map((w) => <option key={w} value={w}>{w}</option>)}
+      </select>
       {product.variants && product.variantLabel && (
         <select
           value={variant}
