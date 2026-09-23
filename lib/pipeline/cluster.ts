@@ -60,9 +60,9 @@ Rules:
 - Write a "fact_ledger" — a just-the-facts breakdown with four short parts:
     * what_happened: the core event in 1-2 plain sentences, no adjectives or interpretation
     * shared_facts: the concrete points the sources agree on regardless of lean (names, actions, timing). 1-2 sentences.
-    * where_they_differ: how the framing or emphasis differs between the left-leaning and right-leaning sources. 1-2 sentences.
+    * where_they_differ: compare the ACTUAL wording of the left-leaning vs right-leaning headlines provided for this cluster — describe only a difference in emphasis or word choice that is visible in those specific headlines. If the provided headlines are too similar, or all lean the same way, write exactly "The headlines don't show a clear difference in framing." 1-2 sentences.
     * unresolved: what these headlines do NOT settle — open questions or missing context. 1 sentence.
-- CRITICAL: base the fact_ledger ONLY on the provided headlines and their sources. Do NOT invent specific numbers, quotes, dates, or details that are not present. If a part cannot be determined from the headlines, say so plainly (e.g., "The headlines don't specify.").
+- CRITICAL: base the fact_ledger ONLY on the provided headlines and their sources. Do NOT invent specific numbers, quotes, dates, or details that are not present. NEVER speculate with words like "may," "likely," or "could" — if you cannot determine a part from the actual headlines, say so plainly (e.g., "The headlines don't specify.").
 - Return ONLY valid JSON — no markdown, no explanation
 
 Headlines (index, political lean -3 to +3, source):
