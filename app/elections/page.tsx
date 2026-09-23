@@ -71,7 +71,7 @@ const KEY_DATES: { date: string; label: string; critical?: boolean; past?: boole
   { date: "May 19, 2026", label: "Georgia Primary Election — completed", past: true },
   { date: "June 16, 2026", label: "Primary Runoff — completed (Jackson & Collins won GOP nominations)", past: true },
   { date: "October 5, 2026", label: "Voter registration deadline (General)", critical: true },
-  { date: "Oct 12 – Oct 30, 2026", label: "Early voting — General Election" },
+  { date: "Oct 13 – Oct 30, 2026", label: "Early voting — General Election" },
   { date: "November 3, 2026", label: "General Election Day — polls 7am–7pm", critical: true },
 ];
 

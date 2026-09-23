@@ -137,7 +137,7 @@ function primaryRace(office: string, level: BallotRace["level"], description: st
 function generalRace(office: string, level: BallotRace["level"], description: string, candidates: BallotCandidate[]): BallotRace {
   return {
     office, date: "November 3, 2026", type: "General Election", description, level, candidates,
-    registrationDeadline: "October 5, 2026", earlyVotingStart: "October 12, 2026", earlyVotingEnd: "October 30, 2026",
+    registrationDeadline: "October 5, 2026", earlyVotingStart: "October 13, 2026", earlyVotingEnd: "October 30, 2026",
   }
 }
 

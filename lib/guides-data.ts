@@ -45,7 +45,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "The June 16, 2026 runoff — completed",
-        body: "The runoff is over. Early voting ran June 6–12 (counties opened between Saturday, June 6 and Monday, June 8) and election day was Tuesday, June 16. Rick Jackson (governor) and Mike Collins (U.S. Senate) won the Republican nominations and now advance to the November 3, 2026 general election against Democrats Keisha Lance Bottoms and Sen. Jon Ossoff. For November, the registration deadline is October 5 and early voting runs October 12–30 — confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov).",
+        body: "The runoff is over. Early voting ran June 6–12 (counties opened between Saturday, June 6 and Monday, June 8) and election day was Tuesday, June 16. Rick Jackson (governor) and Mike Collins (U.S. Senate) won the Republican nominations and now advance to the November 3, 2026 general election against Democrats Keisha Lance Bottoms and Sen. Jon Ossoff. For November, the registration deadline is October 5 and early voting runs October 13–30 — confirm your polling place at the Georgia Secretary of State's My Voter Page (mvp.sos.ga.gov).",
       },
     ],
     related: [
@@ -138,7 +138,7 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "When it happens",
-        body: "For general elections, advance voting begins the fourth Monday before election day and runs about three weeks, including at least two Saturdays — for the November 3, 2026 general, that's roughly October 12 through October 30. Runoffs are shorter: counties open advance voting as soon as possible (June 6–8 for the June 16, 2026 runoff, varying by county) and it always ends the Friday before election day — June 12 for this runoff.",
+        body: "For general elections, advance voting runs about three weeks — including at least two Saturdays — beginning the fourth Monday before election day, or the next day when that Monday is a state holiday. For the November 3, 2026 general, that's October 13 through October 30 (the fourth Monday, October 12, is a holiday). Runoffs are shorter: counties open advance voting as soon as possible (June 6–8 for the June 16, 2026 runoff, varying by county) and it always ends the Friday before election day — June 12 for this runoff.",
       },
       {
         heading: "Why vote early",

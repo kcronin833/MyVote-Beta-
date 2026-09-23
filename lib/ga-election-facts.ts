@@ -3,7 +3,13 @@
  * VERIFIED 2026-06-23 against AP/NPR/Washington Post (June 16 runoff results),
  * Georgia SoS, georgia.gov, and Ballotpedia. Do NOT edit these from memory —
  * re-verify against the GA Secretary of State before changing (see the June
- * 2026 wrong-dates incident). The June 16, 2026 primary runoff is COMPLETE:
+ * 2026 wrong-dates incident).
+ *
+ * 2026-09-23: corrected general-election early-voting START from Oct 12 to
+ * Oct 13, re-verified against georgia.gov (Oct 12 is a state holiday; the
+ * state's published advance-voting range is Oct 13–30).
+ *
+ * The June 16, 2026 primary runoff is COMPLETE:
  *   - Governor (GOP runoff): Rick Jackson defeated Burt Jones
  *   - U.S. Senate (GOP runoff): Mike Collins defeated Derek Dooley
  * so the November matchups below are final, not pending.
@@ -14,7 +20,7 @@ export const GA_2026 = {
   generalElection: { label: "November 3, 2026", iso: "2026-11-03" },
   pollHours: "7:00 a.m. to 7:00 p.m.",
   registrationDeadline: { label: "October 5, 2026", iso: "2026-10-05" },
-  earlyVoting: { startLabel: "October 12, 2026", startIso: "2026-10-12", endLabel: "October 30, 2026", endIso: "2026-10-30" },
+  earlyVoting: { startLabel: "October 13, 2026", startIso: "2026-10-13", endLabel: "October 30, 2026", endIso: "2026-10-30" },
   absenteeRequestDeadline: { label: "October 23, 2026", iso: "2026-10-23" },
   governor: { democrat: "Keisha Lance Bottoms", republican: "Rick Jackson" },
   senate: { democrat: "Jon Ossoff", republican: "Mike Collins" },
@@ -48,7 +54,7 @@ export const GA_VOTER_FAQ: FaqEntry[] = [
   { category: "ID & Eligibility", q: "Can I vote in Georgia without a photo ID?", a: "In almost all cases a photo ID is required. If you cannot show one in person, you may cast a provisional ballot and then provide acceptable ID to your county within three days for it to be counted." },
 
   // ── Early & absentee voting ──
-  { category: "Early & Absentee Voting", q: "When is early voting in Georgia for the 2026 general election?", a: "In-person early voting for the November 3, 2026 general election runs October 12–30, 2026, on weekdays plus at least two Saturdays. Exact dates and hours can vary slightly by county, so confirm your location's schedule on the My Voter Page." },
+  { category: "Early & Absentee Voting", q: "When is early voting in Georgia for the 2026 general election?", a: "In-person early voting for the November 3, 2026 general election runs October 13–30, 2026, on weekdays plus at least two Saturdays. Exact dates and hours can vary slightly by county, so confirm your location's schedule on the My Voter Page." },
   { category: "Early & Absentee Voting", q: "How do I vote absentee or by mail in Georgia?", a: "Any registered Georgia voter may request an absentee ballot — no excuse is needed — online or by mail from your county election office. For the general election, your application must be received by October 23, 2026." },
   { category: "Early & Absentee Voting", q: "When must my absentee ballot be returned in Georgia?", a: "Your completed absentee ballot must be received by your county election office by 7:00 p.m. on Election Day, November 3, 2026. A postmark is not enough — late ballots are not counted, so return it early or use an official drop box." },
   { category: "Early & Absentee Voting", q: "Can anyone vote by mail in Georgia?", a: "Yes. Georgia allows no-excuse absentee voting, so any registered voter can request a mail-in ballot for any reason." },

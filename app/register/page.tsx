@@ -24,7 +24,7 @@ const DATES = {
   runoff:               new Date("2026-06-16T07:00:00-04:00"),
   runoffEarlyEnd:       new Date("2026-06-13T00:00:00-04:00"),
   generalRegDeadline:   new Date("2026-10-05T23:59:59-04:00"),
-  generalEarlyStart:    new Date("2026-10-12T00:00:00-04:00"),
+  generalEarlyStart:    new Date("2026-10-13T00:00:00-04:00"),
   generalAbsenteeDeadline: new Date("2026-10-23T23:59:59-04:00"),
   general:              new Date("2026-11-03T07:00:00-05:00"),
 }
@@ -95,7 +95,7 @@ const FAQ = [
   },
   {
     q: "Can I vote early in person?",
-    a: "Yes — Georgia has in-person early voting for every election. For the November 3 General, early voting runs October 12–30, 2026 at your county's designated sites.",
+    a: "Yes — Georgia has in-person early voting for every election. For the November 3 General, early voting runs October 13–30, 2026 at your county's designated sites.",
   },
   {
     q: "I moved within Georgia. Do I need to update my registration?",
@@ -266,7 +266,7 @@ export default function RegisterPage() {
               {/* Early voting */}
               <TimelineItem
                 label="Early Voting Period"
-                date="Oct 12 – Oct 30, 2026"
+                date="Oct 13 – Oct 30, 2026"
                 status={earlyVotingOpen ? "current" : now > DATES.general ? "past" : "future"}
                 note="In-person early voting at county sites. Bring a valid photo ID."
                 cta={{ label: "Find locations", href: "https://mvp.sos.ga.gov" }}
