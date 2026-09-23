@@ -1,33 +1,48 @@
 "use client";
 
 /**
- * EarlyVotingBanner — time-sensitive urgency strip for the June 16, 2026 Runoff.
+ * EarlyVotingBanner — time-sensitive urgency strip for the November 3, 2026
+ * General Election, led by the voter-registration deadline.
  *
- * States (based on current date):
- *   pre        → before June 6:  "Early voting opens in X days"
- *   open       → June 6–11:      "Early voting NOW OPEN"
- *   last_day   → June 12:        "LAST day of early voting — vote today"
- *   final_days → June 13–15:     "June 16 Runoff in X days"
- *   election   → June 16:        "Today is Election Day — go vote!"
- *   null       → before June 4 or after June 16: hidden
+ * States (based on current date, America/New_York):
+ *   register     → before Oct 5:   "Register to vote by Oct 5 — X days left"
+ *   reg_last_day → Oct 5:          "LAST day to register to vote"
+ *   pre_ev       → Oct 6–12:       "Early voting opens Oct 13 in X days"
+ *   ev_open      → Oct 13–29:      "Early voting is NOW OPEN — through Oct 30"
+ *   ev_last      → Oct 30:         "LAST day of early voting"
+ *   final        → Oct 31–Nov 2:   "Election Day Nov 3 — X days away"
+ *   election     → Nov 3:          "Today is Election Day — go vote!"
+ *   null         → before Sep 15 or after Nov 3: hidden
  *
- * Dates verified against GA SoS / county election offices: advance voting
- * for the June 16 runoff began June 6–8 depending on county and ends
- * statewide on Friday, June 12 (per O.C.G.A. advance-voting rules).
+ * Dates verified against the Georgia Secretary of State (sos.ga.gov) and
+ * georgia.gov for the Nov 3, 2026 general election:
+ *   - Voter registration deadline: October 5, 2026
+ *   - Early voting: October 13–30, 2026 (three weeks, incl. two Saturdays)
+ *   - Election Day: November 3, 2026, polls 7am–7pm
+ * October is EDT (-04:00); DST ends Nov 1, 2026, so Nov 3 is EST (-05:00).
  */
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-// All times in America/New_York
-const BANNER_VISIBLE_START = new Date("2026-06-04T00:00:00-04:00");
-const EARLY_VOTING_START   = new Date("2026-06-06T00:00:00-04:00");
-const EARLY_VOTING_LAST    = new Date("2026-06-12T00:00:00-04:00"); // last day open
-const EARLY_VOTING_END     = new Date("2026-06-13T00:00:00-04:00"); // after last day
-const RUNOFF_DAY           = new Date("2026-06-16T00:00:00-04:00");
-const CUTOFF               = new Date("2026-06-17T00:00:00-04:00"); // banner disappears
+const VISIBLE_START       = new Date("2026-09-15T00:00:00-04:00");
+const REG_LAST_DAY_START  = new Date("2026-10-05T00:00:00-04:00"); // Oct 5 = last day to register
+const REG_CLOSED_START    = new Date("2026-10-06T00:00:00-04:00");
+const EV_START            = new Date("2026-10-13T00:00:00-04:00");
+const EV_LAST_DAY_START   = new Date("2026-10-30T00:00:00-04:00"); // Oct 30 = last day of early voting
+const EV_END              = new Date("2026-10-31T00:00:00-04:00");
+const ELECTION_DAY_START  = new Date("2026-11-03T00:00:00-05:00");
+const CUTOFF              = new Date("2026-11-04T00:00:00-05:00"); // banner disappears
 
-type BannerState = "pre" | "open" | "last_day" | "final_days" | "election" | null;
+const REGISTER_URL = "https://registertovote.sos.ga.gov/";
+const MVP_URL      = "https://mvp.sos.ga.gov/";
+
+type BannerState =
+  | "register" | "reg_last_day" | "pre_ev" | "ev_open" | "ev_last" | "final" | "election" | null;
+
+function daysBetween(from: Date, to: Date) {
+  return Math.max(0, Math.ceil((to.getTime() - from.getTime()) / 86_400_000));
+}
 
 export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
   const [state, setState] = useState<BannerState>(null);
@@ -36,50 +51,45 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
 
   useEffect(() => {
     try {
-      if (sessionStorage.getItem("mv_evb_runoff_dismissed") === "1") {
+      if (sessionStorage.getItem("mv_evb_general_dismissed") === "1") {
         setDismissed(true);
         return;
       }
     } catch {}
 
     const now = new Date();
-    if (now < BANNER_VISIBLE_START || now >= CUTOFF) return;
+    if (now < VISIBLE_START || now >= CUTOFF) return;
 
-    if (now < EARLY_VOTING_START) {
-      const days = Math.ceil(
-        (EARLY_VOTING_START.getTime() - now.getTime()) / 86_400_000
-      );
-      setDaysUntil(days);
-      setState("pre");
-    } else if (now < EARLY_VOTING_LAST) {
-      setState("open");
-    } else if (now < EARLY_VOTING_END) {
-      setState("last_day");
-    } else if (now < RUNOFF_DAY) {
-      const days = Math.ceil((RUNOFF_DAY.getTime() - now.getTime()) / 86_400_000);
-      setDaysUntil(days);
-      setState("final_days");
+    if (now < REG_LAST_DAY_START) {
+      setDaysUntil(daysBetween(now, REG_LAST_DAY_START));
+      setState("register");
+    } else if (now < REG_CLOSED_START) {
+      setState("reg_last_day");
+    } else if (now < EV_START) {
+      setDaysUntil(daysBetween(now, EV_START));
+      setState("pre_ev");
+    } else if (now < EV_LAST_DAY_START) {
+      setState("ev_open");
+    } else if (now < EV_END) {
+      setState("ev_last");
+    } else if (now < ELECTION_DAY_START) {
+      setDaysUntil(daysBetween(now, ELECTION_DAY_START));
+      setState("final");
     } else {
       setState("election");
     }
   }, []);
 
   function dismiss() {
-    try { sessionStorage.setItem("mv_evb_runoff_dismissed", "1"); } catch {}
+    try { sessionStorage.setItem("mv_evb_general_dismissed", "1"); } catch {}
     setDismissed(true);
   }
 
   if (dismissed || state === null) return null;
 
-  /* ── shared button styles ── */
   const pillBtn = (href: string, label: string, external?: boolean) =>
     external ? (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={PILL_STYLE}
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" style={PILL_STYLE}>
         {label}
       </a>
     ) : (
@@ -107,64 +117,98 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
     </button>
   );
 
-  if (state === "pre") {
+  if (state === "register") {
+    return (
+      <Banner color={AMBER_GRAD} icon="🗳️" dismiss={dismissBtn}>
+        <strong style={{ color: "#fff" }}>
+          Register to vote by Oct 5 — {daysUntil} day{daysUntil !== 1 ? "s" : ""} left
+        </strong>
+        {!compact && (
+          <Sub>November 3 General Election · Not registered, or moved? Fix it before the Oct 5 deadline.</Sub>
+        )}
+        <Actions>
+          {pillBtn(REGISTER_URL, "Register to vote ↗", true)}
+          {pillBtn(MVP_URL, "Check my registration ↗", true)}
+        </Actions>
+      </Banner>
+    );
+  }
+
+  if (state === "reg_last_day") {
+    return (
+      <Banner color={RED_GRAD} icon="⚠️" dismiss={dismissBtn}>
+        <strong style={{ color: "#fff" }}>
+          Today is the LAST day to register to vote
+        </strong>
+        {!compact && (
+          <Sub>November 3 General Election · Register online by 11:59pm tonight to be eligible.</Sub>
+        )}
+        <Actions>
+          {pillBtn(REGISTER_URL, "Register now ↗", true)}
+        </Actions>
+      </Banner>
+    );
+  }
+
+  if (state === "pre_ev") {
     return (
       <Banner color={AMBER_GRAD} icon="🗳️" dismiss={dismissBtn}>
         <strong style={{ color: "#fff" }}>
           Early voting opens in {daysUntil} day{daysUntil !== 1 ? "s" : ""}
         </strong>
         {!compact && (
-          <Sub>June 16 Runoff · Early voting starts June 6–8 depending on county · ends June 12</Sub>
+          <Sub>November 3 General Election · Early voting runs Oct 13–30 · Review your ballot now.</Sub>
         )}
         <Actions>
-          {pillBtn("/elections", "See what's on the ballot")}
+          {pillBtn("/elections", "See what's on my ballot")}
+          {pillBtn(MVP_URL, "Check my registration ↗", true)}
         </Actions>
       </Banner>
     );
   }
 
-  if (state === "open") {
+  if (state === "ev_open") {
     return (
       <Banner color={TEAL_GRAD} icon="✅" dismiss={dismissBtn}>
         <strong style={{ color: "#fff" }}>Early voting is NOW OPEN</strong>
         {!compact && (
-          <Sub>June 16 Runoff · Ends Friday, June 12 · Hours vary by county — check mvp.sos.ga.gov</Sub>
+          <Sub>November 3 General Election · Vote through Oct 30 at any early-voting site in your county · hours vary — check mvp.sos.ga.gov</Sub>
         )}
         <Actions>
-          {pillBtn("https://mvp.sos.ga.gov", "Find my polling place ↗", true)}
+          {pillBtn(MVP_URL, "Find my polling place ↗", true)}
           {pillBtn("/elections", "My ballot")}
         </Actions>
       </Banner>
     );
   }
 
-  if (state === "last_day") {
+  if (state === "ev_last") {
     return (
       <Banner color={RED_GRAD} icon="⚠️" dismiss={dismissBtn}>
         <strong style={{ color: "#fff" }}>
           Last day of early voting — vote today
         </strong>
         {!compact && (
-          <Sub>June 16 Runoff · Early voting ends today — most county sites close at 7pm · check your county&rsquo;s hours</Sub>
+          <Sub>November 3 General Election · Early voting ends today · or vote on Election Day, Nov 3, 7am–7pm</Sub>
         )}
         <Actions>
-          {pillBtn("https://mvp.sos.ga.gov", "Find my polling place ↗", true)}
+          {pillBtn(MVP_URL, "Find my polling place ↗", true)}
         </Actions>
       </Banner>
     );
   }
 
-  if (state === "final_days") {
+  if (state === "final") {
     return (
       <Banner color={RED_GRAD} icon="🔴" dismiss={dismissBtn}>
         <strong style={{ color: "#fff" }}>
-          June 16 Runoff — {daysUntil} day{daysUntil !== 1 ? "s" : ""} away
+          Election Day is {daysUntil} day{daysUntil !== 1 ? "s" : ""} away
         </strong>
         {!compact && (
-          <Sub>Early voting is over · Election Day polls open 7am–7pm</Sub>
+          <Sub>November 3 · Early voting is over · Polls open 7am–7pm · Bring photo ID</Sub>
         )}
         <Actions>
-          {pillBtn("https://mvp.sos.ga.gov", "Check my registration ↗", true)}
+          {pillBtn(MVP_URL, "Find my polling place ↗", true)}
           {pillBtn("/elections", "Review my ballot")}
         </Actions>
       </Banner>
@@ -178,10 +222,10 @@ export function EarlyVotingBanner({ compact = false }: { compact?: boolean }) {
         Today is Election Day — go vote!
       </strong>
       {!compact && (
-        <Sub>June 16 Runoff · Polls open 7am–7pm · Photo ID required</Sub>
+        <Sub>November 3 General Election · Polls open 7am–7pm · Photo ID required · in line by 7pm = you can vote</Sub>
       )}
       <Actions>
-        {pillBtn("https://mvp.sos.ga.gov", "Find my polling place ↗", true)}
+        {pillBtn(MVP_URL, "Find my polling place ↗", true)}
       </Actions>
     </Banner>
   );
