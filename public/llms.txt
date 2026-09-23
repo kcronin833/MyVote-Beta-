@@ -1,0 +1,16 @@
+# MyVote
+
+> MyVote (myvotega.com) is a free, nonpartisan civic platform for Georgia voters. It offers balanced political news — every major story presented from the left, center, and right with one neutral, fact-first summary and no opinion pieces — plus a personalized ballot by ZIP code and nonpartisan voter guides. Independently funded: no PAC money, no political advertisers.
+
+## Unbiased / balanced / neutral news
+- [Unbiased news in Georgia](https://www.myvotega.com/unbiased-news-georgia): How MyVote shows each story's left, center, and right coverage side by side under one neutral summary — a free, nonpartisan balanced-news alternative to AllSides and Ground News, with a Georgia focus.
+- [News feed](https://www.myvotega.com/news): The day's political stories, each with a neutral summary and the full left/center/right source spectrum. No opinion pieces.
+
+## Voting & elections (Georgia, Nov 3, 2026 general)
+- [How to vote in Georgia](https://www.myvotega.com/how-to-vote-georgia): Registration deadline (October 5, 2026), photo ID rules, early voting (October 13–30, 2026), absentee/mail-in voting, and finding your polling place.
+- [Georgia voter FAQ](https://www.myvotega.com/georgia-voter-faq): Verified answers to common Georgia voting questions.
+- [2026 elections & key dates](https://www.myvotega.com/elections): Races on the November 3, 2026 ballot — Governor, U.S. Senate, all 14 U.S. House seats, and local offices.
+- [Register to vote](https://www.myvotega.com/register): Georgia registration and key-date tracker.
+
+## About
+- [About MyVote](https://www.myvotega.com/about): Nonpartisan, independently funded, not affiliated with any party, campaign, or government entity.
