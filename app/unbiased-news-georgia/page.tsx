@@ -140,6 +140,24 @@ export default function UnbiasedNewsGeorgiaPage() {
           </p>
         </Section>
 
+        <Section id="fact-ledger" heading="The Fact Ledger: our just-the-facts format">
+          <p style={{ margin: "0 0 10px" }}>
+            Most balanced-news tools stop at showing you the spectrum. MyVote goes
+            one step further: every story is broken into a <strong>Fact Ledger</strong> that
+            separates verified fact from spin, so you can see what's actually known.
+          </p>
+          <ul style={{ margin: "0 0 4px", paddingLeft: 18, lineHeight: 1.8 }}>
+            <li><strong>What happened</strong> — the event, stripped of adjectives</li>
+            <li><strong>What all sides agree on</strong> — the shared, verifiable facts</li>
+            <li><strong>Where the framing differs</strong> — how left and right characterize it</li>
+            <li><strong>What's still unknown</strong> — the honest, unresolved gaps</li>
+          </ul>
+          <p style={{ margin: "10px 0 0" }}>
+            It's built only from what the sources reported — no added interpretation.
+            That's what &ldquo;just the facts&rdquo; actually looks like.
+          </p>
+        </Section>
+
         <Section id="nonpartisan" heading="Why it's genuinely nonpartisan">
           <p style={{ margin: 0 }}>
             MyVote is not affiliated with any political party, candidate, campaign,

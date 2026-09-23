@@ -40,10 +40,17 @@ interface ArticleEntry {
   lean: number;
   lean_label: string;
 }
+interface FactLedger {
+  what_happened?: string;
+  shared_facts?: string;
+  where_they_differ?: string;
+  unresolved?: string;
+}
 interface Story {
   id: string;
   headline: string;
   synopsis: string;
+  fact_ledger: FactLedger | null;
   article_data: ArticleEntry[];
   lean_min: number;
   lean_max: number;
@@ -60,7 +67,7 @@ function db() {
 async function getStory(id: string): Promise<Story | null> {
   const { data } = await db()
     .from("clustered_stories")
-    .select("id, headline, synopsis, article_data, lean_min, lean_max, created_at")
+    .select("id, headline, synopsis, fact_ledger, article_data, lean_min, lean_max, created_at")
     .eq("id", id)
     .maybeSingle();
   return (data as Story) ?? null;
@@ -243,6 +250,49 @@ export default async function StoryPage({
           reporting, read the originals — we always link out.
         </p>
       </div>
+
+      {/* Fact Ledger — the just-the-facts breakdown: separates the verified
+          event and shared facts from where the framing differs, and names
+          what's still unknown. MyVote's signature neutral-news format. */}
+      {(() => {
+        const fl = story.fact_ledger;
+        if (!fl) return null;
+        const rows: { label: string; body?: string; color: string }[] = [
+          { label: "What happened", body: fl.what_happened, color: C.ink900 },
+          { label: "What all sides agree on", body: fl.shared_facts, color: C.center },
+          { label: "Where the framing differs", body: fl.where_they_differ, color: C.right },
+          { label: "What's still unknown", body: fl.unresolved, color: C.ink400 },
+        ].filter((r) => r.body && r.body.length > 0);
+        if (rows.length === 0) return null;
+        return (
+          <div
+            style={{
+              background: C.card,
+              border: `1px solid ${C.rule}`,
+              borderRadius: 12,
+              boxShadow: "0 2px 10px rgba(20,24,40,0.07), 0 1px 2px rgba(20,24,40,0.04)",
+              padding: "18px 20px",
+              margin: "0 0 18px",
+            }}
+          >
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: C.ink400, margin: "0 0 14px" }}>
+              The Fact Ledger
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {rows.map((r) => (
+                <div key={r.label} style={{ borderLeft: `3px solid ${r.color}`, paddingLeft: 12 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900, margin: "0 0 3px" }}>{r.label}</p>
+                  <p style={{ fontSize: 14, color: C.ink700, lineHeight: 1.6, margin: 0 }}>{r.body}</p>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11.5, color: C.ink400, margin: "14px 0 0", lineHeight: 1.5 }}>
+              Built only from what the sources below actually reported — no added
+              interpretation, and we name what&rsquo;s still unresolved.
+            </p>
+          </div>
+        );
+      })()}
 
       {/* On your ballot — link mentioned candidates back to their profiles. */}
       {mentioned.length > 0 && (

@@ -10,10 +10,34 @@ interface ArticleRow {
   source: { name: string; domain: string; lean: number; lean_label: string }
 }
 
+interface FactLedger {
+  what_happened: string
+  shared_facts: string
+  where_they_differ: string
+  unresolved: string
+}
+
 interface ClusterResult {
   headline: string
   synopsis: string
+  fact_ledger?: FactLedger
   article_indices: number[]
+}
+
+/* Keep only the four expected string fields, trimmed. Returns null if the
+   model produced nothing usable, so the story falls back to the synopsis. */
+function sanitizeLedger(raw: unknown): FactLedger | null {
+  if (!raw || typeof raw !== "object") return null
+  const r = raw as Record<string, unknown>
+  const str = (v: unknown) => (typeof v === "string" ? v.trim() : "")
+  const ledger: FactLedger = {
+    what_happened: str(r.what_happened),
+    shared_facts: str(r.shared_facts),
+    where_they_differ: str(r.where_they_differ),
+    unresolved: str(r.unresolved),
+  }
+  const hasContent = Object.values(ledger).some((v) => v.length > 0)
+  return hasContent ? ledger : null
 }
 
 async function clusterWithClaude(articles: ArticleRow[]): Promise<ClusterResult[]> {
@@ -33,6 +57,12 @@ Rules:
 - SKIP any sports, entertainment, celebrity, lifestyle, food, travel, or purely business/finance stories — do not cluster them even if 2+ articles cover the same game or show
 - Write a SHORT neutral headline (10 words max) for each cluster
 - Write a neutral factual synopsis (2-3 sentences, no political spin)
+- Write a "fact_ledger" — a just-the-facts breakdown with four short parts:
+    * what_happened: the core event in 1-2 plain sentences, no adjectives or interpretation
+    * shared_facts: the concrete points the sources agree on regardless of lean (names, actions, timing). 1-2 sentences.
+    * where_they_differ: how the framing or emphasis differs between the left-leaning and right-leaning sources. 1-2 sentences.
+    * unresolved: what these headlines do NOT settle — open questions or missing context. 1 sentence.
+- CRITICAL: base the fact_ledger ONLY on the provided headlines and their sources. Do NOT invent specific numbers, quotes, dates, or details that are not present. If a part cannot be determined from the headlines, say so plainly (e.g., "The headlines don't specify.").
 - Return ONLY valid JSON — no markdown, no explanation
 
 Headlines (index, political lean -3 to +3, source):
@@ -43,6 +73,12 @@ Respond with this exact JSON format:
   {
     "headline": "Short neutral headline",
     "synopsis": "2-3 sentence neutral synopsis of the story.",
+    "fact_ledger": {
+      "what_happened": "The core event, plainly.",
+      "shared_facts": "What all sources agree on.",
+      "where_they_differ": "How left vs right frame it.",
+      "unresolved": "What the headlines don't settle."
+    },
     "article_indices": [0, 3, 7]
   }
 ]`
@@ -56,7 +92,7 @@ Respond with this exact JSON format:
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     }),
     signal: AbortSignal.timeout(45000),
@@ -104,6 +140,7 @@ export async function runCluster(supabase: SupabaseClient) {
       return {
         headline: c.headline,
         synopsis: c.synopsis,
+        fact_ledger: sanitizeLedger(c.fact_ledger),
         lean_min: Math.min(...leans),
         lean_max: Math.max(...leans),
         article_data: arts.map((a) => ({
