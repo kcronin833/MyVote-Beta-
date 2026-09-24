@@ -27,13 +27,21 @@ export interface MerchProduct {
   emoji: string;
   variantLabel?: string;
   variants?: string[];
+  /** Real product image (a full mockup sheet). When set, the card uses it
+      instead of the generated vector art. */
+  image?: string;
+  /** Display price, e.g. "$30". Coming-soon preview only — nothing sells yet. */
+  price?: string;
+  /** Feature this product at the top of the store with its full image. */
+  featured?: boolean;
 }
 
 export const MERCH_PRODUCTS: MerchProduct[] = [
   // ── Hats ──
   { slug: "classic-cap", name: "Classic Cap", category: "Hats", emoji: "🧢",
-    blurb: "The staple — structured cotton with the embroidered 2028 script.",
-    variantLabel: "Color", variants: ["Navy", "Black", "Charcoal", "Olive", "Khaki", "White", "Red"] },
+    blurb: "A clean, timeless look for a more open tomorrow — premium cotton twill, classic unstructured fit, adjustable strap, and an embroidered front.",
+    variantLabel: "Color", variants: ["Navy", "Black", "Charcoal", "Olive", "Khaki", "White", "Red"],
+    image: "/merch/classic-cap-sheet.webp", price: "$30", featured: true },
   { slug: "trucker-hat", name: "Trucker Hat", category: "Hats", emoji: "🧢",
     blurb: "Navy front, cream mesh back — classic trucker breathability." },
   { slug: "camo-cap", name: "Camo Cap", category: "Hats", emoji: "🧢",

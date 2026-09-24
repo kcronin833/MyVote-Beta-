@@ -37,6 +37,7 @@ const cardStyle: React.CSSProperties = {
 };
 
 export default function StorePage() {
+  const featured = MERCH_PRODUCTS.filter((p) => p.featured && p.image);
   return (
     <div style={{ background: C.page, minHeight: "100vh" }}>
       {/* Hero */}
@@ -65,8 +66,40 @@ export default function StorePage() {
 
       {/* Product grid, by category */}
       <div style={{ maxWidth: 1040, margin: "0 auto", padding: "36px 16px 72px" }}>
+
+        {/* Featured — real product sheets */}
+        {featured.map((p) => (
+          <section key={p.slug} style={{ marginBottom: 40 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "0 2px 14px" }}>
+              <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.ink500, margin: 0 }}>Featured</h2>
+              <div style={{ flex: 1, height: 1, background: C.rule }} />
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#fff", background: C.red, borderRadius: 999, padding: "2px 9px" }}>New</span>
+            </div>
+            <div style={{ ...cardStyle, padding: 0, overflow: "hidden", gap: 0 }}>
+              <img
+                src={p.image}
+                alt={`${p.name} — ${MERCH_COLLECTION} by ${MERCH_BRAND}: front, back and detail views`}
+                style={{ width: "100%", height: "auto", display: "block", borderBottom: `1px solid ${C.rule}` }}
+              />
+              <div style={{ padding: 18, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start", justifyContent: "space-between" }}>
+                <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: C.ink900, margin: 0 }}>{p.name}</h3>
+                    {p.price && <span style={{ fontSize: 16, fontWeight: 700, color: C.ink500 }}>{p.price}</span>}
+                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: C.ink400 }}>Coming soon</span>
+                  </div>
+                  <p style={{ fontSize: 13.5, color: C.ink500, lineHeight: 1.55, margin: "7px 0 0", maxWidth: 480 }}>{p.blurb}</p>
+                </div>
+                <div style={{ flex: "0 1 260px", minWidth: 220 }}>
+                  <InterestButton product={p} />
+                </div>
+              </div>
+            </div>
+          </section>
+        ))}
+
         {MERCH_CATEGORIES.map((cat) => {
-          const items = MERCH_PRODUCTS.filter((p) => p.category === cat);
+          const items = MERCH_PRODUCTS.filter((p) => p.category === cat && !p.featured);
           if (items.length === 0) return null;
           return (
             <section key={cat} style={{ marginBottom: 34 }}>
