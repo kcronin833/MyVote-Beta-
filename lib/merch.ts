@@ -27,12 +27,12 @@ export interface MerchProduct {
   emoji: string;
   variantLabel?: string;
   variants?: string[];
-  /** Real product image (a full mockup sheet). When set, the card uses it
-      instead of the generated vector art. */
-  image?: string;
+  /** Real product mockup sheets, one per wordmark. When present, the card
+      shows these instead of the generated vector art. */
+  sheets?: { wordmark: string; src: string }[];
   /** Display price, e.g. "$30". Coming-soon preview only — nothing sells yet. */
   price?: string;
-  /** Feature this product at the top of the store with its full image. */
+  /** Feature this product at the top of the store with its full sheet(s). */
   featured?: boolean;
 }
 
@@ -41,7 +41,8 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
   { slug: "classic-cap", name: "Classic Cap", category: "Hats", emoji: "🧢",
     blurb: "A clean, timeless look for a more open tomorrow — premium cotton twill, classic unstructured fit, adjustable strap, and an embroidered front.",
     variantLabel: "Color", variants: ["Navy", "Black", "Charcoal", "Olive", "Khaki", "White", "Red"],
-    image: "/merch/classic-cap-sheet.webp", price: "$30", featured: true },
+    sheets: [{ wordmark: "Undefined 2028", src: "/merch/classic-cap-sheet.webp" }],
+    price: "$30", featured: true },
   { slug: "trucker-hat", name: "Trucker Hat", category: "Hats", emoji: "🧢",
     blurb: "Navy front, cream mesh back — classic trucker breathability." },
   { slug: "camo-cap", name: "Camo Cap", category: "Hats", emoji: "🧢",
@@ -53,7 +54,11 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
   { slug: "rope-hat", name: "Rope Hat", category: "Hats", emoji: "🧢",
     blurb: "A clean, elevated look — modern rope detail, breathable premium performance fabric, and an adjustable snapback.",
     variantLabel: "Color", variants: ["Navy", "Black", "Charcoal", "Olive", "Khaki", "White", "Red"],
-    image: "/merch/rope-hat-sheet.webp", price: "$30", featured: true },
+    sheets: [
+      { wordmark: "Undefined 2028", src: "/merch/rope-hat-sheet.webp" },
+      { wordmark: "Undecided 2028", src: "/merch/rope-hat-undecided-sheet.webp" },
+    ],
+    price: "$30", featured: true },
   { slug: "dad-hat", name: "Dad Hat (Low Profile)", category: "Hats", emoji: "🧢",
     blurb: "Soft, unstructured, broken-in-from-day-one low-profile cap.",
     variantLabel: "Color", variants: ["Navy", "Black", "White"] },

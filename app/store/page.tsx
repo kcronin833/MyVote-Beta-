@@ -37,7 +37,7 @@ const cardStyle: React.CSSProperties = {
 };
 
 export default function StorePage() {
-  const featured = MERCH_PRODUCTS.filter((p) => p.featured && p.image);
+  const featured = MERCH_PRODUCTS.filter((p) => p.featured && p.sheets && p.sheets.length > 0);
   return (
     <div style={{ background: C.page, minHeight: "100vh" }}>
       {/* Hero */}
@@ -76,11 +76,22 @@ export default function StorePage() {
               <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#fff", background: C.red, borderRadius: 999, padding: "2px 9px" }}>New</span>
             </div>
             <div style={{ ...cardStyle, padding: 0, overflow: "hidden", gap: 0 }}>
-              <img
-                src={p.image}
-                alt={`${p.name} — ${MERCH_COLLECTION} by ${MERCH_BRAND}: front, back and detail views`}
-                style={{ width: "100%", height: "auto", display: "block", borderBottom: `1px solid ${C.rule}` }}
-              />
+              <div style={{ display: "grid", gridTemplateColumns: (p.sheets!.length > 1 ? "repeat(auto-fit, minmax(300px, 1fr))" : "1fr") }}>
+                {p.sheets!.map((s, i) => (
+                  <figure key={s.src} style={{ margin: 0, borderBottom: `1px solid ${C.rule}`, borderRight: p.sheets!.length > 1 && i % 2 === 0 ? `1px solid ${C.rule}` : undefined }}>
+                    {p.sheets!.length > 1 && (
+                      <figcaption style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: C.ink500, padding: "9px 12px 0" }}>
+                        {s.wordmark}
+                      </figcaption>
+                    )}
+                    <img
+                      src={s.src}
+                      alt={`${p.name} — ${s.wordmark} by ${MERCH_BRAND}: front, back and detail views`}
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    />
+                  </figure>
+                ))}
+              </div>
               <div style={{ padding: 18, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{ flex: "1 1 280px", minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
