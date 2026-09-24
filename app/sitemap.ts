@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/how-to-vote-georgia`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/georgia-voter-faq`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/unbiased-news-georgia`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: `${base}/ground-news-alternative`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/groups`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
     { url: `${base}/georgia-civic-groups`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/petitions`, lastModified: now, changeFrequency: "daily", priority: 0.85 },

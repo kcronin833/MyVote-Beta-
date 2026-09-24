@@ -204,7 +204,12 @@ export default function UnbiasedNewsGeorgiaPage() {
           </Link>
         </div>
 
-        <p style={{ fontSize: 12, color: C.ink400, lineHeight: 1.6, margin: "30px 0 0", textAlign: "center" }}>
+        <p style={{ fontSize: 12.5, color: C.ink500, margin: "14px 0 0", textAlign: "center" }}>
+          Comparing tools?{" "}
+          <Link href="/ground-news-alternative" style={aLink}>MyVote vs Ground News →</Link>
+        </p>
+
+        <p style={{ fontSize: 12, color: C.ink400, lineHeight: 1.6, margin: "26px 0 0", textAlign: "center" }}>
           MyVote is nonpartisan and not affiliated with any party, campaign, or government entity.
         </p>
       </div>

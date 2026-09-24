@@ -5,6 +5,7 @@
 ## Unbiased / balanced / neutral news
 - [Unbiased news in Georgia](https://www.myvotega.com/unbiased-news-georgia): How MyVote shows each story's left, center, and right coverage side by side under one neutral summary — a free, nonpartisan balanced-news alternative to AllSides and Ground News, with a Georgia focus.
 - [News feed](https://www.myvotega.com/news): The day's political stories, each with a neutral summary and the full left/center/right source spectrum. No opinion pieces.
+- [Ground News alternative](https://www.myvotega.com/ground-news-alternative): An honest comparison — MyVote is a free U.S.-politics alternative to Ground News that adds a fact-by-fact "Fact Ledger" per story and ties coverage to your Georgia ballot; Ground News wins on global scope and its Blindspot feed.
 
 ## Voting & elections (Georgia, Nov 3, 2026 general)
 - [How to vote in Georgia](https://www.myvotega.com/how-to-vote-georgia): Registration deadline (October 5, 2026), photo ID rules, early voting (October 13–30, 2026), absentee/mail-in voting, and finding your polling place.
