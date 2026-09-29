@@ -234,6 +234,7 @@ export default function GroundNewsAlternativePage() {
           </Link>
           <p style={{ fontSize: 12.5, color: C.ink500, margin: "14px 0 0" }}>
             See also:{" "}
+            <Link href="/allsides-alternative" style={aLink}>MyVote vs AllSides</Link>{" · "}
             <Link href="/unbiased-news-georgia" style={aLink}>unbiased news in Georgia</Link>.
           </p>
         </div>

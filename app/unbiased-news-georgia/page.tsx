@@ -206,7 +206,8 @@ export default function UnbiasedNewsGeorgiaPage() {
 
         <p style={{ fontSize: 12.5, color: C.ink500, margin: "14px 0 0", textAlign: "center" }}>
           Comparing tools?{" "}
-          <Link href="/ground-news-alternative" style={aLink}>MyVote vs Ground News →</Link>
+          <Link href="/ground-news-alternative" style={aLink}>MyVote vs Ground News</Link>{" · "}
+          <Link href="/allsides-alternative" style={aLink}>MyVote vs AllSides</Link>
         </p>
 
         <p style={{ fontSize: 12, color: C.ink400, lineHeight: 1.6, margin: "26px 0 0", textAlign: "center" }}>

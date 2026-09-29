@@ -30,13 +30,13 @@ export async function generateMetadata({
   const found = getCandidateBySlug(slug);
   if (!found) return { title: "Candidate not found" };
   const { candidate, race } = found;
-  const desc = candidate.bio.slice(0, 200);
+  const desc = `${candidate.name} — ${candidate.party} candidate for ${race.office} in Georgia's 2026 election. ${candidate.bio.slice(0, 150)}`.trim();
   return {
-    title: `${candidate.name} · ${race.office}`,
+    title: `${candidate.name} — ${race.office}, 2026`,
     description: desc,
     alternates: { canonical: `/elections/candidate/${slug}` },
     openGraph: {
-      title: `${candidate.name} — ${candidate.party} · ${race.office}`,
+      title: `${candidate.name} — ${candidate.party} · ${race.office} (2026)`,
       description: desc,
     },
   };
