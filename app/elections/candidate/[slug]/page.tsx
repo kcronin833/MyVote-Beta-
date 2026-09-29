@@ -435,7 +435,7 @@ export default async function CandidatePage({
               Stay informed on {race.office.split("(")[0].trim()}
             </div>
             <p style={{ fontSize: 12, color: C.ink500, lineHeight: 1.5, margin: "0 0 12px" }}>
-              Read how this race is covered across the political spectrum.
+              Read how this race is covered across the spectrum — and connect with other Georgia voters.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <Link
@@ -475,6 +475,26 @@ export default async function CandidatePage({
                 }}
               >
                 <span>📍 Local Georgia news</span>
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/groups"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8,
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  background: C.tealSoft,
+                  border: `1px solid ${C.tealBorder}`,
+                  color: C.tealDk,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                <span>👥 Connect with local voters</span>
                 <span aria-hidden>→</span>
               </Link>
             </div>

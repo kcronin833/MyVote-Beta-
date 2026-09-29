@@ -36,15 +36,15 @@ export async function generateMetadata({
     (found.congressionalRace ? 1 : 0) +
     found.countyRaces.length;
 
-  const title = `${found.name} County, GA — 2026 Ballot & Voting Guide`;
-  const description = `See every 2026 race on the ballot in ${found.name} County, Georgia (${found.congressionalDistrict}) — governor, U.S. House, statewide and local offices. ${raceCount} races, candidates, key issues, and voting deadlines.`;
+  const title = `${found.name} County, GA Elections 2026 — Ballot & Voting Guide`;
+  const description = `Your guide to the 2026 elections in ${found.name} County, Georgia (${found.congressionalDistrict}) — every race on the ballot: governor, U.S. House, statewide and local offices. ${raceCount} races, candidates, key issues, and voting deadlines.`;
 
   return {
     title,
     description,
     alternates: { canonical: `/g/${found.slug}` },
     openGraph: {
-      title: `${found.name} County, GA — 2026 Ballot`,
+      title: `${found.name} County, GA Elections 2026 — Ballot Guide`,
       description,
       type: "website",
     },
@@ -309,39 +309,49 @@ export default async function CountyPage({
             blurb={`You found your ${name} County ballot. We’ll email you once before each 2026 Georgia election — registration deadline, early voting, and election day. No spam, never sold.`}
           />
 
+          {/* Compact cross-pillar teaser — seen high, before ballot-finders
+              bounce. Full news + community bridges sit below the races. */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 14px", background: C.tealSoft, border: `1px solid ${C.tealBorder}`, borderRadius: 10, padding: "10px 14px" }}>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink900 }}>More than your ballot:</span>
+            <Link href="/news" style={{ fontSize: 12.5, fontWeight: 600, color: C.tealDk, textDecoration: "none" }}>📰 The news, every side →</Link>
+            <Link href={`/groups/county/${found.slug}`} style={{ fontSize: 12.5, fontWeight: 600, color: C.tealDk, textDecoration: "none" }}>👥 Your {name} community →</Link>
+          </div>
+
           {/* CRITICAL accuracy guardrail: the race list below is our 2026
               tracker (general election preview + statewide runoffs we cover).
               It is NOT the voter's actual June 16 runoff ballot — runoff
               ballots are county- and party-specific and may include local
               runoffs we don't track. Route runoff voters to the authoritative
               SoS sample ballot rather than implying completeness. */}
-          <div
-            style={{
-              background: "#FFF7ED",
-              border: "1px solid #FDBA74",
-              borderRadius: 12,
-              padding: "14px 16px",
-            }}
-            role="note"
-          >
-            <p style={{ fontSize: 13.5, fontWeight: 700, color: "#9A3412", margin: "0 0 4px" }}>
-              Voting in the June 16 runoff?
-            </p>
-            <p style={{ fontSize: 13, color: "#7C2D12", lineHeight: 1.55, margin: "0 0 8px" }}>
-              Runoff ballots differ by county and by which primary you voted in,
-              and may include local runoff races not listed below. The races on
-              this page are MyVote&rsquo;s 2026 election tracker — not your exact
-              runoff ballot.
-            </p>
-            <a
-              href="https://mvp.sos.ga.gov"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontSize: 13, fontWeight: 700, color: "#9A3412", textDecoration: "underline", textUnderlineOffset: 3 }}
+          {runoffRaces.length > 0 && (
+            <div
+              style={{
+                background: "#FFF7ED",
+                border: "1px solid #FDBA74",
+                borderRadius: 12,
+                padding: "14px 16px",
+              }}
+              role="note"
             >
-              See your official sample ballot on the GA My Voter Page ↗
-            </a>
-          </div>
+              <p style={{ fontSize: 13.5, fontWeight: 700, color: "#9A3412", margin: "0 0 4px" }}>
+                Voting in the June 16 runoff?
+              </p>
+              <p style={{ fontSize: 13, color: "#7C2D12", lineHeight: 1.55, margin: "0 0 8px" }}>
+                Runoff ballots differ by county and by which primary you voted in,
+                and may include local runoff races not listed below. The races on
+                this page are MyVote&rsquo;s 2026 election tracker — not your exact
+                runoff ballot.
+              </p>
+              <a
+                href="https://mvp.sos.ga.gov"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 13, fontWeight: 700, color: "#9A3412", textDecoration: "underline", textUnderlineOffset: 3 }}
+              >
+                See your official sample ballot on the GA My Voter Page ↗
+              </a>
+            </div>
+          )}
 
           {/* ── Election 1: June 16 runoff (auto-retires after election day) ── */}
           {runoffRaces.length > 0 && (

@@ -309,6 +309,28 @@ export default function ElectionsPage() {
             </div>
           </div>
 
+          {/* Community bridge — funnel ballot-focused visitors into the social
+              side (groups + petitions), the retention half of the product. */}
+          <div style={{ ...cardStyle(), background: C.tealSoft, border: `1px solid ${C.tealBorder}`, padding: "18px 20px", marginTop: 4 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: C.tealDk, margin: "0 0 6px" }}>
+              Your neighbors are organizing
+            </p>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 21, fontWeight: 600, color: C.ink900, margin: "0 0 7px", letterSpacing: -0.2 }}>
+              Don&rsquo;t just vote — get involved
+            </h2>
+            <p style={{ fontSize: 13.5, color: "#3D435A", lineHeight: 1.55, margin: "0 0 14px" }}>
+              Join or start a group on the local issues that matter — school boards, zoning, county commissions — and see how your officials actually vote, year-round.
+            </p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link href="/groups" style={{ background: C.ink900, color: "#fff", fontWeight: 700, fontSize: 13.5, padding: "10px 18px", borderRadius: 999, textDecoration: "none" }}>
+                Find your community →
+              </Link>
+              <Link href="/petitions" style={{ background: "#fff", color: C.ink900, fontWeight: 600, fontSize: 13.5, padding: "10px 18px", borderRadius: 999, textDecoration: "none", border: `1px solid ${C.tealBorder}` }}>
+                Start a petition →
+              </Link>
+            </div>
+          </div>
+
           {/* Voting rules */}
           <SectionHeading label="Georgia voting rules" count={VOTING_RULES.length} />
           <div
