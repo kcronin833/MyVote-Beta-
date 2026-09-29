@@ -5,7 +5,12 @@ import { getSiteUrl } from "@/lib/site-url";
    index. Points crawlers at the sitemap so the county pages get discovered. */
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl();
-  const publicDisallow = ["/api/", "/auth/", "/profile/", "/settings"];
+  // Keep crawl budget on real pages: block private surfaces, and the
+  // auto-generated OG image routes (Google was crawling hundreds of
+  // /.../opengraph-image URLs and marking them "crawled - not indexed",
+  // starving the news/group pages of index budget). Social scrapers fetch
+  // og:image directly and ignore robots, so link previews are unaffected.
+  const publicDisallow = ["/api/", "/auth/", "/profile/", "/settings", "/*/opengraph-image"];
   // Explicitly welcome AI answer-engine crawlers (GPTBot, ClaudeBot,
   // PerplexityBot, Google-Extended, etc.). The wildcard already allows them,
   // but naming them signals "cite this" unambiguously — we WANT to be a source
