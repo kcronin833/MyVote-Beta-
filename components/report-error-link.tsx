@@ -9,6 +9,8 @@ export function ReportErrorLink({ refPath }: { refPath: string }) {
   return (
     <Link
       href={`/contact?topic=correction&ref=${encodeURIComponent(refPath)}`}
+      rel="nofollow"
+      prefetch={false}
       style={{
         display: "inline-flex",
         alignItems: "center",
