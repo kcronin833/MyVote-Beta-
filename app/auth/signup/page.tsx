@@ -44,6 +44,7 @@ const selectStyle: React.CSSProperties = {
 
 export default function SignUpPage() {
   const { signUp } = useAuth()
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -71,14 +72,22 @@ export default function SignUpPage() {
     }
 
     setLoading(true)
-    const { error } = await signUp(form.email, form.password, form.username, form.displayName, form.location, form.politicalLean)
-    setLoading(false)
+    const { error, confirmed } = await signUp(form.email, form.password, form.username, form.displayName, form.location, form.politicalLean)
 
     if (error) {
+      setLoading(false)
       setError(error)
-    } else {
-      setSuccess(true)
+      return
     }
+    if (confirmed) {
+      // Email confirmation is off — the user is already signed in. Send them
+      // straight into the app instead of a dead-end "check your email" screen.
+      router.push("/")
+      return
+    }
+    // Confirmation required — show the check-your-email prompt.
+    setLoading(false)
+    setSuccess(true)
   }
 
   const card = (

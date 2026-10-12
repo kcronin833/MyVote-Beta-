@@ -35,7 +35,7 @@ interface AuthContextType {
     displayName: string,
     location?: string,
     politicalLean?: string
-  ) => Promise<{ error: string | null }>;
+  ) => Promise<{ error: string | null; confirmed: boolean }>;
   signIn: (
     email: string,
     password: string
@@ -120,13 +120,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq("username", username)
       .maybeSingle();
 
-    if (existing) return { error: "Username already taken" };
+    if (existing) return { error: "Username already taken", confirmed: false };
 
     const redirectTo =
       process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
       `${window.location.origin}/auth/callback`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -140,7 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    return { error: error?.message ?? null };
+    // When email confirmation is OFF, Supabase returns a live session and the
+    // user is already signed in — no "check your email" step. When it's ON,
+    // session is null and the caller shows the confirmation prompt.
+    return { error: error?.message ?? null, confirmed: !!data?.session };
   }
 
   async function signIn(email: string, password: string) {
